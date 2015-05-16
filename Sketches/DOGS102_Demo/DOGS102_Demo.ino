@@ -21,7 +21,8 @@
 dog_1701 DOG;
 
 //the following port definitions are used by our demo board "EA PCBARDDOG7565"
-int led       = 3;
+//int led       = 3;
+int led       = 6;
 int led_green = 5;
 int led_red   = 3;
 void init_backlight(boolean mono);
@@ -55,14 +56,20 @@ void sample_screen(void)
 //main loop
 void loop()
 {
-  mono_backlight(255);    //BL full brightness
   DOG.view(VIEW_BOTTOM);  //default viewing direction
   sample_screen();        //show content
-  delay(2000);
-  mono_backlight(128);    //BL full brightness
+#if 0
+  mono_backlight(255);    //BL full brightness
+  delay(1000);
   DOG.view(VIEW_TOP);    //alternate viewing direction
   sample_screen();
-  delay(2000);
+  delay(1000);
+#endif
+  for (int sPercentBrightness= 100; sPercentBrightness >= 0; sPercentBrightness -= 25) {
+   mono_backlight((sPercentBrightness * 255) / 100);    //BL full brightness
+   delay(1000);
+  }   //for
+  delay(1000);
 }
 
 //The following functions controll the backlight with a PWM. Not needed for the display content
