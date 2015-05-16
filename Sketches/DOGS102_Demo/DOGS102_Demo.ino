@@ -37,6 +37,8 @@ void setup()
 {
   init_backlight(true); //use RGB backlight in this sample code. Please change it to your configuration
   DOG.initialize(10,0,0,9,4,DOGS102);   //SS = 10, 0,0= use Hardware SPI, 9 = A0, 4 = RESET, EA DOGS102-6 (=102x64 dots)
+
+  DOG.view(VIEW_BOTTOM);  //default viewing direction
 }
 
 //create a sample sceen content
@@ -44,13 +46,19 @@ void sample_screen(void)
 {
   DOG.clear();  //clear whole display
   DOG.picture(0,0,ea_logo);
-  DOG.string(71,0,font_8x16,"DOGS");      //font size 8x16 first page
+  //DOG.string(71,0,font_8x16,"DOGS");      //font size 8x16 first page
+  DOG.string(71,0,font_8x16,"Tuna");      //font size 8x16 first page
   DOG.rectangle(71,2,127,2,0x03);              //show small line (filled pattern = 0x03), to the left and right of 'DOGL128'
-  DOG.string(0,3,font_6x8,"-3.3V single sup.");
-  DOG.string(0,4,font_6x8,"-UC1701");
-  DOG.string(0,5,font_6x8,"-LED backlights");
-  DOG.string(0,6,font_6x8,"-extrem low power");
-  DOG.string(0,7,font_6x8,"lcd-module.com");
+  //DOG.string(0,3,font_6x8,"-3.3V single sup.");
+  //DOG.string(0,4,font_6x8,"-UC1701");
+  //DOG.string(0,5,font_6x8,"-LED backlights");
+  //DOG.string(0,6,font_6x8,"-extrem low power");
+  //DOG.string(0,7,font_6x8,"lcd-module.com");
+  DOG.string(0,4,font_6x8,"PowerShift");
+  DOG.string(10,5,font_6x8,"by ShiftE");
+  //DOG.string(0,4,font_6x8,"-DOGS102-6");
+  //DOG.string(0,6,font_6x8,"PowerShift by ShiftE");
+  DOG.string(0,7,font_6x8,"The Dude abides");
 }
 
 //main loop
