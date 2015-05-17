@@ -10,11 +10,19 @@
  04/11/15- Remove non-text items
  04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
-
-#include<MicroView.h>
+#include <Arduino.h>
+#include <SPI.h>
 #include <EasyButton.h>
 #include <Streaming.h>
 #include <Servo.h>
+
+#include <dog_1701.h>
+#include <font_16x32nums.h>
+#include <font_6x8.h>
+#include <font_8x16.h>
+#include <font_8x8.h>
+#include <logo_BLH.h>
+
 
 //Here come the const's
 //Hardcoded gear position, measured 97 to 49 degrees, first location is power-on position
@@ -41,17 +49,16 @@ static const int       sSelect               = 2;
 static const int       sFirstButton          = sUp;
 static const int       sLastButton           = sSelect;
 
-
-static const int       sDisplayWidth         = LCDWIDTH;
-static const int       sDisplayHeight        = LCDHEIGHT;
-
 static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
-static const int       sSelectButton         = A3;    //MV pin  4
-static const int       sDownButton           = A2;    //MV pin  5
-static const int       sUpButton             = A1;    //MV pin  6
-static const int       sServoPin             =  6;    //MV pin 14
+static const int       sSelectButton         = A3;
+static const int       sDownButton           = A2;
+static const int       sUpButton             = A1;
+static const int       sBacklightPin         =  6;
+static const int       sServoPin             =  7;
+static const byte      cSPICmdDataPin        =  9;
+static const byte      cSPIChipSelectPin     = 10;
 
 //Constants used locally for state in sCheckButtons
 static const int       sButtonOpen        = 0;
@@ -65,6 +72,12 @@ static const int       sMaxButtonPresses  = 10;
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
+
+//Constants for DOGS102 display.
+static const byte       cBogusResetPin      = 4;
+static const byte       cHW_SPI             = 0;      //This is what their demo used.
+static const byte       cDisplayType        = DOGS102;
+
 //End of the const's
 
 static int asGearLocation[sNumGears + 1];
@@ -75,6 +88,9 @@ static int sServoPosLast                  = 0;
 
 //Create servo object to control the servo
 Servo myservo;
+
+//Create display object fot the DOGS102-6 (102x64) display
+dog_1701 DOG;
 
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
@@ -139,9 +155,24 @@ int sDisplayText(int sCursorX, int sCursorY, char *pcText) {
 
 
 int sDisplayBegin() {
-   uView.begin();          // start MicroView
+  //SS = 10, 0,0= use Hardware SPI, 9 = A0, 4 = RESET, EA DOGS102-6 (=102x64 dots)
+  //DOG.initialize(10, 0, 0, 9, 4, DOGS102);
+  DOG.initialize(cSPIChipSelectPin, cHW_SPI, cHW_SPI, cSPICmdDataPin, cBogusResetPin, DOGS102);
+
+  DOG.view(VIEW_BOTTOM);  //default viewing direction
+  //Set backlight pin to be a PWM "analog" out pin to drive LED backlight through 15 ohm resistor.
+  pinMode(sBacklightPin,  OUTPUT);
+  sDisplaySetBrightness(255);
+
    return 1;
 }  //sDisplayBegin
+
+
+sDisplaySetBrightness(int sBrightness)
+{
+   analogWrite(sBacklightPin, sBrightness);
+   return 1;
+}  //sDisplaySetBrightness
 
 
 int sDisplayClearBuffer() {
