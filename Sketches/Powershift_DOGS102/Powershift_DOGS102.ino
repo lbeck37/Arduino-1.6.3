@@ -74,6 +74,18 @@ static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
 
 //Constants for DOGS102 display.
+static const int       sDisplayWidth        = 102;
+static const int       sDisplayHeight       = 64;
+
+static const int       sDisplayNormal       = 0xC0;
+static const int       sDisplayFlipped      = 0xC8;
+
+static const int       sBrightness100       = 255;
+static const int       sBrightness75        = 192;
+static const int       sBrightness50        = 128;
+static const int       sBrightness25        =  64;
+static const int       sBrightness0         =   0;
+
 static const byte       cBogusResetPin      = 4;
 static const byte       cHW_SPI             = 0;      //This is what their demo used.
 static const byte       cDisplayType        = DOGS102;
@@ -129,7 +141,7 @@ void setup()   {
 
   sServoInit();
 
-  sShowStartScreens();
+  sShowStartScreen();
 
   //Dither the servo once so it's position shows on the LCD.
   sServoDither(1, 1); // +/- 1 degree, once
@@ -141,92 +153,98 @@ void setup()   {
 // The Arduino loop() method gets called over and over.
 void loop() {
   sCheckButtons();
-  sDisplayUpdate();
+  //sDisplayUpdate();
   sHandleButtons();
   return;
 }  //loop()
 
 
 int sDisplayText(int sCursorX, int sCursorY, char *pcText) {
-   uView.setCursor(sCursorX, sCursorY);
-   uView.print(pcText);
+   //uView.setCursor(sCursorX, sCursorY);
+   //uView.print(pcText);
    return 1;
 }  //sDisplayText
 
 
 int sDisplayBegin() {
-  //SS = 10, 0,0= use Hardware SPI, 9 = A0, 4 = RESET, EA DOGS102-6 (=102x64 dots)
-  //DOG.initialize(10, 0, 0, 9, 4, DOGS102);
-  DOG.initialize(cSPIChipSelectPin, cHW_SPI, cHW_SPI, cSPICmdDataPin, cBogusResetPin, DOGS102);
+   //SS = 10, 0,0= use Hardware SPI, 9 = A0, 4 = RESET, EA DOGS102-6 (=102x64 dots)
+   //DOG.initialize(10, 0, 0, 9, 4, DOGS102);
+   DOG.initialize(cSPIChipSelectPin, cHW_SPI, cHW_SPI, cSPICmdDataPin, cBogusResetPin, DOGS102);
 
-  DOG.view(VIEW_BOTTOM);  //default viewing direction
-  //Set backlight pin to be a PWM "analog" out pin to drive LED backlight through 15 ohm resistor.
-  pinMode(sBacklightPin,  OUTPUT);
-  sDisplaySetBrightness(255);
+   DOG.view(sDisplayNormal);  //View screen Normal or Flipped
 
+   //Set backlight pin to be a PWM "analog" out pin
+   //Drive LED backlight through 15 ohm resistor.
+   pinMode(sBacklightPin, OUTPUT);
+   sDisplaySetBrightness(sBrightness100);
    return 1;
 }  //sDisplayBegin
 
 
-sDisplaySetBrightness(int sBrightness)
-{
+int sDisplaySetBrightness(int sBrightness){
    analogWrite(sBacklightPin, sBrightness);
    return 1;
 }  //sDisplaySetBrightness
 
 
 int sDisplayClearBuffer() {
-   uView.clear(PAGE);
+   //uView.clear(PAGE);
    return 1;
 }  //sDisplayClearBuffer
 
 
 int sDisplayRefresh() {
-   uView.display();
+   //uView.display();
    return 1;
 }  //sDisplayRefresh
 
 
 int sSetFont(int sFontType) {
+   #if 0
    uView.setFontType(sFontType);
 
    sFontNumber= sFontType;
    sFontHeight= uView.getFontHeight();
    sFontWidth = uView.getFontWidth();
-
+#endif
    return 1;
 }  //sSetFont
 
 
-int sShowStartScreens(void) {
-   char        szWelcomeText[40];
-   int         sLineNumber;   //Top line is zero
-
+int sShowStartScreen(void) {
+#if 0
+   DOG.clear();  //clear whole display
+   DOG.picture(0,0,ea_logo);
+   DOG.string(71,0,font_8x16,"Tuna");      //font size 8x16 first page
+   DOG.rectangle(71,2,127,2,0x03);        //show small line (filled pattern = 0x03)
+   DOG.string(0,4,font_6x8,"PowerShift");
+   DOG.string(10,5,font_6x8,"by ShiftE");
+   DOG.string(0,7,font_6x8,"The Dude abides");
+#endif
    sDisplayBegin();
-   sDisplayClearBuffer();
+   DOG.clear();  //clear whole display
+#if 0
+   //2 lines in big font
+   DOG.string(0,0,font_8x16,"1234567890123");
+   DOG.string(0,2,font_8x16,"1234567890123");
+#endif
+   //2 digits in big number font in top 4 lines
+   DOG.string(0,0,font_16x32nums,"99");
 
-   sSetFont(sDefaultFont);
+   //Fill in remainder of lines 0 and 1 with single line of big font
+   DOG.string(30, 0,font_8x16,"567890123");
 
-   sLineNumber = 0;
-   sCursorX    = 0;
-   sCursorY    = sLineNumber * sFontHeight;
-   sDisplayText(sCursorX, sCursorY, "PowerShift");
+   //Fill in remainder of lines 2 and 3 with single line of normal font
+   DOG.string(30,2,font_6x8,"678901234567");
+   DOG.string(30,3,font_6x8,"678901234567");
 
-   sLineNumber = 2;
-   sCursorX    = 0 * sFontWidth;
-   sCursorY    = sLineNumber * sFontHeight;
-   sDisplayText(sCursorX, sCursorY, "by");
-
-   sLineNumber = 4;
-   sCursorX    = 0 * sFontWidth;
-   sCursorY    = sLineNumber * sFontHeight;
-   sDisplayText(sCursorX, sCursorY, "ShiftE");
-
-   sDisplayRefresh();
-
-   delay(3000);
+   //4 lines in normal font
+   DOG.string(0,4,font_6x8,"12345678901234567");
+   DOG.string(0,5,font_6x8,"12345678901234567");
+   DOG.string(0,6,font_6x8,"12345678901234567");
+   DOG.string(0,7,font_6x8,"12345678901234567");
    return 1;
-}  //sShowStartScreens
+}  //sShowStartScreen
 
 
 int sDisplayUpdate(void) {
