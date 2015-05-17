@@ -25,11 +25,6 @@
 
 
 //Here come the const's
-//Hardcoded gear position, measured 97 to 49 degrees, first location is power-on position
-//static const int     asDefaultGearLocation[] = {1406, 1539, 1494, 1450, 1406, 1361, 1317, 1272};//uSec
-//static const int       asDefaultGearLocation[]= {73, 97, 89, 81, 73, 65, 57, 49};   //Degrees
-//static const int       asDefaultGearLocation[]= {66, 120, 91, 80, 66, 54, 34, 2};   //Degrees
-//static const int       asDefaultGearLocation[]= {0, 130, 94, 80, 62, 42, 28, 0};   //Degrees
 //static const int       asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};   //Degrees
 static const int       asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd  using cogs 3-9
 static const int       sServoMin             = 0;
@@ -85,6 +80,12 @@ static const int       sBrightness75        = 192;
 static const int       sBrightness50        = 128;
 static const int       sBrightness25        =  64;
 static const int       sBrightness0         =   0;
+static const int       sDefaultBrightness   = sBrightness100;
+
+static const int       sFontNormal         =   1;     //6x8
+static const int       sFontBig            =   2;     //8x16
+static const int       sFontBigNum         =   3;     //16x32nums
+static const int       sFontSquare         =   4;     //8x8
 
 static const byte       cBogusResetPin      = 4;
 static const byte       cHW_SPI             = 0;      //This is what their demo used.
@@ -112,24 +113,20 @@ EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
 
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
+static int              sButtonCountLast[]   = { 0, 0, 0};
 static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
 
-static int sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
+//State of display items being changed and needing refresh.
+static boolean     bButtonsChanged          = false;
+static boolean     bGearChanged             = false;
+static boolean     bServoChanged            = false;
 
-//Create some things for working with MicroView display
-static int         sFontNumber;
-static int         sFontHeight;
-static int         sFontWidth;
-static int         sLineNumber;
-static int         sCursorX;
-static int         sCursorY;
-static char        szShortString[10];
-static char        szValue[10];
-static char        szLineBuffer[25];
-static boolean     bClearPage             = false;       //Flag to use calling sDisplayText()
-static boolean     bDoDisplay             = false;       //Flag to use calling sDisplayText()
+static int         sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
+
+static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
+static char        sz10CharString[10];
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
@@ -138,14 +135,11 @@ void setup()   {
   Serial << "Free Ram= " << freeRam() << endl;
 
   sFillGearLocations();
-
   sServoInit();
-
   sShowStartScreen();
 
   //Dither the servo once so it's position shows on the LCD.
   sServoDither(1, 1); // +/- 1 degree, once
-
   return;
 }  //setup
 
@@ -153,32 +147,44 @@ void setup()   {
 // The Arduino loop() method gets called over and over.
 void loop() {
   sCheckButtons();
-  //sDisplayUpdate();
+  sDisplayUpdate();
   sHandleButtons();
   return;
 }  //loop()
 
 
-int sDisplayText(int sCursorX, int sCursorY, char *pcText) {
-   //uView.setCursor(sCursorX, sCursorY);
-   //uView.print(pcText);
-   return 1;
-}  //sDisplayText
-
-
 int sDisplayBegin() {
-   //SS = 10, 0,0= use Hardware SPI, 9 = A0, 4 = RESET, EA DOGS102-6 (=102x64 dots)
-   //DOG.initialize(10, 0, 0, 9, 4, DOGS102);
    DOG.initialize(cSPIChipSelectPin, cHW_SPI, cHW_SPI, cSPICmdDataPin, cBogusResetPin, DOGS102);
-
    DOG.view(sDisplayNormal);  //View screen Normal or Flipped
 
-   //Set backlight pin to be a PWM "analog" out pin
+   //Set backlight pin to be a PWM "analog" out pin.
    //Drive LED backlight through 15 ohm resistor.
    pinMode(sBacklightPin, OUTPUT);
-   sDisplaySetBrightness(sBrightness100);
+   sDisplaySetBrightness(sDefaultBrightness);
    return 1;
 }  //sDisplayBegin
+
+
+int sShowStartScreen(void) {
+   sDisplayBegin();
+   sShowSplash();
+   delay(3000);
+   return 1;
+}  //sShowStartScreen
+
+
+int sShowSplash(void) {
+   sDisplayClear();
+
+   //2 lines of big font takes lines 0-3
+   sDisplayText(0, 0, sFontBig, "PowerShift");
+   sDisplayText(2, 0, sFontBig, "  by ShiftE");
+
+   //2 lines in normal font
+   sDisplayText(5, 0, sFontNormal, "Always ride safe!");
+   sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
+   return 1;
+}  //sShowSplash
 
 
 int sDisplaySetBrightness(int sBrightness){
@@ -187,143 +193,110 @@ int sDisplaySetBrightness(int sBrightness){
 }  //sDisplaySetBrightness
 
 
-int sDisplayClearBuffer() {
-   //uView.clear(PAGE);
-   return 1;
-}  //sDisplayClearBuffer
-
-
-int sDisplayRefresh() {
-   //uView.display();
-   return 1;
-}  //sDisplayRefresh
-
-
-int sSetFont(int sFontType) {
-   #if 0
-   uView.setFontType(sFontType);
-
-   sFontNumber= sFontType;
-   sFontHeight= uView.getFontHeight();
-   sFontWidth = uView.getFontWidth();
-#endif
-   return 1;
-}  //sSetFont
-
-
-int sShowStartScreen(void) {
-   sDisplayBegin();
-   sShowFontDemo();
-   return 1;
-}  //sShowStartScreen
-
-
-int sShowFontDemo(void) {
-   DOG.clear();  //clear whole display
-
-   //2 digits in big number font in top 4 lines
-   DOG.string(0,0,font_16x32nums,"99");
-
-   //Fill in remainder of lines 0 and 1 with single line of big font
-   DOG.string(30, 0,font_8x16,"567890123");
-
-   //Fill in remainder of lines 2 and 3 with two lines of normal font
-   DOG.string(30,2,font_6x8,"678901234567");
-   DOG.string(30,3,font_6x8,"678901234567");
-
-   //4 lines in normal font
-   DOG.string(0,4,font_6x8,"12345678901234567");
-   DOG.string(0,5,font_6x8,"12345678901234567");
-   DOG.string(0,6,font_6x8,"12345678901234567");
-   DOG.string(0,7,font_6x8,"12345678901234567");
-   return 1;
-}  //sShowFontDemo
-
-
 int sDisplayUpdate(void) {
-   sDisplayClearBuffer();
-   sSetFont(0);
-   sDisplayButtons();
-   sDisplayServoPos();
-   sDisplayCurrentMode();
-   sDisplayCurrentGear();
-   sDisplayRefresh();
+   if (bScreenChanged()) {
+      Serial << "sDisplayUpdate(): Refreshing screen" << endl;
+      sDisplayClear();
+      sDisplayButtons();
+      sDisplayServoPos();
+      sDisplayCurrentGear();
+      sDisplayOdometer();
+   }  //if(bScreenChanged())
    return 1;
 }  //sDisplayUpdate
 
 
+int sDisplayClear() {
+   DOG.clear();  //clear whole display
+   return 1;
+}  //sDisplayClear
+
+
+int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
+   switch (sFont) {
+      case sFontNormal:
+         DOG.string(sPixelStart, sLineNumber, font_6x8, pcText);
+         break;
+      case sFontBig:
+         DOG.string(sPixelStart, sLineNumber, font_8x16, pcText);
+         break;
+      case sFontBigNum:
+         DOG.string(sPixelStart, sLineNumber, font_16x32nums, pcText);
+         break;
+      case sFontSquare:
+         DOG.string(sPixelStart, sLineNumber, font_8x8, pcText);
+         break;
+      default:
+         Serial << "sDisplayText(): Bad case in switch()= " << sFont << endl;
+         break;
+   }  //switch
+   return 1;
+}  //sDisplayText
+
+
+boolean bScreenChanged() {
+   //Determine if something being displayed has changed & clear the flags.
+   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged;
+   bGearChanged= bButtonsChanged= bServoChanged= false;
+   return bChanged;
+}  //bScreenChanged
+
+
 int sDisplayButtons() {
-   //Format is UDS 0 0 0 for Up, Down, Select count
-   strcpy(szLineBuffer, "UDS ");
+   //Show 3 lines at right bottom for U d, D d, S d
+   //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
+   strcpy(szLineBuffer, "U ");
+   itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   sDisplayText(5, 82, sFontNormal, szLineBuffer);
 
-   itoa(sButtonCount[sUp]  ,szShortString  , 10);
-   strcat(szLineBuffer, szShortString);
-   strcat(szLineBuffer, " ");
+   strcpy(szLineBuffer, "D ");
+   itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   sDisplayText(6, 82, sFontNormal, szLineBuffer);
 
-   itoa(sButtonCount[sDown]  ,szShortString  , 10);
-   strcat(szLineBuffer, szShortString);
-   strcat(szLineBuffer, " ");
-
-   itoa(sButtonCount[sSelect]  ,szShortString  , 10);
-   strcat(szLineBuffer, szShortString);
-   strcat(szLineBuffer, " ");
-
-   sLineNumber = 0;
-   sCursorX    = 0;
-   sCursorY    = sLineNumber * sFontHeight;
-   sDisplayText(sCursorX, sCursorY, szLineBuffer);
-
+   strcpy(szLineBuffer, "S ");
+   itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   sDisplayText(7, 82, sFontNormal, szLineBuffer);
    return 1;
 }  //sDisplayButtons
 
 
 int sDisplayCurrentGear() {
    if (sCurrentMode == sNormalMode) {
-      //Serial << "sDisplayCurrentGear(): Mode= " << sCurrentMode << endl;
-      itoa(sCurrentGear, szShortString, 10);
-      sSetFont(2);
-      //sSetFont(3);
-      sCursorX    = (sDisplayWidth - sFontWidth) / 2;
-      sCursorY    = sDisplayHeight - sFontHeight;
-      sDisplayText(sCursorX, sCursorY, szShortString);
+      itoa(sCurrentGear, sz10CharString, 10);
+      Serial << "sDisplayCurrentGear(): Mode= " << sCurrentMode
+             << ", sz10CharString= " << sz10CharString << endl;
+      sDisplayText(0, 4, sFontBigNum, sz10CharString);    //Space the first character in 4 pixels.
    }  //if (sCurrentMode..
+   else {
+      //We're in Calib mode so let's put a zero for the gear.
+      sDisplayText(0, 4, sFontBigNum, "0");    //Space the first character in 4 pixels.
+   }  //if (sCurrentMode..else
 
    return 1;
 }  //sDisplayCurrentGear
 
 
 int sDisplayServoPos() {
-   itoa(sServoPosLast, szShortString, 10);
+   itoa(sServoPosLast, sz10CharString, 10);
    strcpy(szLineBuffer, "Servo ");
-   strcat(szLineBuffer, szShortString);
-   sLineNumber = 2;
-   sCursorX    = 0;
-   sCursorY    = sLineNumber * sFontHeight;
-   sDisplayText(sCursorX, sCursorY, szLineBuffer);
+   strcat(szLineBuffer, sz10CharString);
+   //Text will end 2 pixels in from right edge when servo value is 3 digits.
+   sDisplayText(0, 28, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayServoPos
 
 
-int sDisplayCurrentMode() {
-   switch(sCurrentMode) {
-      case sNormalMode:
-         strcpy(szLineBuffer, "Norm  Mode");
-         break;   //sNormalMode
-      case sCalibMode:
-         strcpy(szLineBuffer, "Calib Mode");
-         break;   //sCalibMode
-      default:
-         strcpy(szLineBuffer, "Funky Mode");
-         Serial << "sDisplayCurrentMode(): Unexpected switch value." << endl;
-         break;
-   } //switch
-   sLineNumber = 1;
-   sCursorX    = 0;
-   sCursorY    = sLineNumber * sFontHeight;
-   sDisplayText(sCursorX, sCursorY, szLineBuffer);
+int sDisplayOdometer() {
+   strcpy(szLineBuffer, "21.50");
+   sDisplayText(5, 2, sFontBig, szLineBuffer);  //Start 2 pixels in.
 
+   strcpy(szLineBuffer, "1123.00");
+   sDisplayText(7, 2, sFontNormal, szLineBuffer);  //Start 2 pixels in.
    return 1;
-}  //sDisplayCurrentMode
+}  //sDisplayOdometer
 
 
 int sFillGearLocations(void) {
@@ -417,6 +390,7 @@ int sHandleNormalMode(void) {
          Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= "
                 << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
          sButtonCount[sButton]--;
+         bButtonsChanged= true;
       }  //if((sButtonCount[sButton]!=sHoldCode)...
     } //for
 
@@ -449,6 +423,7 @@ int sHandleCalibMode(void) {
          Serial << sLineCount++ << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
          sServoMove(sTarget);
+         bServoChanged= true;
       }  //if(sButtonCount[sButton]==sHoldCode)
 
       //if ((sButtonCount[sButton] != sHoldCode) && (sButtonCount[sButton] > 0)) {
@@ -457,6 +432,7 @@ int sHandleCalibMode(void) {
          Serial << sLineCount++ << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
          sServoMove(sTarget);
+         bServoChanged= true;
          sButtonCount[sButton]--;
       }  //if((sButtonCount[sButton]!=sHoldCode)...
     } //for
@@ -505,6 +481,7 @@ int sCheckButtons(void) {
                Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
                       << " count incremented." << endl;
                sButtonCount[sButton]++;
+               bButtonsChanged= true;
             } //if(sLocalUpButtonState!=sButtonHeld)
          }    //if(sLocalButtonState!=...
          else {
@@ -528,6 +505,7 @@ int sCheckButtons(void) {
          //sButtonCount[sButton]= sHoldCode;
          abButtonBeingHeld[sButton] = true;
          sButtonCount[sButton]      = 0;  //Clear the count
+         bButtonsChanged= true;
       }   //if(!bReturn&&UpButton.IsHold()
       bReturn= false;
    } //for (sButton= sUp...
@@ -549,6 +527,7 @@ int sServoMove(int sServoPos) {
       Serial << "sServoMove(): Move to " << sServoPos << endl;
       sServoPosLast= sServoPos;
       sServoSetPosition(sServoPos);
+      bServoChanged= true;
   }  //if(sServoPos...
   return 1;
 } //sServoMove
@@ -566,6 +545,7 @@ int sServoDither(int sDitherSize, int sNumTimes){
       sServoMove(sSecondPosition);
    }  //for(sCycle...
    sServoMove(sStartPosition);
+   bServoChanged= true;
    return 1;
 }  //sServoDither
 
