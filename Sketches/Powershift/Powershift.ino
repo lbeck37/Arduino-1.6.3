@@ -1,13 +1,7 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
- 04/26/15B- Update Servo Xmin and max to allow calib on 29er
- 04/26/15- Switch to using uSec for servo and moved servo to digital pin 6 was 3.
  04/25/15- Update to work with MicroView
  04/19/15- Implement Normal and Calibrate modes
- 04/18/15- Implement Up/Down buttons using EasyButton library
- 04/17/15- Clean up code in preparation for implementing 3-button interface
- 04/13/15- Add servo with pot code
- 04/11/15- Remove non-text items
  04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
 #include <Arduino.h>
@@ -181,9 +175,10 @@ int sShowSplash(void) {
    sDisplayText(0, 0, sFontBig, "PowerShift");
    sDisplayText(2, 0, sFontBig, "  by ShiftE");
 
-   //2 lines in normal font
+   //Lines in normal font
    sDisplayText(5, 0, sFontNormal, "Always ride safe!");
-   sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
+   //sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
+   sDisplayText(7, 0, sFontNormal, "The Dude Abides");
    return 1;
 }  //sShowSplash
 
