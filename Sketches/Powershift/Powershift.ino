@@ -17,8 +17,13 @@
 #include <font_8x8.h>
 #include <logo_BLH.h>
 
+//Defines              12345678901234567
+#define szSplashLine1 "Electic Shifting"
+#define szSplashLine2 "-Max Performance"
+#define szSplashLine3 "-Max Range"
 
-//Here come the const's
+//Here come the const's sSplashDelay
+static const int       sSplashDelay          = 5000;     //mSec that Splash screen is on
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
 static const int       sServoMin             = 0;
@@ -148,6 +153,19 @@ void loop() {
 }  //loop()
 
 
+int sDisplayUpdate(void) {
+   if (bScreenChanged()) {
+      Serial << "sDisplayUpdate(): Refreshing screen" << endl;
+      sDisplayClear();
+      //sDisplayButtons();
+      sDisplayServoPos();
+      sDisplayCurrentGear();
+      sDisplayOdometer();
+   }  //if(bScreenChanged())
+   return 1;
+}  //sDisplayUpdate
+
+
 int sDisplayBegin() {
    DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
                   cSPICmdDataPin   , cBogusResetPin, DOGS102);
@@ -163,7 +181,7 @@ int sDisplayBegin() {
 int sShowStartScreen(void) {
    sDisplayBegin();
    sShowSplash();
-   delay(3000);
+   delay(sSplashDelay);
    return 1;
 }  //sShowStartScreen
 
@@ -176,9 +194,10 @@ int sShowSplash(void) {
    sDisplayText(2, 0, sFontBig, "  by ShiftE");
 
    //Lines in normal font
-   sDisplayText(5, 0, sFontNormal, "Always ride safe!");
-   //sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
-   sDisplayText(7, 0, sFontNormal, "The Dude Abides");
+   sDisplayText(5, 0, sFontNormal, szSplashLine1);
+   sDisplayText(6, 0, sFontNormal, szSplashLine2);
+   sDisplayText(7, 0, sFontNormal, szSplashLine3);
+
    return 1;
 }  //sShowSplash
 
@@ -187,19 +206,6 @@ int sDisplaySetBrightness(int sBrightness){
    analogWrite(sBacklightPin, sBrightness);
    return 1;
 }  //sDisplaySetBrightness
-
-
-int sDisplayUpdate(void) {
-   if (bScreenChanged()) {
-      Serial << "sDisplayUpdate(): Refreshing screen" << endl;
-      sDisplayClear();
-      sDisplayButtons();
-      sDisplayServoPos();
-      sDisplayCurrentGear();
-      sDisplayOdometer();
-   }  //if(bScreenChanged())
-   return 1;
-}  //sDisplayUpdate
 
 
 int sDisplayClear() {
