@@ -212,29 +212,22 @@ int sSetFont(int sFontType) {
 
 
 int sShowStartScreen(void) {
-#if 0
-   DOG.clear();  //clear whole display
-   DOG.picture(0,0,ea_logo);
-   DOG.string(71,0,font_8x16,"Tuna");      //font size 8x16 first page
-   DOG.rectangle(71,2,127,2,0x03);        //show small line (filled pattern = 0x03)
-   DOG.string(0,4,font_6x8,"PowerShift");
-   DOG.string(10,5,font_6x8,"by ShiftE");
-   DOG.string(0,7,font_6x8,"The Dude abides");
-#endif
    sDisplayBegin();
+   sShowFontDemo();
+   return 1;
+}  //sShowStartScreen
+
+
+int sShowFontDemo(void) {
    DOG.clear();  //clear whole display
-#if 0
-   //2 lines in big font
-   DOG.string(0,0,font_8x16,"1234567890123");
-   DOG.string(0,2,font_8x16,"1234567890123");
-#endif
+
    //2 digits in big number font in top 4 lines
    DOG.string(0,0,font_16x32nums,"99");
 
    //Fill in remainder of lines 0 and 1 with single line of big font
    DOG.string(30, 0,font_8x16,"567890123");
 
-   //Fill in remainder of lines 2 and 3 with single line of normal font
+   //Fill in remainder of lines 2 and 3 with two lines of normal font
    DOG.string(30,2,font_6x8,"678901234567");
    DOG.string(30,3,font_6x8,"678901234567");
 
@@ -244,7 +237,7 @@ int sShowStartScreen(void) {
    DOG.string(0,6,font_6x8,"12345678901234567");
    DOG.string(0,7,font_6x8,"12345678901234567");
    return 1;
-}  //sShowStartScreen
+}  //sShowFontDemo
 
 
 int sDisplayUpdate(void) {
