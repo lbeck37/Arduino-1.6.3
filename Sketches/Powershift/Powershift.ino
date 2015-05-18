@@ -23,11 +23,12 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
 #include <microsmooth.h>
 
-//Defines              12345678901234567
-#define szSplashLine1 "Electic Shifting"
-#define szSplashLine2 "-Max Performance"
-#define szSplashLine3 "-Max Range"
-#define UINT16        unsigned int
+//Defines                12345678901234567
+#define szSplashLine1   "Electic Shifting"
+#define szSplashLine2   "-Max Performance"
+#define szSplashLine3   "-Max Range"
+#define UINT16          unsigned int
+#define NO_SMOOTHING
 
 //Here come the const's sSplashDelay
 static const int       sSplashDelay          = 3000;     //mSec that Splash screen is on
@@ -114,12 +115,14 @@ static const byte       cDisplayType        = DOGS102;
 static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
 
+#ifdef NO_SMOOTHING
 static int asAccelReading[]               = {0, 0, 0};
 static int asLastAccelReading[]           = {0, 0, 0};
-
+#else
 static UINT16  *pusSmoothingMemory[sNumDataTypes][sNumAxis];
 static int     asGyro             [sNumDataTypes][sNumAxis];
 static int     asGyroLast         [sNumDataTypes][sNumAxis];
+#endif
 
 static int sCurrentMode                   = sNormalMode;
 static int sServoPosLast                  = 0;
@@ -175,6 +178,7 @@ void setup() {
 
 int sSetupSmoothing() {
    Serial << sLineCount++ << " sSetupSmoothing(): Begin" << endl;
+#ifndef NO_SMOOTHING
    //Initialize memory for data smoothing and set data fields to zero.
    for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
       for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
@@ -183,6 +187,7 @@ int sSetupSmoothing() {
          asGyroLast        [sNumDataTypes][sNumAxis]  = 0;
       }  //for
    }  //for
+#endif
    Serial << sLineCount++ << " sSetupSmoothing(): End" << endl;
    return 1;
 }  //sSetupSmoothing
@@ -222,7 +227,7 @@ int sLoopI2C() {
       GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
       GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
       GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-#if 1
+#ifdef NO_SMOOTHING
       asAccelReading[sXAxis]= AcX;
       asAccelReading[sYAxis]= AcY;
       asAccelReading[sZAxis]= AcZ;
@@ -393,20 +398,29 @@ int sDisplayGyro() {
    sDisplayText(sStartLine++, sStartPixel, sFontNormal, "Accel");
 
    strcpy(szLineBuffer, "X= ");
+#ifdef NO_SMOOTHING
    itoa(asAccelReading[sXAxis]  ,sz10CharString  , 10);
-   //itoa(asGyro[sAccel][sXAxis]  ,sz10CharString  , 10);
+#else
+   itoa(asGyro[sAccel][sXAxis]  ,sz10CharString  , 10);
+#endif
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "Y= ");
+#ifdef NO_SMOOTHING
    itoa(asAccelReading[sYAxis]  ,sz10CharString  , 10);
-   //itoa(asGyro[sAccel][sYAxis]  ,sz10CharString  , 10);
+#else
+   itoa(asGyro[sAccel][sYAxis]  ,sz10CharString  , 10);
+#endif
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "Z= ");
+#ifdef NO_SMOOTHING
    itoa(asAccelReading[sZAxis]  ,sz10CharString  , 10);
-   //itoa(asGyro[sAccel][sZAxis]  ,sz10CharString  , 10);
+#else
+   itoa(asGyro[sAccel][sZAxis]  ,sz10CharString  , 10);
+#endif
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
 
