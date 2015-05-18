@@ -28,7 +28,7 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 #define szSplashLine2   "-Max Performance"
 #define szSplashLine3   "-Max Range"
 #define UINT16          unsigned int
-#define NO_SMOOTHING
+//#define NO_SMOOTHING
 
 //Here come the const's sSplashDelay
 static const int       sSplashDelay          = 3000;     //mSec that Splash screen is on
@@ -165,10 +165,12 @@ void setup() {
    Serial << "Begin setup()" << endl;
    Serial << "Free Ram= " << freeRam() << endl;
 
-   sSetupSmoothing();
+   Serial << sLineCount++ << " setup(): Call sSetupI2C()" << endl;
    sSetupI2C();
    sFillGearLocations();
    sServoInit();
+   Serial << sLineCount++ << " setup(): Call sSetupSmoothing()" << endl;
+   sSetupSmoothing();
    sShowStartScreen();
 
    //Dither the servo once so it's position shows on the LCD.
