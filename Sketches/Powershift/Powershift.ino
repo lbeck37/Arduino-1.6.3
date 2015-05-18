@@ -17,13 +17,17 @@
 #include <font_8x8.h>
 #include <logo_BLH.h>
 
+#include<Wire.h>
+const int MPU=0x68;  // I2C address of the MPU-6050
+int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+
 //Defines              12345678901234567
 #define szSplashLine1 "Electic Shifting"
 #define szSplashLine2 "-Max Performance"
 #define szSplashLine3 "-Max Range"
 
 //Here come the const's sSplashDelay
-static const int       sSplashDelay          = 5000;     //mSec that Splash screen is on
+static const int       sSplashDelay          = 3000;     //mSec that Splash screen is on
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
 static const int       sServoMin             = 0;
@@ -54,6 +58,11 @@ static const int       sServoPin             =  7;
 static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
 
+//Gyro defines
+static const int       sXAxis             = 0;
+static const int       sYAxis             = 1;
+static const int       sZAxis             = 2;
+
 //Constants used locally for state in sCheckButtons
 static const int       sButtonOpen        = 0;
 static const int       sButtonPressed     = 1;
@@ -66,6 +75,7 @@ static const int       sMaxButtonPresses  = 10;
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
+static const unsigned long    ulGyroReadTime    = 500;   //Gyro reads spaced by this.
 
 //Constants for DOGS102 display.
 static const int       sDisplayWidth        = 102;
@@ -95,6 +105,9 @@ static const byte       cDisplayType        = DOGS102;
 static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
 
+static int asAccelReading[]               = {0, 0, 0};
+static int asLastAccelReading[]           = {0, 0, 0};
+
 static int sCurrentMode                   = sNormalMode;
 static int sServoPosLast                  = 0;
 
@@ -116,12 +129,14 @@ static int              sButtonCountLast[]   = { 0, 0, 0};
 static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
+static unsigned long    ulNextGyroTime       = 0;  //msec when the gyro will be read
 
 //State of display items being changed and needing refresh.
 static boolean     bButtonsChanged          = false;
 static boolean     bGearChanged             = false;
 static boolean     bServoChanged            = false;
 static boolean     bModeChanged             = false;
+static boolean     bGyroChanged             = false;
 
 static int         sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
 
@@ -129,28 +144,80 @@ static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 norma
 static char        sz10CharString[10];
 
 // The Arduino setup() method runs once, when the sketch starts
-void setup()   {
-  Serial.begin(9600);
-  Serial << "Begin setup()" << endl;
-  Serial << "Free Ram= " << freeRam() << endl;
+void setup() {
+   Serial.begin(9600);
+   Serial << "Begin setup()" << endl;
+   Serial << "Free Ram= " << freeRam() << endl;
 
-  sFillGearLocations();
-  sServoInit();
-  sShowStartScreen();
+   sSetupI2C();
+   sFillGearLocations();
+   sServoInit();
+   sShowStartScreen();
 
-  //Dither the servo once so it's position shows on the LCD.
-  sServoDither(1, 1); // +/- 1 degree, once
-  return;
+   //Dither the servo once so it's position shows on the LCD.
+   sServoDither(1, 1); // +/- 1 degree, once
+   return;
 }  //setup
+
+
+int sSetupI2C() {
+   Wire.begin();
+   Wire.beginTransmission(MPU);
+   Wire.write(0x6B);  // PWR_MGMT_1 register
+   Wire.write(0);     // set to zero (wakes up the MPU-6050)
+   Wire.endTransmission(true);
+   return 1;
+}  //sSetupI2C
 
 
 // The Arduino loop() method gets called over and over.
 void loop() {
   sCheckButtons();
+  sLoopI2C();
   sDisplayUpdate();
   sHandleButtons();
   return;
 }  //loop()
+
+
+int sLoopI2C() {
+   if (millis() > ulNextGyroTime) {
+      Wire.beginTransmission(MPU);
+      Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+      Wire.endTransmission(false);
+      Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
+      AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
+      AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+      AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+      Tmp=Wire.read()<<8|Wire.read();  // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+      GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+      GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+      GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+
+      asAccelReading[sXAxis]= AcX;
+      asAccelReading[sYAxis]= AcY;
+      asAccelReading[sZAxis]= AcZ;
+
+      //See if any of the displayed readings have changed.
+      for (int sAxis= sXAxis; sAxis <= sZAxis; sAxis++) {
+         if (asAccelReading[sAxis] != asLastAccelReading[sAxis]) {
+            asLastAccelReading[sAxis]= asAccelReading[sAxis];
+            bGyroChanged= true;
+         }  //if(asAccelReading[sAxis]!=...
+      }  //for
+
+      Serial.print("AcX = "); Serial.print(AcX);
+      Serial.print(" | AcY = "); Serial.print(AcY);
+      Serial.print(" | AcZ = "); Serial.print(AcZ);
+      //equation for temperature in degrees C from datasheet
+      Serial.print(" | Tmp = "); Serial.print(Tmp/340.00+36.53);
+      Serial.print(" | GyX = "); Serial.print(GyX);
+      Serial.print(" | GyY = "); Serial.print(GyY);
+      Serial.print(" | GyZ = "); Serial.println(GyZ);
+      ulNextGyroTime= millis() + ulGyroReadTime;
+   }  //if (millis()>ulNextGyroTime)
+   return 1;
+}  //sLoopI2C
 
 
 int sDisplayUpdate(void) {
@@ -158,8 +225,9 @@ int sDisplayUpdate(void) {
       Serial << "sDisplayUpdate(): Refreshing screen" << endl;
       sDisplayClear();
       //sDisplayButtons();
-      sDisplayServoPos();
       sDisplayCurrentGear();
+      sDisplayServoPos();
+      sDisplayGyro();
       sDisplayOdometer();
    }  //if(bScreenChanged())
    return 1;
@@ -238,8 +306,8 @@ int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
 
 boolean bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
-   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged;
-   bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= false;
+   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged || bGyroChanged;
+   bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= bGyroChanged= false;
    return bChanged;
 }  //bScreenChanged
 
@@ -261,6 +329,33 @@ int sDisplayButtons() {
    itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(7, 82, sFontNormal, szLineBuffer);
+   return 1;
+}  //sDisplayButtons
+
+
+int sDisplayGyro() {
+   //Show 3 lines at right side for X, Y and Z acceleration
+   //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
+   int sStartPixel   =  60;
+   int sStartLine    = 2;
+
+   sDisplayText(sStartLine++, sStartPixel, sFontNormal, "Accel");
+
+   strcpy(szLineBuffer, "X= ");
+   itoa(asAccelReading[sXAxis]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
+
+   strcpy(szLineBuffer, "Y= ");
+   itoa(asAccelReading[sYAxis]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
+
+   strcpy(szLineBuffer, "Z= ");
+   itoa(asAccelReading[sZAxis]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
+
    return 1;
 }  //sDisplayButtons
 
@@ -293,10 +388,10 @@ int sDisplayServoPos() {
 
 int sDisplayOdometer() {
    strcpy(szLineBuffer, "21.50");
-   sDisplayText(5, 2, sFontBig, szLineBuffer);  //Start 2 pixels in.
+   sDisplayText(6, 2, sFontBig, szLineBuffer);  //Start 2 pixels in.
 
-   strcpy(szLineBuffer, "1123.00");
-   sDisplayText(7, 2, sFontNormal, szLineBuffer);  //Start 2 pixels in.
+   //strcpy(szLineBuffer, "1123.00");
+   //sDisplayText(7, 2, sFontNormal, szLineBuffer);  //Start 2 pixels in.
    return 1;
 }  //sDisplayOdometer
 
