@@ -17,14 +17,17 @@
 #include <font_8x8.h>
 #include <logo_BLH.h>
 
-#include<Wire.h>
-const int MPU=0x68;  // I2C address of the MPU-6050
-int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+#include <Wire.h>
+const int MPU= 0x68;  // I2C address of the MPU-6050
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+
+#include <microsmooth.h>
 
 //Defines              12345678901234567
 #define szSplashLine1 "Electic Shifting"
 #define szSplashLine2 "-Max Performance"
 #define szSplashLine3 "-Max Range"
+#define UINT16        unsigned int
 
 //Here come the const's sSplashDelay
 static const int       sSplashDelay          = 3000;     //mSec that Splash screen is on
@@ -62,6 +65,12 @@ static const byte      cSPIChipSelectPin     = 10;
 static const int       sXAxis             = 0;
 static const int       sYAxis             = 1;
 static const int       sZAxis             = 2;
+static const int       sNumAxis           = 3;
+
+static const int       sAccel             = 0;
+static const int       sRotation          = 1;
+static const int       sTemperature       = 2;
+static const int       sNumDataTypes      = 3;
 
 //Constants used locally for state in sCheckButtons
 static const int       sButtonOpen        = 0;
@@ -108,6 +117,10 @@ static int sCurrentGear                   = 2;
 static int asAccelReading[]               = {0, 0, 0};
 static int asLastAccelReading[]           = {0, 0, 0};
 
+static UINT16  *pusSmoothingMemory[sNumDataTypes][sNumAxis];
+static int     asGyro             [sNumDataTypes][sNumAxis];
+static int     asGyroLast         [sNumDataTypes][sNumAxis];
+
 static int sCurrentMode                   = sNormalMode;
 static int sServoPosLast                  = 0;
 
@@ -149,6 +162,7 @@ void setup() {
    Serial << "Begin setup()" << endl;
    Serial << "Free Ram= " << freeRam() << endl;
 
+   sSetupSmoothing();
    sSetupI2C();
    sFillGearLocations();
    sServoInit();
@@ -158,6 +172,20 @@ void setup() {
    sServoDither(1, 1); // +/- 1 degree, once
    return;
 }  //setup
+
+int sSetupSmoothing() {
+   Serial << sLineCount++ << " sSetupSmoothing(): Begin" << endl;
+   //Initialize memory for data smoothing and set data fields to zero.
+   for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+         pusSmoothingMemory[sNumDataTypes][sNumAxis]  = ms_init(SMA);
+         asGyro            [sNumDataTypes][sNumAxis]  = 0;
+         asGyroLast        [sNumDataTypes][sNumAxis]  = 0;
+      }  //for
+   }  //for
+   Serial << sLineCount++ << " sSetupSmoothing(): End" << endl;
+   return 1;
+}  //sSetupSmoothing
 
 
 int sSetupI2C() {
@@ -179,9 +207,10 @@ void loop() {
   return;
 }  //loop()
 
-
 int sLoopI2C() {
+   //Serial << sLineCount++ << " sLoopI2C(): Begin" << endl;
    if (millis() > ulNextGyroTime) {
+      Serial << sLineCount++ << " sLoopI2C(): Take reading" << endl;
       Wire.beginTransmission(MPU);
       Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
       Wire.endTransmission(false);
@@ -193,11 +222,10 @@ int sLoopI2C() {
       GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
       GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
       GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-
+#if 1
       asAccelReading[sXAxis]= AcX;
       asAccelReading[sYAxis]= AcY;
       asAccelReading[sZAxis]= AcZ;
-
       //See if any of the displayed readings have changed.
       for (int sAxis= sXAxis; sAxis <= sZAxis; sAxis++) {
          if (asAccelReading[sAxis] != asLastAccelReading[sAxis]) {
@@ -205,7 +233,6 @@ int sLoopI2C() {
             bGyroChanged= true;
          }  //if(asAccelReading[sAxis]!=...
       }  //for
-
       Serial.print("AcX = "); Serial.print(AcX);
       Serial.print(" | AcY = "); Serial.print(AcY);
       Serial.print(" | AcZ = "); Serial.print(AcZ);
@@ -214,6 +241,29 @@ int sLoopI2C() {
       Serial.print(" | GyX = "); Serial.print(GyX);
       Serial.print(" | GyY = "); Serial.print(GyY);
       Serial.print(" | GyZ = "); Serial.println(GyZ);
+#else
+      asGyro[sAccel][sXAxis]= sma_filter(AcX, pusSmoothingMemory[sAccel][sXAxis]);
+      asGyro[sAccel][sYAxis]= sma_filter(AcY, pusSmoothingMemory[sAccel][sYAxis]);
+      asGyro[sAccel][sZAxis]= sma_filter(AcZ, pusSmoothingMemory[sAccel][sZAxis]);
+
+      asGyro[sRotation][sXAxis]= sma_filter(GyX, pusSmoothingMemory[sRotation][sXAxis]);
+      asGyro[sRotation][sYAxis]= sma_filter(GyY, pusSmoothingMemory[sRotation][sYAxis]);
+      asGyro[sRotation][sZAxis]= sma_filter(GyZ, pusSmoothingMemory[sRotation][sZAxis]);
+
+      asGyro[sTemperature][sXAxis]= sma_filter(Tmp, pusSmoothingMemory[sRotation][sXAxis]);
+      asGyro[sTemperature][sYAxis]= asGyro[sTemperature][sXAxis];
+      asGyro[sTemperature][sZAxis]= asGyro[sTemperature][sXAxis];
+      //See if any of the displayed readings have changed.
+      for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
+         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+            if (asGyro[sDataType][sAxis] != asGyroLast[sDataType][sAxis]) {
+               asGyroLast[sDataType][sAxis]= asGyro[sDataType][sAxis];
+               bGyroChanged= true;
+            }  //if(asAccelReading[sAxis]!=...
+         }  //for
+      }  //for
+#endif
+
       ulNextGyroTime= millis() + ulGyroReadTime;
    }  //if (millis()>ulNextGyroTime)
    return 1;
@@ -222,7 +272,7 @@ int sLoopI2C() {
 
 int sDisplayUpdate(void) {
    if (bScreenChanged()) {
-      Serial << "sDisplayUpdate(): Refreshing screen" << endl;
+      Serial << sLineCount++ << " sDisplayUpdate(): Begin" << endl;
       sDisplayClear();
       //sDisplayButtons();
       sDisplayCurrentGear();
@@ -306,7 +356,8 @@ int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
 
 boolean bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
-   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged || bGyroChanged;
+   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged ||
+                     bModeChanged || bGyroChanged;
    bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= bGyroChanged= false;
    return bChanged;
 }  //bScreenChanged
@@ -343,16 +394,19 @@ int sDisplayGyro() {
 
    strcpy(szLineBuffer, "X= ");
    itoa(asAccelReading[sXAxis]  ,sz10CharString  , 10);
+   //itoa(asGyro[sAccel][sXAxis]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "Y= ");
    itoa(asAccelReading[sYAxis]  ,sz10CharString  , 10);
+   //itoa(asGyro[sAccel][sYAxis]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "Z= ");
    itoa(asAccelReading[sZAxis]  ,sz10CharString  , 10);
+   //itoa(asGyro[sAccel][sZAxis]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
 
