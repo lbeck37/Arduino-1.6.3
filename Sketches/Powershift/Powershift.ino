@@ -23,11 +23,17 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
 #include <microsmooth.h>
 
-//Defines                12345678901234567
-#define szSplashLine1   "Electic Shifting"
-#define szSplashLine2   "-Max Performance"
-#define szSplashLine3   "-Max Range"
-#define UINT16          unsigned int
+//Defines                   12345678901234567
+#define szSplashLine1      "Electic Shifting"
+#define szSplashLine2      "-Max Performance"
+#define szSplashLine3      "-Max Range"
+#define UINT16             unsigned int
+
+#define APPLY_SMOOTHING    false
+//#define FILTER_NAME        SMA
+//#define FILTER_FUNC        sma_filter
+#define FILTER_NAME        CMA
+#define FILTER_FUNC        cma_filter
 
 //Here come the const's sSplashDelay
 static const int       sSplashDelay          = 3000;     //mSec that Splash screen is on
@@ -79,8 +85,12 @@ static const int       sButtonClosed      = 2;
 static const int       sButtonReleased    = 3;
 static const int       sButtonHeld        = 4;
 
+static const int       s6PixelChar        =  6;    //Use this for spacing titles on the display.
 static const int       sDefaultFont       =  0;
 static const int       sMaxButtonPresses  = 10;
+
+//String constant for printing
+static const char      acXYZ[][2]          = {{'X', '\0'}, {'Y', '\0'}, {'Z', '\0'}};
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
@@ -114,7 +124,9 @@ static const byte       cDisplayType        = DOGS102;
 static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
 
+#if APPLY_SMOOTHING
 static UINT16  *pusSmoothingMemory[sNumDataTypes][sNumAxis];
+#endif
 static int     asGyro             [sNumDataTypes][sNumAxis];
 
 static int sCurrentMode                   = sNormalMode;
@@ -176,10 +188,12 @@ int sSetupSmoothing() {
    //Initialize memory for data smoothing and set data fields to zero.
    for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
       for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-         pusSmoothingMemory[sDataType][sAxis]  = ms_init(SMA);
+#if APPLY_SMOOTHING
+         pusSmoothingMemory[sDataType][sAxis]  = ms_init(FILTER_NAME);
+#endif
          asGyro            [sDataType][sAxis]  = 0;
-      }  //for
-   }  //for
+      }  //for sDataType
+   }  //for sAxis
 
    Serial << sLineCount++ << " sSetupSmoothing(): End" << endl;
    return 1;
@@ -207,7 +221,8 @@ void loop() {
 
 
 int sLoopI2C() {
-   int asGyroReading[sNumDataTypes][sNumAxis];
+   int      asGyroReading[sNumDataTypes][sNumAxis];
+   boolean  bApplySmoothing= APPLY_SMOOTHING;
 
    if (millis() > ulNextGyroTime) {
       Wire.beginTransmission(MPU);
@@ -240,10 +255,14 @@ int sLoopI2C() {
       //Apply low-pass filter to data
       for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
          for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+#if APPLY_SMOOTHING
             asGyro[sDataType][sAxis]=
-                  sma_filter(asGyroReading[sDataType][sAxis], pusSmoothingMemory[sDataType][sAxis]);
-         }  //for
-      }  //for
+                     FILTER_FUNC(asGyroReading[sDataType][sAxis], pusSmoothingMemory[sDataType][sAxis]);
+#else
+            asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
+#endif
+         }  //for sDataType
+      }  //for sAxis
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;
    }  //if (millis()>ulNextGyroTime)
@@ -367,11 +386,11 @@ int sDisplayButtons() {
 int sDisplayGyro() {
    //Show 3 lines at right side for X, Y and Z acceleration
    //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
-   int sStartPixel   =  60;
+   int sStartPixel   = 24;
    int sStartLine    = 2;
 
-   sDisplayText(sStartLine++, sStartPixel, sFontNormal, "Accel");
-
+   sDisplayText(sStartLine++, sStartPixel + s6PixelChar, sFontNormal, "Accel  Rot");
+#if 0
    strcpy(szLineBuffer, "X= ");
    itoa(asGyro[sAccel][sXAxis]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
@@ -386,7 +405,18 @@ int sDisplayGyro() {
    itoa(asGyro[sAccel][sZAxis]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
-
+#endif
+   //Format is "X 12345 12345"
+   for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+      strcpy(szLineBuffer, acXYZ[sAxis]);
+      strcat(szLineBuffer, " ");
+      itoa(asGyro[sAccel][sAxis], sz10CharString, 10);
+      strcat(szLineBuffer, sz10CharString);
+      strcat(szLineBuffer, " ");
+      itoa(asGyro[sRotation][sAxis], sz10CharString, 10);
+      strcat(szLineBuffer, sz10CharString);
+      sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
+   }  //for
    return 1;
 }  //sDisplayButtons
 
