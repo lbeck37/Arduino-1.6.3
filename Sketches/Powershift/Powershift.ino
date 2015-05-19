@@ -1,20 +1,24 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
+//#define USE_U8GLIB
+
 #include <Arduino.h>
 #include <SPI.h>
 #include <EasyButton.h>
 #include <Streaming.h>
 #include <Servo.h>
-
-#include <dog_1701.h>
-#include <font_16x32nums.h>
-#include <font_6x8.h>
-#include <font_8x16.h>
-#include <font_8x8.h>
-#include <logo_BLH.h>
-
 #include <Wire.h>
+#include <U8glib.h>
+#ifndef USE_U8GLIB
+   #include <dog_1701.h>
+   #include <font_16x32nums.h>
+   #include <font_6x8.h>
+   #include <font_8x16.h>
+   #include <font_8x8.h>
+   #include <logo_BLH.h>
+#endif
+
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
@@ -107,14 +111,16 @@ static const int       sBrightness25        =  64;
 static const int       sBrightness0         =   0;
 static const int       sDefaultBrightness   = sBrightness100;
 
-static const int       sFontNormal         =   1;     //6x8
-static const int       sFontBig            =   2;     //8x16
-static const int       sFontBigNum         =   3;     //16x32nums
-static const int       sFontSquare         =   4;     //8x8
+static const int       sFontNormal         =   1;
+static const int       sFontBig            =   2;
+static const int       sFontBigNum         =   3;
+static const int       sFontSquare         =   4;
 
-static const byte       cBogusResetPin      = 4;
-static const byte       cHW_SPI             = 0;      //This is what their demo used.
-static const byte       cDisplayType        = DOGS102;
+#ifndef USE_U8GLIB
+   static const byte      cBogusResetPin      = 4;
+   static const byte      cHW_SPI             = 0;      //This is what their demo used.
+   static const byte      cDisplayType        = DOGS102;
+#endif
 
 //End of the const's
 
@@ -129,11 +135,17 @@ static int     asGyro             [sNumDataTypes][sNumAxis];
 static int sCurrentMode                   = sNormalMode;
 static int sServoPosLast                  = 0;
 
+//*****Object creation*****
 //Create servo object to control the servo
 Servo myservo;
 
-//Create display object fot the DOGS102-6 (102x64) display
-dog_1701 DOG;
+//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
+U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+
+#ifndef USE_U8GLIB
+   //Create display object fot the DOGS102-6 (102x64) display
+   dog_1701 DOG;
+#endif
 
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
@@ -161,6 +173,14 @@ static int         sLineCount= 0;     //Used in outputs to Serial Monitor for cl
 static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char        sz10CharString[10];
 
+//Template for adding U8glib
+#ifndef USE_U8GLIB
+#endif
+
+#ifdef USE_U8GLIB
+#else
+#endif
+
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
    Serial.begin(9600);
@@ -168,17 +188,27 @@ void setup() {
    Serial << "Free Ram= " << freeRam() << endl;
 
    Serial << sLineCount++ << " setup(): Call sSetupI2C()" << endl;
+ #ifdef USE_U8GLIB
+   sSetupU8glib();
+#endif
    sSetupI2C();
    sFillGearLocations();
    sServoInit();
-   Serial << sLineCount++ << " setup(): Call sSetupSmoothing()" << endl;
    sSetupSmoothing();
+   Serial << sLineCount++ << " setup(): Call sShowStartScreen()" << endl;
    sShowStartScreen();
+   Serial << sLineCount++ << " setup(): Back from sShowStartScreen()" << endl;
 
    //Dither the servo once so it's position shows on the LCD.
    sServoDither(1, 1); // +/- 1 degree, once
    return;
 }  //setup
+
+
+int sSetupU8glib() {
+   u8g.setColorIndex(1);
+}  //sSetupU8glib
+
 
 int sSetupSmoothing() {
    Serial << sLineCount++ << " sSetupSmoothing(): Begin" << endl;
@@ -267,7 +297,29 @@ int sLoopI2C() {
 }  //sLoopI2C
 
 
+int sU8glibDisplayUpdate(void) {
+  // picture loop
+  u8g.firstPage();
+  do {
+    sDisplayObjects();
+  } while( u8g.nextPage() );
+
+  // rebuild the picture after some delay
+  delay(50);
+}  //sU8glibDisplayUpdate
+
+
 int sDisplayUpdate(void) {
+#ifdef USE_U8GLIB
+   sU8glibDisplayUpdate();
+#else
+   sDisplayObjects();
+#endif
+   return 1;
+}  //sDisplayUpdate
+
+
+int sDisplayObjects(void) {
    if (bScreenChanged()) {
       sDisplayClear();
       //sDisplayButtons();
@@ -277,13 +329,15 @@ int sDisplayUpdate(void) {
       sDisplayOdometer();
    }  //if(bScreenChanged())
    return 1;
-}  //sDisplayUpdate
+}  //sDisplayObjects
 
 
 int sDisplayBegin() {
+#ifndef USE_U8GLIB
    DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
                   cSPICmdDataPin   , cBogusResetPin, DOGS102);
    DOG.view(sDisplayNormal);  //View screen Normal or Flipped
+#endif
    //Set backlight pin to be a PWM "analog" out pin.
    //Drive LED backlight through 15 ohm resistor.
    pinMode(sBacklightPin, OUTPUT);
@@ -293,7 +347,9 @@ int sDisplayBegin() {
 
 
 int sShowStartScreen(void) {
+   Serial << sLineCount++ << " sShowStartScreen(): Call sDisplayBegin()" << endl;
    sDisplayBegin();
+   Serial << sLineCount++ << " sShowStartScreen(): Call sShowSplash()" << endl;
    sShowSplash();
    delay(sSplashDelay);
    return 1;
@@ -329,6 +385,37 @@ int sDisplayClear() {
 
 
 int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
+#ifdef USE_U8GLIB
+   int sXpixel= sPixelStart;
+   int sYpixel= (sLineNumber * 8) -1;
+
+   switch (sFont) {
+      case sFontNormal:
+         u8g.setFont(u8g_font_5x7);
+         break;
+      case sFontBig:
+         u8g.setFont(u8g_font_fub11r);
+         break;
+      case sFontBigNum:
+         break;
+         u8g.setFont(u8g_font_fub35n);
+      case sFontSquare:
+         break;
+      default:
+         Serial << "sDisplayText(): Bad case in switch()= " << sFont << endl;
+         break;
+   }  //switch
+
+   u8g.drawStr( sXpixel, sYpixel, pcText);
+#else
+   sDisplayText(sLineNumber, sPixelStart, sFont, pcText);
+#endif
+   return 1;
+}  //sDisplayText
+
+
+#ifndef USE_U8GLIB
+int sDisplayDOGText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
    switch (sFont) {
       case sFontNormal:
          DOG.string(sPixelStart, sLineNumber, font_6x8, pcText);
@@ -347,8 +434,8 @@ int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
          break;
    }  //switch
    return 1;
-}  //sDisplayText
-
+}  //sDisplayDOGText
+#endif
 
 boolean bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
