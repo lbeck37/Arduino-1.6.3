@@ -1,5 +1,6 @@
 /* HelloWorld.pde  */
 
+#include <Streaming.h>
 #include "U8glib.h"
 
 // setup u8g object, please remove comment from one of the following constructor calls
@@ -7,7 +8,9 @@
 // devices with all constructor calls is here: http://code.google.com/p/u8glib/wiki/device
 U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 
-void draw(void) {
+static int         sLC                      = 0;  //Serial Monitor Line Count, for clarity.
+
+void vDraw(void) {
   // graphic commands to redraw the complete screen should be placed here
   //u8g.setFont(u8g_font_unifont);
   //u8g.setFont(u8g_font_osb21);
@@ -43,6 +46,8 @@ void draw(void) {
 }
 
 void setup(void) {
+   Serial.begin(9600);
+   Serial << sLC++ << "setup(): Begin" << endl;
   // flip screen, if required
   // u8g.setRot180();
 
@@ -57,6 +62,7 @@ void setup(void) {
     u8g.setColorIndex(3);         // max intensity
   }
   else if ( u8g.getMode() == U8G_MODE_BW ) {
+    Serial << sLC++ << "setup(): Call u8g.setColorIndex(1)" << endl;
     u8g.setColorIndex(1);         // pixel on
   }
   else if ( u8g.getMode() == U8G_MODE_HICOLOR ) {
@@ -65,13 +71,37 @@ void setup(void) {
 }
 
 void loop(void) {
-  // picture loop
-  u8g.firstPage();
-  do {
-    draw();
-  } while( u8g.nextPage() );
+   static int sPass= 0;
 
-  // rebuild the picture after some delay
-  delay(50);
+   Serial << sLC++ << "loop(): Begin" << endl;
+   if (++sPass <= 1) {
+      // picture loop
+      u8g.firstPage();
+      int sCount= 0;
+      int sStopAt= 2;
+      do {
+         Serial << sLC++ << "loop(): Call vDraw" << endl;
+         vDraw();
+      } while( u8g.nextPage() && (++sCount <= sStopAt));
+
+      // rebuild the picture after some delay
+      delay(50);
+   }  //if
 }
+
 
+//freeRam() returns the number of bytes currently free in RAM.
+int freeRam(void)
+{
+  extern int  __bss_end;
+  extern int  *__brkval;
+  int free_memory;
+  if((int)__brkval == 0) {
+    free_memory = ((int)&free_memory) - ((int)&__bss_end);
+  }
+  else {
+    free_memory = ((int)&free_memory) - ((int)__brkval);
+  }
+  return free_memory;
+}  //freeRam
+//Last line.
