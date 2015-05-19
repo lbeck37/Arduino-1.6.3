@@ -1,7 +1,4 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
- 05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
- 04/25/15- Update to work with MicroView
- 04/19/15- Implement Normal and Calibrate modes
  04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
 #include <Arduino.h>
@@ -85,7 +82,7 @@ static const int       sButtonClosed      = 2;
 static const int       sButtonReleased    = 3;
 static const int       sButtonHeld        = 4;
 
-static const int       s6PixelChar        =  6;    //Use this for spacing titles on the display.
+static const int       s6PixelChar        =  6;    //Use for spacing titles on the display.
 static const int       sDefaultFont       =  0;
 static const int       sMaxButtonPresses  = 10;
 
@@ -256,8 +253,8 @@ int sLoopI2C() {
       for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
          for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
 #if APPLY_SMOOTHING
-            asGyro[sDataType][sAxis]=
-                     FILTER_FUNC(asGyroReading[sDataType][sAxis], pusSmoothingMemory[sDataType][sAxis]);
+            asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
+                                                  pusSmoothingMemory[sDataType][sAxis]);
 #else
             asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
 #endif
