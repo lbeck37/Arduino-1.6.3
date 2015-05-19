@@ -1,7 +1,7 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
-//#define USE_U8GLIB
+#define USE_U8GLIB
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -379,7 +379,9 @@ int sDisplaySetBrightness(int sBrightness){
 
 
 int sDisplayClear() {
+#ifndef USE_U8GLIB
    DOG.clear();  //clear whole display
+#endif
    return 1;
 }  //sDisplayClear
 
