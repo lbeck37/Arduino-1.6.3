@@ -112,8 +112,8 @@ static const int       sBrightness0         =   0;
 static const int       sDefaultBrightness   = sBrightness100;
 
 static const int       sFontNormal         =   1;
-static const int       sFontBig            =   2;
-static const int       sFontBigNum         =   3;
+static const int       sFontBigNum            =   2;
+static const int       sFontGearNum         =   3;
 static const int       sFontSquare         =   4;
 
 #ifndef USE_U8GLIB
@@ -168,7 +168,7 @@ static boolean     bServoChanged            = false;
 static boolean     bModeChanged             = false;
 static boolean     bGyroChanged             = false;
 
-static int         sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
+static int         sLC                      = 0;  //Serial Monitor Line Count, for clarity.
 
 static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char        sz10CharString[10];
@@ -184,20 +184,15 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
    Serial.begin(9600);
-   Serial << "Begin setup()" << endl;
-   Serial << "Free Ram= " << freeRam() << endl;
+   Serial << sLC++ << "Begin setup()" << endl;
+   Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
-   Serial << sLineCount++ << " setup(): Call sSetupI2C()" << endl;
- #ifdef USE_U8GLIB
-   sSetupU8glib();
-#endif
-   sSetupI2C();
+   sSetupDisplay();
+   sSetupGyro();
    sFillGearLocations();
-   sServoInit();
+   sSetupServo();
    sSetupSmoothing();
-   Serial << sLineCount++ << " setup(): Call sShowStartScreen()" << endl;
-   sShowStartScreen();
-   Serial << sLineCount++ << " setup(): Back from sShowStartScreen()" << endl;
+   sDrawStartScreen();
 
    //Dither the servo once so it's position shows on the LCD.
    sServoDither(1, 1); // +/- 1 degree, once
@@ -205,43 +200,55 @@ void setup() {
 }  //setup
 
 
-int sSetupU8glib() {
+int sSetupDisplay() {
+   Serial << sLC++ << " sSetupDisplay(): Begin" << endl;
+#ifdef USE_U8GLIB
    u8g.setColorIndex(1);
-}  //sSetupU8glib
+#else
+   DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
+                  cSPICmdDataPin   , cBogusResetPin, DOGS102);
+   DOG.view(sDisplayNormal);  //View screen Normal or Flipped
+#endif   //USE_U8GLIB
 
-
-int sSetupSmoothing() {
-   Serial << sLineCount++ << " sSetupSmoothing(): Begin" << endl;
-   //Initialize memory for data smoothing and set data fields to zero.
-   for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
-      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-#if APPLY_SMOOTHING
-         pusSmoothingMemory[sDataType][sAxis]  = ms_init(FILTER_NAME);
-#endif
-         asGyro            [sDataType][sAxis]  = 0;
-      }  //for sDataType
-   }  //for sAxis
-
-   Serial << sLineCount++ << " sSetupSmoothing(): End" << endl;
+   //Set backlight pin to be a PWM "analog" out pin.
+   //Drive LED backlight through 15 ohm resistor.
+   pinMode(sBacklightPin, OUTPUT);
+   sDisplaySetBrightness(sDefaultBrightness);
    return 1;
-}  //sSetupSmoothing
+}  //sSetupDisplay
 
 
-int sSetupI2C() {
+int sSetupGyro() {
+   //Set up the I2C bus.
    Wire.begin();
    Wire.beginTransmission(MPU);
    Wire.write(0x6B);  // PWR_MGMT_1 register
    Wire.write(0);     // set to zero (wakes up the MPU-6050)
    Wire.endTransmission(true);
+   //Initialize the data array.
+   for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+         asGyro[sDataType][sAxis]= 0;
+      }  //for sDataType
+   }  //for sAxis
    return 1;
-}  //sSetupI2C
+}  //sSetupGyro
+
+
+int sSetupServo() {
+   if (bServoOn) {
+      myservo.attach(sServoPin);
+      sServoMove(asGearLocation[sCurrentGear]);
+   }  //if(bServoOn)
+   return 1;
+} //sSetupServo
 
 
 // The Arduino loop() method gets called over and over.
 void loop() {
   sCheckButtons();
   sLoopI2C();
-  sDisplayUpdate();
+  sDrawMainScreen();
   sHandleButtons();
   return;
 }  //loop()
@@ -297,7 +304,26 @@ int sLoopI2C() {
 }  //sLoopI2C
 
 
-int sU8glibDisplayUpdate(void) {
+int sDrawStartScreen(void) {
+   Serial << sLC++ << " sDrawStartScreen(): Begin" << endl;
+#ifdef USE_U8GLIB
+   // picture loop
+   u8g.firstPage();
+   do {
+      sDisplaySplash();
+   } while( u8g.nextPage() );
+   // rebuild the picture after some delay
+   delay(50);
+#else
+   sDisplaySplash();
+#endif
+   delay(sSplashDelay);
+   return 1;
+}  //sDrawStartScreen
+
+
+int sDrawMainScreen(void) {
+#ifdef USE_U8GLIB
   // picture loop
   u8g.firstPage();
   do {
@@ -306,17 +332,11 @@ int sU8glibDisplayUpdate(void) {
 
   // rebuild the picture after some delay
   delay(50);
-}  //sU8glibDisplayUpdate
-
-
-int sDisplayUpdate(void) {
-#ifdef USE_U8GLIB
-   sU8glibDisplayUpdate();
 #else
    sDisplayObjects();
 #endif
    return 1;
-}  //sDisplayUpdate
+}  //sDrawMainScreen
 
 
 int sDisplayObjects(void) {
@@ -332,36 +352,12 @@ int sDisplayObjects(void) {
 }  //sDisplayObjects
 
 
-int sDisplayBegin() {
-#ifndef USE_U8GLIB
-   DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
-                  cSPICmdDataPin   , cBogusResetPin, DOGS102);
-   DOG.view(sDisplayNormal);  //View screen Normal or Flipped
-#endif
-   //Set backlight pin to be a PWM "analog" out pin.
-   //Drive LED backlight through 15 ohm resistor.
-   pinMode(sBacklightPin, OUTPUT);
-   sDisplaySetBrightness(sDefaultBrightness);
-   return 1;
-}  //sDisplayBegin
-
-
-int sShowStartScreen(void) {
-   Serial << sLineCount++ << " sShowStartScreen(): Call sDisplayBegin()" << endl;
-   sDisplayBegin();
-   Serial << sLineCount++ << " sShowStartScreen(): Call sShowSplash()" << endl;
-   sShowSplash();
-   delay(sSplashDelay);
-   return 1;
-}  //sShowStartScreen
-
-
-int sShowSplash(void) {
+int sDisplaySplash(void) {
    sDisplayClear();
 
    //2 lines of big font takes lines 0-3
-   sDisplayText(0, 0, sFontBig, "PowerShift");
-   sDisplayText(2, 0, sFontBig, "  by ShiftE");
+   sDisplayText(0, 0, sFontBigNum, "PowerShift");
+   sDisplayText(2, 0, sFontBigNum, "  by ShiftE");
 
    //Lines in normal font
    sDisplayText(5, 0, sFontNormal, szSplashLine1);
@@ -369,7 +365,7 @@ int sShowSplash(void) {
    sDisplayText(7, 0, sFontNormal, szSplashLine3);
 
    return 1;
-}  //sShowSplash
+}  //sDisplaySplash
 
 
 int sDisplaySetBrightness(int sBrightness){
@@ -395,12 +391,12 @@ int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
       case sFontNormal:
          u8g.setFont(u8g_font_5x7);
          break;
-      case sFontBig:
-         u8g.setFont(u8g_font_fub11r);
-         break;
       case sFontBigNum:
+         u8g.setFont(u8g_font_fub11n);
          break;
+      case sFontGearNum:
          u8g.setFont(u8g_font_fub35n);
+         break;
       case sFontSquare:
          break;
       default:
@@ -422,10 +418,10 @@ int sDisplayDOGText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
       case sFontNormal:
          DOG.string(sPixelStart, sLineNumber, font_6x8, pcText);
          break;
-      case sFontBig:
+      case sFontBigNum:
          DOG.string(sPixelStart, sLineNumber, font_8x16, pcText);
          break;
-      case sFontBigNum:
+      case sFontGearNum:
          DOG.string(sPixelStart, sLineNumber, font_16x32nums, pcText);
          break;
       case sFontSquare:
@@ -438,6 +434,7 @@ int sDisplayDOGText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
    return 1;
 }  //sDisplayDOGText
 #endif
+
 
 boolean bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
@@ -476,45 +473,27 @@ int sDisplayGyro() {
    int sStartLine    = 2;
 
    sDisplayText(sStartLine++, sStartPixel + s6PixelChar, sFontNormal, "Accel  Rot");
-#if 0
-   strcpy(szLineBuffer, "X= ");
-   itoa(asGyro[sAccel][sXAxis]  ,sz10CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
-
-   strcpy(szLineBuffer, "Y= ");
-   itoa(asGyro[sAccel][sYAxis]  ,sz10CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
-
-   strcpy(szLineBuffer, "Z= ");
-   itoa(asGyro[sAccel][sZAxis]  ,sz10CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
-#endif
-   //Format is "X 12345 12345"
+   //Format is "12345 12345"
    for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      strcpy(szLineBuffer, acXYZ[sAxis]);
-      strcat(szLineBuffer, " ");
       itoa(asGyro[sAccel][sAxis], sz10CharString, 10);
-      strcat(szLineBuffer, sz10CharString);
+      strcpy(szLineBuffer, sz10CharString);
       strcat(szLineBuffer, " ");
       itoa(asGyro[sRotation][sAxis], sz10CharString, 10);
       strcat(szLineBuffer, sz10CharString);
       sDisplayText(sStartLine++, sStartPixel, sFontNormal, szLineBuffer);
    }  //for
    return 1;
-}  //sDisplayButtons
+}  //sDisplayGyro
 
 
 int sDisplayCurrentGear() {
    if (sCurrentMode == sNormalMode) {
       itoa(sCurrentGear, sz10CharString, 10);
-      sDisplayText(0, 4, sFontBigNum, sz10CharString);    //1st char in 4 pixels.
+      sDisplayText(0, 4, sFontGearNum, sz10CharString);    //1st char in 4 pixels.
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
-      sDisplayText(0, 4, sFontBigNum, "0");               //1st char in 4 pixels.
+      sDisplayText(0, 4, sFontGearNum, "0");               //1st char in 4 pixels.
    }  //if (sCurrentMode..else
 
    return 1;
@@ -523,17 +502,16 @@ int sDisplayCurrentGear() {
 
 int sDisplayServoPos() {
    itoa(sServoPosLast, sz10CharString, 10);
-   strcpy(szLineBuffer, "Servo ");
-   strcat(szLineBuffer, sz10CharString);
+   strcpy(szLineBuffer, sz10CharString);
    //Text will end 2 pixels in from right edge when servo value is 3 digits.
-   sDisplayText(0, 28, sFontBig, szLineBuffer);
+   sDisplayText(0, 28, sFontGearNum, szLineBuffer);
    return 1;
 }  //sDisplayServoPos
 
 
 int sDisplayOdometer() {
    strcpy(szLineBuffer, "21.50");
-   sDisplayText(6, 2, sFontBig, szLineBuffer);  //Start 2 pixels in.
+   sDisplayText(6, 2, sFontBigNum, szLineBuffer);  //Start 2 pixels in.
 
    //strcpy(szLineBuffer, "1123.00");
    //sDisplayText(7, 2, sFontNormal, szLineBuffer);  //Start 2 pixels in.
@@ -578,7 +556,7 @@ int sHandleButtons(void) {
 boolean bHandleBothHeld(void) {
    if (abButtonBeingHeld[sUp] &&  abButtonBeingHeld[sDown]) {
       if (millis() > ulNextModeTime) {
-         Serial << sLineCount++ << " bHandleBothHeld(): Both buttons are being held." << endl;
+         Serial << sLC++ << " bHandleBothHeld(): Both buttons are being held." << endl;
          //Clear the button counts;
          sButtonCount[sUp]  = 0;
          sButtonCount[sDown]= 0;
@@ -586,17 +564,17 @@ boolean bHandleBothHeld(void) {
             case sNormalMode:
                sCurrentMode= sCalibMode;
                bModeChanged= true;
-               Serial << sLineCount++
+               Serial << sLC++
                       << " bHandleBothHeld(): Switch from Normal to Calib mode." << endl;
                break;
             case sCalibMode:
                sCurrentMode= sNormalMode;
                bModeChanged= true;
-               Serial << sLineCount++
+               Serial << sLC++
                       << " bHandleBothHeld(): Switch from Calib to Normal mode." << endl;
                break;
             default:
-               Serial << sLineCount++
+               Serial << sLC++
                       << " bHandleBothHeld(): Bad switch :" << sCurrentMode << endl;
                break;
          }  //switch
@@ -630,7 +608,7 @@ int sHandleNormalMode(void) {
       //Compute net gear change by handling at most one request from each button
       if (sButtonCount[sButton] > 0) {
       sTargetChange += sGearChange;
-      Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= "
+      Serial << sLC++ << " sHandleNormalMode(): Button" << sButton << ", Count= "
              << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
       sButtonCount[sButton]--;
       bButtonsChanged= true;
@@ -639,7 +617,7 @@ int sHandleNormalMode(void) {
 
    sNewGear= constrain(sCurrentGear + sTargetChange, 1, sNumGears);
    if (sNewGear != sCurrentGear) {
-      Serial << sLineCount++ << " sHandleNormalMode(): Current gear= " << sCurrentGear << ", New= " << sNewGear << endl;
+      Serial << sLC++ << " sHandleNormalMode(): Current gear= " << sCurrentGear << ", New= " << sNewGear << endl;
       sCurrentGear= sNewGear;
       sTargetLocation= asGearLocation[sCurrentGear];
 
@@ -665,7 +643,7 @@ int sHandleCalibMode(void) {
       //if (sButtonCount[sButton] == sHoldCode) {
       if (abButtonBeingHeld[sButton]) {
          sTarget= sServoPosLast + sDirection * sHoldDeltaPos;
-         Serial << sLineCount++ << " sHandleCalibMode(): Button" << sButton
+         Serial << sLC++ << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
          sServoMove(sTarget);
          bServoChanged= true;
@@ -674,7 +652,7 @@ int sHandleCalibMode(void) {
       //if ((sButtonCount[sButton] != sHoldCode) && (sButtonCount[sButton] > 0)) {
       if (!abButtonBeingHeld[sButton] && (sButtonCount[sButton] > 0)) {
          sTarget= sServoPosLast + sDirection * sTrimDeltaPos;
-         Serial << sLineCount++ << " sHandleCalibMode(): Button" << sButton
+         Serial << sLC++ << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
          sServoMove(sTarget);
          bServoChanged= true;
@@ -716,14 +694,14 @@ int sCheckButtons(void) {
       //Check for IsRelease for all buttons.
       if ( ((sButton == sUp)   && UpButton.IsRelease  ()) ||
       ((sButton == sDown) && DownButton.IsRelease()) ) {
-         Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
+         Serial << sLC++ << " sCheckButtons(): Button " << sButton
                 << " was released." << endl;
          //Check to see if button is being held
          //if (sLocalButtonState[sButton] != sButtonHeld) {
          if ( !abButtonBeingHeld[sButton]) {
             if (sButtonCount[sButton] < sMaxButtonPresses) {
                //Increment the count of button presses to be handled.
-               Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
+               Serial << sLC++ << " sCheckButtons(): Button " << sButton
                       << " count incremented." << endl;
                sButtonCount[sButton]++;
                bButtonsChanged= true;
@@ -731,7 +709,7 @@ int sCheckButtons(void) {
          }    //if(sLocalButtonState!=...
          else {
             //The button was being held down, update the state variable..
-            Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
+            Serial << sLC++ << " sCheckButtons(): Button " << sButton
                    << " done being held." << endl;
             //sLocalButtonState[sButton]= sButtonOpen;
             abButtonBeingHeld[sButton]= false;
@@ -743,7 +721,7 @@ int sCheckButtons(void) {
       if (!bReturn &&
       ((sButton == sUp)   && UpButton.IsHold  ()) ||
       ((sButton == sDown) && DownButton.IsHold()) ) {
-         Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
+         Serial << sLC++ << " sCheckButtons(): Button " << sButton
                 << " being held." << endl;
          //Set state to indicate in hold.
          //sLocalButtonState[sButton]= sButtonHeld;
@@ -757,14 +735,6 @@ int sCheckButtons(void) {
   return 1;
 }  //sCheckButtons
 
-
-int sServoInit() {
-   if (bServoOn) {
-      myservo.attach(sServoPin);
-      sServoMove(asGearLocation[sCurrentGear]);
-   }  //if(bServoOn)
-   return 1;
-} //sServoInit
 
 int sServoMove(int sServoPos) {
   if (sServoPos != sServoPosLast) {
@@ -804,6 +774,20 @@ int sServoSetPosition(int sServoPos) {
    delay(sServoMsecWait);
    return 1;
 }  //sServoSetPosition
+
+
+int sSetupSmoothing() {
+   //Initialize memory for data smoothing and set data fields to zero.
+   for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+#if APPLY_SMOOTHING
+         pusSmoothingMemory[sDataType][sAxis]  = ms_init(FILTER_NAME);
+#endif
+         asGyro            [sDataType][sAxis]  = 0;
+      }  //for sDataType
+   }  //for sAxis
+   return 1;
+}  //sSetupSmoothing
 
 
 //freeRam() returns the number of bytes currently free in RAM.
