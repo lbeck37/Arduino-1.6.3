@@ -26,7 +26,7 @@ void draw(void) {
   u8g.drawStr( 2, 63, "17.45 fub11r");
 
   u8g.setFont(u8g_font_micro);
-  u8g.drawStr( 32, 8, "micro ABCabc1234");
+  u8g.drawStr( 32, 8, "micro ABCabc12345");
 
   u8g.setFont(u8g_font_5x7);
   u8g.drawStr( 32, 18, "5x7 ABCabc1234");
@@ -35,10 +35,10 @@ void draw(void) {
   u8g.drawStr( 32, 28, "5x8 ABCabc1234");
 
   u8g.setFont(u8g_font_6x10);
-  u8g.drawStr( 32, 38, "6x10 ABCabc");
+  u8g.drawStr( 32, 38, "6x10 ABCabcd");
 
   u8g.setFont(u8g_font_6x12);
-  u8g.drawStr( 32, 50, "6x12 ABCabc");
+  u8g.drawStr( 32, 48, "6x12 ABCabcd");
 
 }
 
