@@ -1,7 +1,7 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
-//#define USE_U8GLIB
+#define USE_U8GLIB
 #define DEBUG_ON
 
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
@@ -23,8 +23,6 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 #define APPLY_SMOOTHING    false
 //#define FILTER_NAME        SMA
 //#define FILTER_FUNC        sma_filter
-#define FILTER_NAME        CMA
-#define FILTER_FUNC        cma_filter
 
 //Here come the const's sSplashDelay
 static const int       sSplashDelay          = 1000;     //mSec that Splash screen is on
@@ -33,6 +31,8 @@ static const int       sLineSpace            = 9;        //Line spacing in pixel
 static const char      aszSplashLine1[]      = {"Electic Shifting"};
 static const char      aszSplashLine2[]      = {"-Max Performance"};
 static const char      aszSplashLine3[]      = {"-Max Range"};
+static const char      szAccel[]            = {"Accel"};
+static const char      szGyro[]             = {"Gyro "};
 
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
@@ -73,7 +73,7 @@ static const int       sNumAxis           = 3;
 static const int       sAccel             = 0;
 static const int       sRotation          = 1;
 static const int       sTemperature       = 2;
-static const int       sNumDataTypes      = 3;
+static const int       sNumGyroTypes      = 3;
 
 //Constants used locally for state in sCheckButtons
 static const int       sButtonOpen        = 0;
@@ -82,7 +82,7 @@ static const int       sButtonClosed      = 2;
 static const int       sButtonReleased    = 3;
 static const int       sButtonHeld        = 4;
 
-static const int       s6PixelChar        =  6;    //Use for spacing titles on the display.
+//static const int       s6PixelChar        =  6;    //Use for spacing titles on the display.
 static const int       sDefaultFont       =  0;
 static const int       sMaxButtonPresses  = 10;
 
@@ -107,6 +107,7 @@ static const int       sBrightness25        =  64;
 static const int       sBrightness0         =   0;
 static const int       sDefaultBrightness   = sBrightness100;
 
+static const int       sFontNotSet         =   0;
 static const int       sFontNormal         =   1;
 static const int       sFontBigNum         =   2;
 static const int       sFontGearNum        =   3;
@@ -117,9 +118,9 @@ static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
 
 #if APPLY_SMOOTHING
-   static UINT16  *pusSmoothingMemory[sNumDataTypes][sNumAxis];
+   static UINT16  *pusSmoothingMemory[sNumGyroTypes][sNumAxis];
 #endif
-static int     asGyro             [sNumDataTypes][sNumAxis];
+static int     asGyro             [sNumGyroTypes][sNumAxis];
 
 static int sCurrentMode                   = sNormalMode;
 static int sServoPosLast                  = 0;
@@ -136,7 +137,6 @@ EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
 EasyButton DownButton   (sDownButton,   NULL, CALL_NONE, bButtonPullUp);
 EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
 
-
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
 static int              sButtonCountLast[]   = { 0, 0, 0};
@@ -144,6 +144,7 @@ static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
 static unsigned long    ulNextGyroTime       = 0;  //msec when the gyro will be read
+static int              sCurrentFont         = sFontNotSet;
 
 //State of display items being changed and needing refresh.
 static boolean     bButtonsChanged          = false;
@@ -164,15 +165,17 @@ void setup() {
    Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
-   //sDrawStartScreen();
-   //sDrawMainScreen();
-#if 1
+#ifdef DEBUG_ON
+   sDrawStartScreen();
+   sDrawMainScreen();
+   delay(sMainDelay);
+#else
    sSetupGyro();
    sFillGearLocations();
    sSetupServo();
    sSetupSmoothing();
    sDrawStartScreen();
-#endif
+#endif   //DEBUG_ON
 
    //Dither the servo once so it's position shows on the LCD.
    sServoDither(1, 1); // +/- 1 degree, once
@@ -182,16 +185,19 @@ void setup() {
 
 // The Arduino loop() method gets called over and over.
 void loop() {
-  sCheckButtons();
-  sLoopI2C();
-  sDrawMainScreen();
-  sHandleButtons();
-  return;
+   sCheckButtons();
+   sLoopI2C();
+#ifndef DEBUG_ON
+   sDrawMainScreen();
+#endif
+   sHandleButtons();
+   return;
 }  //loop()
 
 
 int sSetupDisplay() {
    Serial << sLC++ << " sSetupDisplay(): Begin" << endl;
+   sSwitchFont(sFontNormal);
    u8g.setColorIndex(1);
 
    //Set backlight pin to be a PWM "analog" out pin.
@@ -210,7 +216,7 @@ int sSetupGyro() {
    Wire.write(0);     // set to zero (wakes up the MPU-6050)
    Wire.endTransmission(true);
    //Initialize the data array.
-   for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
+   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
       for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
          asGyro[sDataType][sAxis]= 0;
       }  //for sDataType
@@ -229,7 +235,7 @@ int sSetupServo() {
 
 
 int sLoopI2C() {
-   int      asGyroReading[sNumDataTypes][sNumAxis];
+   int      asGyroReading[sNumGyroTypes][sNumAxis];
    boolean  bApplySmoothing= APPLY_SMOOTHING;
 
    if (millis() > ulNextGyroTime) {
@@ -261,7 +267,7 @@ int sLoopI2C() {
       }  //for
 
       //Apply low-pass filter to data
-      for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
+      for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
          for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
 #if APPLY_SMOOTHING
             asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
@@ -280,12 +286,12 @@ int sLoopI2C() {
 
 int sDrawStartScreen(void) {
    Serial << sLC++ << " sDrawStartScreen(): Begin" << endl;
-   // picture loop
+   //sPrepareDisplay(sCurrentFont);
+   //Picture loop
    u8g.firstPage();
-
    do {
       sDisplaySplash();
-   } while( u8g.nextPage() );
+   } while(u8g.nextPage());
 
    delay(sSplashDelay);
    return 1;
@@ -293,26 +299,31 @@ int sDrawStartScreen(void) {
 
 
 int sDrawMainScreen(void) {
+#ifdef DEBUG_ON
+   Serial << sLC++ <<"sDrawMainScreen()Begin"<< endl;
+#endif
+   //sPrepareDisplay(sCurrentFont);
    u8g.firstPage();
    do {
-      sDisplayObjects();
-   } while( u8g.nextPage() );
-
-   delay(sMainDelay);
+      sDisplayMainObjects();
+   } while(u8g.nextPage());
    return 1;
 }  //sDrawMainScreen
 
 
-int sDisplayObjects(void) {
-   if (bScreenChanged()) {
+int sDisplayMainObjects(void) {
+#ifdef DEBUG_ON
+   Serial << sLC++ <<"sDisplayMainObjects()Begin"<< endl;
+#endif
+   if (true || bScreenChanged()) {
       //sDisplayButtons();
-      //sDisplayCurrentGear();
+      sDisplayCurrentGear();
       sDisplayServoPos();
       sDisplayGyro();
       sDisplayOdometer();
    }  //if(bScreenChanged())
    return 1;
-}  //sDisplayObjects
+}  //sDisplayMainObjects
 
 
 int sDisplaySplash(void) {
@@ -328,25 +339,7 @@ int sDisplaySplash(void) {
 }  //sDisplaySplash
 
 
-int sDisplaySetBrightness(int sBrightness){
-   analogWrite(sBacklightPin, sBrightness);
-   return 1;
-}  //sDisplaySetBrightness
-
-
-int sLPixel(int sLineNumber) {
-   //Converts line number to pixels at top
-   int sPixel= constrain((((sLineNumber - 1) * sLineSpace) - 1), 0, 64);
-   //Serial << sLC++ << " sLPixel(): Convert " << sLineNumber << " to " << sPixel << endl;
-   return sPixel;
-}  //sLPixel
-
-
-int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
-#ifdef DEBUG_ON
-   Serial << sLC++ <<" sDisplayText()1: XY S "<< sXpixel <<" "<< sYpixel <<" "<< pcText << endl;
-#endif
-#if 0
+int sSetFont(int sFont) {
    switch (sFont) {
       case sFontNormal:
          u8g.setFont(u8g_font_5x7);
@@ -360,12 +353,19 @@ int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
       case sFontSquare:
          break;
       default:
-         Serial << sLC++ << "sDisplayText(): Bad case in switch()= " << sFont << endl;
+         Serial << sLC++ << "sSetFont(): Bad case in switch()= " << sFont << endl;
          break;
    }  //switch
-#endif
+   sCurrentFont= sFont;
+   return 1;
+}  //sSetFont
 
-   sDisplayPrepare(sFont);
+
+int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
+#ifdef DEBUG_ON
+   Serial << sLC++ <<" sDisplayText()1: XY S "<< sXpixel <<" "<< sYpixel <<" "<< pcText << endl;
+#endif
+   sSwitchFont(sFont);
    u8g.drawStr( sXpixel, sYpixel, pcText);
    return 1;
 }  //sDisplayText
@@ -374,41 +374,52 @@ int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
 int sDisplayGyro() {
 #ifdef DEBUG_ON
    Serial << sLC++ << " sDisplayGyro(): Begin" << endl;
+   sFillGyro();
 #endif
    //Show 3 lines at right side for X, Y and Z acceleration
    //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
    int sXPixel   = 30;
-   int sStartLine= 4;
+   int sStartLine= 3;
 
-   //sDisplayText(sXPixel, sLPixel(2), sFontNormal, "DisplayGyro");
-   sDisplayText(sXPixel, 3, sFontNormal, "DISPLAYGYRO");
-#if 1
-   //Format is "12345 12345"
-   for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      itoa(asGyro[sAccel][sAxis], sz10CharString, 10);
-      strcpy(szLineBuffer, sz10CharString);
-      strcat(szLineBuffer, " ");
-      itoa(asGyro[sRotation][sAxis], sz10CharString, 10);
-      strcat(szLineBuffer, sz10CharString);
+   //Only show a line for accel and gyro, not temperature
+   for (int sDataType= sAccel; sDataType < sNumGyroTypes - 1; sDataType++) {
+      strcpy(szLineBuffer, "");
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+         itoa(asGyro[sDataType][sAxis], sz10CharString, 10);
+         strcat(szLineBuffer, sz10CharString);
+         strcat(szLineBuffer, " ");
+      }  //for sAxis
       sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
-   }  //for
-#endif
+   }  //for sDataType
    return 1;
 }  //sDisplayGyro
 
 
+#ifdef DEBUG_ON
+int sFillGyro() {
+   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+         asGyro[sDataType][sAxis]= (sDataType + 1) * (sAxis + 1) * 1000;
+      }  //for sDataType
+   }  //for sAxis
+   return 1;
+}  //sFillGyro
+#endif
+
 int sDisplayCurrentGear() {
 #ifdef DEBUG_ON
-   Serial << sLC++ << " sDisplayCurrentGear(): Begin" << endl;
+   Serial << sLC++ <<"sDisplayCurrentGear(): Begin"<< endl;
 #endif
+   int sGearFont  = sFontGearNum;
+   int sLeftPixel = 0;
+   int sTopPixel  = 1;
    if (sCurrentMode == sNormalMode) {
       itoa(sCurrentGear, sz10CharString, 10);
-      //sDisplayText(0, 4, sFontGearNum, sz10CharString);    //1st char in 4 pixels.
-      sDisplayText(4, sLPixel(6), sFontGearNum, sz10CharString);    //1st char in 4 pixels.
+      sDisplayText(sLeftPixel, sTopPixel, sGearFont, sz10CharString);
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
-      sDisplayText(4, sLPixel(6), sFontGearNum, "0");               //1st char in 4 pixels.
+      sDisplayText(sLeftPixel, sTopPixel, sGearFont, "0");
    }  //if (sCurrentMode..else
 
    return 1;
@@ -417,34 +428,30 @@ int sDisplayCurrentGear() {
 
 int sDisplayServoPos() {
 #ifdef DEBUG_ON
-   Serial << sLC++ << " sDisplayServoPos(): Begin" << endl;
+   Serial << sLC++ <<"sDisplayServoPos(): Begin"<< endl;
+   sServoPosLast= 123;
 #endif
    itoa(sServoPosLast, sz10CharString, 10);
    strcpy(szLineBuffer, sz10CharString);
-   //Text will end 2 pixels in from right edge when servo value is 3 digits.
-   //sDisplayText(0, 28, sFontGearNum, szLineBuffer);
-   sDisplayText(102 - 30, sLPixel(1), sFontNormal, szLineBuffer);
+   sDisplayText(75, sLPixel(1), sFontNormal, szLineBuffer);
    return 1;
 }  //sDisplayServoPos
 
 
 int sDisplayOdometer() {
 #ifdef DEBUG_ON
-   Serial << sLC++ << " sDisplayOdometer(): Begin" << endl;
+   Serial << sLC++ <<"sDisplayOdometer(): Begin"<< endl;
 #endif
    strcpy(szLineBuffer, "21.50");
    //sDisplayText(6, 2, sFontNormal, szLineBuffer);  //Start 2 pixels in.
    sDisplayText(2, sLPixel(7), sFontNormal, szLineBuffer);  //Start 2 pixels in.
-
-   //strcpy(szLineBuffer, "1123.00");
-   //sDisplayText(7, 2, sFontNormal, szLineBuffer);  //Start 2 pixels in.
    return 1;
 }  //sDisplayOdometer
 
 
 int sDisplayButtons() {
 #ifdef DEBUG_ON
-   Serial << sLC++ << " sDisplayButtons(): Begin" << endl;
+   Serial << sLC++ <<"sDisplayButtons(): Begin"<< endl;
 #endif
    //Show 3 lines at right bottom for U d, D d, S d
    //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
@@ -457,42 +464,64 @@ int sDisplayButtons() {
    strcpy(szLineBuffer, "D ");
    itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   //sDisplayText(6, 82, sFontNormal, szLineBuffer);
    sDisplayText(82, sLPixel(6), sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "S ");
    itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   //sDisplayText(7, 82, sFontNormal, szLineBuffer);
    sDisplayText(82, sLPixel(7), sFontNormal, szLineBuffer);
    return 1;
 }  //sDisplayButtons
 
-
-int sDisplayPrepare(int sFont) {
-   Serial << sLC++ << " sDisplayPrepare(): Begin" << endl;
-   switch (sFont) {
-      case sFontNormal:
-         u8g.setFont(u8g_font_5x7);
-         break;
-      case sFontBigNum:
-         u8g.setFont(u8g_font_fub11n);
-         break;
-      case sFontGearNum:
-         u8g.setFont(u8g_font_fub35n);
-         break;
-      case sFontSquare:
-         break;
-      default:
-         Serial << "sDisplayPrepare(): Bad case in switch()= " << sFont << endl;
-         break;
-   }  //switch
-   u8g.setFont(u8g_font_6x10);
-   u8g.setFontRefHeightExtendedText();
-   u8g.setDefaultForegroundColor();
-   u8g.setFontPosTop();
+#if 0
+int sPrepareDisplay(int sFont) {
+   //Serial << sLC++ <<"sPrepareDisplay(): Begin"<< endl;
+   sSwitchFont(sFont);
    return 1;
-}  //sDisplayPrepare
+}  //sPrepareDisplay
+#endif
+
+int sSwitchFont(int sFont) {
+#ifdef DEBUG_ON
+   Serial << sLC++ <<"sSwitchFont(): Font= "<< sFont << endl;
+#endif
+   if (sFont != sCurrentFont) {
+      switch (sFont) {
+         case sFontNormal:
+            u8g.setFont(u8g_font_5x7);
+            break;
+         case sFontBigNum:
+            u8g.setFont(u8g_font_fub11n);
+            break;
+         case sFontGearNum:
+            u8g.setFont(u8g_font_fub35n);
+            break;
+         case sFontSquare:
+            break;
+         default:
+            Serial << "sSwitchFont(): Bad case in switch()= " << sFont << endl;
+            break;
+      }  //switch
+      //Set the reference position for the font.
+      u8g.setFontRefHeightExtendedText();
+      u8g.setFontPosTop();
+   }  //if(sFont!=sCurrentFont)
+   return 1;
+}  //sSwitchFont
+
+
+int sDisplaySetBrightness(int sBrightness){
+   analogWrite(sBacklightPin, sBrightness);
+   return 1;
+}  //sDisplaySetBrightness
+
+
+int sLPixel(int sLineNumber) {
+   //Converts line number to pixels at top
+   int sPixel= constrain((((sLineNumber - 1) * sLineSpace) - 1), 0, 64);
+   //Serial << sLC++ << " sLPixel(): Convert " << sLineNumber << " to " << sPixel << endl;
+   return sPixel;
+}  //sLPixel
 
 
 int sFillGearLocations(void) {
@@ -763,7 +792,7 @@ int sServoSetPosition(int sServoPos) {
 
 int sSetupSmoothing() {
    //Initialize memory for data smoothing and set data fields to zero.
-   for (int sDataType= sAccel; sDataType < sNumDataTypes; sDataType++) {
+   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
       for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
 #if APPLY_SMOOTHING
          pusSmoothingMemory[sDataType][sAxis]  = ms_init(FILTER_NAME);
