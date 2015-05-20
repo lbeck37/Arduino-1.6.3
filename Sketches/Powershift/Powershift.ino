@@ -161,7 +161,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
    Serial.begin(9600);
-   Serial << sLC++ << "Begin setup()" << endl;
+   Serial << sLC++ <<"setup(): Begin"<< endl;
    Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
@@ -175,7 +175,7 @@ void setup() {
    sSetupServo();
    sSetupSmoothing();
    sDrawStartScreen();
-#endif   //DEBUG_ON
+#endif   //DEBUG_1
 
    //Dither the servo once so it's position shows on the LCD.
    sServoDither(1, 1); // +/- 1 degree, once
@@ -196,7 +196,7 @@ void loop() {
 
 
 int sSetupDisplay() {
-   Serial << sLC++ << " sSetupDisplay(): Begin" << endl;
+   Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
    sSwitchFont(sFontNormal);
    u8g.setColorIndex(1);
 
@@ -209,6 +209,7 @@ int sSetupDisplay() {
 
 
 int sSetupGyro() {
+   Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
    //Set up the I2C bus.
    Wire.begin();
    Wire.beginTransmission(MPU);
@@ -226,6 +227,7 @@ int sSetupGyro() {
 
 
 int sSetupServo() {
+   Serial << sLC++ <<"sSetupServo(): Begin"<< endl;
    if (bServoOn) {
       myservo.attach(sServoPin);
       sServoMove(asGearLocation[sCurrentGear]);
@@ -285,7 +287,9 @@ int sLoopI2C() {
 
 
 int sDrawStartScreen(void) {
+#ifdef DEBUG_1
    Serial << sLC++ << " sDrawStartScreen(): Begin" << endl;
+#endif
    //sPrepareDisplay(sCurrentFont);
    //Picture loop
    u8g.firstPage();
@@ -299,7 +303,7 @@ int sDrawStartScreen(void) {
 
 
 int sDrawMainScreen(void) {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ <<"sDrawMainScreen()Begin"<< endl;
 #endif
    //sPrepareDisplay(sCurrentFont);
@@ -312,7 +316,7 @@ int sDrawMainScreen(void) {
 
 
 int sDisplayMainObjects(void) {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ <<"sDisplayMainObjects()Begin"<< endl;
 #endif
    if (true || bScreenChanged()) {
@@ -362,7 +366,7 @@ int sSetFont(int sFont) {
 
 
 int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ <<" sDisplayText()1: XY S "<< sXpixel <<" "<< sYpixel <<" "<< pcText << endl;
 #endif
    sSwitchFont(sFont);
@@ -372,8 +376,11 @@ int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
 
 
 int sDisplayGyro() {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ << " sDisplayGyro(): Begin" << endl;
+   sFillGyro();
+#endif
+#ifdef DEBUG_ON
    sFillGyro();
 #endif
    //Show 3 lines at right side for X, Y and Z acceleration
@@ -407,7 +414,7 @@ int sFillGyro() {
 #endif
 
 int sDisplayCurrentGear() {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ <<"sDisplayCurrentGear(): Begin"<< endl;
 #endif
    int sGearFont  = sFontGearNum;
@@ -427,8 +434,11 @@ int sDisplayCurrentGear() {
 
 
 int sDisplayServoPos() {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ <<"sDisplayServoPos(): Begin"<< endl;
+   sServoPosLast= 123;
+#endif
+#ifdef DEBUG_ON
    sServoPosLast= 123;
 #endif
    itoa(sServoPosLast, sz10CharString, 10);
@@ -439,7 +449,7 @@ int sDisplayServoPos() {
 
 
 int sDisplayOdometer() {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ <<"sDisplayOdometer(): Begin"<< endl;
 #endif
    strcpy(szLineBuffer, "21.50");
@@ -450,7 +460,7 @@ int sDisplayOdometer() {
 
 
 int sDisplayButtons() {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ <<"sDisplayButtons(): Begin"<< endl;
 #endif
    //Show 3 lines at right bottom for U d, D d, S d
@@ -482,7 +492,7 @@ int sPrepareDisplay(int sFont) {
 #endif
 
 int sSwitchFont(int sFont) {
-#ifdef DEBUG_ON
+#ifdef DEBUG_1
    Serial << sLC++ <<"sSwitchFont(): Font= "<< sFont << endl;
 #endif
    if (sFont != sCurrentFont) {
