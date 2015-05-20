@@ -11,7 +11,8 @@ U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 
 static int         sLC                      = 0;  //Serial Monitor Line Count, for clarity.
 
 void vDraw(void) {
-  // graphic commands to redraw the complete screen should be placed here
+   Serial << sLC++ << "vDraw(): Begin" << endl;
+
   //u8g.setFont(u8g_font_unifont);
   //u8g.setFont(u8g_font_osb21);
   //u8g.setFont(u8g_font_fub20n);
@@ -73,16 +74,16 @@ void setup(void) {
 void loop(void) {
    static int sPass= 0;
 
-   Serial << sLC++ << "loop(): Begin" << endl;
+   //Serial << sLC++ << "loop(): Begin" << endl;
    if (++sPass <= 1) {
       // picture loop
       u8g.firstPage();
       int sCount= 0;
-      int sStopAt= 2;
+      int sStopAt= 1;
       do {
          Serial << sLC++ << "loop(): Call vDraw" << endl;
          vDraw();
-      } while( u8g.nextPage() && (++sCount <= sStopAt));
+      } while( u8g.nextPage() && (++sCount < sStopAt));
 
       // rebuild the picture after some delay
       delay(50);

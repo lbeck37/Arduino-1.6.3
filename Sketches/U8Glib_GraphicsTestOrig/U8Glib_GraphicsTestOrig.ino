@@ -1,7 +1,5 @@
-#include <LBeck37.h>
 #include "U8glib.h"
 
-// setup u8g object, please remove comment from one of the following constructor calls
 U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 
 void u8g_prepare(void) {
@@ -141,9 +139,6 @@ void draw(void) {
 }
 
 void setup(void) {
-   Serial.begin(9600);
-   Serial << sLC++ << "setup() Begin" << endl;
-   Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
   // flip screen, if required
   //u8g.setRot180();
@@ -158,8 +153,7 @@ void loop(void) {
   // picture loop
   u8g.firstPage();
   do {
-   Serial << sLC++ << "loop() Call draw()" << endl;
-   draw();
+    draw();
   } while( u8g.nextPage() );
 
   // increase the state
@@ -169,23 +163,7 @@ void loop(void) {
 
   // rebuild the picture after some delay
   //delay(150);
+
 }
-
-
-//freeRam() returns the number of bytes currently free in RAM.
-int freeRam(void)
-{
-  extern int  __bss_end;
-  extern int  *__brkval;
-  int free_memory;
-  if((int)__brkval == 0) {
-    free_memory = ((int)&free_memory) - ((int)&__bss_end);
-  }
-  else {
-    free_memory = ((int)&free_memory) - ((int)__brkval);
-  }
-  return free_memory;
-}  //freeRam
-//Last line.
 
 
