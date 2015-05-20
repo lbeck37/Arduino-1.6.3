@@ -1,6 +1,59 @@
+#include <Streaming.h>
+
+#include <LBeck37.h>
 #include "U8glib.h"
 
 U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+
+uint8_t draw_state= 0;
+
+void setup(void) {
+   sSetupSerialStreaming();
+
+   // flip screen, if required
+   //u8g.setRot180();
+   pinMode(13, OUTPUT);
+   digitalWrite(13, HIGH);
+   return;
+}  //setup
+
+
+void loop(void) {
+   Serial << sLC++ << "loop() Begin" << endl;
+   // picture loop
+   u8g.firstPage();
+   do {
+      Serial << sLC++ << "loop() Call sRunTest()" << endl;
+      sRunTest();
+   } while( u8g.nextPage() );
+
+   // increase the state
+   draw_state++;
+   if ( draw_state >= 9*8 )
+   draw_state = 0;
+
+   // rebuild the picture after some delay
+   //delay(150);
+   return;
+}  //loop
+
+
+INT16 sRunTest(void) {
+  u8g_prepare();
+  switch(draw_state >> 3) {
+    case 0: u8g_box_frame(draw_state&7); break;
+    case 1: u8g_disc_circle(draw_state&7); break;
+    case 2: u8g_r_frame(draw_state&7); break;
+    case 3: u8g_string(draw_state&7); break;
+    case 4: u8g_line(draw_state&7); break;
+    case 5: u8g_triangle(draw_state&7); break;
+    case 6: u8g_ascii_1(); break;
+    case 7: u8g_ascii_2(); break;
+    case 8: u8g_extra_page(draw_state&7); break;
+  }   //switch
+  return 1;
+}  //sRunTest
+
 
 void u8g_prepare(void) {
   u8g.setFont(u8g_font_6x10);
@@ -119,51 +172,4 @@ void u8g_extra_page(uint8_t a)
     u8g.undoScale();
   }
 }
-
-
-uint8_t draw_state = 0;
-
-void draw(void) {
-  u8g_prepare();
-  switch(draw_state >> 3) {
-    case 0: u8g_box_frame(draw_state&7); break;
-    case 1: u8g_disc_circle(draw_state&7); break;
-    case 2: u8g_r_frame(draw_state&7); break;
-    case 3: u8g_string(draw_state&7); break;
-    case 4: u8g_line(draw_state&7); break;
-    case 5: u8g_triangle(draw_state&7); break;
-    case 6: u8g_ascii_1(); break;
-    case 7: u8g_ascii_2(); break;
-    case 8: u8g_extra_page(draw_state&7); break;
-  }
-}
-
-void setup(void) {
-
-  // flip screen, if required
-  //u8g.setRot180();
-
-
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
-}
-
-void loop(void) {
-
-  // picture loop
-  u8g.firstPage();
-  do {
-    draw();
-  } while( u8g.nextPage() );
-
-  // increase the state
-  draw_state++;
-  if ( draw_state >= 9*8 )
-    draw_state = 0;
-
-  // rebuild the picture after some delay
-  //delay(150);
-
-}
-
-
+//Last line.

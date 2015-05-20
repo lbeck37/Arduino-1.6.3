@@ -1,15 +1,23 @@
 /*05/20/15 Beck- Create file as Lbeck37.h from Powershift.ino
-*/
+ */
 #ifndef LBECK37_H
 #define LBECK37_H
 
 #include <Arduino.h>
-#include <Streaming.h>
+#include <Streaming.h>  //Why can I include this here only if I already included it?
 
+#define INT8           int8_t
+#define UINT8         uint8_t
 #define INT16         int16_t
 #define UINT16       uint16_t
+#define INT32         int32_t
+#define UINT32       uint32_t
 
 static INT16 sLC    = 0;  //Serial Monitor Line Count, for clarity.
+
+//Protos
+INT16    sSetupSerialStreaming   (void);
+INT16    sFreeRam                (void);
 
 INT16 sSetupSerialStreaming() {
    Serial.begin(9600);
