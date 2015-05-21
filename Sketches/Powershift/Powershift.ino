@@ -8,6 +8,7 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <U8glib.h>
+#include <stdarg.h>
 
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
@@ -303,6 +304,16 @@ int sDrawMainScreen(void) {
 }  //sDrawMainScreen
 
 
+int sFormatLine(const char *format, ...)
+   {
+   va_list ap;
+   va_start(ap, format);
+   vsnprintf(szLineBuffer, sizeof(szLineBuffer), format, ap);
+   va_end(ap);
+   return 1;
+   }  //sFormatLine
+
+
 int sDisplayMainObjects(void) {
    if (true || bScreenChanged()) {
       //sDisplayButtons();
@@ -327,29 +338,6 @@ int sDisplaySplash(void) {
    return 1;
 }  //sDisplaySplash
 
-#if 0
-int sSetFont(int sFont) {
-   switch (sFont) {
-      case sFontNormal:
-         u8g.setFont(u8g_font_5x7);
-         break;
-      case sFontBig:
-         //u8g.setFont(u8g_font_fub11n);
-         u8g.setFont(u8g_font_9x15);
-         break;
-      case sFontGearNum:
-         u8g.setFont(u8g_font_fub35n);
-         break;
-      case sFontSquare:
-         break;
-      default:
-         Serial << sLC++ << "sSetFont(): Bad case in switch()= " << sFont << endl;
-         break;
-   }  //switch
-   sCurrentFont= sFont;
-   return 1;
-}  //sSetFont
-#endif
 
 int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
    sSwitchFont(sFont);
@@ -361,29 +349,25 @@ int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
 int sDisplayGyro() {
    int sXPixel   = 40;
    int sStartLine= 3;
-   long wNumber;
+   char szLocalBuffer[20];
    strcpy(szLineBuffer, szAccel);
-   strcat(szLineBuffer, " ");
+   strcat(szLineBuffer, "  ");
    strcat(szLineBuffer, szGyro);
    sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
-
    for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      strcpy(szLineBuffer, "");
-      //for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      for (int sDataType= sAccel; sDataType < sNumGyroTypes - 1; sDataType++) {
-         //itoa(asGyro[sDataType][sAxis], sz10CharString, 10);
-         //itoa((asGyro[sDataType][sAxis] >> 4), sz10CharString, 10);
-         wNumber= asGyro[sDataType][sAxis];
-         wNumber= (wNumber * 2000) / 32767;
-         int sNumber= wNumber;
-         itoa(sNumber, sz10CharString, 10);
-         strcat(szLineBuffer, sz10CharString);
-         strcat(szLineBuffer, " ");
-      }  //for sDataType
+      sFormatLine("%5d %5d", sScaleGyro(asGyro[sAccel][sAxis]), sScaleGyro(asGyro[sRotation][sAxis]));
       sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
    }  //for sAxis
    return 1;
 }  //sDisplayGyro
+
+
+int sScaleGyro(int sNumber) {
+   long wNumber= sNumber;
+   wNumber= (wNumber * 2000) / 32767;
+   int sScaleNumber= wNumber;
+   return sScaleNumber;
+}  //sScaleGyro
 
 
 int sDisplayCurrentGear() {
@@ -415,7 +399,8 @@ int sDisplayServoPos() {
 
 int sDisplayOdometer() {
    strcpy(szLineBuffer, "21.50");
-   sDisplayText(2, sLPixel(7), sFontNormal, szLineBuffer);  //Start 2 pixels in.
+   //sFormatLine("%f", 21.50);
+   sDisplayText(2, 50, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayOdometer
 
