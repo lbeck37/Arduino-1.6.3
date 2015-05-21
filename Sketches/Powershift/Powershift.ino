@@ -1,5 +1,5 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
- 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
+ 004/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
@@ -30,7 +30,7 @@ static const char      szSplashLine2[]      = {"-Max Performance"};
 static const char      szSplashLine3[]      = {"-Max Range"};
 static const char      szAccel[]            = {"Accel"};
 static const char      szGyro[]             = {"Gyro"};
-static const char      szServo[]            = {"Servo"};
+static const char      szServo[]            = {"Servo "};
 
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
@@ -107,7 +107,7 @@ static const int       sDefaultBrightness   = sBrightness100;
 
 static const int       sFontNotSet         =   0;
 static const int       sFontNormal         =   1;
-static const int       sFontBigNum         =   2;
+static const int       sFontBig         =   2;
 static const int       sFontGearNum        =   3;
 static const int       sFontSquare         =   4;
 //End of the const's
@@ -186,9 +186,7 @@ void setup() {
 void loop() {
    sCheckButtons();
    sLoopI2C();
-#ifndef DEBUG_ON
    sDrawMainScreen();
-#endif
    sHandleButtons();
    return;
 }  //loop()
@@ -329,14 +327,15 @@ int sDisplaySplash(void) {
    return 1;
 }  //sDisplaySplash
 
-
+#if 0
 int sSetFont(int sFont) {
    switch (sFont) {
       case sFontNormal:
          u8g.setFont(u8g_font_5x7);
          break;
-      case sFontBigNum:
-         u8g.setFont(u8g_font_fub11n);
+      case sFontBig:
+         //u8g.setFont(u8g_font_fub11n);
+         u8g.setFont(u8g_font_9x15);
          break;
       case sFontGearNum:
          u8g.setFont(u8g_font_fub35n);
@@ -350,7 +349,7 @@ int sSetFont(int sFont) {
    sCurrentFont= sFont;
    return 1;
 }  //sSetFont
-
+#endif
 
 int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
    sSwitchFont(sFont);
@@ -361,13 +360,12 @@ int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
 
 int sDisplayGyro() {
    int sXPixel   = 40;
-   int sStartLine= 4;
+   int sStartLine= 3;
    strcpy(szLineBuffer, szAccel);
    strcat(szLineBuffer, " ");
    strcat(szLineBuffer, szGyro);
    sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
 
-   //for (int sDataType= sAccel; sDataType < sNumGyroTypes - 1; sDataType++) {
    for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
       strcpy(szLineBuffer, "");
       //for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
@@ -400,10 +398,11 @@ int sDisplayCurrentGear() {
 
 
 int sDisplayServoPos() {
-   strcpy(szLineBuffer, "21.50");
+   strcpy(szLineBuffer, szServo);
    itoa(sServoPosLast, sz10CharString, 10);
-   strcpy(szLineBuffer, sz10CharString);
-   sDisplayText(75, sLPixel(1), sFontNormal, szLineBuffer);
+   strcat(szLineBuffer, sz10CharString);
+   //sDisplayText(50, sLPixel(1), sFontNormal, szLineBuffer);
+   sDisplayText(40, sLPixel(1), sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayServoPos
 
@@ -443,8 +442,9 @@ int sSwitchFont(int sFont) {
          case sFontNormal:
             u8g.setFont(u8g_font_5x7);
             break;
-         case sFontBigNum:
-            u8g.setFont(u8g_font_fub11n);
+         case sFontBig:
+            //u8g.setFont(u8g_font_fub11n);
+            u8g.setFont(u8g_font_7x13B);
             break;
          case sFontGearNum:
             u8g.setFont(u8g_font_fub35n);
