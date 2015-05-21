@@ -1,5 +1,5 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
- 004/10/15 Beck- Port from Arduino 0022 to 1.6.3
+ 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
@@ -361,6 +361,7 @@ int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
 int sDisplayGyro() {
    int sXPixel   = 40;
    int sStartLine= 3;
+   long wNumber;
    strcpy(szLineBuffer, szAccel);
    strcat(szLineBuffer, " ");
    strcat(szLineBuffer, szGyro);
@@ -370,7 +371,12 @@ int sDisplayGyro() {
       strcpy(szLineBuffer, "");
       //for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
       for (int sDataType= sAccel; sDataType < sNumGyroTypes - 1; sDataType++) {
-         itoa(asGyro[sDataType][sAxis], sz10CharString, 10);
+         //itoa(asGyro[sDataType][sAxis], sz10CharString, 10);
+         //itoa((asGyro[sDataType][sAxis] >> 4), sz10CharString, 10);
+         wNumber= asGyro[sDataType][sAxis];
+         wNumber= (wNumber * 2000) / 32767;
+         int sNumber= wNumber;
+         itoa(sNumber, sz10CharString, 10);
          strcat(szLineBuffer, sz10CharString);
          strcat(szLineBuffer, " ");
       }  //for sDataType
@@ -402,7 +408,7 @@ int sDisplayServoPos() {
    itoa(sServoPosLast, sz10CharString, 10);
    strcat(szLineBuffer, sz10CharString);
    //sDisplayText(50, sLPixel(1), sFontNormal, szLineBuffer);
-   sDisplayText(40, sLPixel(1), sFontBig, szLineBuffer);
+   sDisplayText(39, sLPixel(1), sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayServoPos
 
