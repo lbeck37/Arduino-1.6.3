@@ -1,7 +1,6 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
-#define USE_U8GLIB
 //#define DEBUG_ON
 
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
@@ -383,21 +382,34 @@ int sDisplayGyro() {
 #ifdef DEBUG_ON
    sFillGyro();
 #endif
-   //Show 3 lines at right side for X, Y and Z acceleration
-   //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
-   int sXPixel   = 30;
-   int sStartLine= 3;
+#if 0
+               int sXPixel   = 30;
+               int sStartLine= 3;
 
-   //Only show a line for accel and gyro, not temperature
-   for (int sDataType= sAccel; sDataType < sNumGyroTypes - 1; sDataType++) {
+               //Only show a line for accel and gyro, not temperature
+               for (int sDataType= sAccel; sDataType < sNumGyroTypes - 1; sDataType++) {
+                  strcpy(szLineBuffer, "");
+                  for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+                     itoa(asGyro[sDataType][sAxis], sz10CharString, 10);
+                     strcat(szLineBuffer, sz10CharString);
+                     strcat(szLineBuffer, " ");
+                  }  //for sAxis
+                  sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
+               }  //for sDataType
+#endif
+   int sXPixel   = 40;
+   int sStartLine= 3;
+   //for (int sDataType= sAccel; sDataType < sNumGyroTypes - 1; sDataType++) {
+   for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
       strcpy(szLineBuffer, "");
-      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+      //for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+      for (int sDataType= sAccel; sDataType < sNumGyroTypes - 1; sDataType++) {
          itoa(asGyro[sDataType][sAxis], sz10CharString, 10);
          strcat(szLineBuffer, sz10CharString);
          strcat(szLineBuffer, " ");
-      }  //for sAxis
+      }  //for sDataType
       sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
-   }  //for sDataType
+   }  //for sAxis
    return 1;
 }  //sDisplayGyro
 
