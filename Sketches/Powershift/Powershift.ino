@@ -600,11 +600,12 @@ int sHandleCalibMode(void) {
    int          sTarget;
 
    for (sButton= sUp; sButton <= sDown; sButton++) {
+      //The Up button lowers the servo position, gear 9 servo position< gear 1 position
       if (sButton == sUp) {
-         sDirection= 1;
+         sDirection= -1;
       }
       else {
-         sDirection= -1;
+         sDirection= 1;
       }
       //if (sButtonCount[sButton] == sHoldCode) {
       if (abButtonBeingHeld[sButton]) {
