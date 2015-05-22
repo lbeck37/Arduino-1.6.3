@@ -23,12 +23,14 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 //#define FILTER_FUNC        sma_filter
 
 //Here come the const's sSplashDelay
-static const int       sSplashDelay          = 1000;     //mSec that Splash screen is on
+static const int       sSplashDelay          = 2000;     //mSec that Splash screen is on
 static const int       sMainDelay            = 1000;      //for debug
 static const int       sLineSpace            = 9;        //Line spacing in pixels
 static const char      szSplashLine1[]      = {"Electic Shifting"};
-static const char      szSplashLine2[]      = {"-Max Performance"};
-static const char      szSplashLine3[]      = {"-Max Range"};
+static const char      szSplashLine2[]      = {"* Max Performance *"};
+static const char      szSplashLine3[]      = {"*    Max Range    *"};
+static const char      szSplashLine4[]      = {"PowerShift"};
+static const char      szSplashLine5[]      = {"  by ShiftE"};
 static const char      szAccel[]            = {"Accel"};
 static const char      szGyro[]             = {"Gyro"};
 static const char      szServo[]            = {"Servo "};
@@ -333,14 +335,20 @@ int sDisplayMainObjects(void) {
 
 
 int sDisplaySplash(void) {
-   //2 lines of big font takes lines 0-3
+#if 0
    sDisplayText(0, sLPixel(1), sFontNormal, "PowerShift");
    sDisplayText(0, sLPixel(2), sFontNormal, "  by ShiftE");
-
    //Lines in normal font
-   sDisplayText(0, sLPixel(5), sFontNormal, szSplashLine1);
+   sDisplayText(20, sLPixel(5), sFontNormal, szSplashLine1);
    sDisplayText(0, sLPixel(6), sFontNormal, szSplashLine2);
    sDisplayText(0, sLPixel(7), sFontNormal, szSplashLine3);
+#endif
+   sDisplayText(10, 5, sFontBig, szSplashLine4);
+   sDisplayText(10, 20, sFontBig, szSplashLine5);
+
+   sDisplayText(8, 37, sFontNormal, szSplashLine1);
+   sDisplayText(0, 46, sFontNormal, szSplashLine2);
+   sDisplayText(0, 55, sFontNormal, szSplashLine3);
    return 1;
 }  //sDisplaySplash
 
