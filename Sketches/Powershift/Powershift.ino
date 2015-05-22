@@ -197,6 +197,8 @@ int sSetupDisplay() {
    Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
    sSwitchFont(sFontNormal);
    u8g.setColorIndex(1);
+   //u8g.undoRotation();
+   //u8g.setRot180();
 
    //Set backlight pin to be a PWM "analog" out pin.
    //Drive LED backlight through 15 ohm resistor.
@@ -285,6 +287,8 @@ int sLoopI2C() {
 
 
 int sDrawStartScreen(void) {
+   //u8g.undoRotation();
+   //u8g.setRot180();
    u8g.firstPage();
    do {
       sDisplaySplash();
@@ -296,6 +300,8 @@ int sDrawStartScreen(void) {
 
 
 int sDrawMainScreen(void) {
+   //u8g.undoRotation();
+   //u8g.setRot180();
    u8g.firstPage();
    do {
       sDisplayMainObjects();
@@ -355,7 +361,8 @@ int sDisplayGyro() {
    strcat(szLineBuffer, szGyro);
    sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
    for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      sFormatLine("%5d %5d", sScaleGyro(asGyro[sAccel][sAxis]), sScaleGyro(asGyro[sRotation][sAxis]));
+      sFormatLine("%5d %5d", sScaleGyro(asGyro[sAccel][sAxis]),
+                             sScaleGyro(asGyro[sRotation][sAxis]));
       sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
    }  //for sAxis
    return 1;
@@ -575,7 +582,8 @@ int sHandleNormalMode(void) {
 
    sNewGear= constrain(sCurrentGear + sTargetChange, 1, sNumGears);
    if (sNewGear != sCurrentGear) {
-      Serial << sLC++ << " sHandleNormalMode(): Current gear= " << sCurrentGear << ", New= " << sNewGear << endl;
+      Serial <<sLC++<<" sHandleNormalMode(): Current gear= "<< sCurrentGear
+             <<", New= "<< sNewGear<< endl;
       sCurrentGear= sNewGear;
       sTargetLocation= asGearLocation[sCurrentGear];
 
