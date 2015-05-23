@@ -23,7 +23,7 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 //#define FILTER_FUNC        sma_filter
 
 //Here come the const's
-static const boolean   bFlipDisplay         = true;      //Display is 180 from normal.
+static const boolean   bFlipDisplay         = false;
 static const int       sSplashDelay         = 2000;     //mSec that Splash screen is on
 static const int       sMainDelay           = 1000;      //for debug
 static const int       sLineSpace           = 9;        //Line spacing in pixels
