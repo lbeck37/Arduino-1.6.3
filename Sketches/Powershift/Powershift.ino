@@ -22,10 +22,11 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 //#define FILTER_NAME        SMA
 //#define FILTER_FUNC        sma_filter
 
-//Here come the const's sSplashDelay
-static const int       sSplashDelay          = 2000;     //mSec that Splash screen is on
-static const int       sMainDelay            = 1000;      //for debug
-static const int       sLineSpace            = 9;        //Line spacing in pixels
+//Here come the const's
+static const boolean   bFlipDisplay         = true;      //Display is 180 from normal.
+static const int       sSplashDelay         = 2000;     //mSec that Splash screen is on
+static const int       sMainDelay           = 1000;      //for debug
+static const int       sLineSpace           = 9;        //Line spacing in pixels
 static const char      szSplashLine1[]      = {"Electic Shifting"};
 static const char      szSplashLine2[]      = {"* Max Performance *"};
 static const char      szSplashLine3[]      = {"*    Max Range    *"};
@@ -199,8 +200,9 @@ int sSetupDisplay() {
    Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
    sSwitchFont(sFontNormal);
    u8g.setColorIndex(1);
-   //u8g.undoRotation();
-   //u8g.setRot180();
+   if (bFlipDisplay) {
+      u8g.setRot180();
+   }  //if(bFlipDisplay)
 
    //Set backlight pin to be a PWM "analog" out pin.
    //Drive LED backlight through 15 ohm resistor.
