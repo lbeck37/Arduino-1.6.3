@@ -1,5 +1,5 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
- 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
+ 004/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
@@ -349,8 +349,8 @@ int sDisplaySplash(void) {
    sDisplayText(10, 20, sFontBig, szSplashLine5);
 
    sDisplayText(8, 37, sFontNormal, szSplashLine1);
-   sDisplayText(0, 46, sFontNormal, szSplashLine2);
-   sDisplayText(0, 55, sFontNormal, szSplashLine3);
+   sDisplayText(6, 46, sFontNormal, szSplashLine2);
+   sDisplayText(6, 55, sFontNormal, szSplashLine3);
    return 1;
 }  //sDisplaySplash
 
@@ -389,8 +389,8 @@ int sScaleGyro(int sNumber) {
 
 int sDisplayCurrentGear() {
    int sGearFont  = sFontGearNum;
-   int sLeftPixel = 0;
-   int sTopPixel  = 1;
+   int sLeftPixel = 4;
+   int sTopPixel  = 6;
    if (sCurrentMode == sNormalMode) {
       itoa(sCurrentGear, sz10CharString, 10);
       sDisplayText(sLeftPixel, sTopPixel, sGearFont, sz10CharString);
@@ -409,7 +409,8 @@ int sDisplayServoPos() {
    itoa(sServoPosLast, sz10CharString, 10);
    strcat(szLineBuffer, sz10CharString);
    //sDisplayText(50, sLPixel(1), sFontNormal, szLineBuffer);
-   sDisplayText(39, sLPixel(1), sFontBig, szLineBuffer);
+   //sDisplayText(35, sLPixel(1), sFontBig, szLineBuffer);
+   sDisplayText(35, 4, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayServoPos
 
@@ -417,7 +418,7 @@ int sDisplayServoPos() {
 int sDisplayOdometer() {
    strcpy(szLineBuffer, "21.50");
    //sFormatLine("%f", 21.50);
-   sDisplayText(2, 50, sFontBig, szLineBuffer);
+   sDisplayText(6, 50, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayOdometer
 
