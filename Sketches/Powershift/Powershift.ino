@@ -416,8 +416,12 @@ int sDisplayServoPos() {
 
 
 int sDisplayOdometer() {
+#if 0
    strcpy(szLineBuffer, "21.50");
    //sFormatLine("%f", 21.50);
+   sDisplayText(6, 50, sFontBig, szLineBuffer);
+#endif
+   sFormatLine("Temp %5d \xB0 F", sScaleGyro(asGyro[sTemperature][sXAxis]));
    sDisplayText(6, 50, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayOdometer
