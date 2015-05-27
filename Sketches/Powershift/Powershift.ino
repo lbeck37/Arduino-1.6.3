@@ -421,10 +421,20 @@ int sDisplayOdometer() {
    //sFormatLine("%f", 21.50);
    sDisplayText(6, 50, sFontBig, szLineBuffer);
 #endif
-   sFormatLine("Temp %5d \xB0 F", sScaleGyro(asGyro[sTemperature][sXAxis]));
+   //sFormatLine("%3d\xB0", sScaleGyro(asGyro[sTemperature][sXAxis]));
+   int sGyroF= sDegF( asGyro[sTemperature][sXAxis]);
+   //sFormatLine("%3d\xB0", abs(sScaleGyro(asGyro[sTemperature][sXAxis])));
+   sFormatLine("%3d\xB0", sGyroF);
    sDisplayText(6, 50, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayOdometer
+
+
+int sDegF(int sGyroReading) {
+	float fGyroF= ((1.8 * sGyroReading) / 340.0) + 103.13;
+	int sGyroF= fGyroF;
+	return sGyroF;
+}	//sDegF
 
 
 int sDisplayButtons() {
