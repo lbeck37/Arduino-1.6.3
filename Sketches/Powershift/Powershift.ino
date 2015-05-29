@@ -23,6 +23,7 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 //#define FILTER_FUNC        sma_filter
 
 //Here come the const's
+static const uint8_t   ucContrast           = 100;
 static const boolean   bFlipDisplay         = false;
 static const int       sSplashDelay         = 2000;     //mSec that Splash screen is on
 static const int       sMainDelay           = 1000;      //for debug
@@ -178,6 +179,7 @@ void setup() {
    sSetupServo();
    sSetupSmoothing();
    sDrawStartScreen();
+   //sTestContrast();
 #endif   //DEBUG_1
 
    //Dither the servo once so it's position shows on the LCD.
@@ -191,6 +193,7 @@ void loop() {
    sCheckButtons();
    sLoopI2C();
    sDrawMainScreen();
+   //sTestContrast();
    sHandleButtons();
    return;
 }  //loop()
@@ -198,6 +201,8 @@ void loop() {
 
 int sSetupDisplay() {
    Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
+   Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
+   u8g.setContrast(ucContrast);
    sSwitchFont(sFontNormal);
    u8g.setColorIndex(1);
    if (bFlipDisplay) {
@@ -210,6 +215,16 @@ int sSetupDisplay() {
    sDisplaySetBrightness(sDefaultBrightness);
    return 1;
 }  //sSetupDisplay
+
+
+int sTestContrast() {
+   for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
+      Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
+      u8g.setContrast(sContrast);
+      delay(1000);
+   }  //for(int sContrast=0...
+   return 1;
+}  //sTestContrast
 
 
 int sSetupGyro() {
@@ -431,10 +446,10 @@ int sDisplayOdometer() {
 
 
 int sDegF(int sGyroReading) {
-	float fGyroF= ((1.8 * sGyroReading) / 340.0) + 103.13;
-	int sGyroF= fGyroF;
-	return sGyroF;
-}	//sDegF
+   float fGyroF= ((1.8 * sGyroReading) / 340.0) + 103.13;
+   int sGyroF= fGyroF;
+   return sGyroF;
+}  //sDegF
 
 
 int sDisplayButtons() {
