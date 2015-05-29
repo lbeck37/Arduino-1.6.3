@@ -1,5 +1,5 @@
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
- 004/10/15 Beck- Port from Arduino 0022 to 1.6.3
+ 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
