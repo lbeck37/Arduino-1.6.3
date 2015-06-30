@@ -7,8 +7,8 @@ static const int asRelay[]  = {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero re
 
 static const int  sFirstRelay     = 1;
 static const int  sLastRelay      = 2;
-static const int  sPumpOnSecs     = 10;
-static const int  sPumpOffSecs    = 50;
+static const int  sPumpOnSecs     = 15;
+static const int  sPumpOffSecs    = 60;
 static const long lMsec   				= 1000;
 static const long lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long lPumpOffMillis  = sPumpOffSecs * lMsec;
@@ -37,6 +37,18 @@ void loop()  {
   }
   return;
 } //loop
+
+
+int sCheckKeyboard(){
+  if (Serial.available()) {
+		char cChar= Serial.read();
+		if (cChar= 's') {
+		}
+		if (cChar= 'r') {
+		}
+	}	//if(Serial.available())
+  return 1;
+}  //sCheckKeyboard
 
 
 boolean bTimeToTogglePump(){
