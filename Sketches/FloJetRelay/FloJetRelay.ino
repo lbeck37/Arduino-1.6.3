@@ -20,6 +20,7 @@ static long       lNextMillisDone     = 0;      //When the next time is to toggl
 //static long       lCurrentMillis;               //Use inside functions.
 static boolean    bPumpIsOn           = false;  //Indicates current state of relays.
 static boolean    bPumpToggled				= true;		//Causes log line to be printed.
+static boolean    bLoopRunning				= false;		//loop() checks this
 
 
 void setup()  {
@@ -32,7 +33,7 @@ void setup()  {
 
 
 void loop()  {
-  if (bTimeToTogglePump()) {
+  if (bLoopRunning && bTimeToTogglePump()) {
     sTogglePump();
   }
   return;
@@ -40,15 +41,43 @@ void loop()  {
 
 
 int sCheckKeyboard(){
-  if (Serial.available()) {
-		char cChar= Serial.read();
-		if (cChar= 's') {
-		}
-		if (cChar= 'r') {
-		}
-	}	//if(Serial.available())
+  if (bStopWasPressed()) {
+		bLoopRunning= false;
+		sTurnPumpOn(false);
+	}	//bStopWasPressed
+
+  if (bRunWasPressed()) {
+		bLoopRunning= false;
+		sTurnPumpOn(false);
+	}	//bRunWasPressed
   return 1;
 }  //sCheckKeyboard
+
+
+boolean bStopWasPressed(){
+  if (Serial.available()) {
+		char cChar= Serial.read();
+		if ((cChar= 's') || (cChar= 'S')) {
+			return true;
+		}
+		else {
+			return false;
+		}	//if((cChar= 's')||(cChar= 'S'))else
+	}	//if(Serial.available())
+}  //bStopWasPressed
+
+
+boolean bRunWasPressed(){
+  if (Serial.available()) {
+		char cChar= Serial.read();
+		if ((cChar= 'r') || (cChar= 'R')) {
+			return true;
+		}
+		else {
+			return false;
+		}	//if((cChar= 's')||(cChar= 'S'))else
+	}	//if(Serial.available())
+}  //bRunWasPressed
 
 
 boolean bTimeToTogglePump(){
@@ -114,10 +143,12 @@ int sTurnPumpOn(boolean bOn){
 
   if (bOn) {
     sValue= HIGH;
+    bLoopRunning= true;
     Serial << sLineCount++ <<" sTurnPumpOn(): Turning pump ON" << endl;
   }
   else {
     sValue= LOW;
+    bLoopRunning= false;
     Serial << sLineCount++ <<" sTurnPumpOn(): Turning pump OFF" << endl;
   }
 
