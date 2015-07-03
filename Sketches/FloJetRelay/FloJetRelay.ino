@@ -16,7 +16,7 @@ static const long lPumpOffMillis  = sPumpOffSecs * lMsec;
 static int        sLineCount          = 0;      //Used in outputs to Serial Monitor for clarity.
 static int        sToggleSecsLeft;          		//Seconds until pump toggles, for Serial Monitor
 static int        sLastToggleSecsLeft;
-static long       lNextMillisDone;      				//When the next time is to toggle pump relay.
+static long       lNextToggleMsec;      				//When the next time is to toggle pump relay.
 static boolean    bPumpIsOn           = false;  //Indicates current state of relays.
 static boolean    bPumpJustToggled		= true;		//Causes log line to be printed.
 static boolean    bPumpLoopRunning		= false;	//loop() checks this
@@ -28,7 +28,6 @@ void setup()  {
 
   sSetupPump();
   sSetupPumpLoop();
-  sStartTimer();
   return;
 } //setup
 
@@ -43,7 +42,7 @@ void loop()  {
 
 
 int sSetupPumpLoop(){
-	lNextMillisDone		= 0;
+	lNextToggleMsec		= 0;
 	bPumpIsOn					= false;
 	bPumpJustToggled	= true;
 	bPumpLoopRunning	= false;
@@ -117,15 +116,15 @@ boolean bTimeToTogglePump(){
   boolean bTogglePump= false;
 
   long lCurrentMillis= millis();
-  if (lCurrentMillis > lNextMillisDone) {
+  if (lCurrentMillis > lNextToggleMsec) {
 		Serial << sLineCount++ << " bTimeToTogglePump(): lCurrentMillis= " << lCurrentMillis
-					 << ", lNextMillisDone= " << lNextMillisDone << endl;
+					 << ", lNextToggleMsec= " << lNextToggleMsec << endl;
 		Serial << sLineCount++ << " bTimeToTogglePump(): Setting bTogglePump to TRUE" << endl;
     bTogglePump= true;
-  } //if(millis()>lNextMillisDone)
+  } //if(millis()>lNextToggleMsec)
   else {
 		//Print seonds left every second.
-    sToggleSecsLeft= (lNextMillisDone - lCurrentMillis) / 1000;
+    sToggleSecsLeft= (lNextToggleMsec - lCurrentMillis) / 1000;
     if (bPumpJustToggled || (sToggleSecsLeft < sLastToggleSecsLeft)) {
 			bPumpJustToggled= false;
       sLastToggleSecsLeft= sToggleSecsLeft;
@@ -149,16 +148,16 @@ int sTogglePump(){
   if (bPumpIsOn) {
     sTurnPumpOn(false);
     bPumpIsOn= false;
-    lNextMillisDone= lCurrentMillis + lPumpOffMillis;
+    lNextToggleMsec= lCurrentMillis + lPumpOffMillis;
   }
   else {
     sTurnPumpOn(true);
     bPumpIsOn= true;
-    lNextMillisDone= lCurrentMillis + lPumpOnMillis;
+    lNextToggleMsec= lCurrentMillis + lPumpOnMillis;
   } //if(bPumpIsOn)else
 
 	Serial << sLineCount++ << " sTogglePump(): Current millis= " << lCurrentMillis
-				 << ", Pump toggled, set next done to " << lNextMillisDone << endl;
+				 << ", Pump toggled, set next done to " << lNextToggleMsec << endl;
 	bPumpJustToggled= true;
   return 1;
 }  //sTogglePump
