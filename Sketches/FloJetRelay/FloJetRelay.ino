@@ -16,7 +16,7 @@ static const long lPumpOffMillis  = sPumpOffSecs * lMsec;
 static int        sLineCount          = 0;      //Used in outputs to Serial Monitor for clarity.
 static int        sToggleSecsLeft;          //Seconds until pump toggles, for Serial Monitor
 static int        sLastToggleSecsLeft;
-static long       lNextMillisDone     = 0;      //When the next time is to toggle pump relay.
+static long       lNextMillisDone;      //When the next time is to toggle pump relay.
 //static long       lCurrentMillis;               //Use inside functions.
 static boolean    bPumpIsOn           = false;  //Indicates current state of relays.
 static boolean    bPumpToggled				= true;		//Causes log line to be printed.
@@ -28,6 +28,8 @@ void setup()  {
   Serial << sLineCount++ << " setup(): Begin" << endl;
 
   sSetupPump();
+  sSetupLoop();
+  sStartTimer();
   return;
 } //setup
 
@@ -40,6 +42,21 @@ void loop()  {
 } //loop
 
 
+int sSetupLoop(){
+	lNextMillisDone	= 0;
+	bPumpIsOn				= false;
+	bPumpToggled		= true;
+	bLoopRunning		= false;
+  return 1;
+}  //sSetupLoop
+
+
+int sStartTimer(){
+	bLoopRunning= true;
+  return 1;
+}  //sStartTimer
+
+
 int sCheckKeyboard(){
   if (bStopWasPressed()) {
 		bLoopRunning= false;
@@ -47,8 +64,8 @@ int sCheckKeyboard(){
 	}	//bStopWasPressed
 
   if (bRunWasPressed()) {
-		bLoopRunning= false;
-		sTurnPumpOn(false);
+		sSetupLoop();
+		sStartTimer();
 	}	//bRunWasPressed
   return 1;
 }  //sCheckKeyboard
