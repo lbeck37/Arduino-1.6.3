@@ -5,8 +5,8 @@
 static const int asRelay[]  = {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero relay
 static const int  sFirstRelay     = 1;
 static const int  sLastRelay      = 2;
-static const int  sPumpOnSecs     = 15;
-static const int  sPumpOffSecs    = 60;
+static const int  sPumpOnSecs     = 300;
+static const int  sPumpOffSecs    = 600;
 static const long lMsec   				= 1000;
 static const long lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long lPumpOffMillis  = sPumpOffSecs * lMsec;
