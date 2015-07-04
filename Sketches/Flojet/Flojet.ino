@@ -1,15 +1,17 @@
-// 7/04/15A  Sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 7/04/15B Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
 #include <Arduino.h>
 #include <Streaming.h>
 
-static const int asRelay[]  = {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero relay
-static const int  sFirstRelay     = 1;
-static const int  sLastRelay      = 2;
-static const int  sPumpOnSecs     = 300;
-static const int  sPumpOffSecs    = 600;
-static const long lMsec   				= 1000;
-static const long lPumpOnMillis   = sPumpOnSecs  * lMsec;
-static const long lPumpOffMillis  = sPumpOffSecs * lMsec;
+static const int 		asRelay[]  			= {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero relay
+static const int  	sFirstRelay     = 1;
+static const int  	sLastRelay      = 2;
+static const int  	sPumpOnSecs     = 300;
+static const int  	sPumpOffSecs    = 600;
+static const int  	sMotorVoltsPin  = 0;			//Arduino A0 pin.
+static const long 	lMsec   				= 1000;
+static const long 	lPumpOnMillis   = sPumpOnSecs  * lMsec;
+static const long 	lPumpOffMillis  = sPumpOffSecs * lMsec;
+static const float	fMotorVoltsConvert  = 19.55;	//(4 * 5V *1000 / 1023)
 
 static long       lLineCount      = 0;  		//Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
@@ -19,6 +21,7 @@ static boolean    bPumpLoopRunning;					//loop() checks this
 static boolean		bPumpJustToggled;					//For logging.
 
 /*
+Reads motor voltage at A0, scaled 4:1, 20V FS => 5V at A0.
 When board powers up pump is tuned off and pump loop is not running.
 Sketch uses Serial Monitor on a PC for output and input.
 Three keys may be pushed: R(un), S(top), T(oggle)
@@ -130,9 +133,20 @@ int sPrintStatus(){
 		else {
 			Serial << "Seconds since start= " << (lCurrentMsec/1000) << endl;
 		}	//if(bPumpLoopRunning)else
+	sPrintMotorVolts();
 	} //if(((lCurrentMsec...
   return 1;
 }  //sPrintStatus
+
+
+int sPrintMotorVolts(){
+	//static int sCount= 0;
+	//int sMotorVoltsRaw= 500 + ((sCount++ % 4) * 50);	//Test series
+	int   sMotorVoltsRaw= analogRead(sMotorVoltsPin);
+	float fMotorVoltage = (fMotorVoltsConvert * sMotorVoltsRaw) / 1000.0;
+	Serial << lLineCount++ << " sPrintMotorVolts(): Motor Volts= " << fMotorVoltage << endl;
+  return 1;
+}  //sPrintMotorVolts
 
 
 int sTogglePump(){
