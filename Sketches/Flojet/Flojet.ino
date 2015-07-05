@@ -1,6 +1,7 @@
 // 7/04/15B Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
 #include <Arduino.h>
 #include <Streaming.h>
+#include <SD.h>
 
 static const int 		asRelay[]  			= {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero relay
 static const int  	sFirstRelay     = 1;
