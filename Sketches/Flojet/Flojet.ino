@@ -1,7 +1,7 @@
-// 7/04/15B Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 7/05/15A Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
 #include <Arduino.h>
 #include <Streaming.h>
-#include <SD.h>
+//#include <SD.h>
 
 static const int 		asRelay[]  			= {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero relay
 static const int  	sFirstRelay     = 1;
@@ -34,11 +34,21 @@ and keeps the loop running. It does not start the loop if it's not on.
 
 void setup()  {
   Serial.begin(9600);
+  sWaitForSerialMonitor();
   Serial << lLineCount++ << " setup(): Begin" << endl;
   sSetupPumpRelays();
   sClearPumpLoop();
   return;
 } //setup
+
+
+int sWaitForSerialMonitor(){
+	//The following (for Leonardo only) waits for SerialMonitor to start on PC.
+	while (!Serial) {
+    ; // wait for serial port to connect. Needed for Leonardo only
+  }
+  return 1;
+}  //sWaitForSerialMonitor
 
 
 void loop()  {
