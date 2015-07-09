@@ -1,4 +1,4 @@
-// 7/05/15A Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 7/07/15A Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
 #include <Arduino.h>
 #include <Streaming.h>
 #include <SPI.h>
