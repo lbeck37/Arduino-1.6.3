@@ -1,4 +1,4 @@
-// 7/07/15A Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 7/10/15A Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
 #include <Arduino.h>
 #include <Streaming.h>
 #include <SPI.h>
@@ -15,22 +15,27 @@ static const int sDefaultChipSelectPin	= 10;
 static const int 		asRelay[]  			= {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero relay
 static const int  	sFirstRelay     = 1;
 static const int  	sLastRelay      = 2;
-static const int  	sPumpOnSecs     = 300;
+static const int  	sPumpOnSecs     = 360;
 static const int  	sPumpOffSecs    = 600;
 static const int  	sMotorVoltsPin  = 0;			//Arduino A0 pin.
 static const long 	lMsec   				= 1000;
 static const long 	lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long 	lPumpOffMillis  = sPumpOffSecs * lMsec;
-static const float	fMotorVoltsConvert  = 19.55;	//(4 * 5V *1000 / 1023)
+
+static const float	fMotorVoltsConvert= 19.55;	//(4 * 5V *1000 / 1023)
+static const float	fMinVoltsToStop  	= 12.80;	//Pump is dry if running volts are above this.
+
+static const boolean	bStopDryPump  	= true;
 
 static long       lLineCount      = 0;  		//Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
 static long       lNextToggleMsec;      		//Next time to toggle pump relay.
 static long       lCurrentMsec;
-static boolean    bPumpIsOn;  							//Indicates current state of relays.
-static boolean    bPumpLoopRunning;					//loop() checks this
-static boolean		bPumpJustToggled;					//For logging.
 static float 			fMotorVoltage;
+
+boolean    				bPumpIsOn;  							//Indicates current state of relays.
+boolean    				bPumpLoopRunning;					//loop() checks this
+boolean						bPumpJustToggled;					//For logging.
 
 /*
 Reads motor voltage at A0, scaled 4:1, 20V FS => 5V at A0.
@@ -81,9 +86,23 @@ int sSetupSD(){
 
 
 void loop()  {
+	//We will check the pump voltage to make sure pump is not dry but first we
+	//will let it toggle if it's time
+#if 0
   if (bPumpLoopRunning && bTimeToTogglePump()) {
     sTogglePump();
   }
+#endif
+  if (bPumpLoopRunning) {
+		if (bTimeToTogglePump()) {
+    	sTogglePump();
+  	}	//if (bTimeToTogglePump())
+
+		if(bStopDryPump) {
+  		sStopPumpIfDry();
+		}	//if(bStopDryPump)
+	}	//if(bPumpLoopRunning)
+
   sPrintStatus();
   sCheckKeyboard();
   return;
@@ -111,6 +130,51 @@ int sStopPumpLoop(){
 		sTurnPumpOn(false);
   return 1;
 }  //sStopPumpLoop
+
+
+int sStopPumpIfDry(){
+	//If the pump volts is above the minimum voltage we stop the pump.
+	//We say it's above that voltage if the first reading is above and then 2 of the next 3
+	//readings are above the minimum. This function will take either 1, 3 or 4 readings
+	//We check a maximum of (5) times before returning 0 to indicate pump was
+	//not stopped. A 1 is returned to indicate pump was stopped.
+	int				sTimesDry	= 0;
+	int				sCheck		= 0;
+	int				sReturn		= 0;
+	boolean		bDone			= false;
+	boolean		bFirstTime= true;
+
+	while (!bDone) {
+		if (sCheck++ < 5) {
+			sReadMotorVolts();
+			if (fMotorVoltage >= fMinVoltsToStop) {
+				Serial << lLineCount++ <<" sStopPumpIfDry(): Motor Volts= "<< fMotorVoltage
+				       <<" >> "<< fMinVoltsToStop << endl;
+				if (sTimesDry++ > 3) {
+					sStopPumpLoop();
+					sReturn= 1;
+					bDone= true;
+				}	//if(sTimesDry++...
+			}	//if(fMotorVoltage >=...
+			else {
+				//Pump voltage is not in dry range.
+				//If this is the first reading then pump is not dry.
+				if (bFirstTime) {
+					bDone= true;
+				}	//if(bFirstTime)
+				else {
+					Serial << lLineCount++ <<" sStopPumpIfDry(): Motor Volts= "<< fMotorVoltage
+								 << " << " << fMinVoltsToStop << endl;
+				}	//if(bFirstTime)
+			}	//if(fMotorVoltage >=...else
+		}	//f (sCheck++...
+		else {
+			bDone= true;
+		}	//f (sCheck++...else
+		bFirstTime= false;
+	}	//while(!bDone)
+  return sReturn;
+}  //sStopPumpIfDry
 
 
 int sCheckKeyboard(){
@@ -168,12 +232,16 @@ int sPrintStatus(){
 			Serial << lLineCount++ << " sPrintStatus(): Pump is OFF, ";
 		}
 		if (bPumpLoopRunning) {
-			Serial <<"Seconds until pump toggle= "<< ((lNextToggleMsec-lCurrentMsec)/1000) << endl;
+			int lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
+			Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
 		}	//if(bPumpLoopRunning)
 		else {
-			Serial << "Seconds since start= " << (lCurrentMsec/1000) << endl;
+			//Serial << "Seconds since start= " << (lCurrentMsec/1000) << endl;
+			int lSecSinceStart= lCurrentMsec/1000;
+			Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60) << endl;
 		}	//if(bPumpLoopRunning)else
 		sReadMotorVolts();
+		Serial << lLineCount++ << " sPrintStatus(): Motor Volts= " << fMotorVoltage << endl;
 		if (bPumpLoopRunning) {
 			//Want to be able to eject SD card when it's closed.
 			sLogMotorVolts();
@@ -186,7 +254,6 @@ int sPrintStatus(){
 int sReadMotorVolts(){
 	int sMotorVoltsRaw= analogRead(sMotorVoltsPin);
 	fMotorVoltage = (fMotorVoltsConvert * sMotorVoltsRaw) / 1000.0;
-	Serial << lLineCount++ << " sReadMotorVolts(): Motor Volts= " << fMotorVoltage << endl;
   return 1;
 }  //sReadMotorVolts
 
@@ -233,8 +300,16 @@ int sTogglePump(){
     sTurnPumpOn(true);
     lNextToggleMsec= lCurrentMsec + lPumpOnMillis;
   } //if(bPumpIsOn)else
+#if 1
 	Serial << lLineCount++ << " sTogglePump(): Current millis= " << lCurrentMsec/1000
 				 << ", Pump toggled, set next done to " << lNextToggleMsec/1000 << endl;
+#else
+	int lSecCurrent= lCurrentMsec/1000;
+	int lSecToggle= lNextToggleMsec/1000;
+	Serial << lLineCount++ << " sTogglePump(): Current millis= "
+	       << (lSecCurrent / 60) <<":"<< (lSecCurrent % 60)
+				 << ", Pump toggled, set next done to " << (lSecToggle / 60) <<":"<< (lSecToggle % 60) << endl;
+#endif
 	bPumpJustToggled= true;
   return 1;
 }  //sTogglePump
