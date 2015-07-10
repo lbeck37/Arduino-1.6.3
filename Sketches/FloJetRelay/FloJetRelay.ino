@@ -7,16 +7,16 @@ static const int  sFirstRelay     = 1;
 static const int  sLastRelay      = 2;
 static const int  sPumpOnSecs     = 300;
 static const int  sPumpOffSecs    = 600;
-static const long lMsec   				= 1000;
+static const long lMsec           = 1000;
 static const long lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long lPumpOffMillis  = sPumpOffSecs * lMsec;
 
-static long       lLineCount      = 0;  		//Serial Monitor uses for clarity.
+static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
-static long       lNextToggleMsec;      		//Next time to toggle pump relay.
-static boolean    bPumpIsOn;  							//Indicates current state of relays.
-static boolean    bPumpLoopRunning;					//loop() checks this
-static boolean		bPumpJustToggled;					//For logging.
+static long       lNextToggleMsec;          //Next time to toggle pump relay.
+static boolean    bPumpIsOn;                //Indicates current state of relays.
+static boolean    bPumpLoopRunning;         //loop() checks this
+static boolean    bPumpJustToggled;         //For logging.
 
 /*
 When board powers up pump is tuned off and pump loop is not running.
@@ -48,89 +48,89 @@ void loop()  {
 
 
 int sClearPumpLoop(){
-	lNextToggleMsec		= 0;
-	bPumpIsOn					= false;
-	bPumpLoopRunning	= false;
-	bPumpJustToggled	= true;
+  lNextToggleMsec   = 0;
+  bPumpIsOn         = false;
+  bPumpLoopRunning  = false;
+  bPumpJustToggled  = true;
   return 1;
 }  //sClearPumpLoop
 
 
 int sStartPumpLoop(){
   sClearPumpLoop();
-	bPumpLoopRunning= true;
+  bPumpLoopRunning= true;
   return 1;
 }  //sStartPumpLoop
 
 
 int sStopPumpLoop(){
-		bPumpLoopRunning= false;
-		sTurnPumpOn(false);
+    bPumpLoopRunning= false;
+    sTurnPumpOn(false);
   return 1;
 }  //sStopPumpLoop
 
 
 int sCheckKeyboard(){
   if (Serial.available()) {
-		char cChar= Serial.read();
-		Serial << lLineCount++ << " sCheckKeyboard(): Character read= "<< cChar << endl;
-		switch (cChar) {
-			case 'r':
-			case 'R':
-				sStartPumpLoop();
-				break;
-			case 's':
-			case 'S':
-				sStopPumpLoop();
-				break;
-			case 't':
-			case 'T':
-				sTogglePump();
-				break;
-			default:
-				break;
-		}	//switch
-	}	//if(Serial.available()
+    char cChar= Serial.read();
+    Serial << lLineCount++ << " sCheckKeyboard(): Character read= "<< cChar << endl;
+    switch (cChar) {
+      case 'r':
+      case 'R':
+        sStartPumpLoop();
+        break;
+      case 's':
+      case 'S':
+        sStopPumpLoop();
+        break;
+      case 't':
+      case 'T':
+        sTogglePump();
+        break;
+      default:
+        break;
+    } //switch
+  } //if(Serial.available()
   return 1;
 }  //sCheckKeyboard
 
 
 boolean bTimeToTogglePump(){
-	static int  sLastToggleSecsLeft	= 0;
-  boolean 		bTogglePump;
+  static int  sLastToggleSecsLeft = 0;
+  boolean     bTogglePump;
   long lCurrentMsec= millis();
   if (lCurrentMsec > lNextToggleMsec) {
-		Serial << lLineCount++ << " bTimeToTogglePump(): lCurrentMsec/1000= "<< lCurrentMsec/1000
-					 <<", lNextToggleMsec/1000= "<< lNextToggleMsec/1000 << endl;
-		Serial << lLineCount++ <<" bTimeToTogglePump(): Setting bTogglePump to TRUE"<< endl;
+    Serial << lLineCount++ << " bTimeToTogglePump(): lCurrentMsec/1000= "<< lCurrentMsec/1000
+           <<", lNextToggleMsec/1000= "<< lNextToggleMsec/1000 << endl;
+    Serial << lLineCount++ <<" bTimeToTogglePump(): Setting bTogglePump to TRUE"<< endl;
     bTogglePump= true;
   } //if(millis()>lNextToggleMsec)
   else {
-		bTogglePump= false;
+    bTogglePump= false;
   } //else
   return bTogglePump;
 }  //bTimeToTogglePump
 
 
 int sPrintStatus(){
-	//Print once a second.
-	static long lLastPrintedMsec= 0;
+  //Print once a second.
+  static long lLastPrintedMsec= 0;
   long lCurrentMsec= millis();
-	if ( ((lCurrentMsec - lLastPrintedMsec)/1000) > 0) {
-		lLastPrintedMsec= lCurrentMsec;
-		if (bPumpIsOn) {
-			Serial << lLineCount++ << " sPrintStatus(): Pump is ON, ";
-		}
-		else {
-			Serial << lLineCount++ << " sPrintStatus(): Pump is OFF, ";
-		}
-		if (bPumpLoopRunning) {
-			Serial <<"Seconds until pump toggle= "<< ((lNextToggleMsec-lCurrentMsec)/1000) << endl;
-		}	//if(bPumpLoopRunning)
-		else {
-			Serial << "Seconds since start= " << (lCurrentMsec/1000) << endl;
-		}	//if(bPumpLoopRunning)else
-	} //if(((lCurrentMsec...
+  if ( ((lCurrentMsec - lLastPrintedMsec)/1000) > 0) {
+    lLastPrintedMsec= lCurrentMsec;
+    if (bPumpIsOn) {
+      Serial << lLineCount++ << " sPrintStatus(): Pump is ON, ";
+    }
+    else {
+      Serial << lLineCount++ << " sPrintStatus(): Pump is OFF, ";
+    }
+    if (bPumpLoopRunning) {
+      Serial <<"Seconds until pump toggle= "<< ((lNextToggleMsec-lCurrentMsec)/1000) << endl;
+    } //if(bPumpLoopRunning)
+    else {
+      Serial << "Seconds since start= " << (lCurrentMsec/1000) << endl;
+    } //if(bPumpLoopRunning)else
+  } //if(((lCurrentMsec...
   return 1;
 }  //sPrintStatus
 
@@ -145,9 +145,9 @@ int sTogglePump(){
     sTurnPumpOn(true);
     lNextToggleMsec= lCurrentMsec + lPumpOnMillis;
   } //if(bPumpIsOn)else
-	Serial << lLineCount++ << " sTogglePump(): Current millis= " << lCurrentMsec/1000
-				 << ", Pump toggled, set next done to " << lNextToggleMsec/1000 << endl;
-	bPumpJustToggled= true;
+  Serial << lLineCount++ << " sTogglePump(): Current millis= " << lCurrentMsec/1000
+         << ", Pump toggled, set next done to " << lNextToggleMsec/1000 << endl;
+  bPumpJustToggled= true;
   return 1;
 }  //sTogglePump
 
