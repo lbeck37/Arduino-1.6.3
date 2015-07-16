@@ -9,6 +9,7 @@
 
 
 static const int    asRelay[]       = {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero relay
+static const int    sPressurePin    = 3;
 static const int    sFirstRelay     = 1;
 static const int    sLastRelay      = 2;
 static const int    sPumpOnSecs     = 360;
@@ -104,6 +105,24 @@ int sStopPumpLoop(){
 }  //sStopPumpLoop
 
 
+int sSetupPressureSwitch(){
+  pinMode(sPressurePin, INPUT);
+  //Connect internal pull-up reistor.
+  digitalWrite(sPressurePin, HIGH);
+  return 1;
+}  //sSetupPressureSwitch
+
+
+boolean bPumpIsDry(){
+  boolean bReturn= false;
+  int sSwitch= digitalRead(sPressurePin);
+  if (sSwitch == LOW) {
+    bReturn= true;
+  } //if(sSwitch==LOW)
+  return bReturn;
+}  //bPumpIsDry
+
+
 int sStopPumpIfDry(){
   //If the pump volts is above the minimum voltage we stop the pump.
   //We say it's above that voltage if the first reading is above and then 2 of the next 3
@@ -118,21 +137,14 @@ int sStopPumpIfDry(){
 
   while (!bDone) {
     if (sCheck++ < 5) {
-#if 0
-      sReadMotorVolts();
-      if (fMotorVoltage >= fMinVoltsToStop) {
-        Serial << lLineCount++ <<" sStopPumpIfDry(): Motor Volts= "<< fMotorVoltage
-               <<" >> "<< fMinVoltsToStop << endl;
-#else
-      if (false) {
+      if (bPumpIsDry()) {
       //************Add check on pump switch here*********
-#endif
         if (sTimesDry++ > 3) {
           sStopPumpLoop();
           sReturn= 1;
           bDone= true;
         } //if(sTimesDry++...
-      } //if(fMotorVoltage >=...
+      } //if(bPumpIsDry)
       else {
         //Pressure switch is closed.
         //If this is the first reading then pump is not dry.
@@ -140,14 +152,9 @@ int sStopPumpIfDry(){
           bDone= true;
         } //if(bFirstTime)
         else {
-#if 0
-          Serial << lLineCount++ <<" sStopPumpIfDry(): Motor Volts= "<< fMotorVoltage
-                 << " << " << fMinVoltsToStop << endl;
-#else
           Serial << lLineCount++ <<" sStopPumpIfDry(): First instance of dry pump"<< endl;
-#endif
         } //if(bFirstTime)else
-      } //if(fMotorVoltage >=...else
+      } //if(bPumpIsDry)else
     } //f (sCheck++...
     else {
       bDone= true;
