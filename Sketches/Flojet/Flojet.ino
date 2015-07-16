@@ -17,6 +17,7 @@ static const int    sPumpOffSecs    = 600;
 static const long   lMsec           = 1000;
 static const long   lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long   lPumpOffMillis  = sPumpOffSecs * lMsec;
+static const long   lPressDelayMsec = 900;
 
 static const boolean  bStopDryPump    = true;
 
@@ -24,6 +25,7 @@ static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
 static long       lNextToggleMsec;          //Next time to toggle pump relay.
 static long       lCurrentMsec;
+static long       lPumpStartMsec;              //For giving pressure time to come up.
 
 boolean           bPumpIsOn;                //Indicates current state of relays.
 boolean           bPumpLoopRunning;         //loop() checks this
@@ -115,9 +117,19 @@ int sSetupPressureSwitch(){
 
 boolean bPumpIsDry(){
   boolean bReturn= false;
+  long lNowMsec= millis();
   int sSwitch= digitalRead(sPressurePin);
   if (sSwitch == LOW) {
-    bReturn= true;
+    Serial << lLineCount++ <<" bPumpIsDry(): "<< millis() <<" Pressure is low"<< endl;
+    if (lNowMsec > (lPumpStartMsec + lPressDelayMsec)){
+      Serial << lLineCount++ <<" bPumpIsDry(): "<< millis() <<"  Returning TRUE"<< endl;
+      bReturn= true;
+    } //if(lNowMsec>...
+    else {
+      Serial << lLineCount++ <<" bPumpIsDry(): "<< millis() <<"  Pump just started, returning FALSE"<< endl;
+    } //if(lNowMsec>...else
+  } //if(sSwitch==LOW)
+  else {
   } //if(sSwitch==LOW)
   return bReturn;
 }  //bPumpIsDry
