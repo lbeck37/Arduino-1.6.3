@@ -124,7 +124,7 @@ int sStopPumpIfDry(){
         Serial << lLineCount++ <<" sStopPumpIfDry(): Motor Volts= "<< fMotorVoltage
                <<" >> "<< fMinVoltsToStop << endl;
 #else
-      if (true) {
+      if (false) {
       //************Add check on pump switch here*********
 #endif
         if (sTimesDry++ > 3) {
