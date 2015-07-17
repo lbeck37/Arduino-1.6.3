@@ -1,13 +1,11 @@
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
-// 7/16/15 Move development from Sammy XP to Ace W7 because Sammy was crashing Arduno IDE.
+// 7/17B Remove SD code and simplify on Ace
+// 7/16 Move development from Sammy XP to Ace W7 because Sammy was crashing Arduno IDE.
 // 7/14/15 Remove check on motor voltage and add check on pressure switch.Ifdef SD card out.
 #include <Arduino.h>
 #include <Streaming.h>
-#ifdef USE_SD
-  #include <SPI.h>
-  #include <SD.h>
-#endif
 
+#define LOG0 lLineCount++ << " " << millis()
 
 static const int    asRelay[]       = {0, 7, 6, 5, 4};  //Relay can be 1 to 4,no zero relay
 static const int    sPressurePin    = 3;
@@ -18,15 +16,11 @@ static const int    sPumpOffSecs    = 600;
 static const long   lMsec           = 1000;
 static const long   lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long   lPumpOffMillis  = sPumpOffSecs * lMsec;
-static const long   lPressDelayMsec = 1000;
-
-//static const boolean  bStopDryPump    = true;
 
 static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
 static long       lNextToggleMsec;          //Next time to toggle pump relay.
 static long       lCurrentMsec;
-static long       lPumpStartMsec;              //For giving pressure time to come up.
 
 boolean           bPumpIsOn;                //Indicates current state of relays.
 boolean           bPumpLoopRunning;         //loop() checks this
@@ -45,7 +39,8 @@ and keeps the loop running. It does not start the loop if it's not on.
 void setup()  {
   Serial.begin(9600);
   sWaitForSerialMonitor();
-  Serial << lLineCount++ << " setup(): Begin" << endl;
+  Serial << LOG0 << " setup(): Begin" << endl;
+  sSetupPressureSwitch();
   sSetupPumpRelays();
   sClearPumpLoop();
   return;
@@ -85,16 +80,17 @@ int sClearPumpLoop(){
 
 
 int sStartPumpLoop(){
-  sClearPumpLoop();
-  bPumpLoopRunning= true;
-  return 1;
+	sClearPumpLoop();
+	bPumpLoopRunning= true;
+	sTurnPumpOn(true);
+	return 1;
 }  //sStartPumpLoop
 
 
 int sStopPumpLoop(){
-    bPumpLoopRunning= false;
-    sTurnPumpOn(false);
-  return 1;
+	bPumpLoopRunning= false;
+	sTurnPumpOn(false);
+	return 1;
 }  //sStopPumpLoop
 
 
@@ -111,18 +107,8 @@ boolean bPumpIsDry(){
   long lNowMsec= millis();
   int sSwitch= digitalRead(sPressurePin);
   if (sSwitch == LOW) {
-    Serial << lLineCount++ <<" bPumpIsDry(): "<< lNowMsec <<" Pressure is low"<< endl;
-    if (lNowMsec > (lPumpStartMsec + lPressDelayMsec)){
-      Serial << lLineCount++ <<" bPumpIsDry(): Pump On, Delay, Now "<< lPumpStartMsec
-             <<", "<< lPressDelayMsec <<", "<< lNowMsec << endl;
-      Serial << lLineCount++ <<" bPumpIsDry(): Returning TRUE"<< endl;
-      bReturn= true;
-    } //if(lNowMsec>...
-    else {
-      Serial << lLineCount++ <<" bPumpIsDry(): "<< lNowMsec <<"  Pump just started, returning FALSE"<< endl;
-    } //if(lNowMsec>...else
-  } //if(sSwitch==LOW)
-  else {
+    Serial << LOG0 <<" bPumpIsDry(): Pressure is low"<< endl;
+		bReturn= true;
   } //if(sSwitch==LOW)
   return bReturn;
 }  //bPumpIsDry
@@ -131,7 +117,13 @@ boolean bPumpIsDry(){
 int sCheckKeyboard(){
   if (Serial.available()) {
     char cChar= Serial.read();
-    Serial << lLineCount++ << " sCheckKeyboard(): Character read= "<< cChar << endl;
+    int sChar= cChar;
+    if (sChar != 13) {
+			Serial << LOG0 <<" sCheckKeyboard(): Character read= "<< cChar <<", "<< sChar << endl;
+		}
+		else {
+			Serial << LOG0 <<" sCheckKeyboard(): Character read= CR" << endl;
+		}
     switch (cChar) {
       case 'r':
       case 'R':
@@ -158,9 +150,9 @@ boolean bTimeToTogglePump(){
   boolean     bTogglePump;
   //lCurrentMsec= millis();
   if (lCurrentMsec > lNextToggleMsec) {
-    Serial << lLineCount++ << " bTimeToTogglePump(): Current Msec= "<< millis()
-           <<", lNextToggleMsec= "<< lNextToggleMsec << endl;
-    Serial << lLineCount++ <<" bTimeToTogglePump(): Setting bTogglePump to TRUE"<< endl;
+    Serial << LOG0 << " bTimeToTogglePump(): lNextToggleMsec= "
+           << lNextToggleMsec << endl;
+    Serial << LOG0 <<" bTimeToTogglePump(): Setting bTogglePump to TRUE"<< endl;
     bTogglePump= true;
   } //if(millis()>lNextToggleMsec)
   else {
@@ -177,10 +169,10 @@ int sPrintStatus(){
   if ( ((lCurrentMsec - lLastPrintedMsec)/1000) > 0) {
     lLastPrintedMsec= lCurrentMsec;
     if (bPumpIsOn) {
-      Serial << lLineCount++ << " sPrintStatus(): Pump is ON, ";
+      Serial << LOG0 << " sPrintStatus(): Pump is ON, ";
     }
     else {
-      Serial << lLineCount++ << " sPrintStatus(): Pump is OFF, ";
+      Serial << LOG0 << " sPrintStatus(): Pump is OFF, ";
     }
     if (bPumpLoopRunning) {
       int lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
@@ -195,70 +187,6 @@ int sPrintStatus(){
 }  //sPrintStatus
 
 
-#ifdef USE_SD
-//SD card information
-// On the Ethernet Shield, CS is pin 4. Note that even if it's not
-// used as the CS pin, the hardware CS pin (10 on most Arduino boards,
-// 53 on the Mega) must be left as an output or the SD library
-// functions will not work.
-static const int sChipSelect            = 4;
-static const int sDefaultChipSelectPin  = 10;
-static const int    sMotorVoltsPin  = 0;      //Arduino A0 pin.
-static const float  fMotorVoltsConvert= 19.55;  //(4 * 5V *1000 / 1023)
-static const float  fMinVoltsToStop   = 12.80;  //Pump is dry if running volts are above this.
-static float      fMotorVoltage;
-//Reads motor voltage at A0, scaled 4:1, 20V FS => 5V at A0.
-
-int sSetupSD(){
-  Serial << lLineCount++ <<" sSetupSD(): Initializing SD card"<< endl;
-  // make sure that the default chip select pin is set to
-  // output, even if you don't use it:
-  pinMode(sDefaultChipSelectPin, OUTPUT);
-
-  // see if the card is present and can be initialized:
-  if (SD.begin(sChipSelect)) {
-    Serial << lLineCount++ <<" sSetupSD(): SD card is setup"<< endl;
-  }
-  else {
-    Serial << lLineCount++ <<" sSetupSD(): SD card init failed, or not present"<< endl;
-  }
-  return 1;
-}  //sSetupSD
-
-
-int sReadMotorVolts(){
-  int sMotorVoltsRaw= analogRead(sMotorVoltsPin);
-  fMotorVoltage = (fMotorVoltsConvert * sMotorVoltsRaw) / 1000.0;
-  return 1;
-}  //sReadMotorVolts
-
-
-int sLogMotorVolts(){
-  String  szLogLine= "";
-  szLogLine += String(lCurrentMsec);
-  szLogLine += ", ";
-  szLogLine += String(lLineCount);
-  if (bPumpIsOn) {
-    szLogLine += ", ON , ";
-  }
-  else {
-    szLogLine += ", OFF, ";
-  }
-  szLogLine += String(fMotorVoltage);
-
-  File LogFile= SD.open("PUMPLOG.txt", FILE_WRITE);
-  if (LogFile) {
-    LogFile.println(szLogLine);
-    LogFile.close();
-  }
-  else {
-    Serial << lLineCount++ << " sLogMotorVolts(): error opening " << "PUMPLOG.txt" << endl;
-  }
-  return 1;
-}  //sLogMotorVolts
-#endif  //USE_SD
-
-
 int sTogglePump(){
   if (bPumpIsOn) {
     sTurnPumpOn(false);
@@ -266,8 +194,8 @@ int sTogglePump(){
   else {
     sTurnPumpOn(true);
   } //if(bPumpIsOn)else
-  Serial << lLineCount++ << " sTogglePump(): Current Msecs= " << millis()
-         << ", Pump toggled, set next done to " << lNextToggleMsec << endl;
+  Serial << LOG0 << " sTogglePump(): Pump toggled, set next done to "
+         << lNextToggleMsec << endl;
   bPumpJustToggled= true;
   return 1;
 }  //sTogglePump
@@ -278,34 +206,37 @@ int sTurnPumpOn(boolean bOn){
   int sValue;
   if (bOn) {
     bPumpIsOn= true;
-    //sValue= HIGH;
-    Serial << lLineCount++ <<" sTurnPumpOn(): DEBUG ONLY setting sValue= LOW" << endl;
-    sValue= LOW;
+    sValue= HIGH;
+    //Serial << LOG0 <<" sTurnPumpOn(): DEBUG ONLY setting sValue= LOW" << endl;
+    //sValue= LOW;
   	lNextToggleMsec= millis() + lPumpOnMillis;
-    lPumpStartMsec= lPumpStartMsec;
-    Serial << lLineCount++ <<" sTurnPumpOn(): Turning pump ON" << endl;
+    Serial << LOG0 <<" sTurnPumpOn(): Turning pump ON" << endl;
   }
   else {
     bPumpIsOn= false;
     sValue= LOW;
   	lNextToggleMsec= millis() + lPumpOffMillis;
-    Serial << lLineCount++ <<" sTurnPumpOn(): Turning pump OFF" << endl;
+    Serial << LOG0 <<" sTurnPumpOn(): Turning pump OFF" << endl;
   }
   for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
     sDigitalPin= asRelay[sRelay];
-    Serial << lLineCount++ <<" sTurnPumpOn(): Set pin "
+    Serial << LOG0 <<" sTurnPumpOn(): Set pin "
            << sDigitalPin << " to " << sValue << endl;
     digitalWrite(sDigitalPin, sValue);    // NO3 and COM3 Connected
   } //for
+  //Give pressure time to come up.
+  if (bPumpIsOn) {
+		delay(500);
+	}	//if(bPumpIsOn())
   return 1;
 }  //sTurnPumpOn
 
 
 int sSetupPumpRelays(){
-  Serial << lLineCount++ <<" sSetupPumpRelays(): Begin"<< endl;
+  Serial << LOG0 <<" sSetupPumpRelays(): Begin"<< endl;
   for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
     int sRelayDigitalPin= asRelay[sRelay];
-    Serial << lLineCount++ <<" sSetupPumpRelays(): Set relay #" << sRelay
+    Serial << LOG0 <<" sSetupPumpRelays(): Set relay #" << sRelay
            << " to pin " << sRelayDigitalPin << endl;
     pinMode(sRelayDigitalPin, OUTPUT);
   } //for
