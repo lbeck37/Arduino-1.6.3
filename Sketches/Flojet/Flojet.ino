@@ -19,7 +19,7 @@ static const long   lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long   lPumpOffMillis  = sPumpOffSecs * lMsec;
 static const long   lPressDelayMsec = 900;
 
-static const boolean  bStopDryPump    = true;
+//static const boolean  bStopDryPump    = true;
 
 static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
@@ -69,13 +69,12 @@ void loop()  {
   }
 #endif
   if (bPumpLoopRunning) {
+    sTogglePumpIfDry();
+
     if (bTimeToTogglePump()) {
       sTogglePump();
     } //if (bTimeToTogglePump())
 
-    if(bStopDryPump) {
-      sStopPumpIfDry();
-    } //if(bStopDryPump)
   } //if(bPumpLoopRunning)
 
   sPrintStatus();
@@ -135,7 +134,8 @@ boolean bPumpIsDry(){
 }  //bPumpIsDry
 
 
-int sStopPumpIfDry(){
+int sTogglePumpIfDry(){
+  //Comment below is before dry pump was determined by a pressure switch.
   //If the pump volts is above the minimum voltage we stop the pump.
   //We say it's above that voltage if the first reading is above and then 2 of the next 3
   //readings are above the minimum. This function will take either 1, 3 or 4 readings
@@ -150,9 +150,8 @@ int sStopPumpIfDry(){
   while (!bDone) {
     if (sCheck++ < 5) {
       if (bPumpIsDry()) {
-      //************Add check on pump switch here*********
         if (sTimesDry++ > 3) {
-          sStopPumpLoop();
+          sTogglePump();
           sReturn= 1;
           bDone= true;
         } //if(sTimesDry++...
@@ -164,7 +163,7 @@ int sStopPumpIfDry(){
           bDone= true;
         } //if(bFirstTime)
         else {
-          Serial << lLineCount++ <<" sStopPumpIfDry(): First instance of dry pump"<< endl;
+          Serial << lLineCount++ <<" sTogglePumpIfDry(): First instance of dry pump"<< endl;
         } //if(bFirstTime)else
       } //if(bPumpIsDry)else
     } //f (sCheck++...
@@ -174,7 +173,7 @@ int sStopPumpIfDry(){
     bFirstTime= false;
   } //while(!bDone)
   return sReturn;
-}  //sStopPumpIfDry
+}  //sTogglePumpIfDry
 
 
 int sCheckKeyboard(){
