@@ -1,4 +1,5 @@
-// 7/14/15A Flojet.ino sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// Sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 7/16/15 Move development from Sammy XP to Ace W7 because Sammy was crashing Arduno IDE.
 // 7/14/15 Remove check on motor voltage and add check on pressure switch.Ifdef SD card out.
 #include <Arduino.h>
 #include <Streaming.h>
@@ -17,7 +18,7 @@ static const int    sPumpOffSecs    = 600;
 static const long   lMsec           = 1000;
 static const long   lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long   lPumpOffMillis  = sPumpOffSecs * lMsec;
-static const long   lPressDelayMsec = 900;
+static const long   lPressDelayMsec = 1000;
 
 //static const boolean  bStopDryPump    = true;
 
@@ -61,21 +62,12 @@ int sWaitForSerialMonitor(){
 
 
 void loop()  {
-  //We will check the pump voltage to make sure pump is not dry but first we
-  //will let it toggle if it's time
-#if 0
-  if (bPumpLoopRunning && bTimeToTogglePump()) {
+	if (bPumpIsOn && bPumpIsDry()) {
+		sTogglePump();
+	}
+	if (bPumpLoopRunning && bTimeToTogglePump()) {
     sTogglePump();
-  }
-#endif
-  if (bPumpLoopRunning) {
-    sTogglePumpIfDry();
-
-    if (bTimeToTogglePump()) {
-      sTogglePump();
-    } //if (bTimeToTogglePump())
-
-  } //if(bPumpLoopRunning)
+  } //if(bPumpLoopRunning&&...
 
   sPrintStatus();
   sCheckKeyboard();
@@ -119,61 +111,21 @@ boolean bPumpIsDry(){
   long lNowMsec= millis();
   int sSwitch= digitalRead(sPressurePin);
   if (sSwitch == LOW) {
-    Serial << lLineCount++ <<" bPumpIsDry(): "<< millis() <<" Pressure is low"<< endl;
+    Serial << lLineCount++ <<" bPumpIsDry(): "<< lNowMsec <<" Pressure is low"<< endl;
     if (lNowMsec > (lPumpStartMsec + lPressDelayMsec)){
-      Serial << lLineCount++ <<" bPumpIsDry(): "<< millis() <<"  Returning TRUE"<< endl;
+      Serial << lLineCount++ <<" bPumpIsDry(): Pump On, Delay, Now "<< lPumpStartMsec
+             <<", "<< lPressDelayMsec <<", "<< lNowMsec << endl;
+      Serial << lLineCount++ <<" bPumpIsDry(): Returning TRUE"<< endl;
       bReturn= true;
     } //if(lNowMsec>...
     else {
-      Serial << lLineCount++ <<" bPumpIsDry(): "<< millis() <<"  Pump just started, returning FALSE"<< endl;
+      Serial << lLineCount++ <<" bPumpIsDry(): "<< lNowMsec <<"  Pump just started, returning FALSE"<< endl;
     } //if(lNowMsec>...else
   } //if(sSwitch==LOW)
   else {
   } //if(sSwitch==LOW)
   return bReturn;
 }  //bPumpIsDry
-
-
-int sTogglePumpIfDry(){
-  //Comment below is before dry pump was determined by a pressure switch.
-  //If the pump volts is above the minimum voltage we stop the pump.
-  //We say it's above that voltage if the first reading is above and then 2 of the next 3
-  //readings are above the minimum. This function will take either 1, 3 or 4 readings
-  //We check a maximum of (5) times before returning 0 to indicate pump was
-  //not stopped. A 1 is returned to indicate pump was stopped.
-  int       sTimesDry = 0;
-  int       sCheck    = 0;
-  int       sReturn   = 0;
-  boolean   bDone     = false;
-  boolean   bFirstTime= true;
-
-  while (!bDone) {
-    if (sCheck++ < 5) {
-      if (bPumpIsDry()) {
-        if (sTimesDry++ > 3) {
-          sTogglePump();
-          sReturn= 1;
-          bDone= true;
-        } //if(sTimesDry++...
-      } //if(bPumpIsDry)
-      else {
-        //Pressure switch is closed.
-        //If this is the first reading then pump is not dry.
-        if (bFirstTime) {
-          bDone= true;
-        } //if(bFirstTime)
-        else {
-          Serial << lLineCount++ <<" sTogglePumpIfDry(): First instance of dry pump"<< endl;
-        } //if(bFirstTime)else
-      } //if(bPumpIsDry)else
-    } //f (sCheck++...
-    else {
-      bDone= true;
-    } //f (sCheck++...else
-    bFirstTime= false;
-  } //while(!bDone)
-  return sReturn;
-}  //sTogglePumpIfDry
 
 
 int sCheckKeyboard(){
@@ -204,10 +156,10 @@ int sCheckKeyboard(){
 boolean bTimeToTogglePump(){
   static int  sLastToggleSecsLeft = 0;
   boolean     bTogglePump;
-  lCurrentMsec= millis();
+  //lCurrentMsec= millis();
   if (lCurrentMsec > lNextToggleMsec) {
-    Serial << lLineCount++ << " bTimeToTogglePump(): lCurrentMsec/1000= "<< lCurrentMsec/1000
-           <<", lNextToggleMsec/1000= "<< lNextToggleMsec/1000 << endl;
+    Serial << lLineCount++ << " bTimeToTogglePump(): Current Msec= "<< millis()
+           <<", lNextToggleMsec= "<< lNextToggleMsec << endl;
     Serial << lLineCount++ <<" bTimeToTogglePump(): Setting bTogglePump to TRUE"<< endl;
     bTogglePump= true;
   } //if(millis()>lNextToggleMsec)
@@ -308,25 +260,14 @@ int sLogMotorVolts(){
 
 
 int sTogglePump(){
-  lCurrentMsec= millis();
   if (bPumpIsOn) {
     sTurnPumpOn(false);
-    lNextToggleMsec= lCurrentMsec + lPumpOffMillis;
   }
   else {
     sTurnPumpOn(true);
-    lNextToggleMsec= lCurrentMsec + lPumpOnMillis;
   } //if(bPumpIsOn)else
-#if 1
-  Serial << lLineCount++ << " sTogglePump(): Current millis= " << lCurrentMsec/1000
-         << ", Pump toggled, set next done to " << lNextToggleMsec/1000 << endl;
-#else
-  int lSecCurrent= lCurrentMsec/1000;
-  int lSecToggle= lNextToggleMsec/1000;
-  Serial << lLineCount++ << " sTogglePump(): Current millis= "
-         << (lSecCurrent / 60) <<":"<< (lSecCurrent % 60)
-         << ", Pump toggled, set next done to " << (lSecToggle / 60) <<":"<< (lSecToggle % 60) << endl;
-#endif
+  Serial << lLineCount++ << " sTogglePump(): Current Msecs= " << millis()
+         << ", Pump toggled, set next done to " << lNextToggleMsec << endl;
   bPumpJustToggled= true;
   return 1;
 }  //sTogglePump
@@ -337,14 +278,17 @@ int sTurnPumpOn(boolean bOn){
   int sValue;
   if (bOn) {
     bPumpIsOn= true;
-    sValue= HIGH;
-    //bPumpLoopRunning= true;
+    //sValue= HIGH;
+    Serial << lLineCount++ <<" sTurnPumpOn(): DEBUG ONLY setting sValue= LOW" << endl;
+    sValue= LOW;
+  	lNextToggleMsec= millis() + lPumpOnMillis;
+    lPumpStartMsec= lPumpStartMsec;
     Serial << lLineCount++ <<" sTurnPumpOn(): Turning pump ON" << endl;
   }
   else {
     bPumpIsOn= false;
     sValue= LOW;
-    //bPumpLoopRunning= false;
+  	lNextToggleMsec= millis() + lPumpOffMillis;
     Serial << lLineCount++ <<" sTurnPumpOn(): Turning pump OFF" << endl;
   }
   for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
