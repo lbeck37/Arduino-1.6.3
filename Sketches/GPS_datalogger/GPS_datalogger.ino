@@ -1,4 +1,4 @@
-// 7/22/15 Beck Bring up on TinyDuino with Arduino 1.6.5
+// 7/22/15b Beck Bring up on TinyDuino with Arduino 1.6.5
 /* This Arduino sketch will log GPS NMEA data to a SD card every second */
 
 #include <SoftwareSerial.h>
@@ -8,17 +8,17 @@
 // The Arduino pins used by the GPS module
 static const int GPS_ONOFFPin = A3;
 static const int GPS_SYSONPin = A2;
-static const int GPS_RXPin 		= A1;
-static const int GPS_TXPin 		= A0;
-static const int GPSBaud 			= 9600;
-static const int chipSelect 	= 10;
+static const int GPS_RXPin    = A1;
+static const int GPS_TXPin    = A0;
+static const int GPSBaud      = 9600;
+static const int chipSelect   = 10;
 
 // The GPS connection is attached with a software serial port
 SoftwareSerial Gps_serial(GPS_RXPin, GPS_TXPin);
 
-int inByte 										= 0;         // incoming serial byte
+int inByte                    = 0;         // incoming serial byte
 byte pbyGpsBuffer[100];
-int byBufferIndex 						= 0;
+int byBufferIndex             = 0;
 
 void setup()
 {
@@ -32,7 +32,7 @@ void setup()
     digitalWrite( GPS_ONOFFPin, HIGH );
     delay(5);
     digitalWrite( GPS_ONOFFPin, LOW );
-  }	//f(digitalRead(GPS_SYSONPin)==LOW)
+  } //f(digitalRead(GPS_SYSONPin)==LOW)
 
   //Open the debug serial port at 9600
   Serial.begin(9600);
@@ -50,33 +50,34 @@ void setup()
     Serial.println("Card failed, or not present");
     // don't do anything more:
     return;
-  }	//if(!SD.begin(chipSelect))
+  } //if(!SD.begin(chipSelect))
   Serial.println("card initialized.");
-}	//setup
+} //setup
 
 
 void loop()
 {
-	byte byDataByte;
-	if (Gps_serial.available()) {
-		byDataByte= Gps_serial.read();
-		Serial.write(byDataByte);
-		pbyGpsBuffer[byBufferIndex++]= byDataByte;
+  byte byDataByte;
+  if (Gps_serial.available()) {
+    byDataByte= Gps_serial.read();
+    //Serial.write(byDataByte);
+    Serial.println("loop() wrting to SD card");
+    pbyGpsBuffer[byBufferIndex++]= byDataByte;
 
-		if(byBufferIndex >= 100) {
-			byBufferIndex = 0;
-			File dataFile = SD.open("gps.txt", FILE_WRITE);
+    if(byBufferIndex >= 100) {
+      byBufferIndex = 0;
+      File dataFile = SD.open("TinyGPS_2.txt", FILE_WRITE);
 
-			// if the file is available, write to it:
-			if (dataFile) {
-				dataFile.write(pbyGpsBuffer, 100);
-				dataFile.close();
-			}	//if(dataFile)
-			// if the file isn't open, pop up an error:
-			else {
-				Serial.println("error opening gps.txt");
-			}	//if(dataFile)else
-		}	//if(byBufferIndex>=100)
-	}	//if(Gps_serial.available())
-}	//loop
+      // if the file is available, write to it:
+      if (dataFile) {
+        dataFile.write(pbyGpsBuffer, 100);
+        dataFile.close();
+      } //if(dataFile)
+      // if the file isn't open, pop up an error:
+      else {
+        Serial.println("error opening gps.txt");
+      } //if(dataFile)else
+    } //if(byBufferIndex>=100)
+  } //if(Gps_serial.available())
+} //loop
 //Last line.
