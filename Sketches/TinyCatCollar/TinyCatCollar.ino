@@ -1,7 +1,11 @@
 // TinyCatCollar.ino
+// 7/24/15b Add SD card support from original Flojet.ino
 // 7/24/15 Port from Flojet.ino
 #include <Arduino.h>
 #include <Streaming.h>
+
+#include <SPI.h>
+#include <SD.h>
 
 #define LOG0 lLineCount++ << " " << millis()
 
@@ -9,17 +13,27 @@ static const int    sGPSPeriodSecs  = 1;
 static const long   lMsec           = 1000;
 static const long   lGPSPeriodMsec  = sGPSPeriodSecs  * lMsec;
 
-static long       lLineCount      	= 0;      //Serial Monitor uses for clarity.
-static long       lNextReadGPSMsec;          	//Next time to read GPS.
+//SD card information
+// On the Ethernet Shield, CS is pin 4. Note that even if it's not
+// used as the CS pin, the hardware CS pin (10 on most Arduino boards,
+// 53 on the Mega) must be left as an output or the SD library
+// functions will not work.
+static const int sChipSelect            = 4;
+static const int sDefaultChipSelectPin  = 10;
+
+static String			szFilename						= "GPS_072415b.txt";
+
+static long       lLineCount      			= 0;      //Serial Monitor uses for clarity.
+static long       lNextReadGPSMsec;          			//Next time to read GPS.
 static long       lCurrentMsec;
-static boolean    bGPSLoopRunning;         		//loop() checks this
+static boolean    bGPSLoopRunning;         				//loop() checks this
 
 void setup()  {
   Serial.begin(9600);
   //sWaitForSerialMonitor();
   Serial << LOG0 << " setup(): Begin" << endl;
-  //sSetupSD();			//To be implemented.
- // sSetupGPS();		//To be implemented.
+  sSetupSD();
+  //sSetupGPS();		//To be implemented.
   sClearGPSLoop();
   sStartGPSLoop();
   return;
@@ -38,9 +52,46 @@ void loop()  {
 
 
 int sReadGPS(){
-  Serial << LOG0 << " sReadGPS(): Begin" << endl;
+  Serial << LOG0 << " sReadGPS(): Call sWriteGPStoSD()" << endl;
+  sWriteGPStoSD();
   return 1;
 }  //sReadGPS
+
+
+int sSetupSD(){
+  Serial << lLineCount++ <<" sSetupSD(): Initializing SD card"<< endl;
+  // make sure that the default chip select pin is set to
+  // output, even if you don't use it:
+  pinMode(sDefaultChipSelectPin, OUTPUT);
+
+  // see if the card is present and can be initialized:
+  if (SD.begin(sChipSelect)) {
+    Serial << LOG0 <<" sSetupSD(): SD card is setup"<< endl;
+  }
+  else {
+    Serial << LOG0 <<" sSetupSD(): SD card init failed, or not present"<< endl;
+  }
+  return 1;
+}  //sSetupSD
+
+
+int sWriteGPStoSD(){
+  String  szLogLine= "";
+  szLogLine += String(lCurrentMsec);
+  szLogLine += ", ";
+  szLogLine += String(lLineCount);
+  szLogLine += " TinyCatCollar test";
+
+  File LogFile= SD.open(szFilename, FILE_WRITE);
+  if (LogFile) {
+    LogFile.println(szLogLine);
+    LogFile.close();
+  }
+  else {
+    Serial << lLineCount++ << " sWriteGPStoSD(): error opening " << szFilename << endl;
+  }
+  return 1;
+}  //sWriteGPStoSD
 
 
 int sClearGPSLoop(){
