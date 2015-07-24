@@ -1,9 +1,11 @@
-// 7/22/15b Beck Bring up on TinyDuino with Arduino 1.6.5
+// 7/24/15 Beck Bring up on TinyDuino with Arduino 1.6.5
 /* This Arduino sketch will log GPS NMEA data to a SD card every second */
 
 #include <SoftwareSerial.h>
 #include <SPI.h>
 #include <SD.h>
+
+static const int chipSelect   = 10;	//SD card
 
 // The Arduino pins used by the GPS module
 static const int GPS_ONOFFPin = A3;
@@ -11,12 +13,11 @@ static const int GPS_SYSONPin = A2;
 static const int GPS_RXPin    = A1;
 static const int GPS_TXPin    = A0;
 static const int GPSBaud      = 9600;
-static const int chipSelect   = 10;
 
 // The GPS connection is attached with a software serial port
 SoftwareSerial Gps_serial(GPS_RXPin, GPS_TXPin);
 
-int inByte                    = 0;         // incoming serial byte
+//int inByte                    = 0;         // incoming serial byte
 byte pbyGpsBuffer[100];
 int byBufferIndex             = 0;
 
@@ -61,12 +62,13 @@ void loop()
   if (Gps_serial.available()) {
     byDataByte= Gps_serial.read();
     //Serial.write(byDataByte);
-    Serial.println("loop() wrting to SD card");
+    //Serial.println("loop() wrting to SD card");
     pbyGpsBuffer[byBufferIndex++]= byDataByte;
 
     if(byBufferIndex >= 100) {
+    	Serial.println("loop() Writing 100 bytes to SD card");
       byBufferIndex = 0;
-      File dataFile = SD.open("TinyGPS_2.txt", FILE_WRITE);
+      File dataFile = SD.open("TGPS724C.txt", FILE_WRITE);
 
       // if the file is available, write to it:
       if (dataFile) {

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Streaming.h>
 
+#include <SoftwareSerial.h>
 #include <SPI.h>
 #include <SD.h>
 
@@ -21,12 +22,29 @@ static const long   lGPSPeriodMsec  = sGPSPeriodSecs  * lMsec;
 static const int sChipSelect            = 4;
 static const int sDefaultChipSelectPin  = 10;
 
-static String			szFilename						= "GPS0724A.TXT";		//Apparantly filenames are limited to 8.3
+//Arduino pins used by the GPS module
+static const int GPS_ONOFFPin = A3;
+static const int GPS_SYSONPin = A2;
+static const int GPS_RXPin    = A1;
+static const int GPS_TXPin    = A0;
+static const int GPSBaud      = 9600;
+
+static const int sBufferBytes	= 20;
+
+static String			szFilename						= "TGPS724B.TXT";		//Apparantly filenames are limited to 8.3
 
 static long       lLineCount      			= 0;      //Serial Monitor uses for clarity.
 static long       lNextReadGPSMsec;          			//Next time to read GPS.
 static long       lCurrentMsec;
 static boolean    bGPSLoopRunning;         				//loop() checks this
+
+// The GPS connection is attached with a software serial port
+SoftwareSerial Gps_serial(GPS_RXPin, GPS_TXPin);
+
+//static byte 			pcGpsBuffer[100];
+static byte 			pcGpsBuffer[sBufferBytes + 2];
+static int 				sBufferIndex             = 0;
+static int 				sLastBufferIndex         = 0;
 
 void setup()  {
   Serial.begin(9600);
@@ -41,8 +59,9 @@ void setup()  {
 
 
 void loop()  {
-	if (bGPSLoopRunning && bTimeToReadGPS()) {
-    sReadGPS();
+	//if (bGPSLoopRunning && bTimeToReadGPS()) {
+	if (bGPSLoopRunning) {
+    sStreamGPStoSD();
   } //if(bGPSLoopRunning&&...
   sPrintStatus();
   sCheckKeyboard();
@@ -51,11 +70,48 @@ void loop()  {
 } //loop
 
 
-int sReadGPS(){
-  Serial << LOG0 << " sReadGPS(): Call sWriteGPStoSD()" << endl;
-  sWriteGPStoSD();
+int sStreamGPStoSD(){
+  //Serial << LOG0 << " sStreamGPStoSD(): Begin" << endl;
+	byte cDataByte;
+	if (sBufferIndex < sLastBufferIndex) {
+		Serial << LOG0 <<" sStreamGPStoSD(): ERROR: BufferIndex= "<< sBufferIndex
+		       <<" less than LastIndex= "<< sLastBufferIndex << endl;
+	}	//if(sBufferIndex<sLastBufferIndex)
+
+	if (Gps_serial.available()) {
+		cDataByte= Gps_serial.read();
+		//Serial.write(cDataByte);
+		//Serial.println("loop() wrting to SD card");
+		pcGpsBuffer[sBufferIndex++]= cDataByte;
+
+		//if(sBufferIndex >= 100) {
+		if(sBufferIndex >= sBufferBytes) {
+			//Serial.println("loop() Writing 100 bytes to SD card");
+  		Serial << LOG0 <<" sStreamGPStoSD(): Writing "<< sBufferBytes <<" bytes to SD card"<< endl;
+			sBufferIndex = 0;
+			sLastBufferIndex= sBufferIndex;
+			//File dataFile = SD.open("TGPS724A.txt", FILE_WRITE);
+			File dataFile= SD.open(szFilename, FILE_WRITE);
+
+			// if the file is available, write to it:
+			if (dataFile) {
+				dataFile.write(pcGpsBuffer, 100);
+				dataFile.close();
+			} //if(dataFile)
+			// if the file isn't open, pop up an error:
+			else {
+				//Serial.println("Error opening GPS data file");
+  			Serial << LOG0 << " sStreamGPStoSD(): Error opening GPS data file" << endl;
+			} //if(dataFile)else
+		} //if(sBufferIndex>=100)
+	} //if(Gps_serial.available())
+	else {
+		Serial << LOG0 << " sStreamGPStoSD(): No data available at GPS" << endl;
+	} //if(Gps_serial.available())else
+
+	sLastBufferIndex= sBufferIndex;
   return 1;
-}  //sReadGPS
+}  //sStreamGPStoSD
 
 
 int sSetupSD(){
@@ -157,7 +213,7 @@ int sCheckKeyboard(){
         break;
       case 't':
       case 'T':
-        sReadGPS();
+        sStreamGPStoSD();
         break;
       default:
         break;
