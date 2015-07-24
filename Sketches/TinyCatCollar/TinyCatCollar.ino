@@ -1,4 +1,5 @@
 // TinyCatCollar.ino
+// 7/24/15c Add GPS card support from GPS_datalogger.ino
 // 7/24/15b Add SD card support from original Flojet.ino
 // 7/24/15 Port from Flojet.ino
 #include <Arduino.h>
@@ -29,7 +30,7 @@ static const int GPS_RXPin    = A1;
 static const int GPS_TXPin    = A0;
 static const int GPSBaud      = 9600;
 
-static const int sBufferBytes	= 20;
+static const int sBufferBytes	= 100;
 
 static String			szFilename						= "TGPS724B.TXT";		//Apparantly filenames are limited to 8.3
 
@@ -51,7 +52,7 @@ void setup()  {
   //sWaitForSerialMonitor();
   Serial << LOG0 << " setup(): Begin" << endl;
   sSetupSD();
-  //sSetupGPS();		//To be implemented.
+  sSetupGPS();
   sClearGPSLoop();
   sStartGPSLoop();
   return;
@@ -73,11 +74,12 @@ void loop()  {
 int sStreamGPStoSD(){
   //Serial << LOG0 << " sStreamGPStoSD(): Begin" << endl;
 	byte cDataByte;
+#if 0
 	if (sBufferIndex < sLastBufferIndex) {
 		Serial << LOG0 <<" sStreamGPStoSD(): ERROR: BufferIndex= "<< sBufferIndex
 		       <<" less than LastIndex= "<< sLastBufferIndex << endl;
 	}	//if(sBufferIndex<sLastBufferIndex)
-
+#endif
 	if (Gps_serial.available()) {
 		cDataByte= Gps_serial.read();
 		//Serial.write(cDataByte);
@@ -106,12 +108,32 @@ int sStreamGPStoSD(){
 		} //if(sBufferIndex>=100)
 	} //if(Gps_serial.available())
 	else {
-		Serial << LOG0 << " sStreamGPStoSD(): No data available at GPS" << endl;
+		//Serial << LOG0 << " sStreamGPStoSD(): No data available at GPS" << endl;
 	} //if(Gps_serial.available())else
 
 	sLastBufferIndex= sBufferIndex;
   return 1;
 }  //sStreamGPStoSD
+
+
+int sSetupGPS(){
+  Serial << lLineCount++ <<" sSetupGPS(): Initializing GPS card"<< endl;
+  //Init the GPS Module to wake mode
+  pinMode(GPS_SYSONPin, INPUT);
+  pinMode(GPS_ONOFFPin, OUTPUT);
+  digitalWrite(GPS_ONOFFPin, LOW);
+  delay(5);
+  if (digitalRead(GPS_SYSONPin) == LOW) {
+     //Need to wake the module
+    digitalWrite( GPS_ONOFFPin, HIGH );
+    delay(5);
+    digitalWrite( GPS_ONOFFPin, LOW );
+  } //f(digitalRead(GPS_SYSONPin)==LOW)
+
+  //Open the GPS serial port
+  Gps_serial.begin(GPSBaud);
+  return 1;
+}  //sSetupGPS
 
 
 int sSetupSD(){
