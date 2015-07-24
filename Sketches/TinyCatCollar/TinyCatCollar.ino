@@ -21,7 +21,7 @@ static const long   lGPSPeriodMsec  = sGPSPeriodSecs  * lMsec;
 static const int sChipSelect            = 4;
 static const int sDefaultChipSelectPin  = 10;
 
-static String			szFilename						= "GPS_072415b.txt";
+static String			szFilename						= "GPS0724A.TXT";		//Apparantly filenames are limited to 8.3
 
 static long       lLineCount      			= 0;      //Serial Monitor uses for clarity.
 static long       lNextReadGPSMsec;          			//Next time to read GPS.
@@ -84,11 +84,12 @@ int sWriteGPStoSD(){
 
   File LogFile= SD.open(szFilename, FILE_WRITE);
   if (LogFile) {
+    Serial << LOG0 << " sWriteGPStoSD(): Write |"<< szLogLine <<"| to " << szFilename << endl;
     LogFile.println(szLogLine);
     LogFile.close();
   }
   else {
-    Serial << lLineCount++ << " sWriteGPStoSD(): error opening " << szFilename << endl;
+    Serial << LOG0 << " sWriteGPStoSD(): error opening " << szFilename << endl;
   }
   return 1;
 }  //sWriteGPStoSD
