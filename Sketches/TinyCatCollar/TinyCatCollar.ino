@@ -19,11 +19,11 @@ static const long   lPumpOffMillis  = sPumpOffSecs * lMsec;
 
 static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
-static long       lNextToggleMsec;          //Next time to toggle pump relay.
+static long       lNextReadGPSMsec;          //Next time to toggle pump relay.
 static long       lCurrentMsec;
 
 boolean           bPumpIsOn;                //Indicates current state of relays.
-boolean           bPumpLoopRunning;         //loop() checks this
+boolean           bGPSLoopRunning;         //loop() checks this
 boolean           bPumpJustToggled;         //For logging.
 
 /*
@@ -40,9 +40,10 @@ void setup()  {
   Serial.begin(9600);
   sWaitForSerialMonitor();
   Serial << LOG0 << " setup(): Begin" << endl;
-  sSetupPressureSwitch();
-  sSetupPumpRelays();
-  sClearPumpLoop();
+  //sSetupSD();			//To be implemented.
+ // sSetupGPS();		//To be implemented.
+  sClearGPSLoop();
+  sStartGPSLoop();
   return;
 } //setup
 
@@ -57,61 +58,35 @@ int sWaitForSerialMonitor(){
 
 
 void loop()  {
-	if (bPumpIsOn && bPumpIsDry()) {
-		sTogglePump();
-	}
-	if (bPumpLoopRunning && bTimeToTogglePump()) {
-    sTogglePump();
-  } //if(bPumpLoopRunning&&...
+	if (bGPSLoopRunning && bTimeToReadGPS()) {
+    sReadGPS();
+  } //if(bGPSLoopRunning&&...
 
   sPrintStatus();
   sCheckKeyboard();
+  //sCheckWiFi();			//To be implemented.
   return;
 } //loop
 
 
-int sClearPumpLoop(){
-  lNextToggleMsec   = 0;
-  bPumpIsOn         = false;
-  bPumpLoopRunning  = false;
-  bPumpJustToggled  = true;
+int sClearGPSLoop(){
+  lNextReadGPSMsec   = 0;
+  bGPSLoopRunning  = false;
   return 1;
-}  //sClearPumpLoop
+}  //sClearGPSLoop
 
 
-int sStartPumpLoop(){
-	sClearPumpLoop();
-	bPumpLoopRunning= true;
-	sTurnPumpOn(true);
+int sStartGPSLoop(){
+	sClearGPSLoop();
+	bGPSLoopRunning= true;
 	return 1;
-}  //sStartPumpLoop
+}  //sStartGPSLoop
 
 
-int sStopPumpLoop(){
-	bPumpLoopRunning= false;
-	sTurnPumpOn(false);
+int sStopGPSLoop(){
+	bGPSLoopRunning= false;
 	return 1;
-}  //sStopPumpLoop
-
-
-int sSetupPressureSwitch(){
-  pinMode(sPressurePin, INPUT);
-  //Connect internal pull-up reistor.
-  digitalWrite(sPressurePin, HIGH);
-  return 1;
-}  //sSetupPressureSwitch
-
-
-boolean bPumpIsDry(){
-  boolean bReturn= false;
-  long lNowMsec= millis();
-  int sSwitch= digitalRead(sPressurePin);
-  if (sSwitch == LOW) {
-    Serial << LOG0 <<" bPumpIsDry(): Pressure is low"<< endl;
-		bReturn= true;
-  } //if(sSwitch==LOW)
-  return bReturn;
-}  //bPumpIsDry
+}  //sStopGPSLoop
 
 
 int sCheckKeyboard(){
@@ -127,15 +102,15 @@ int sCheckKeyboard(){
     switch (cChar) {
       case 'r':
       case 'R':
-        sStartPumpLoop();
+        sStartGPSLoop();
         break;
       case 's':
       case 'S':
-        sStopPumpLoop();
+        sStopGPSLoop();
         break;
       case 't':
       case 'T':
-        sTogglePump();
+        sReadGPS();
         break;
       default:
         break;
@@ -145,21 +120,20 @@ int sCheckKeyboard(){
 }  //sCheckKeyboard
 
 
-boolean bTimeToTogglePump(){
+boolean bTimeToReadGPS(){
   static int  sLastToggleSecsLeft = 0;
-  boolean     bTogglePump;
-  //lCurrentMsec= millis();
-  if (lCurrentMsec > lNextToggleMsec) {
-    Serial << LOG0 << " bTimeToTogglePump(): lNextToggleMsec= "
-           << lNextToggleMsec << endl;
-    Serial << LOG0 <<" bTimeToTogglePump(): Setting bTogglePump to TRUE"<< endl;
-    bTogglePump= true;
-  } //if(millis()>lNextToggleMsec)
+  boolean     bReadGPS;
+  if (lCurrentMsec > lNextReadGPSMsec) {
+    Serial << LOG0 << " bTimeToReadGPS(): lNextReadGPSMsec= "
+           << lNextReadGPSMsec << endl;
+    Serial << LOG0 <<" bTimeToReadGPS(): Setting bReadGPS to TRUE"<< endl;
+    bReadGPS= true;
+  } //if(lCurrentMsec>lNextReadGPSMsec)
   else {
-    bTogglePump= false;
+    bReadGPS= false;
   } //else
-  return bTogglePump;
-}  //bTimeToTogglePump
+  return bReadGPS;
+}  //bTimeToReadGPS
 
 
 int sPrintStatus(){
@@ -174,72 +148,21 @@ int sPrintStatus(){
     else {
       Serial << LOG0 << " sPrintStatus(): Pump is OFF, ";
     }
-    if (bPumpLoopRunning) {
-      int lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
+    if (bGPSLoopRunning) {
+      int lSecToToggle= (lNextReadGPSMsec-lCurrentMsec)/1000;
       Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
-    } //if(bPumpLoopRunning)
+    } //if(bGPSLoopRunning)
     else {
       int lSecSinceStart= lCurrentMsec/1000;
       Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60) << endl;
-    } //if(bPumpLoopRunning)else
+    } //if(bGPSLoopRunning)else
   } //if(((lCurrentMsec...
   return 1;
 }  //sPrintStatus
 
 
-int sTogglePump(){
-  if (bPumpIsOn) {
-    sTurnPumpOn(false);
-  }
-  else {
-    sTurnPumpOn(true);
-  } //if(bPumpIsOn)else
-  Serial << LOG0 << " sTogglePump(): Pump toggled, set next done to "
-         << lNextToggleMsec << endl;
-  bPumpJustToggled= true;
+int sReadGPS(){
+  Serial << LOG0 << " sReadGPS(): Begin" << endl;
   return 1;
-}  //sTogglePump
-
-
-int sTurnPumpOn(boolean bOn){
-  int sDigitalPin;
-  int sValue;
-  if (bOn) {
-    bPumpIsOn= true;
-    sValue= HIGH;
-    //Serial << LOG0 <<" sTurnPumpOn(): DEBUG ONLY setting sValue= LOW" << endl;
-    //sValue= LOW;
-  	lNextToggleMsec= millis() + lPumpOnMillis;
-    Serial << LOG0 <<" sTurnPumpOn(): Turning pump ON" << endl;
-  }
-  else {
-    bPumpIsOn= false;
-    sValue= LOW;
-  	lNextToggleMsec= millis() + lPumpOffMillis;
-    Serial << LOG0 <<" sTurnPumpOn(): Turning pump OFF" << endl;
-  }
-  for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
-    sDigitalPin= asRelay[sRelay];
-    Serial << LOG0 <<" sTurnPumpOn(): Set pin "
-           << sDigitalPin << " to " << sValue << endl;
-    digitalWrite(sDigitalPin, sValue);    // NO3 and COM3 Connected
-  } //for
-  //Give pressure time to come up.
-  if (bPumpIsOn) {
-		delay(500);
-	}	//if(bPumpIsOn())
-  return 1;
-}  //sTurnPumpOn
-
-
-int sSetupPumpRelays(){
-  Serial << LOG0 <<" sSetupPumpRelays(): Begin"<< endl;
-  for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
-    int sRelayDigitalPin= asRelay[sRelay];
-    Serial << LOG0 <<" sSetupPumpRelays(): Set relay #" << sRelay
-           << " to pin " << sRelayDigitalPin << endl;
-    pinMode(sRelayDigitalPin, OUTPUT);
-  } //for
-  return 1;
-}  //sSetupPumpRelays
+}  //sReadGPS
 // Last line.
