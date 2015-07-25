@@ -1,4 +1,5 @@
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 7/25 Changed to having Grey Drain and Black Flush cycles instead of just bPumpLoopRunning.
 // 7/17B Remove SD code and simplify on Ace
 // 7/16 Move development from Sammy XP to Ace W7 because Sammy was crashing Arduno IDE.
 // 7/14/15 Remove check on motor voltage and add check on pressure switch.Ifdef SD card out.
@@ -46,7 +47,7 @@ void setup()  {
   Serial << LOG0 << " setup(): Begin" << endl;
   sSetupPressureSwitch();
   sSetupPumpRelays();
-  sClearPumpLoop();
+  sClearCycles();
   return;
 } //setup
 
@@ -62,20 +63,15 @@ int sWaitForSerialMonitor(){
 
 void loop()  {
 	if (bPumpIsOn && bPumpIsDry()) {
-		sTogglePump();
+		sToggleCycle();
 	}
-#if 0
-	if (bPumpLoopRunning && bTimeToTogglePump()) {
-    sTogglePump();
-  } //if(bPumpLoopRunning&&...
-#endif
 	switch (sCurrentCycle) {
 		case sIdleCycle:
 			//Do nothing.
 			break;
 		case sGreyDrainCycle:
 			if (bTimeToTogglePump()) {
-				sTogglePump();
+				sToggleCycle();
 			} //if(bTimeToTogglePump())
 			break;
 		case sBlackFlushCycle:
@@ -92,31 +88,28 @@ void loop()  {
 } //loop
 
 
-int sClearPumpLoop(){
+int sClearCycles(){
   lNextToggleMsec   = 0;
   bPumpIsOn         = false;
-  //bPumpLoopRunning  = false;
   sCurrentCycle			= sIdleCycle;
   bPumpJustToggled  = true;
   return 1;
-}  //sClearPumpLoop
+}  //sClearCycles
 
 
-int sStartPumpLoop(){
-	sClearPumpLoop();
-	//bPumpLoopRunning= true;
+int sStartGreyDrainCycle(){
+	sClearCycles();
   sCurrentCycle= sGreyDrainCycle;
 	sTurnPumpOn(true);
 	return 1;
-}  //sStartPumpLoop
+}  //sStartGreyDrainCycle
 
 
-int sStopPumpLoop(){
-	//bPumpLoopRunning= false;
+int sStopCycles(){
   sCurrentCycle= sIdleCycle;
 	sTurnPumpOn(false);
 	return 1;
-}  //sStopPumpLoop
+}  //sStopCycles
 
 
 int sSetupPressureSwitch(){
@@ -150,17 +143,19 @@ int sCheckKeyboard(){
 			Serial << LOG0 <<" sCheckKeyboard(): Character read= CR" << endl;
 		}
     switch (cChar) {
-      case 'r':
-      case 'R':
-        sStartPumpLoop();
+      case 'g':
+      case 'G':
+				if (sCurrentCycle == sIdleCycle) {
+					sStartGreyDrainCycle();
+				}
         break;
       case 's':
       case 'S':
-        sStopPumpLoop();
+        sStopCycles();
         break;
       case 't':
       case 'T':
-        sTogglePump();
+        sToggleCycle();
         break;
       default:
         break;
@@ -173,13 +168,12 @@ int sCheckKeyboard(){
 boolean bTimeToTogglePump(){
   static int  sLastToggleSecsLeft = 0;
   boolean     bTogglePump;
-  //lCurrentMsec= millis();
   if (lCurrentMsec > lNextToggleMsec) {
     Serial << LOG0 << " bTimeToTogglePump(): lNextToggleMsec= "
            << lNextToggleMsec << endl;
     Serial << LOG0 <<" bTimeToTogglePump(): Setting bTogglePump to TRUE"<< endl;
     bTogglePump= true;
-  } //if(millis()>lNextToggleMsec)
+  } //if(lCurrentMsec>lNextToggleMsec)
   else {
     bTogglePump= false;
   } //else
@@ -201,51 +195,40 @@ int sPrintStatus(){
     else {
       Serial << LOG0 << " sPrintStatus(): Pump is OFF, ";
     }
-#if 0
-    if (bPumpLoopRunning) {
-      int lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
-      Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
-    } //if(bPumpLoopRunning)
-    else {
-      int lSecSinceStart= lCurrentMsec/1000;
-      Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60) << endl;
-    } //if(bPumpLoopRunning)else
-#endif
-	switch (sCurrentCycle) {
-		case sIdleCycle:
-      lSecSinceStart= lCurrentMsec/1000;
-      Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60) << endl;
-			break;
-		case sGreyDrainCycle:
-      lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
-      Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
-			break;
-		case sBlackFlushCycle:
-      lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
-      Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
-			break;
-		default:
-			Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
-			break;
-	}	//switch
-
+		switch (sCurrentCycle) {
+			case sIdleCycle:
+				lSecSinceStart= lCurrentMsec/1000;
+				Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60) << endl;
+				break;
+			case sGreyDrainCycle:
+				lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
+				Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
+				break;
+			case sBlackFlushCycle:
+				lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
+				Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
+				break;
+			default:
+				Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
+				break;
+		}	//switch
   } //if(((lCurrentMsec...
   return 1;
 }  //sPrintStatus
 
 
-int sTogglePump(){
+int sToggleCycle(){
   if (bPumpIsOn) {
     sTurnPumpOn(false);
   }
   else {
     sTurnPumpOn(true);
   } //if(bPumpIsOn)else
-  Serial << LOG0 << " sTogglePump(): Pump toggled, set next done to "
+  Serial << LOG0 << " sToggleCycle(): Pump toggled, set next done to "
          << lNextToggleMsec << endl;
   bPumpJustToggled= true;
   return 1;
-}  //sTogglePump
+}  //sToggleCycle
 
 
 int sTurnPumpOn(boolean bOn){
