@@ -24,15 +24,20 @@ static const int sChipSelect            = 4;
 static const int sDefaultChipSelectPin  = 10;
 
 //Arduino pins used by the GPS module
-static const int GPS_ONOFFPin = A3;
-static const int GPS_SYSONPin = A2;
-static const int GPS_RXPin    = A1;
-static const int GPS_TXPin    = A0;
-static const int GPSBaud      = 9600;
+static const int sGPSOnOffPin = A3;
+static const int sGPSSysOnPin = A2;
+static const int sGPSReceivePin    = A1;
+static const int sGPSTransmitPin    = A0;
+#if 1
+	static const long lGPSspeed    = 9600;
+#else
+	static const int sNumGPSSpeeds= 3;
+	static const long alGPSspeed[]		= {4800, 9600, 19200};
+#endif
 
 static const int sBufferBytes	= 100;
 
-static String			szFilename						= "TGPS724B.TXT";		//Apparantly filenames are limited to 8.3
+static String			szFilename						= "TGPS724G.TXT";		//Apparantly filenames are limited to 8.3
 
 static long       lLineCount      			= 0;      //Serial Monitor uses for clarity.
 static long       lNextReadGPSMsec;          			//Next time to read GPS.
@@ -40,10 +45,11 @@ static long       lCurrentMsec;
 static boolean    bGPSLoopRunning;         				//loop() checks this
 
 // The GPS connection is attached with a software serial port
-SoftwareSerial Gps_serial(GPS_RXPin, GPS_TXPin);
+SoftwareSerial GPSserial(sGPSReceivePin, sGPSTransmitPin);
 
 //static byte 			pcGpsBuffer[100];
-static byte 			pcGpsBuffer[sBufferBytes + 2];
+//static byte 			pcGpsBuffer[sBufferBytes + 2];
+static char 			pcGpsBuffer[sBufferBytes + 2];
 static int 				sBufferIndex             = 0;
 static int 				sLastBufferIndex         = 0;
 
@@ -80,8 +86,8 @@ int sStreamGPStoSD(){
 		       <<" less than LastIndex= "<< sLastBufferIndex << endl;
 	}	//if(sBufferIndex<sLastBufferIndex)
 #endif
-	if (Gps_serial.available()) {
-		cDataByte= Gps_serial.read();
+	if (GPSserial.available()) {
+		cDataByte= GPSserial.read();
 		//Serial.write(cDataByte);
 		//Serial.println("loop() wrting to SD card");
 		pcGpsBuffer[sBufferIndex++]= cDataByte;
@@ -89,7 +95,12 @@ int sStreamGPStoSD(){
 		//if(sBufferIndex >= 100) {
 		if(sBufferIndex >= sBufferBytes) {
 			//Serial.println("loop() Writing 100 bytes to SD card");
-  		Serial << LOG0 <<" sStreamGPStoSD(): Writing "<< sBufferBytes <<" bytes to SD card"<< endl;
+  		//Serial << LOG0 <<" sStreamGPStoSD(): Writing "<< sBufferBytes <<" bytes to SD card"<< endl;
+  		Serial << LOG0 <<" sStreamGPStoSD(): Writing |";
+  		for (int sIndex= 0; sIndex < sBufferBytes; sIndex++) {
+  			Serial << pcGpsBuffer[sIndex];
+			}
+  		Serial <<"| to SD card"<< endl;
 			sBufferIndex = 0;
 			sLastBufferIndex= sBufferIndex;
 			//File dataFile = SD.open("TGPS724A.txt", FILE_WRITE);
@@ -97,7 +108,7 @@ int sStreamGPStoSD(){
 
 			// if the file is available, write to it:
 			if (dataFile) {
-				dataFile.write(pcGpsBuffer, 100);
+				dataFile.write(pcGpsBuffer, sBufferBytes);
 				dataFile.close();
 			} //if(dataFile)
 			// if the file isn't open, pop up an error:
@@ -106,10 +117,10 @@ int sStreamGPStoSD(){
   			Serial << LOG0 << " sStreamGPStoSD(): Error opening GPS data file" << endl;
 			} //if(dataFile)else
 		} //if(sBufferIndex>=100)
-	} //if(Gps_serial.available())
+	} //if(GPSserial.available())
 	else {
 		//Serial << LOG0 << " sStreamGPStoSD(): No data available at GPS" << endl;
-	} //if(Gps_serial.available())else
+	} //if(GPSserial.available())else
 
 	sLastBufferIndex= sBufferIndex;
   return 1;
@@ -119,19 +130,20 @@ int sStreamGPStoSD(){
 int sSetupGPS(){
   Serial << lLineCount++ <<" sSetupGPS(): Initializing GPS card"<< endl;
   //Init the GPS Module to wake mode
-  pinMode(GPS_SYSONPin, INPUT);
-  pinMode(GPS_ONOFFPin, OUTPUT);
-  digitalWrite(GPS_ONOFFPin, LOW);
+  pinMode(sGPSSysOnPin, INPUT);
+  pinMode(sGPSOnOffPin, OUTPUT);
+  digitalWrite(sGPSOnOffPin, LOW);
   delay(5);
-  if (digitalRead(GPS_SYSONPin) == LOW) {
+  if (digitalRead(sGPSSysOnPin) == LOW) {
      //Need to wake the module
-    digitalWrite( GPS_ONOFFPin, HIGH );
+    digitalWrite( sGPSOnOffPin, HIGH );
     delay(5);
-    digitalWrite( GPS_ONOFFPin, LOW );
-  } //f(digitalRead(GPS_SYSONPin)==LOW)
+    digitalWrite( sGPSOnOffPin, LOW );
+  } //f(digitalRead(sGPSSysOnPin)==LOW)
 
   //Open the GPS serial port
-  Gps_serial.begin(GPSBaud);
+  Serial << lLineCount++ <<" sSetupGPS(): Call GPSserial.begin("<< lGPSspeed <<")"<< endl;
+  GPSserial.begin(lGPSspeed);
   return 1;
 }  //sSetupGPS
 
