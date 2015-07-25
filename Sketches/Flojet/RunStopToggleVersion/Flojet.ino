@@ -16,18 +16,14 @@ static const int    sPumpOffSecs    = 600;
 static const long   lMsec           = 1000;
 static const long   lPumpOnMillis   = sPumpOnSecs  * lMsec;
 static const long   lPumpOffMillis  = sPumpOffSecs * lMsec;
-static const int    sIdleCycle    	= 0;
-static const int    sGreyDrainCycle = 1;
-static const int    sBlackFlushCycle= 2;
 
 static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
 static long       lNextToggleMsec;          //Next time to toggle pump relay.
 static long       lCurrentMsec;
-static int				sCurrentCycle;						//sIdleCycle, sGreyDrainCycle, sBlackFlushCycle
 
 boolean           bPumpIsOn;                //Indicates current state of relays.
-//boolean           bPumpLoopRunning;         //loop() checks this
+boolean           bPumpLoopRunning;         //loop() checks this
 boolean           bPumpJustToggled;         //For logging.
 
 /*
@@ -64,27 +60,9 @@ void loop()  {
 	if (bPumpIsOn && bPumpIsDry()) {
 		sTogglePump();
 	}
-#if 0
 	if (bPumpLoopRunning && bTimeToTogglePump()) {
     sTogglePump();
   } //if(bPumpLoopRunning&&...
-#endif
-	switch (sCurrentCycle) {
-		case sIdleCycle:
-			//Do nothing.
-			break;
-		case sGreyDrainCycle:
-			if (bTimeToTogglePump()) {
-				sTogglePump();
-			} //if(bTimeToTogglePump())
-			break;
-		case sBlackFlushCycle:
-			//To be implemented
-			break;
-		default:
-			Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
-			break;
-	}	//switch
 
   sPrintStatus();
   sCheckKeyboard();
@@ -95,8 +73,7 @@ void loop()  {
 int sClearPumpLoop(){
   lNextToggleMsec   = 0;
   bPumpIsOn         = false;
-  //bPumpLoopRunning  = false;
-  sCurrentCycle			= sIdleCycle;
+  bPumpLoopRunning  = false;
   bPumpJustToggled  = true;
   return 1;
 }  //sClearPumpLoop
@@ -104,16 +81,14 @@ int sClearPumpLoop(){
 
 int sStartPumpLoop(){
 	sClearPumpLoop();
-	//bPumpLoopRunning= true;
-  sCurrentCycle= sGreyDrainCycle;
+	bPumpLoopRunning= true;
 	sTurnPumpOn(true);
 	return 1;
 }  //sStartPumpLoop
 
 
 int sStopPumpLoop(){
-	//bPumpLoopRunning= false;
-  sCurrentCycle= sIdleCycle;
+	bPumpLoopRunning= false;
 	sTurnPumpOn(false);
 	return 1;
 }  //sStopPumpLoop
@@ -189,8 +164,6 @@ boolean bTimeToTogglePump(){
 
 int sPrintStatus(){
   //Print once a second.
-  int lSecSinceStart;
-  int lSecToToggle;
   static long lLastPrintedMsec= 0;
   lCurrentMsec= millis();
   if ( ((lCurrentMsec - lLastPrintedMsec)/1000) > 0) {
@@ -201,7 +174,6 @@ int sPrintStatus(){
     else {
       Serial << LOG0 << " sPrintStatus(): Pump is OFF, ";
     }
-#if 0
     if (bPumpLoopRunning) {
       int lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
       Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
@@ -210,25 +182,6 @@ int sPrintStatus(){
       int lSecSinceStart= lCurrentMsec/1000;
       Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60) << endl;
     } //if(bPumpLoopRunning)else
-#endif
-	switch (sCurrentCycle) {
-		case sIdleCycle:
-      lSecSinceStart= lCurrentMsec/1000;
-      Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60) << endl;
-			break;
-		case sGreyDrainCycle:
-      lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
-      Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
-			break;
-		case sBlackFlushCycle:
-      lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
-      Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
-			break;
-		default:
-			Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
-			break;
-	}	//switch
-
   } //if(((lCurrentMsec...
   return 1;
 }  //sPrintStatus
