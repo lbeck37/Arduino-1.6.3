@@ -14,31 +14,46 @@ static const int    sFirstRelay     = 1;
 static const int    sLastRelay      = 2;
 static const int    sPumpOnSecs     = 360;
 static const int    sPumpOffSecs    = 600;
+static const int    s5GalOnSecs  		= 60;
 static const long   lMsec           = 1000;
-static const long   lPumpOnMillis   = sPumpOnSecs  * lMsec;
-static const long   lPumpOffMillis  = sPumpOffSecs * lMsec;
+static const long   lPumpOnMsec   	= sPumpOnSecs  * lMsec;
+static const long   lPumpOffMsec  	= sPumpOffSecs * lMsec;
+static const long   l5GalOnMsec  		= s5GalOnSecs * lMsec;
 static const int    sIdleCycle    	= 0;
 static const int    sGreyDrainCycle = 1;
 static const int    sBlackFlushCycle= 2;
+static const int    sBlackFillCycle = 3;
+static const int    sNumBlackFlushes= 7;
+static const int    sBlackIsFlushing= 1;
+static const int    sBlackIsFilling = 2;
 
 static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static int        sLastToggleSecsLeft;
 static long       lNextToggleMsec;          //Next time to toggle pump relay.
+static long       lStopBlackFillMsec;       //Time to stop filling black tank
 static long       lCurrentMsec;
 static int				sCurrentCycle;						//sIdleCycle, sGreyDrainCycle, sBlackFlushCycle
+static int				sBlackFlushState;
+static int				sBlackFlushCount;
 
 boolean           bPumpIsOn;                //Indicates current state of relays.
-//boolean           bPumpLoopRunning;         //loop() checks this
-boolean           bPumpJustToggled;         //For logging.
 
 /*
 When board powers up pump is tuned off and pump loop is not running.
 Sketch uses Serial Monitor on a PC for output and input.
-Three keys may be pushed: R(un), S(top), T(oggle)
-Pressing R starts the pump, sets a time for toggling it off and starts the pump loop running.
-Pressing S stops the pump and turns off the pump loop.
-Pressing T toggles the pump on or off. If the pump loop is running it sets the toggle time
+N keys may be pushed: G(rey), B(lack), F(ill), S(top), T(oggle)
+G starts the Grey Drain Cycle.
+  The pump ia turned on and when the pump runs dry it goes back to the Idle Cycle.
+B starts the Black Flush Cycle.
+  The pump ia turned on and when the pump runs dry the water fill valve is turned on for
+  one minute (~5 gal) and then off and the pump is run until again until dry. This is repeated
+  N (7?) times.
+S stops the pump and goes into the Idle Cycle.
+F opens the black tank fill valve for 30 seconds to put ~2.5 gal back in the black tank.
+T toggles the pump on or off. If the Grey Drain or Black is running it sets the toggle time
 and keeps the loop running. It does not start the loop if it's not on.
+In the Grey Drain and Black Flush cycles, a time limit for continuous running of the pump is set,
+and when that time is exceeded the pump is shut off and we change to the Idle Cycle.
 */
 
 void setup()  {
@@ -63,19 +78,26 @@ int sWaitForSerialMonitor() {
 
 void loop()  {
 	if (bPumpIsOn && bPumpIsDry()) {
-		sToggleCycle();
+		//sTogglePump();
+		sHandleDryPump();
 	}
 	switch (sCurrentCycle) {
 		case sIdleCycle:
 			//Do nothing.
 			break;
 		case sGreyDrainCycle:
-			if (bTimeToTogglePump()) {
-				sToggleCycle();
-			} //if(bTimeToTogglePump())
+			if (bTimeToStopPump()) {
+				sStopCycle();
+			} //if(bTimeToStopPump())
 			break;
 		case sBlackFlushCycle:
-			//To be implemented
+			if (bTimeToStopFillingBlack()) {
+			}
+			break;
+		case sBlackFillCycle:
+			if (bTimeToStopFillingBlack()) {
+				sStopCycle();
+			}
 			break;
 		default:
 			Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
@@ -90,9 +112,8 @@ void loop()  {
 
 int sClearCycles() {
   lNextToggleMsec   = 0;
-  bPumpIsOn         = false;
+	sTurnPumpOn(false);
   sCurrentCycle			= sIdleCycle;
-  bPumpJustToggled  = true;
   return 1;
 }  //sClearCycles
 
@@ -108,16 +129,39 @@ int sStartGreyDrainCycle() {
 int sStartBlackFlushCycle() {
 	sClearCycles();
   sCurrentCycle= sBlackFlushCycle;
+  sBlackFlushState= sBlackIsFlushing;
+  sBlackFlushCount= 0;
+  lStopBlackFillMsec= millis() + l5GalOnMsec;
 	sTurnPumpOn(true);
 	return 1;
 }  //sStartBlackFlushCycle
 
 
-int sStopCycles() {
+int sSwitchBlackToFilling() {
+	if (sBlackFlushCount++ < sNumBlackFlushes) {
+		sBlackFlushState= sBlackIsFilling;
+		lStopBlackFillMsec= millis() + l5GalOnMsec;
+		//Implement turning valve on.
+	}
+	return 1;
+}  //sSwitchBlackToFilling
+
+
+int sStartBlackFillCycle() {
+	//Fill for 30 seconds for 2.5 gallons.
+	sClearCycles();
+  sCurrentCycle= sBlackFillCycle;
+  lStopBlackFillMsec= millis() + (l5GalOnMsec /2);
+	sTurnPumpOn(true);
+	return 1;
+}  //sStartBlackFillCycle
+
+
+int sStopCycle() {
   sCurrentCycle= sIdleCycle;
 	sTurnPumpOn(false);
 	return 1;
-}  //sStopCycles
+}  //sStopCycle
 
 
 int sSetupPressureSwitch() {
@@ -138,6 +182,30 @@ boolean bPumpIsDry() {
   } //if(sSwitch==LOW)
   return bReturn;
 }  //bPumpIsDry
+
+
+int sHandleDryPump() {
+	sTurnPumpOn(false);
+	switch (sCurrentCycle) {
+		case sIdleCycle:
+			//Do nothing.
+			break;
+		case sGreyDrainCycle:
+			sStopCycle();
+			break;
+		case sBlackFlushCycle:
+			sSwitchBlackToFilling();
+			break;
+		case sBlackFillCycle:
+			Serial << LOG0 << "sHandleDryPump(): ERROR: Pump is dry in Black Fill Cycle "
+			       << sCurrentCycle << endl;
+			break;
+		default:
+			Serial << LOG0 << "sHandleDryPump(): Bad case in switch()= "<< sCurrentCycle << endl;
+			break;
+	}	//switch
+  return 1;
+}  //sHandleDryPump
 
 
 int sCheckKeyboard() {
@@ -163,13 +231,19 @@ int sCheckKeyboard() {
 					sStartBlackFlushCycle();
 				}
         break;
+      case 'f':
+      case 'F':
+				if (sCurrentCycle == sIdleCycle) {
+					sStartBlackFillCycle();
+				}
+        break;
       case 's':
       case 'S':
-        sStopCycles();
+        sStopCycle();
         break;
       case 't':
       case 'T':
-        sToggleCycle();
+        sTogglePump();
         break;
       default:
         break;
@@ -179,20 +253,25 @@ int sCheckKeyboard() {
 }  //sCheckKeyboard
 
 
-boolean bTimeToTogglePump() {
-  static int  sLastToggleSecsLeft = 0;
-  boolean     bTogglePump;
+boolean bTimeToStopPump() {
+  //static int  sLastToggleSecsLeft = 0;
+  boolean     bTogglePump= false;
   if (lCurrentMsec > lNextToggleMsec) {
-    Serial << LOG0 << " bTimeToTogglePump(): lNextToggleMsec= "
-           << lNextToggleMsec << endl;
-    Serial << LOG0 <<" bTimeToTogglePump(): Setting bTogglePump to TRUE"<< endl;
+    Serial << LOG0 <<" bTimeToStopPump(): lNextToggleMsec= "<< lNextToggleMsec << endl;
     bTogglePump= true;
   } //if(lCurrentMsec>lNextToggleMsec)
-  else {
-    bTogglePump= false;
-  } //else
   return bTogglePump;
-}  //bTimeToTogglePump
+}  //bTimeToStopPump
+
+
+boolean bTimeToStopFillingBlack() {
+  boolean     bStopFilling= false;
+  if (lCurrentMsec > lStopBlackFillMsec) {
+    Serial << LOG0 <<" bTimeToStopFillingBlack(): lStopBlackFillMsec= "<< lStopBlackFillMsec << endl;
+    bStopFilling= true;
+  } //if(lCurrentMsec>...
+  return bStopFilling;
+}  //bTimeToStopFillingBlack
 
 
 int sPrintStatus() {
@@ -225,6 +304,11 @@ int sPrintStatus() {
 				Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60);
 				Serial << " Cycle= BLACK FLUSH" << endl;
 				break;
+			case sBlackFillCycle:
+				lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
+				Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60);
+				Serial << " Cycle= BLACK FILL" << endl;
+				break;
 			default:
 				Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
 				break;
@@ -234,18 +318,17 @@ int sPrintStatus() {
 }  //sPrintStatus
 
 
-int sToggleCycle() {
+int sTogglePump() {
   if (bPumpIsOn) {
     sTurnPumpOn(false);
   }
   else {
     sTurnPumpOn(true);
   } //if(bPumpIsOn)else
-  Serial << LOG0 << " sToggleCycle(): Pump toggled, set next done to "
+  Serial << LOG0 << " sTogglePump(): Pump toggled, set next done to "
          << lNextToggleMsec << endl;
-  bPumpJustToggled= true;
   return 1;
-}  //sToggleCycle
+}  //sTogglePump
 
 
 int sTurnPumpOn(boolean bOn){
@@ -256,13 +339,13 @@ int sTurnPumpOn(boolean bOn){
     sValue= HIGH;
     //Serial << LOG0 <<" sTurnPumpOn(): DEBUG ONLY setting sValue= LOW" << endl;
     //sValue= LOW;
-  	lNextToggleMsec= millis() + lPumpOnMillis;
+  	lNextToggleMsec= millis() + lPumpOnMsec;
     Serial << LOG0 <<" sTurnPumpOn(): Turning pump ON" << endl;
   }
   else {
     bPumpIsOn= false;
     sValue= LOW;
-  	lNextToggleMsec= millis() + lPumpOffMillis;
+  	lNextToggleMsec= millis() + lPumpOffMsec;
     Serial << LOG0 <<" sTurnPumpOn(): Turning pump OFF" << endl;
   }
   for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
