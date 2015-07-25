@@ -52,7 +52,7 @@ void setup()  {
 } //setup
 
 
-int sWaitForSerialMonitor(){
+int sWaitForSerialMonitor() {
   //The following (for Leonardo only) waits for SerialMonitor to start on PC.
   while (!Serial) {
     ; // wait for serial port to connect. Needed for Leonardo only
@@ -88,7 +88,7 @@ void loop()  {
 } //loop
 
 
-int sClearCycles(){
+int sClearCycles() {
   lNextToggleMsec   = 0;
   bPumpIsOn         = false;
   sCurrentCycle			= sIdleCycle;
@@ -97,7 +97,7 @@ int sClearCycles(){
 }  //sClearCycles
 
 
-int sStartGreyDrainCycle(){
+int sStartGreyDrainCycle() {
 	sClearCycles();
   sCurrentCycle= sGreyDrainCycle;
 	sTurnPumpOn(true);
@@ -105,14 +105,22 @@ int sStartGreyDrainCycle(){
 }  //sStartGreyDrainCycle
 
 
-int sStopCycles(){
+int sStartBlackFlushCycle() {
+	sClearCycles();
+  sCurrentCycle= sBlackFlushCycle;
+	sTurnPumpOn(true);
+	return 1;
+}  //sStartBlackFlushCycle
+
+
+int sStopCycles() {
   sCurrentCycle= sIdleCycle;
 	sTurnPumpOn(false);
 	return 1;
 }  //sStopCycles
 
 
-int sSetupPressureSwitch(){
+int sSetupPressureSwitch() {
   pinMode(sPressurePin, INPUT);
   //Connect internal pull-up reistor.
   digitalWrite(sPressurePin, HIGH);
@@ -120,7 +128,7 @@ int sSetupPressureSwitch(){
 }  //sSetupPressureSwitch
 
 
-boolean bPumpIsDry(){
+boolean bPumpIsDry() {
   boolean bReturn= false;
   long lNowMsec= millis();
   int sSwitch= digitalRead(sPressurePin);
@@ -132,7 +140,7 @@ boolean bPumpIsDry(){
 }  //bPumpIsDry
 
 
-int sCheckKeyboard(){
+int sCheckKeyboard() {
   if (Serial.available()) {
     char cChar= Serial.read();
     int sChar= cChar;
@@ -147,6 +155,12 @@ int sCheckKeyboard(){
       case 'G':
 				if (sCurrentCycle == sIdleCycle) {
 					sStartGreyDrainCycle();
+				}
+        break;
+      case 'b':
+      case 'B':
+				if (sCurrentCycle == sIdleCycle) {
+					sStartBlackFlushCycle();
 				}
         break;
       case 's':
@@ -165,7 +179,7 @@ int sCheckKeyboard(){
 }  //sCheckKeyboard
 
 
-boolean bTimeToTogglePump(){
+boolean bTimeToTogglePump() {
   static int  sLastToggleSecsLeft = 0;
   boolean     bTogglePump;
   if (lCurrentMsec > lNextToggleMsec) {
@@ -181,7 +195,7 @@ boolean bTimeToTogglePump(){
 }  //bTimeToTogglePump
 
 
-int sPrintStatus(){
+int sPrintStatus() {
   //Print once a second.
   int lSecSinceStart;
   int lSecToToggle;
@@ -198,15 +212,18 @@ int sPrintStatus(){
 		switch (sCurrentCycle) {
 			case sIdleCycle:
 				lSecSinceStart= lCurrentMsec/1000;
-				Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60) << endl;
+				Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60);
+				Serial << " Cycle= IDLE" << endl;
 				break;
 			case sGreyDrainCycle:
 				lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
-				Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
+				Serial << "Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60);
+				Serial << " Cycle= GREY DRAIN" << endl;
 				break;
 			case sBlackFlushCycle:
 				lSecToToggle= (lNextToggleMsec-lCurrentMsec)/1000;
-				Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60) << endl;
+				Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60);
+				Serial << " Cycle= BLACK FLUSH" << endl;
 				break;
 			default:
 				Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
@@ -217,7 +234,7 @@ int sPrintStatus(){
 }  //sPrintStatus
 
 
-int sToggleCycle(){
+int sToggleCycle() {
   if (bPumpIsOn) {
     sTurnPumpOn(false);
   }
@@ -262,7 +279,7 @@ int sTurnPumpOn(boolean bOn){
 }  //sTurnPumpOn
 
 
-int sSetupPumpRelays(){
+int sSetupPumpRelays() {
   Serial << LOG0 <<" sSetupPumpRelays(): Begin"<< endl;
   for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
     int sRelayDigitalPin= asRelay[sRelay];
