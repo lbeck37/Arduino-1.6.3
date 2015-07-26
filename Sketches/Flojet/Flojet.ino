@@ -14,7 +14,6 @@
 static const int    sPressurePin        = 3;
 //Relay pin can be 1 to 4,no zero relay, pin 4 not available, conflicts with SD card.
 static const int    asRelay[]           = {0, 7, 6, 5, 4};
-//static const int    sBlackFillValvePin  = 8;
 static const int    sFirstPumpRelay     = 1;
 static const int    sLastPumpRelay      = 2;
 static const int    sFillValveRelay = 3;
@@ -70,9 +69,6 @@ void setup()  {
   sWaitForSerialMonitor();
   Serial << LOG0 << " setup(): Begin" << endl;
   sSetupArduinoPins();
-  //sSetupPressureSwitch();
-  //sSetupPumpRelays();
-  //sClearCycles();
   sStopCycle();
   return;
 } //setup
@@ -172,17 +168,6 @@ int sCheckForTimeout() {
 }  //sCheckForTimeout
 
 
-/*int sClearCycles() {
-  Serial << LOG0 <<" sClearCycles(): Begin"<< endl;
-  lNextTimeoutMsec   = 0;
-  sOpenBlackFillValve(false);
-  sTurnPumpOn(false);
-  sCurrentCycle     = sIdleCycle;
-  sSetCycleStartMsec();
-  return 1;
-}  //sClearCycles */
-
-
 int sStartGreyDrainCycle() {
   Serial << LOG0 <<" sStartGreyDrainCycle(): Begin"<< endl;
   //sClearCycles();
@@ -244,7 +229,6 @@ int sSwitchBlackToDraining() {
 int sStartBlackFillCycle() {
   Serial << LOG0 <<" sStartBlackFillCycle(): Begin"<< endl;
   //Fill for 30 seconds for 2.5 gallons.
-  //sClearCycles();
   sCurrentCycle= sBlackFillCycle;
   sSetCycleStartMsec();
   lStopBlackFillMsec= millis() + (l5GalOnMsec /2);
@@ -386,7 +370,6 @@ int sPrintStatus() {
         break;
       case sBlackFillCycle:
         sSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
-        //Serial <<"Seconds since cycle start= "<< CYCLE_SEC << " Cycle= BLACK FILL" << endl;
         Serial <<"Seconds since cycle start= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
                <<", to go= "<< ((sBlackFillCycleSecLeft()/60)) <<":"<< (sBlackFillCycleSecLeft() % 60)
                <<" seconds, Cycle= BLACK FILL" << endl;
@@ -406,15 +389,12 @@ int sTurnPumpOn(boolean bOn){
   if (bOn) {
     bPumpIsOn= true;
     sValue= HIGH;
-    //Serial << LOG0 <<" sTurnPumpOn(): DEBUG ONLY setting sValue= LOW" << endl;
-    //sValue= LOW;
     lNextTimeoutMsec= millis() + lTimeoutMsec;
     Serial << LOG0 <<" sTurnPumpOn(): Turning pump ON" << endl;
   }
   else {
     bPumpIsOn= false;
     sValue= LOW;
-    //lNextTimeoutMsec= millis() + lPumpOffMsec;
     Serial << LOG0 <<" sTurnPumpOn(): Turning pump OFF" << endl;
   }
   for (int sRelay= sFirstPumpRelay; sRelay <= sLastPumpRelay; sRelay++) {
