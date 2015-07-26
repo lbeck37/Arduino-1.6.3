@@ -1,4 +1,5 @@
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 7/26 Work on completing with fill valve on pin 8.
 // 7/25 Changed to having Grey Drain and Black Flush cycles instead of just bPumpLoopRunning.
 // 7/17B Remove SD code and simplify on Ace
 // 7/16 Move development from Sammy XP to Ace W7 because Sammy was crashing Arduno IDE.
