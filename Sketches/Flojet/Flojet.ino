@@ -8,15 +8,16 @@
 #include <Streaming.h>
 
 #define LOG0            lLineCount++ << " " << millis()
-#define MIN_SEC(Sec)    Serial << (Sec / 60) << ":" << (Sec % 60)
-#define CYCLE_SEC       Serial << ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
+#define MIN_SEC(Sec)    (Sec / 60) << ":" << (Sec % 60)
+//#define CYCLE_SEC       Serial << ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
 
 static const int    sPressurePin        = 3;
 //Relay pin can be 1 to 4,no zero relay, pin 4 not available, conflicts with SD card.
 static const int    asRelay[]           = {0, 7, 6, 5, 4};
-static const int    sBlackFillValvePin  = 8;
-static const int    sFirstRelay     = 1;
-static const int    sLastRelay      = 2;
+//static const int    sBlackFillValvePin  = 8;
+static const int    sFirstPumpRelay     = 1;
+static const int    sLastPumpRelay      = 2;
+static const int    sFillValveRelay = 3;
 static const int    sStatusSecs     = 2;
 static const int    sTimeoutSecs    = 7 * 60;
 static const int    s5GalOnSecs     = 60;
@@ -68,9 +69,11 @@ void setup()  {
   Serial.begin(9600);
   sWaitForSerialMonitor();
   Serial << LOG0 << " setup(): Begin" << endl;
-  sSetupPressureSwitch();
-  sSetupPumpRelays();
-  sClearCycles();
+  sSetupArduinoPins();
+  //sSetupPressureSwitch();
+  //sSetupPumpRelays();
+  //sClearCycles();
+  sStopCycle();
   return;
 } //setup
 
@@ -94,15 +97,57 @@ void loop()  {
 } //loop
 
 
+int sSetupArduinoPins() {
+  sSetupPressureSwitch();
+  sSetupPumpRelays();
+  sSetupBlackFillValve();
+  return 1;
+}  //sSetupArduinoPins
+
+
+int sSetupPressureSwitch() {
+  pinMode(sPressurePin, INPUT);
+  //Connect internal pull-up reistor.
+  digitalWrite(sPressurePin, HIGH);
+  return 1;
+}  //sSetupPressureSwitch
+
+
+int sSetupPumpRelays() {
+  Serial << LOG0 <<" sSetupPumpRelays(): Begin"<< endl;
+  for (int sRelay= sFirstPumpRelay; sRelay <= sLastPumpRelay; sRelay++) {
+    int sRelayDigitalPin= asRelay[sRelay];
+    Serial << LOG0 <<" sSetupPumpRelays(): Set relay #" << sRelay
+           << " to pin " << sRelayDigitalPin << endl;
+    pinMode(sRelayDigitalPin, OUTPUT);
+  } //for
+  return 1;
+}  //sSetupPumpRelays
+
+
+int sSetupBlackFillValve() {
+  Serial << LOG0 <<" sSetupBlackFillValve(): Set Black Fill Valve to pin "<< asRelay[sFillValveRelay] << endl;
+  pinMode(asRelay[sFillValveRelay], OUTPUT);
+  return 1;
+}  //sSetupBlackFillValve
+
+
 int sCycleSec() {
   int sReturn= (lCurrentMsec - lCycleStartMsec) / lMsec;
   return sReturn;
 }  //sCycleSec
 
 
+int sBlackFillCycleSecLeft() {
+  int sReturn= (lStopBlackFillMsec - lCurrentMsec) / lMsec;
+  return sReturn;
+}  //sBlackFillCycleSecLeft
+
+
 int sSetCycleStartMsec() {
   lCycleStartMsec= lCurrentMsec;
-  Serial << LOG0 <<" sSetCycleStartMsec(): Set  Cycle start to "<< CYCLE_SEC << endl;
+  Serial << LOG0 <<" sSetCycleStartMsec(): Set  Cycle start to "
+         << ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60) << endl;
   Serial << LOG0 <<" sSetCycleStartMsec(): lCurrentMsec= "<< lCurrentMsec
          << ", lCycleStartMsec= " << lCycleStartMsec << endl;
   int sCycleSecReturns= sCycleSec();
@@ -127,19 +172,20 @@ int sCheckForTimeout() {
 }  //sCheckForTimeout
 
 
-int sClearCycles() {
+/*int sClearCycles() {
   Serial << LOG0 <<" sClearCycles(): Begin"<< endl;
   lNextTimeoutMsec   = 0;
+  sOpenBlackFillValve(false);
   sTurnPumpOn(false);
   sCurrentCycle     = sIdleCycle;
   sSetCycleStartMsec();
   return 1;
-}  //sClearCycles
+}  //sClearCycles */
 
 
 int sStartGreyDrainCycle() {
   Serial << LOG0 <<" sStartGreyDrainCycle(): Begin"<< endl;
-  sClearCycles();
+  //sClearCycles();
   sCurrentCycle= sGreyDrainCycle;
   sSetCycleStartMsec();
   sTurnPumpOn(true);
@@ -149,7 +195,7 @@ int sStartGreyDrainCycle() {
 
 int sStartBlackDrainCycle() {
   Serial << LOG0 <<" sStartBlackDrainCycle(): Begin"<< endl;
-  sClearCycles();
+  //sClearCycles();
   sCurrentCycle= sBlackDrainCycle;
   sBlackDrainState= sBlackIsDraining;
   sSetCycleStartMsec();
@@ -175,7 +221,7 @@ int sSwitchBlackToFilling() {
            <<" of "<< sNumBlackFills << endl;
     sBlackDrainState= sBlackIsFilling;
     lStopBlackFillMsec= millis() + l5GalOnMsec;
-    //Implement turning valve on.
+    sOpenBlackFillValve(true);
   } //if(sBlackFillCount++<sNumBlackFills)
   else {
     Serial << LOG0 <<" sSwitchBlackToFilling(): Total Fills reached: "<< sNumBlackFills << endl;
@@ -189,8 +235,8 @@ int sSwitchBlackToDraining() {
   Serial << LOG0 <<" sSwitchBlackToDraining(): Begin"<< endl;
   sBlackDrainState= sBlackIsDraining;
   sSetCycleStartMsec();
+  sOpenBlackFillValve(false);
   sTurnPumpOn(true);
-  //Implement turning valve on.
   return 1;
 }  //sSwitchBlackToDraining
 
@@ -198,11 +244,11 @@ int sSwitchBlackToDraining() {
 int sStartBlackFillCycle() {
   Serial << LOG0 <<" sStartBlackFillCycle(): Begin"<< endl;
   //Fill for 30 seconds for 2.5 gallons.
-  sClearCycles();
+  //sClearCycles();
   sCurrentCycle= sBlackFillCycle;
   sSetCycleStartMsec();
   lStopBlackFillMsec= millis() + (l5GalOnMsec /2);
-  sTurnPumpOn(true);
+  sOpenBlackFillValve(true);
   return 1;
 }  //sStartBlackFillCycle
 
@@ -211,17 +257,10 @@ int sStopCycle() {
   Serial << LOG0 <<" sStopCycle(): Begin"<< endl;
   sSetCycleStartMsec();
   sCurrentCycle= sIdleCycle;
+  sOpenBlackFillValve(false);
   sTurnPumpOn(false);
   return 1;
 }  //sStopCycle
-
-
-int sSetupPressureSwitch() {
-  pinMode(sPressurePin, INPUT);
-  //Connect internal pull-up reistor.
-  digitalWrite(sPressurePin, HIGH);
-  return 1;
-}  //sSetupPressureSwitch
 
 
 boolean bPumpIsDry() {
@@ -335,19 +374,22 @@ int sPrintStatus() {
     switch (sCurrentCycle) {
       case sIdleCycle:
         sSecSinceStart= lCurrentMsec/1000;
-        Serial <<"Seconds since cycle start= "<< CYCLE_SEC <<", Cycle= IDLE" << endl;
+        Serial <<"Seconds since cycle start= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60) <<", Cycle= IDLE" << endl;
         break;
       case sGreyDrainCycle:
         sSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
-        Serial << "Seconds since cycle start= "<< CYCLE_SEC << " Cycle= GREY DRAIN" << endl;
+        Serial << "Seconds since cycle start= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60) << " Cycle= GREY DRAIN" << endl;
         break;
       case sBlackDrainCycle:
         sSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
-        Serial <<"Seconds since cycle start= "<< CYCLE_SEC << " Cycle= BLACK FLUSH" << endl;
+        Serial <<"Seconds since cycle start= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60) << " Cycle= BLACK FLUSH" << endl;
         break;
       case sBlackFillCycle:
         sSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
-        Serial <<"Seconds since cycle start= "<< CYCLE_SEC << " Cycle= BLACK FILL" << endl;
+        //Serial <<"Seconds since cycle start= "<< CYCLE_SEC << " Cycle= BLACK FILL" << endl;
+        Serial <<"Seconds since cycle start= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
+               <<", to go= "<< ((sBlackFillCycleSecLeft()/60)) <<":"<< (sBlackFillCycleSecLeft() % 60)
+               <<" seconds, Cycle= BLACK FILL" << endl;
         break;
       default:
         Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
@@ -375,7 +417,7 @@ int sTurnPumpOn(boolean bOn){
     //lNextTimeoutMsec= millis() + lPumpOffMsec;
     Serial << LOG0 <<" sTurnPumpOn(): Turning pump OFF" << endl;
   }
-  for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
+  for (int sRelay= sFirstPumpRelay; sRelay <= sLastPumpRelay; sRelay++) {
     sDigitalPin= asRelay[sRelay];
     Serial << LOG0 <<" sTurnPumpOn(): Set pin "
            << sDigitalPin << " to " << sValue << endl;
@@ -397,25 +439,11 @@ int sOpenBlackFillValve(boolean bOn){
     Serial << LOG0 <<" sOpenBlackFillValve(): Open valve" << endl;
   }
   else {
-    bPumpIsOn= false;
     sValue= LOW;
     Serial << LOG0 <<" sOpenBlackFillValve(): Close valve" << endl;
   }
-  Serial << LOG0 <<" sOpenBlackFillValve(): Set pin "
-         << sBlackFillValvePin << " to " << sValue << endl;
-  digitalWrite(sBlackFillValvePin, sValue);
+  Serial << LOG0 <<" sOpenBlackFillValve(): Set pin "<< asRelay[sFillValveRelay] <<" to "<< sValue << endl;
+  digitalWrite(asRelay[sFillValveRelay], sValue);
   return 1;
 }  //sOpenBlackFillValve
-
-
-int sSetupPumpRelays() {
-  Serial << LOG0 <<" sSetupPumpRelays(): Begin"<< endl;
-  for (int sRelay= sFirstRelay; sRelay <= sLastRelay; sRelay++) {
-    int sRelayDigitalPin= asRelay[sRelay];
-    Serial << LOG0 <<" sSetupPumpRelays(): Set relay #" << sRelay
-           << " to pin " << sRelayDigitalPin << endl;
-    pinMode(sRelayDigitalPin, OUTPUT);
-  } //for
-  return 1;
-}  //sSetupPumpRelays
 // Last line.
