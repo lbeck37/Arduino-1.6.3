@@ -7,7 +7,9 @@
 #include <Arduino.h>
 #include <Streaming.h>
 
-#define LOG0 lLineCount++ << " " << millis()
+#define LOG0            lLineCount++ << " " << millis()
+#define MIN_SEC(Sec)    Serial << (Sec / 60) << ":" << (Sec % 60)
+#define CYCLE_SEC       Serial << ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
 
 static const int    sPressurePin        = 3;
 //Relay pin can be 1 to 4,no zero relay, pin 4 not available, conflicts with SD card.
@@ -15,11 +17,11 @@ static const int    asRelay[]           = {0, 7, 6, 5, 4};
 static const int    sBlackFillValvePin  = 8;
 static const int    sFirstRelay     = 1;
 static const int    sLastRelay      = 2;
-static const int    sStatusPrintSecs= 2;
+static const int    sStatusSecs     = 2;
 static const int    sTimeoutSecs    = 7 * 60;
 static const int    s5GalOnSecs     = 60;
 static const long   lMsec           = 1000;
-//static const long   lStatusPrintMsec= sStatusPrintSecs  * lMsec;
+static const long   lStatusMsec     = sStatusSecs  * lMsec;
 static const long   lTimeoutMsec    = sTimeoutSecs  * lMsec;
 static const long   l5GalOnMsec     = s5GalOnSecs * lMsec;
 static const int    sIdleCycle      = 0;
@@ -32,8 +34,10 @@ static const int    sBlackIsFilling = 2;
 
 static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static long       lNextTimeoutMsec;          //Next time to toggle pump relay.
+static long       lNextStatusMsec;          //Next time to print status on Serial Monitor.
 static long       lStopBlackFillMsec;       //Time to stop filling black tank
 static long       lCurrentMsec;
+static long       lCycleStartMsec;
 static int        sCurrentCycle;            //sIdleCycle, sGreyDrainCycle, sBlackDrainCycle
 static int        sBlackDrainState;
 static int        sBlackFillCount;
@@ -83,33 +87,28 @@ int sWaitForSerialMonitor() {
 void loop()  {
   sCheckForDryPump();
   sCheckForTimeout();
-  /*switch (sCurrentCycle) {
-    case sIdleCycle:
-      //Do nothing.
-      break;
-    case sGreyDrainCycle:
-      if (bTimeToStopPump()) {
-        sStopCycle();
-      } //if(bTimeToStopPump())
-      break;
-    case sBlackDrainCycle:
-      if (bTimeToStopFillingBlack()) {
-      }
-      break;
-    case sBlackFillCycle:
-      if (bTimeToStopFillingBlack()) {
-        sStopCycle();
-      }
-      break;
-    default:
-      Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
-      break;
-  } //switch */
 
   sPrintStatus();
   sCheckKeyboard();
   return;
 } //loop
+
+
+int sCycleSec() {
+  int sReturn= (lCurrentMsec - lCycleStartMsec) / lMsec;
+  return sReturn;
+}  //sCycleSec
+
+
+int sSetCycleStartMsec() {
+  lCycleStartMsec= lCurrentMsec;
+  Serial << LOG0 <<" sSetCycleStartMsec(): Set  Cycle start to "<< CYCLE_SEC << endl;
+  Serial << LOG0 <<" sSetCycleStartMsec(): lCurrentMsec= "<< lCurrentMsec
+         << ", lCycleStartMsec= " << lCycleStartMsec << endl;
+  int sCycleSecReturns= sCycleSec();
+  Serial << LOG0 <<" sSetCycleStartMsec(): sCycleSec() returns "<< sCycleSecReturns << endl;
+  return 1;
+}  //sSetCycleStartMsec
 
 
 int sCheckForDryPump() {
@@ -121,7 +120,7 @@ int sCheckForDryPump() {
 
 
 int sCheckForTimeout() {
-  if (bTimeToStopPump()) {
+  if (bPumpIsOn && bTimeoutReached()) {
     sStopCycle();
   } //if
   return 1;
@@ -129,27 +128,32 @@ int sCheckForTimeout() {
 
 
 int sClearCycles() {
+  Serial << LOG0 <<" sClearCycles(): Begin"<< endl;
   lNextTimeoutMsec   = 0;
   sTurnPumpOn(false);
   sCurrentCycle     = sIdleCycle;
+  sSetCycleStartMsec();
   return 1;
 }  //sClearCycles
 
 
 int sStartGreyDrainCycle() {
+  Serial << LOG0 <<" sStartGreyDrainCycle(): Begin"<< endl;
   sClearCycles();
   sCurrentCycle= sGreyDrainCycle;
+  sSetCycleStartMsec();
   sTurnPumpOn(true);
   return 1;
 }  //sStartGreyDrainCycle
 
 
 int sStartBlackDrainCycle() {
+  Serial << LOG0 <<" sStartBlackDrainCycle(): Begin"<< endl;
   sClearCycles();
   sCurrentCycle= sBlackDrainCycle;
   sBlackDrainState= sBlackIsDraining;
+  sSetCycleStartMsec();
   sBlackFillCount= 0;
-  //lStopBlackFillMsec= millis() + l5GalOnMsec;
   sTurnPumpOn(true);
   return 1;
 }  //sStartBlackDrainCycle
@@ -163,6 +167,7 @@ int sStopBlackDrainCycle() {
 
 
 int sSwitchBlackToFilling() {
+  Serial << LOG0 <<" sSwitchBlackToFilling(): Begin"<< endl;
   //Returns 0 if number of desired fills was reached.
   int sReturn= 1;
   if (sBlackFillCount++ < sNumBlackFills) {
@@ -181,7 +186,9 @@ int sSwitchBlackToFilling() {
 
 
 int sSwitchBlackToDraining() {
+  Serial << LOG0 <<" sSwitchBlackToDraining(): Begin"<< endl;
   sBlackDrainState= sBlackIsDraining;
+  sSetCycleStartMsec();
   sTurnPumpOn(true);
   //Implement turning valve on.
   return 1;
@@ -189,9 +196,11 @@ int sSwitchBlackToDraining() {
 
 
 int sStartBlackFillCycle() {
+  Serial << LOG0 <<" sStartBlackFillCycle(): Begin"<< endl;
   //Fill for 30 seconds for 2.5 gallons.
   sClearCycles();
   sCurrentCycle= sBlackFillCycle;
+  sSetCycleStartMsec();
   lStopBlackFillMsec= millis() + (l5GalOnMsec /2);
   sTurnPumpOn(true);
   return 1;
@@ -199,6 +208,8 @@ int sStartBlackFillCycle() {
 
 
 int sStopCycle() {
+  Serial << LOG0 <<" sStopCycle(): Begin"<< endl;
+  sSetCycleStartMsec();
   sCurrentCycle= sIdleCycle;
   sTurnPumpOn(false);
   return 1;
@@ -288,15 +299,14 @@ int sCheckKeyboard() {
 }  //sCheckKeyboard
 
 
-boolean bTimeToStopPump() {
+boolean bTimeoutReached() {
   boolean     bStopPump= false;
   if (lCurrentMsec > lNextTimeoutMsec) {
-    //Serial << LOG0 <<" bTimeToStopPump(): lNextTimeoutMsec= "<< lNextTimeoutMsec << endl;
-    Serial << LOG0 <<" bTimeToStopPump(): Timeout reached, lNextTimeoutMsec= "<< lNextTimeoutMsec << endl;
+    Serial << LOG0 <<" bTimeoutReached(): Timeout reached, lNextTimeoutMsec= "<< lNextTimeoutMsec << endl;
     bStopPump= true;
   } //if(lCurrentMsec>lNextTimeoutMsec)
   return bStopPump;
-}  //bTimeToStopPump
+}  //bTimeoutReached
 
 
 boolean bTimeToStopFillingBlack() {
@@ -310,18 +320,12 @@ boolean bTimeToStopFillingBlack() {
 
 
 int sPrintStatus() {
-  //Print once a second.
-  int lSecSinceStart;
-  int lSecToToggle;
+  int sSecSinceStart;
+  int sSecToToggle;
   static long lLastPrintedMsec= 0;
   lCurrentMsec= millis();
-  int sModulo= (lCurrentMsec/1000) % sStatusPrintSecs;
-  //if ( ((lCurrentMsec/1000) % sStatusPrintSecs) == 0) {
-  if ( ((lCurrentMsec - lLastPrintedMsec)/1000) > 0) {
-    Serial << LOG0 << " sPrintStatus(): (lCurrentMsec/1000)= "<< (lCurrentMsec/1000)
-           <<", sStatusPrintSecs= "<< sStatusPrintSecs <<", Modulo= " << sModulo << endl ;
-
-    lLastPrintedMsec= lCurrentMsec;
+  if (lCurrentMsec >= lNextStatusMsec) {
+    lNextStatusMsec= lCurrentMsec + lStatusMsec;
     if (bPumpIsOn) {
       Serial << LOG0 << " sPrintStatus(): Pump is ON, ";
     }
@@ -330,30 +334,26 @@ int sPrintStatus() {
     }
     switch (sCurrentCycle) {
       case sIdleCycle:
-        lSecSinceStart= lCurrentMsec/1000;
-        Serial <<"Seconds since start= "<< (lSecSinceStart / 60) <<":"<< (lSecSinceStart % 60);
-        Serial << " Cycle= IDLE" << endl;
+        sSecSinceStart= lCurrentMsec/1000;
+        Serial <<"Seconds since cycle start= "<< CYCLE_SEC <<", Cycle= IDLE" << endl;
         break;
       case sGreyDrainCycle:
-        lSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
-        Serial << "Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60);
-        Serial << " Cycle= GREY DRAIN" << endl;
+        sSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
+        Serial << "Seconds since cycle start= "<< CYCLE_SEC << " Cycle= GREY DRAIN" << endl;
         break;
       case sBlackDrainCycle:
-        lSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
-        Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60);
-        Serial << " Cycle= BLACK FLUSH" << endl;
+        sSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
+        Serial <<"Seconds since cycle start= "<< CYCLE_SEC << " Cycle= BLACK FLUSH" << endl;
         break;
       case sBlackFillCycle:
-        lSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
-        Serial <<"Seconds until pump toggle= "<< (lSecToToggle / 60) <<":"<< (lSecToToggle % 60);
-        Serial << " Cycle= BLACK FILL" << endl;
+        sSecToToggle= (lNextTimeoutMsec-lCurrentMsec)/1000;
+        Serial <<"Seconds since cycle start= "<< CYCLE_SEC << " Cycle= BLACK FILL" << endl;
         break;
       default:
         Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
         break;
     } //switch
-  } //if(((lCurrentMsec...
+  } //if(lCurrentMsec>=lNextStatusMsec)
   return 1;
 }  //sPrintStatus
 
