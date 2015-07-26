@@ -1,5 +1,5 @@
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
-// 7/26 Work on completing with fill valve on pin 8.
+// 7/26 Work on completing with fill valve on pin relay 3.
 // 7/25 Changed to having Grey Drain and Black Flush cycles instead of just bPumpLoopRunning.
 // 7/17B Remove SD code and simplify on Ace
 // 7/16 Move development from Sammy XP to Ace W7 because Sammy was crashing Arduno IDE.
@@ -24,8 +24,6 @@ static const int    sFinalFillSecs  = s5GalOnSecs / 2;
 static const long   lMsec           = 1000;
 static const long   lStatusMsec     = sStatusSecs  * lMsec;
 static const long   lTimeoutMsec    = sTimeoutSecs  * lMsec;
-//static const long   l5GalOnMsec     = s5GalOnSecs * lMsec;
-//static const long   lFinalFillOnMsec= sFinalFillSecs * lMsec;
 static const int    sIdleCycle      = 0;
 static const int    sGreyDrainCycle = 1;
 static const int    sBlackDrainCycle= 2;
@@ -34,7 +32,7 @@ static const int    sBlackIsDraining= 1;
 static const int    sBlackIsFilling = 2;
 
 //Values changed when debug is on.
-static int    sNumBlackFills  = 7;
+static int    sNumBlackFills  = 8;
 static long   l5GalOnMsec     = s5GalOnSecs * lMsec;
 static long   lFinalFillOnMsec= sFinalFillSecs * lMsec;
 
@@ -64,8 +62,8 @@ B starts the Black Drain Cycle.
 S stops any cycle and goes into the Idle Cycle.
 F starts the Black Fill Cycle which opens the black tank fill valve for 30 seconds to put
   ~2.5 gal back in the black tank. Use this when finished draining black and want to put some back.
-X turns on Debug mode which allows testing without pressure switch being connected.
-  Debug mode simulates pump going dry after 5 seconds of Grey or Black Drain Cycle.
+D turns on Debug mode which allows testing without pressure switch being connected.
+  Debug mode also changes lengths of fills and number.
 Note: The Toggle command is not implemented any more.
 In the Grey Drain and Black Flush cycles, a time limit for continuous running of the pump is set,
 and when that time is exceeded the pump is shut off and we change to the Idle Cycle.
@@ -317,8 +315,12 @@ int sHandleDryPump() {
       sStopCycle();
       break;
     case sBlackDrainCycle:
-      if (sSwitchBlackToFilling() == 0) {
-      } //if (sSwitchBlackToFilling() == 0)
+      if (sBlackDrainState == sBlackIsDraining) {
+        //sSwitchBlackToFilling() returns 0 when desired fills have happened.
+        if (sSwitchBlackToFilling() == 0) {
+          sStopCycle();
+        } //if (sSwitchBlackToFilling() == 0)
+      } //if(sBlackDrainState==sBlackIsDraining)
       break;
     case sIdleCycle:
     case sBlackFillCycle:
@@ -391,6 +393,9 @@ int sToggleDebug() {
     l5GalOnMsec= l5GalOnMsec / sDebugRatio;
     lFinalFillOnMsec= lFinalFillOnMsec / sDebugRatio;
   } //if(bDebug)else
+  Serial << LOG0 <<" sToggleDebug(): Set l5GalOn Sec= "<< (l5GalOnMsec/1000)
+         <<", Final Fill Sec= "<< (lFinalFillOnMsec/1000)
+         <<", sNumBlackFills= "<< sNumBlackFills << endl;
   bDebug= !bDebug;
   return 1;
 }  //sToggleDebug
@@ -445,7 +450,8 @@ int sPrintStatus() {
         }
         else {
           Serial <<"Cycle seconds= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
-                 << " Cycle= BLACK FLUSH FILLING" << endl;
+               <<", to go= "<< ((sBlackFillCycleSecLeft()/60)) <<":"<< (sBlackFillCycleSecLeft() % 60)
+               <<" seconds, Cycle= BLACK FLUSH FILLING" << endl;
         }
         break;
       case sBlackFillCycle:
