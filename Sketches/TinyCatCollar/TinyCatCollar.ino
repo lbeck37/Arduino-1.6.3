@@ -56,7 +56,7 @@ static int 				sLastBufferIndex         = 0;
 void setup()  {
   Serial.begin(9600);
   //sWaitForSerialMonitor();
-  Serial << LOG0 << " setup(): Begin" << endl;
+  Serial << LOG0 << " setup(): Begin July 28, 2015" << endl;
   sSetupSD();
   sSetupGPS();
   sClearGPSLoop();
