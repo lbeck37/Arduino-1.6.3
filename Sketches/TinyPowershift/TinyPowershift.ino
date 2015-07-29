@@ -2,28 +2,15 @@
 
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
-#include <SPI.h>
+//#include <SPI.h>
 #include <EasyButton.h>
 #include <Servo.h>
 #include <Wire.h>
-#include <U8glib.h>
+//#include <U8glib.h>
 #include <stdarg.h>
-
-const int MPU= 0x68;  // I2C address of the MPU-6050
-int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
-
-//#include <microsmooth.h>
 
 //Defines
 #define UINT16             unsigned int
-
-#define APPLY_SMOOTHING    false
-#if APPLY_SMOOTHING
-	//#define FILTER_NAME        SMA
-	//#define FILTER_FUNC        sma_filter
-#endif
-#define USE_GYRO    		false
-#define USE_DOGS102    	false		//DOGS102 64x102 SPI display using U8GLIB
 
 //Here come the const's
 static const uint8_t   ucContrast           = 100;
@@ -36,10 +23,6 @@ static const char      szSplashLine2[]      = {"* Max Performance *"};
 static const char      szSplashLine3[]      = {"*    Max Range    *"};
 static const char      szSplashLine4[]      = {"PowerShift"};
 static const char      szSplashLine5[]      = {"  by ShiftE"};
-#if USE_GYRO
-static const char      szAccel[]            = {"Accel"};
-static const char      szGyro[]             = {"Gyro"};
-#endif
 static const char      szServo[]            = {"Servo "};
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
@@ -100,36 +83,10 @@ static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
 static const unsigned long    ulGyroReadTime    = 500;   //Gyro reads spaced by this.
 
-//Constants for DOGS102 display.
-static const int       sDisplayWidth        = 102;
-static const int       sDisplayHeight       = 64;
-
-static const int       sDisplayNormal       = 0xC0;
-static const int       sDisplayFlipped      = 0xC8;
-
-static const int       sBrightness100       = 255;
-static const int       sBrightness75        = 192;
-static const int       sBrightness50        = 128;
-static const int       sBrightness25        =  64;
-static const int       sBrightness0         =   0;
-static const int       sDefaultBrightness   = sBrightness100;
-
-static const int       sFontNotSet         =   0;
-static const int       sFontNormal         =   1;
-static const int       sFontBig         =   2;
-static const int       sFontGearNum        =   3;
-static const int       sFontSquare         =   4;
 //End of the const's
 
 static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
-
-#if APPLY_SMOOTHING
-   static UINT16  *pusSmoothingMemory[sNumGyroTypes][sNumAxis];
-#endif
-#if USE_GYRO
-	static int     asGyro             [sNumGyroTypes][sNumAxis];
-#endif
 
 static int sCurrentMode                   = sNormalMode;
 static int sServoPosLast                  = 0;
@@ -138,10 +95,6 @@ static int sServoPosLast                  = 0;
 //Create servo object to control the servo
 Servo myservo;
 
-#if USE_DOGS102
-//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
-U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
-#endif
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
 EasyButton DownButton   (sDownButton,   NULL, CALL_NONE, bButtonPullUp);
@@ -153,10 +106,7 @@ static int              sButtonCountLast[]   = { 0, 0, 0};
 static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
-#if USE_GYRO
-static unsigned long    ulNextGyroTime       = 0;  //msec when the gyro will be read
-#endif
-static int              sCurrentFont         = sFontNotSet;
+//static int              sCurrentFont         = sFontNotSet;
 
 //State of display items being changed and needing refresh.
 static boolean     bButtonsChanged          = false;
@@ -237,6 +187,13 @@ int sDrawMainScreen(void) {
 }  //sDrawMainScreen
 
 
+int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
+   //sSwitchFont(sFont);
+   //u8g.drawStr( sXpixel, sYpixel, pcText);
+   return 1;
+}  //sDisplayText
+
+
 int sFormatLine(const char *format, ...)
    {
    va_list ap;
@@ -260,6 +217,7 @@ int sDisplayMainObjects(void) {
 
 
 int sDisplaySplash(void) {
+	/*
 #if 0
    sDisplayText(0, sLPixel(1), sFontNormal, "PowerShift");
    sDisplayText(0, sLPixel(2), sFontNormal, "  by ShiftE");
@@ -274,21 +232,22 @@ int sDisplaySplash(void) {
    sDisplayText(8, 37, sFontNormal, szSplashLine1);
    sDisplayText(6, 46, sFontNormal, szSplashLine2);
    sDisplayText(6, 55, sFontNormal, szSplashLine3);
+   */
    return 1;
 }  //sDisplaySplash
 
 
 int sDisplayCurrentGear() {
-   int sGearFont  = sFontGearNum;
+   //sint sGearFont  = sFontGearNum;
    int sLeftPixel = 4;
    int sTopPixel  = 6;
    if (sCurrentMode == sNormalMode) {
       itoa(sCurrentGear, sz10CharString, 10);
-      sDisplayText(sLeftPixel, sTopPixel, sGearFont, sz10CharString);
+      //sDisplayText(sLeftPixel, sTopPixel, sGearFont, sz10CharString);
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
-      sDisplayText(sLeftPixel, sTopPixel, sGearFont, "0");
+      //sDisplayText(sLeftPixel, sTopPixel, sGearFont, "0");
    }  //if (sCurrentMode..else
 
    return 1;
@@ -301,24 +260,12 @@ int sDisplayServoPos() {
    strcat(szLineBuffer, sz10CharString);
    //sDisplayText(50, sLPixel(1), sFontNormal, szLineBuffer);
    //sDisplayText(35, sLPixel(1), sFontBig, szLineBuffer);
-   sDisplayText(35, 4, sFontBig, szLineBuffer);
+   //sDisplayText(35, 4, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayServoPos
 
 
 int sDisplayOdometer() {
-#if 0
-   strcpy(szLineBuffer, "21.50");
-   //sFormatLine("%f", 21.50);
-   sDisplayText(6, 50, sFontBig, szLineBuffer);
-#endif
-#if USE_GYRO
-   //sFormatLine("%3d\xB0", sScaleGyro(asGyro[sTemperature][sXAxis]));
-   int sGyroF= sDegF( asGyro[sTemperature][sXAxis]);
-   //sFormatLine("%3d\xB0", abs(sScaleGyro(asGyro[sTemperature][sXAxis])));
-   sFormatLine("%3d\xB0", sGyroF);
-   sDisplayText(6, 50, sFontBig, szLineBuffer);
-#endif	//USE_GYRO
    return 1;
 }  //sDisplayOdometer
 
@@ -330,17 +277,17 @@ int sDisplayButtons() {
    itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    //sDisplayText(5, 82, sFontNormal, szLineBuffer);
-   sDisplayText(82, sLPixel(5), sFontNormal, szLineBuffer);
+   //sDisplayText(82, sLPixel(5), sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "D ");
    itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   sDisplayText(82, sLPixel(6), sFontNormal, szLineBuffer);
+   //sDisplayText(82, sLPixel(6), sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "S ");
    itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   sDisplayText(82, sLPixel(7), sFontNormal, szLineBuffer);
+   //sDisplayText(82, sLPixel(7), sFontNormal, szLineBuffer);
    return 1;
 }  //sDisplayButtons
 
@@ -625,8 +572,63 @@ int sServoSetPosition(int sServoPos) {
    return 1;
 }  //sServoSetPosition
 
+/*
+//Move to bottom
+#include <SPI.h>
+#include <U8glib.h>
+const int MPU= 0x68;  // I2C address of the MPU-6050
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+
+#define APPLY_SMOOTHING    false
+#if APPLY_SMOOTHING
+	//#define FILTER_NAME        SMA
+	//#define FILTER_FUNC        sma_filter
+#endif
+#define USE_GYRO    		false
 
 #if USE_DOGS102
+//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
+U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+#endif
+
+
+//#define USE_DOGS102    	false
+#undef USE_DOGS102
+//Constants for DOGS102 display.
+static const int       sDisplayWidth        = 102;
+static const int       sDisplayHeight       = 64;
+
+static const int       sDisplayNormal       = 0xC0;
+static const int       sDisplayFlipped      = 0xC8;
+
+static const int       sBrightness100       = 255;
+static const int       sBrightness75        = 192;
+static const int       sBrightness50        = 128;
+static const int       sBrightness25        =  64;
+static const int       sBrightness0         =   0;
+static const int       sDefaultBrightness   = sBrightness100;
+
+static const int       sFontNotSet         =   0;
+static const int       sFontNormal         =   1;
+static const int       sFontBig         =   2;
+static const int       sFontGearNum        =   3;
+static const int       sFontSquare         =   4;
+
+#if USE_GYRO
+static const char      szAccel[]            = {"Accel"};
+static const char      szGyro[]             = {"Gyro"};
+#endif
+#if APPLY_SMOOTHING
+   static UINT16  *pusSmoothingMemory[sNumGyroTypes][sNumAxis];
+#endif
+#if USE_GYRO
+	static int     asGyro             [sNumGyroTypes][sNumAxis];
+#endif
+
+#if USE_GYRO
+static unsigned long    ulNextGyroTime       = 0;  //msec when the gyro will be read
+#endif
+
 int sSetupDogsDisplay() {
    Serial << sLC++ <<"sSetupDogsDisplay(): Begin"<< endl;
    Serial << sLC++ <<"sSetupDogsDisplay(): Set Contrast to "<< ucContrast << endl;
@@ -834,7 +836,7 @@ int sSetupSmoothing() {
    return 1;
 }  //sSetupSmoothing
 #endif	//USE_GYRO
-
+*/
 
 //freeRam() returns the number of bytes currently free in RAM.
 int freeRam(void)
