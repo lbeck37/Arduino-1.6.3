@@ -2,15 +2,16 @@
 
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
-//#include <SPI.h>
+#include <SPI.h>
 #include <EasyButton.h>
 #include <Servo.h>
 #include <Wire.h>
+#include <TinyScreen.h>
 //#include <U8glib.h>
 #include <stdarg.h>
 
 //Defines #if
-#define LOG0            	lLineCount++ << " " << millis()
+#define LOG0              lLineCount++ << " " << millis()
 #define UINT16             unsigned int
 
 //Here come the const's
@@ -90,10 +91,13 @@ static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
 
-static int sCurrentMode                   = sNormalMode;
-static int sServoPosLast                  = 0;
+static int        sCurrentMode      = sNormalMode;
+static int        sServoPosLast     = 0;
+static boolean    bTestDisplay      = true;
 
 //*****Object creation*****
+TinyScreen TinyDisplay = TinyScreen(0);
+
 //Create servo object to control the servo
 Servo myservo;
 
@@ -120,14 +124,26 @@ static boolean     bModeChanged             = false;
 static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char        sz10CharString[10];
 
+//TinyScreen stuff
+#define BLACK           0x00
+#define BLUE            0xE0
+#define RED             0x03
+#define GREEN           0x1C
+#define DGREEN          0x0C
+#define YELLOW          0x1F
+#define WHITE           0xFF
+#define ALPHA           0xFE
+#define BROWN           0x32
+
+uint8_t amtcolors=7;
+uint8_t colors[]={BLACK,BLUE,RED,GREEN,WHITE,DGREEN,YELLOW};
+
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
    Serial.begin(9600);
-   //Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
-   //Serial << sLC++ << "Free Ram= " << freeRam() << endl;
-   Serial << LOG0 <<"setup(): Begin July 29, 2015"<< endl;
-   Serial << LOG0 << "Free Ram= " << freeRam() << endl;
+   Serial << LOG0 <<" setup(): Begin July 29, 2015"<< endl;
+   Serial << LOG0 << " Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
 #ifdef DEBUG_ON
@@ -151,24 +167,76 @@ void setup() {
 
 // The Arduino loop() method gets called over and over.
 void loop() {
-   sCheckButtons();
-   //sGyroLoop();
-   sDrawMainScreen();
-   //sTestContrast();
-   sHandleButtons();
+   if (bTestDisplay) {
+      sExerciseDisplay();
+   }  //if(bTestDisplay)
+   else {
+      sCheckButtons();
+      //sGyroLoop();
+      sDrawMainScreen();
+      //sTestContrast();
+      sHandleButtons();
+   } //if(bTestDisplay)
    return;
 }  //loop()
 
 
+int sExerciseDisplay() {
+  TinyDisplay.setFont(liberationSans_10ptFontInfo);
+  TinyDisplay.fontColor(WHITE,BLACK);
+  TinyDisplay.setBrightness(15);
+
+  Serial << LOG0 << " sExerciseDisplay: Test Text" << endl;
+  for(int i=5;i<20;i++){
+    TinyDisplay.setCursor((3000-(i*5))%70,(i*14)%50);
+    TinyDisplay.print("text");
+    TinyDisplay.setCursor((i*7)%70,(6000-(i*6))%50);
+    TinyDisplay.print("text");
+    delay(150);
+  }
+  for(int i=0;i<5;i++){
+    TinyDisplay.setCursor(0,i*12);
+    TinyDisplay.print("FASTFASTFASTFAST");
+  }
+  delay(200);
+
+  Serial << LOG0 << " sExerciseDisplay: Test Brightness" << endl;
+  TinyDisplay.setCursor(15,20);
+  TinyDisplay.fontColor(BLACK,WHITE);
+  TinyDisplay.clearWindow(0,0,96,64);
+  TinyDisplay.setBrightness(15);
+  TinyDisplay.drawRect(0,0,96,64,1,WHITE);
+  TinyDisplay.print("BRIGHT!");
+  delay(500);
+  TinyDisplay.fontColor(WHITE,BLACK);
+  TinyDisplay.setCursor(30,20);
+  TinyDisplay.clearWindow(0,0,96,64);
+  TinyDisplay.setBrightness(0);
+  TinyDisplay.print("DIM!");
+  delay(500);
+  TinyDisplay.setBrightness(5);
+  delay(500);
+
+   return 1;
+}  //sExerciseDisplay
+
+
 int sSetupDisplay() {
-   Serial << LOG0 <<"sSetupDisplay(): Begin"<< endl;
-   //Serial << LOG0 <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
+   Serial << LOG0 <<" sSetupDisplay(): Call begin() for Wire and TinyDisplay"<< endl;
+   Wire.begin();
+   TinyDisplay.begin();
+   TinyDisplay.setFont(liberationSans_16ptFontInfo);
+   TinyDisplay.fontColor(WHITE,BLACK);
+   TinyDisplay.setCursor(0,0);
+   TinyDisplay.print("Hello World");
+
+   //TinyDisplay.clearWindow()
    return 1;
 }  //sSetupDisplay
 
 
 int sSetupServo() {
-   Serial << sLC++ <<"sSetupServo(): Begin"<< endl;
+   Serial << LOG0 <<" sSetupServo(): Begin"<< endl;
    if (bServoOn) {
       myservo.attach(sServoPin);
       sServoMove(asGearLocation[sCurrentGear]);
@@ -218,7 +286,7 @@ int sDisplayMainObjects(void) {
 
 
 int sDisplaySplash(void) {
-	/*
+  /*
 #if 0
    sDisplayText(0, sLPixel(1), sFontNormal, "PowerShift");
    sDisplayText(0, sLPixel(2), sFontNormal, "  by ShiftE");
@@ -318,7 +386,7 @@ boolean bScreenChanged() {
 #else
    boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged;
    bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= false;
-#endif	//USE_GYRO
+#endif  //USE_GYRO
    return bChanged;
 }  //bScreenChanged
 
@@ -582,10 +650,10 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
 #define APPLY_SMOOTHING    false
 #if APPLY_SMOOTHING
-	//#define FILTER_NAME        SMA
-	//#define FILTER_FUNC        sma_filter
+  //#define FILTER_NAME        SMA
+  //#define FILTER_FUNC        sma_filter
 #endif
-#define USE_GYRO    		false
+#define USE_GYRO        false
 
 #if USE_DOGS102
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
@@ -593,7 +661,7 @@ U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 
 #endif
 
 
-//#define USE_DOGS102    	false
+//#define USE_DOGS102     false
 #undef USE_DOGS102
 //Constants for DOGS102 display.
 static const int       sDisplayWidth        = 102;
@@ -623,7 +691,7 @@ static const char      szGyro[]             = {"Gyro"};
    static UINT16  *pusSmoothingMemory[sNumGyroTypes][sNumAxis];
 #endif
 #if USE_GYRO
-	static int     asGyro             [sNumGyroTypes][sNumAxis];
+  static int     asGyro             [sNumGyroTypes][sNumAxis];
 #endif
 #if USE_GYRO
 static boolean     bGyroChanged             = false;
@@ -723,7 +791,7 @@ int sDrawMainScreen(void) {
    } while(u8g.nextPage());
    return 1;
 }  //sDrawMainScreen
-#endif	//USE_DOGS102
+#endif  //USE_DOGS102
 
 
 #if USE_GYRO
@@ -817,7 +885,7 @@ int sGyroLoop() {
                                                   pusSmoothingMemory[sDataType][sAxis]);
 #else
             asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
-#endif	//APPLY_SMOOTHING
+#endif  //APPLY_SMOOTHING
          }  //for sDataType
       }  //for sAxis
       bGyroChanged= true;
@@ -839,7 +907,7 @@ int sSetupSmoothing() {
    }  //for sAxis
    return 1;
 }  //sSetupSmoothing
-#endif	//USE_GYRO
+#endif  //USE_GYRO
 */
 
 //freeRam() returns the number of bytes currently free in RAM.
