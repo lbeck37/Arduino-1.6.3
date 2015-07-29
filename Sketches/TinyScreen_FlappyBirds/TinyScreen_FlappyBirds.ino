@@ -11,7 +11,7 @@
 #define	BROWN           0x32
 
 
-#include <TinyScreen.h>
+//#include <TinyScreen.h>
 #include <SPI.h>
 #include <Wire.h>
 
