@@ -9,7 +9,8 @@
 //#include <U8glib.h>
 #include <stdarg.h>
 
-//Defines
+//Defines #if
+#define LOG0            	lLineCount++ << " " << millis()
 #define UINT16             unsigned int
 
 //Here come the const's
@@ -84,6 +85,7 @@ static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before 
 static const unsigned long    ulGyroReadTime    = 500;   //Gyro reads spaced by this.
 
 //End of the const's
+static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 
 static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
@@ -113,9 +115,6 @@ static boolean     bButtonsChanged          = false;
 static boolean     bGearChanged             = false;
 static boolean     bServoChanged            = false;
 static boolean     bModeChanged             = false;
-#if USE_GYRO
-static boolean     bGyroChanged             = false;
-#endif
 //static int         sLC                      = 0;  //Serial Monitor Line Count, for clarity.
 
 static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
@@ -125,8 +124,10 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
    Serial.begin(9600);
-   Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
-   Serial << sLC++ << "Free Ram= " << freeRam() << endl;
+   //Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
+   //Serial << sLC++ << "Free Ram= " << freeRam() << endl;
+   Serial << LOG0 <<"setup(): Begin July 29, 2015"<< endl;
+   Serial << LOG0 << "Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
 #ifdef DEBUG_ON
@@ -160,8 +161,8 @@ void loop() {
 
 
 int sSetupDisplay() {
-   Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
-   Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
+   Serial << LOG0 <<"sSetupDisplay(): Begin"<< endl;
+   //Serial << LOG0 <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
    return 1;
 }  //sSetupDisplay
 
@@ -623,6 +624,9 @@ static const char      szGyro[]             = {"Gyro"};
 #endif
 #if USE_GYRO
 	static int     asGyro             [sNumGyroTypes][sNumAxis];
+#endif
+#if USE_GYRO
+static boolean     bGyroChanged             = false;
 #endif
 
 #if USE_GYRO
