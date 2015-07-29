@@ -165,7 +165,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
    Serial.begin(9600);
-   Serial << sLC++ <<"setup(): Begin July 28, 2015"<< endl;
+   Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
    Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
