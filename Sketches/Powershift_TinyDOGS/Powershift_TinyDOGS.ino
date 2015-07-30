@@ -1,4 +1,5 @@
-/* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
+/* Powershift_TinyDOGS.ino Arduino Sketch to run ShiftE derailer on TinyDuino with DOGS102 64x102 LCD display
+ 07/30/15B- Port to TinyDuino
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
  04/26/15B- Update Servo Xmin and max to allow calib on 29er
  04/26/15- Switch to using uSec for servo and moved servo to digital pin 6 was 3.
@@ -47,13 +48,13 @@ static const int       sLastButton           = sSelect;
 
 static const boolean   bButtonPullUp         = true;
 
-//Digital Pins
-static const int       sSelectButton         = A3;
-static const int       sDownButton           = A2;
+//Digital Pins														//The Tiny protoboard has pins that interfer w/USB connector
+static const int       sSelectButton         = A2;		//Was A3
+static const int       sDownButton           = A3;		//Was A2
 static const int       sUpButton             = A1;
-static const int       sBacklightPin         =  6;
-static const int       sServoPin             =  7;
-static const byte      cSPICmdDataPin        =  9;
+static const int       sBacklightPin         =  5;		//Was 6
+static const int       sServoPin             =  6;		//Was 7
+static const byte      cSPICmdDataPin        =  9;		//Can this move to 11?
 static const byte      cSPIChipSelectPin     = 10;
 
 //Constants used locally for state in sCheckButtons
@@ -133,8 +134,6 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(9600);
-  //Serial << "Begin setup()" << endl;
-  //Serial << "Free Ram= " << freeRam() << endl;
   Serial << LOG0 << " setup(): Powershift_TinyDogs.ino 07/30/15" << endl;
   Serial << LOG0 << " Free Ram= " << freeRam() << endl;
 
@@ -199,7 +198,7 @@ int sDisplaySetBrightness(int sBrightness){
 
 int sDisplayUpdate(void) {
    if (bScreenChanged()) {
-      Serial << "sDisplayUpdate(): Refreshing screen" << endl;
+      Serial << LOG0 << " sDisplayUpdate(): Refreshing screen" << endl;
       sDisplayClear();
       sDisplayButtons();
       sDisplayServoPos();
@@ -231,7 +230,7 @@ int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
          DOG.string(sPixelStart, sLineNumber, font_8x8, pcText);
          break;
       default:
-         Serial << "sDisplayText(): Bad case in switch()= " << sFont << endl;
+         Serial << LOG0 << " sDisplayText(): Bad case in switch()= " << sFont << endl;
          break;
    }  //switch
    return 1;
@@ -270,7 +269,7 @@ int sDisplayButtons() {
 int sDisplayCurrentGear() {
    if (sCurrentMode == sNormalMode) {
       itoa(sCurrentGear, sz10CharString, 10);
-      Serial << "sDisplayCurrentGear(): Mode= " << sCurrentMode
+      Serial << LOG0 << " sDisplayCurrentGear(): Mode= " << sCurrentMode
              << ", sz10CharString= " << sz10CharString << endl;
       sDisplayText(0, 4, sFontBigNum, sz10CharString);    //1st char in 4 pixels.
    }  //if (sCurrentMode..
@@ -328,7 +327,7 @@ int sHandleButtons(void) {
             sHandleCalibMode();
             break;   //sCalibMode
          default:
-            Serial << "sHandleButtons(): Unexpected switch value." << endl;
+            Serial << LOG0 << " sHandleButtons(): Unexpected switch value." << endl;
             break;
         } //switch
      }   //if(millis()...
@@ -340,7 +339,7 @@ int sHandleButtons(void) {
 boolean bHandleBothHeld(void) {
    if (abButtonBeingHeld[sUp] &&  abButtonBeingHeld[sDown]) {
       if (millis() > ulNextModeTime) {
-         Serial << sLineCount++ << " bHandleBothHeld(): Both buttons are being held." << endl;
+         Serial << LOG0 << " bHandleBothHeld(): Both buttons are being held." << endl;
          //Clear the button counts;
          sButtonCount[sUp]  = 0;
          sButtonCount[sDown]= 0;
@@ -348,18 +347,15 @@ boolean bHandleBothHeld(void) {
             case sNormalMode:
                sCurrentMode= sCalibMode;
                bModeChanged= true;
-               Serial << sLineCount++
-                      << " bHandleBothHeld(): Switch from Normal to Calib mode." << endl;
+               Serial << LOG0 << " bHandleBothHeld(): Switch from Normal to Calib mode." << endl;
                break;
             case sCalibMode:
                sCurrentMode= sNormalMode;
                bModeChanged= true;
-               Serial << sLineCount++
-                      << " bHandleBothHeld(): Switch from Calib to Normal mode." << endl;
+               Serial << LOG0 << " bHandleBothHeld(): Switch from Calib to Normal mode." << endl;
                break;
             default:
-               Serial << sLineCount++
-                      << " bHandleBothHeld(): Bad switch :" << sCurrentMode << endl;
+               Serial << LOG0 << " bHandleBothHeld(): Bad switch :" << sCurrentMode << endl;
                break;
          }  //switch
          //Create the guard times between mode switches or button handling
@@ -393,7 +389,7 @@ int sHandleNormalMode(void) {
       //Compute net gear change by handling at most one request from each button
       if (sButtonCount[sButton] > 0) {
          sTargetChange += sGearChange;
-         Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= "
+         Serial << LOG0 << " sHandleNormalMode(): Button" << sButton << ", Count= "
                 << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
          sButtonCount[sButton]--;
          bButtonsChanged= true;
@@ -426,7 +422,7 @@ int sHandleCalibMode(void) {
       //if (sButtonCount[sButton] == sHoldCode) {
       if (abButtonBeingHeld[sButton]) {
          sTarget= sServoPosLast + sDirection * sHoldDeltaPos;
-         Serial << sLineCount++ << " sHandleCalibMode(): Button" << sButton
+         Serial << LOG0 << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
          sServoMove(sTarget);
          bServoChanged= true;
@@ -435,7 +431,7 @@ int sHandleCalibMode(void) {
       //if ((sButtonCount[sButton] != sHoldCode) && (sButtonCount[sButton] > 0)) {
       if (!abButtonBeingHeld[sButton] && (sButtonCount[sButton] > 0)) {
          sTarget= sServoPosLast + sDirection * sTrimDeltaPos;
-         Serial << sLineCount++ << " sHandleCalibMode(): Button" << sButton
+         Serial << LOG0 << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
          sServoMove(sTarget);
          bServoChanged= true;
@@ -477,14 +473,14 @@ int sCheckButtons(void) {
       //Check for IsRelease for all buttons.
       if ( ((sButton == sUp)   && UpButton.IsRelease  ()) ||
       ((sButton == sDown) && DownButton.IsRelease()) ) {
-         Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
+         Serial << LOG0 << " sCheckButtons(): Button " << sButton
                 << " was released." << endl;
          //Check to see if button is being held
          //if (sLocalButtonState[sButton] != sButtonHeld) {
          if ( !abButtonBeingHeld[sButton]) {
             if (sButtonCount[sButton] < sMaxButtonPresses) {
                //Increment the count of button presses to be handled.
-               Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
+               Serial << LOG0 << " sCheckButtons(): Button " << sButton
                       << " count incremented." << endl;
                sButtonCount[sButton]++;
                bButtonsChanged= true;
@@ -492,7 +488,7 @@ int sCheckButtons(void) {
          }    //if(sLocalButtonState!=...
          else {
             //The button was being held down, update the state variable..
-            Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
+            Serial << LOG0 << " sCheckButtons(): Button " << sButton
                    << " done being held." << endl;
             //sLocalButtonState[sButton]= sButtonOpen;
             abButtonBeingHeld[sButton]= false;
@@ -504,7 +500,7 @@ int sCheckButtons(void) {
       if (!bReturn &&
       ((sButton == sUp)   && UpButton.IsHold  ()) ||
       ((sButton == sDown) && DownButton.IsHold()) ) {
-         Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
+         Serial << LOG0 << " sCheckButtons(): Button " << sButton
                 << " being held." << endl;
          //Set state to indicate in hold.
          //sLocalButtonState[sButton]= sButtonHeld;
@@ -530,7 +526,7 @@ int sServoInit() {
 int sServoMove(int sServoPos) {
   if (sServoPos != sServoPosLast) {
       sServoPos= constrain(sServoPos, sServoMin, sServoMax);
-      Serial << "sServoMove(): Move to " << sServoPos << endl;
+      Serial << LOG0 << " sServoMove(): Move to " << sServoPos << endl;
       sServoPosLast= sServoPos;
       sServoSetPosition(sServoPos);
       bServoChanged= true;
