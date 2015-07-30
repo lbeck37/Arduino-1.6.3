@@ -23,6 +23,7 @@
 #include <font_8x8.h>
 #include <logo_BLH.h>
 
+#define LOG0            lLineCount++ << " " << millis()
 
 //Here come the const's
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
@@ -92,12 +93,12 @@ static const byte       cHW_SPI             = 0;      //This is what their demo 
 static const byte       cDisplayType        = DOGS102;
 
 //End of the const's
+static long   lLineCount                      = 0;      //Serial Monitor uses for clarity.
+static int    asGearLocation[sNumGears + 1];
+static int    sCurrentGear                    = 2;
 
-static int asGearLocation[sNumGears + 1];
-static int sCurrentGear                   = 2;
-
-static int sCurrentMode                   = sNormalMode;
-static int sServoPosLast                  = 0;
+static int sCurrentMode                       = sNormalMode;
+static int sServoPosLast                      = 0;
 
 //Create servo object to control the servo
 Servo myservo;
@@ -132,8 +133,10 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(9600);
-  Serial << "Begin setup()" << endl;
-  Serial << "Free Ram= " << freeRam() << endl;
+  //Serial << "Begin setup()" << endl;
+  //Serial << "Free Ram= " << freeRam() << endl;
+  Serial << LOG0 << " setup(): Powershift_TinyDogs.ino 07/30/15" << endl;
+  Serial << LOG0 << " Free Ram= " << freeRam() << endl;
 
   sFillGearLocations();
   sServoInit();
