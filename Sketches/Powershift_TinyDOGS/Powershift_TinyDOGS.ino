@@ -1,5 +1,6 @@
-// 07/29/15 Powershift_ESP
-
+/* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
+ 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
+*/
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
 #include <SPI.h>
@@ -58,13 +59,13 @@ static const int       sLastButton           = sSelect;
 static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
-//static const int       sSelectButton         = A3;
-static const int       sServoPin             =  2;
-static const int       sUpButton             =  4;
-static const int       sDownButton           =  5;
-static const byte      cSPICmdDataPin        = 14;
-static const byte      cSPIChipSelectPin     = 15;
-static const int       sBacklightPin         = 16;
+static const int       sSelectButton         = A3;
+static const int       sDownButton           = A2;
+static const int       sUpButton             = A1;
+static const int       sBacklightPin         =  6;
+static const int       sServoPin             =  7;
+static const byte      cSPICmdDataPin        =  9;
+static const byte      cSPIChipSelectPin     = 10;
 
 //Gyro defines
 static const int       sXAxis             = 0;
@@ -120,7 +121,7 @@ static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
 
 #if APPLY_SMOOTHING
-//   static UINT16  *pusSmoothingMemory[sNumGyroTypes][sNumAxis];
+   static UINT16  *pusSmoothingMemory[sNumGyroTypes][sNumAxis];
 #endif
 static int     asGyro             [sNumGyroTypes][sNumAxis];
 
@@ -137,7 +138,7 @@ U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
 EasyButton DownButton   (sDownButton,   NULL, CALL_NONE, bButtonPullUp);
-//EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
+EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
 
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
@@ -164,8 +165,8 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
    Serial.begin(9600);
-   Serial << sLC++ <<"setup(): Begin July 29, 2015"<< endl;
-   //Serial << sLC++ << "Free Ram= " << freeRam() << endl;
+   Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
+   Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
 #ifdef DEBUG_ON
@@ -693,7 +694,7 @@ int sCheckButtons(void) {
 
   UpButton.update();
   DownButton.update();
-  //SelectButton.update();
+  SelectButton.update();
 
    //Run through the buttons, use short-circuiting to select
    for (sButton= sUp; sButton <= sDown; sButton++) {
@@ -795,7 +796,7 @@ int sSetupSmoothing() {
    return 1;
 }  //sSetupSmoothing
 
-/*
+
 //freeRam() returns the number of bytes currently free in RAM.
 int freeRam(void)
 {
@@ -810,5 +811,4 @@ int freeRam(void)
   }
   return free_memory;
 }  //freeRam
-*/
 //Last line.
