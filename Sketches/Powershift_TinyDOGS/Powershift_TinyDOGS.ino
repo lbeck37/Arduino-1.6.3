@@ -28,7 +28,10 @@
 
 //Here come the const's
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
-static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
+//static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
+// Testing with Radio Shack servo shows gear 3 and lower to be against stop.
+// Set up test gears that go from 70 to 22 in 6 steps (8/gear), gear 1 to 7)
+static const int asDefaultGearLocation[]= {0, 70, 62, 54, 46, 38, 30, 22};   //Radio Shack servo
 static const int       sServoMin             = 0;
 static const int       sServoMax             = 180;
 static const int       sServoMsecWait        = 15;
@@ -274,7 +277,7 @@ int sDisplayCurrentGear() {
    if (sCurrentMode == sNormalMode) {
       itoa(sCurrentGear, sz10CharString, 10);
       Serial << LOG0 << " sDisplayCurrentGear(): Mode= " << sCurrentMode
-             << ", sz10CharString= " << sz10CharString << endl;
+             << ", Move to Gear " << sz10CharString << endl;
       sDisplayText(0, 4, sFontBigNum, sz10CharString);    //1st char in 4 pixels.
    }  //if (sCurrentMode..
    else {
@@ -530,7 +533,7 @@ int sServoInit() {
 int sServoMove(int sServoPos) {
   if (sServoPos != sServoPosLast) {
       sServoPos= constrain(sServoPos, sServoMin, sServoMax);
-      Serial << LOG0 << " sServoMove(): Move to " << sServoPos << endl;
+      Serial << LOG0 << " sServoMove(): Using Pin D"<< sServoPin <<", Move to " << sServoPos << endl;
       sServoPosLast= sServoPos;
       sServoSetPosition(sServoPos);
       bServoChanged= true;
