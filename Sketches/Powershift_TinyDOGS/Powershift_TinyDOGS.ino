@@ -48,14 +48,18 @@ static const int       sLastButton           = sSelect;
 
 static const boolean   bButtonPullUp         = true;
 
-//Digital Pins														//The Tiny protoboard has pins that interfer w/USB connector
-static const int       sSelectButton         = A2;		//Was A3
-static const int       sDownButton           = A3;		//Was A2
+//Digital Pins
 static const int       sUpButton             = A1;
-static const int       sBacklightPin         =  5;		//Was 6
-static const int       sServoPin             =  6;		//Was 7
-static const byte      cSPICmdDataPin        =  9;		//Can this move to 11?
+static const int       sSelectButton         = A2;    //Was A3
+static const int       sDownButton           = A3;    //Was A2
+static const int       sBacklightPin         =  5;    //Was 6
+static const int       sServoPin             =  6;    //Was 7
+//SPI is used to talk to DOGS102, MOSI and Clock pins are already defined.
+//Note that DOGS102 needs RST tied high and (3) capacitors in addition to 3.3V and GND
+static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
+//static const byte    cSPIMOSI_SDAPin       = 11;    //Required by SPI
+//static const byte    cSPIClockPin          = 13;    //Required by SPI
 
 //Constants used locally for state in sCheckButtons
 static const int       sButtonOpen        = 0;
@@ -134,7 +138,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(9600);
-  Serial << LOG0 << " setup(): Powershift_TinyDogs.ino 07/30/15" << endl;
+  Serial << LOG0 << " setup(): Powershift_TinyDogs.ino 07/30/15B" << endl;
   Serial << LOG0 << " Free Ram= " << freeRam() << endl;
 
   sFillGearLocations();
