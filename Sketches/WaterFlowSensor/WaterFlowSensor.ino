@@ -1,4 +1,4 @@
-// 08/02/15 Modified to only read meter for one second.
+// 08/02/15B Modified to only read meter for one second.
 // YF-S201 Hall Effect Water Flow Meter / Sensor
 // http://www.hobbytronics.co.uk/yf-s201-water-flow-meter
 
@@ -19,7 +19,10 @@
 const float   fPulsesPerGal   = 1700.0;
 
 volatile int  sFlowCount;
-unsigned char ucFlowMeterPin  = 2;      // Flow Meter Pin number, must support interrupt.
+//Leonardo has INT0 on pin 3, Uno is on pin 2.
+//Not sure if pinMode() or digitalWrite() needs to be performed as I got Leonardo
+//going with pin 2 getting set up but sensor plugged into pin 3 for INT0
+unsigned char ucFlowMeterPin  = 3;      // Flow Meter Pin number, must support interrupt.
 long          lLineCount      = 0;      //Serial Monitor uses for clarity.
 
 void vIncrementFlowCount()                  // Interruot function
