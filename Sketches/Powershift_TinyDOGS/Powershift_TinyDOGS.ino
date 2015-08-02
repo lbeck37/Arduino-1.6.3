@@ -53,8 +53,8 @@ static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
 static const int       sUpButton             = A1;
-static const int       sSelectButton         = A2;    //Was A3
-static const int       sDownButton           = A3;    //Was A2
+static const int       sDownButton           = A2;    //Was A3
+static const int       sSelectButton         = A3;    //Was A2
 static const int       sBacklightPin         =  5;    //Was 6
 static const int       sServoPin             =  6;    //Was 7
 //SPI is used to talk to DOGS102, MOSI and Clock pins are already defined.
