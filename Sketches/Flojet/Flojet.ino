@@ -16,7 +16,7 @@ static const int    sPressurePin        = 3;
 static const int    asRelay[]           = {0, 7, 6, 5, 4};
 static const int    sFirstPumpRelay     = 1;
 static const int    sLastPumpRelay      = 2;
-static const int    sFillValveRelay 		= 3;
+static const int    sFillValveRelay     = 3;
 static const int    sStatusSecs     = 2;
 static const int    sTimeoutSecs    = 7 * 60;
 static const int    s5GalOnSecs     = 60;
@@ -30,6 +30,8 @@ static const int    sBlackDrainCycle= 2;
 static const int    sBlackFillCycle = 3;
 static const int    sBlackIsDraining= 1;
 static const int    sBlackIsFilling = 2;
+static const float  fPulsesPerGal   = 1700.0;
+static const float  fGpmLowerLimit  = 3.0;
 
 //Values changed when debug is on.
 static int    sNumBlackFills  = 8;
@@ -46,6 +48,13 @@ static long       lCycleStartMsec;
 static int        sCurrentCycle;            //sIdleCycle, sGreyDrainCycle, sBlackDrainCycle
 static int        sBlackDrainState;
 static int        sBlackFillCount;
+
+
+volatile int  sFlowCount;
+//Leonardo has INT0 on pin 3, Uno is on pin 2.
+//Not sure if pinMode() or digitalWrite() needs to be performed as I got Leonardo
+//going with pin 2 getting set up but sensor plugged into pin 3 for INT0
+unsigned char ucFlowMeterPin  = 3;      // Flow Meter Pin number, must support interrupt.
 
 boolean           bPumpIsOn;                //Indicates current state of relays.
 
@@ -104,8 +113,40 @@ int sSetupArduinoPins() {
   sSetupPressureSwitch();
   sSetupPumpRelays();
   sSetupBlackFillValve();
+  sSetupFlowMeter();
   return 1;
 }  //sSetupArduinoPins
+
+
+void vIncrementFlowCount()                  // Interruot function
+{
+   sFlowCount++;
+   return;
+} //vIncrementFlowCount
+
+
+boolean bWaterIsFlowing() {
+  boolean bReturn= true;
+  sFlowCount= 0;
+  sei();                            // Enable interrupts
+  delay(1000);                      //Count for one second.
+  cli();                            //Turn off interrupts.
+
+  float fGalPerMin= (sFlowCount * 60.0 / fPulsesPerGal);
+  Serial << LOG0 << " loop(): fGalPerMin= "<< fGalPerMin << endl;
+  if (fGalPerMin < fGpmLowerLimit) {
+    bReturn= false;
+  }
+  return bReturn;
+}  //bWaterIsFlowing
+
+
+int sSetupFlowMeter() {
+  pinMode(ucFlowMeterPin, INPUT);
+  digitalWrite(ucFlowMeterPin, HIGH);              //Turn on internal pullup.
+  attachInterrupt(0, vIncrementFlowCount, RISING); // Setup Interrupt
+  return 1;
+}  //sSetupFlowMeter
 
 
 int sSetupPressureSwitch() {
@@ -186,9 +227,14 @@ int sCheckCurrentCycle() {
       }
       break;
     case sBlackFillCycle:
-      if (bTimeToStopFillingBlack()) {
+      if (!bWaterIsFlowing()) {
         sStopCycle();
-      }
+      } //if(!bWaterIsFlowing())
+      else {
+        if (bTimeToStopFillingBlack()) {
+          sStopCycle();
+        } //if(bTimeToStopFillingBlack())
+      } //if(!bWaterIsFlowing())else
       break;
     case sIdleCycle:
       break;
@@ -449,7 +495,7 @@ int sPrintStatus() {
                  << " Cycle= BLACK FLUSH DRAINING" << endl;
         }
         else {
-          Serial <<"Cycle seconds= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
+          Serial << "Cycle "<< sBlackFillCount <<" of "<< sNumBlackFills <<", Cycle seconds= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
                <<", to go= "<< ((sBlackFillCycleSecLeft()/60)) <<":"<< (sBlackFillCycleSecLeft() % 60)
                <<" seconds, Cycle= BLACK FLUSH FILLING" << endl;
         }
