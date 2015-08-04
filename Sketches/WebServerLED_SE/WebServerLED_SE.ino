@@ -1,4 +1,4 @@
-//07/04/15 Port to ESP8266 from Starting Electronics
+//08/04/15 Port to ESP8266 from Starting Electronics
 /*The Arduino sketch in this example reads the HTTP request header and checks for the text LED2=2 and if found, the Arduino will toggle the LED from off to on or on to off.
 
 Both of the above requests contain the LED2=2 text although in different places. When checking the box, the text is part of the GET request line. When unchecking the box, the text is part of the Referer: header.
