@@ -31,7 +31,6 @@ int sSetupWiFi() {
   Serial << LOG0 << " setup(): Begin" << endl;
   delay(10);
 
-	WiFi.begin(szSSID, szPassword);
   //Connect to WiFi network
   Serial << LOG0 << " setup(): Connecting to "<< szSSID << endl;
   WiFi.begin(szSSID, szPassword);
