@@ -7,7 +7,9 @@
 #include <Arduino.h>
 #include <Streaming.h>
 
-#define LOG0            lLineCount++ << " " << millis()
+#define LOG0      lLineCount++ << " " << millis()
+static long       lLineCount= 0;      //Serial Monitor uses for clarity.
+
 #define MIN_SEC(Sec)    (Sec / 60) << ":" << (Sec % 60)
 //#define CYCLE_SEC       Serial << ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
 
@@ -39,7 +41,6 @@ static long   l5GalOnMsec     = s5GalOnSecs * lMsec;
 static long   lFinalFillOnMsec= sFinalFillSecs * lMsec;
 
 static boolean    bDebug          = false;
-static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 static long       lNextTimeoutMsec;          //Next time to toggle pump relay.
 static long       lNextStatusMsec;          //Next time to print status on Serial Monitor.
 static long       lStopBlackFillMsec;       //Time to stop filling black tank

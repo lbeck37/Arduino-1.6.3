@@ -8,7 +8,12 @@
  *  printed to Serial when the module is connected.
  */
 
+#include <Arduino.h>
+#include <Streaming.h>
 #include <ESP8266WiFi.h>
+
+#define LOG0      lLineCount++ << " " << millis()
+static long       lLineCount= 0;      //Serial Monitor uses for clarity.
 
 const char* ssid = "P291spot";
 const char* password = "Qazqaz11";
@@ -19,6 +24,7 @@ WiFiServer server(80);
 
 void setup() {
   Serial.begin(115200);
+  Serial << LOG0 << " setup(): Begin" << endl;
   delay(10);
 
   // prepare GPIO2
@@ -63,7 +69,8 @@ void loop() {
 
   // Read the first line of the request
   String req = client.readStringUntil('\r');
-  Serial.println(req);
+  //Serial.println(req);
+  Serial << LOG0 << " loop(): Received Request: |"<< req <<"|" << endl;
   client.flush();
 
   // Match the request
