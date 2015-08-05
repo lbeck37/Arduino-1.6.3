@@ -69,13 +69,14 @@ void loop()
     } // end if (client)
 }
 
-void GetSwitchState(EthernetClient cl)
-{
-    if (digitalRead(3)) {
-        cl.println("<p>ON</p>");
-    }
-    else {
-        cl.println("<p>OFF</p>");
-    }
-}
+
+void GetSwitchState(EthernetClient cl) {
+	if (digitalRead(3)) {
+			cl.println("<p>ON</p>");
+	}
+	else {
+		cl.println("<p>OFF</p>");
+	}
+	return;
+}	//GetSwitchState
 //Last line.

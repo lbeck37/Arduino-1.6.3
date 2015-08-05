@@ -15,8 +15,9 @@ static long       lLineCount	= 0;      //Serial Monitor uses for clarity.
 
 const char		*szSSID 						= "P291spot";
 const char		*szPassword 				= "Qazqaz11";
-const int 		sLedPin							= 2;
 const int 		sD0LedPin						= 0;
+const int 		sLedPin							= 2;
+const int 		sSwitchPin					= 4;
 
 //Create an instance of the server and specify the port to listen on as an argument
 WiFiServer server(80);
@@ -47,20 +48,32 @@ int sSetupWiFi() {
   delay(10);
 
   //Connect to WiFi network
-  Serial << LOG0 << " sSetupWiFitup(): Connecting to "<< szSSID << endl;
+  Serial << LOG0 << " sSetupWiFi(): Connecting to "<< szSSID << endl;
   WiFi.begin(szSSID, szPassword);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  Serial << endl << LOG0 <<" setup(): WiFi connected"<< endl;
+  Serial << endl << LOG0 <<" sSetupWiFi(): WiFi connected"<< endl;
 
   //Start the server
   server.begin();
   Serial << LOG0 <<" sSetupWiFi(): Server started, my IP is  "<< WiFi.localIP() << endl;
 	return 1;
 }	//sSetupWiFi
+
+
+int sSetupSwitch() {
+  Serial << LOG0 << " sSetupSwitch(): Begin" << endl;
+  Serial << LOG0 << " sSetupSwitch(): Set Switch pin "<< sSwitchPin <<" to INPUT"<< endl;
+	pinMode(sSwitchPin, INPUT);
+
+	//Connect internal pull-up reistor.
+  Serial << LOG0 << " sSetupSwitch(): internal pullup on Switch pin "<< sSwitchPin << endl;
+  digitalWrite(sSwitchPin, HIGH);
+	return 1;
+}	//sSetupSwitch
 
 
 int sSetupD0Led() {
@@ -129,8 +142,13 @@ void loop()
                     client.println("<html>");
                     client.println("<head>");
                     client.println("<title>Arduino LED Control</title>");
+                    client.println("<meta http-equiv=\"refresh\" content=\"1\">");
                     client.println("</head>");
                     client.println("<body>");
+                    client.println("<h1>Switch</h1>");
+                    client.println("<p>State of switch is:</p>");
+                    GetSwitchState(client);
+
                     client.println("<h1>FloJet LED</h1>");
                     client.println("<p>Click to switch LED on Arduino D2 on and off.</p>");
                     client.println("<form method=\"get\">");
@@ -192,4 +210,15 @@ void ProcessCheckbox(WiFiClient cl)
         onclick=\"submit();\">LED2");
     }
 }	//ProcessCheckbox
+
+
+void GetSwitchState(WiFiClient cl) {
+	if (digitalRead(sSwitchPin)) {
+			cl.println("<p>ON</p>");
+	}
+	else {
+		cl.println("<p>OFF</p>");
+	}
+	return;
+}	//GetSwitchState
 //Last line
