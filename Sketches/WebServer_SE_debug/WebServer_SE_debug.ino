@@ -8,7 +8,7 @@
 --------------------------------------------------------------*/
 #include <Arduino.h>
 #include <Streaming.h>
-#include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>                //Note "extern ESP8266WiFiClass WiFi;" reference at end
 
 #define LOG0      lLineCount++ << " " << millis()
 static long       lLineCount  = 0;      //Serial Monitor uses for clarity.
@@ -46,7 +46,8 @@ void setup()
 
 int sSetupWiFi() {
   boolean   bDone= false;
-  int       sStatus;
+  //int       sStatus;
+  wl_status_t       sStatus;
   Serial.begin(115200);
   Serial << LOG0 << " sSetupWiFi(): Begin" << endl;
   delay(10);

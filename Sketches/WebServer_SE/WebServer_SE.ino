@@ -8,16 +8,19 @@
 --------------------------------------------------------------*/
 #include <Arduino.h>
 #include <Streaming.h>
-#include <ESP8266WiFi.h>
+#include <ESP8266WiFi.h>                //Note "extern ESP8266WiFiClass WiFi;" reference at end
 
 #define LOG0      lLineCount++ << " " << millis()
-static long       lLineCount	= 0;      //Serial Monitor uses for clarity.
+static long       lLineCount  = 0;      //Serial Monitor uses for clarity.
 
-const char		*szSSID 						= "P291spot";
-const char		*szPassword 				= "Qazqaz11";
-const int 		sD0LedPin						= 0;
-const int 		sLedPin							= 2;
-const int 		sSwitchPin					= 4;
+//const char     *szSSID                 = "P291spot";
+//const char     *szSSID                 = "Linky24";
+const char     *szSSID                 = "dlinky";
+
+const char     *szPassword             = "Qazqaz11";
+const int      sD0LedPin                  = 0;
+const int      sLedPin                    = 2;
+const int      sSwitchPin              = 4;
 
 //Create an instance of the server and specify the port to listen on as an argument
 WiFiServer server(80);
@@ -25,21 +28,21 @@ WiFiServer server(80);
 String szHTTP_Request;          // stores the HTTP request
 boolean bLedOn = false;   // state of LED, off by default
 
-const static long   	lD0LedStageMsec[] = { 1000,  250,   250,  250,   250,  250}; //Msec that LED is on or off
+const static long    lD0LedStageMsec[] = { 1000,  250,   250,  250,   250,  250}; //Msec that LED is on or off
 const static boolean  bD0LedStageIsOn[] = {false, true, false, true, false, true};
-const static int			sD0LedLastStage 	= 6;
-static boolean				bD0LedIsOn				= false;
-static long       		lD0LedNextMsec;          //Next time to change stage of LED
-static int        		sD0CurrentStage;            //0 to sD0LedLastStage
-static long       		lCurrentMsec;
+const static int        sD0LedLastStage   = 6;
+static boolean          bD0LedIsOn           = false;
+static long             lD0LedNextMsec;          //Next time to change stage of LED
+static int              sD0CurrentStage;            //0 to sD0LedLastStage
+static long             lCurrentMsec;
 
 void setup()
 {
-	sSetupWiFi();
-	//sSetupD0Led();
+   sSetupWiFi();
+   //sSetupD0Led();
   pinMode(sLedPin, OUTPUT);       // LED on pin sLedPin
-	return;
-}	//setup
+   return;
+}  //setup
 
 
 int sSetupWiFi() {
@@ -60,68 +63,68 @@ int sSetupWiFi() {
   //Start the server
   server.begin();
   Serial << LOG0 <<" sSetupWiFi(): Server started, my IP is  "<< WiFi.localIP() << endl;
-	return 1;
-}	//sSetupWiFi
+   return 1;
+}  //sSetupWiFi
 
 
 int sSetupSwitch() {
   Serial << LOG0 << " sSetupSwitch(): Begin" << endl;
   Serial << LOG0 << " sSetupSwitch(): Set Switch pin "<< sSwitchPin <<" to INPUT"<< endl;
-	pinMode(sSwitchPin, INPUT);
+   pinMode(sSwitchPin, INPUT);
 
-	//Connect internal pull-up reistor.
+   //Connect internal pull-up reistor.
   Serial << LOG0 << " sSetupSwitch(): internal pullup on Switch pin "<< sSwitchPin << endl;
   digitalWrite(sSwitchPin, HIGH);
-	return 1;
-}	//sSetupSwitch
+   return 1;
+}  //sSetupSwitch
 
 
 int sSetupD0Led() {
   Serial << LOG0 << " sSetupD0Led(): Begin" << endl;
-	lCurrentMsec= millis();
-	pinMode(sD0LedPin, OUTPUT);       // LED on pin sLedPin
-	sD0CurrentStage= 0;
-	lD0LedNextMsec= lCurrentMsec + lD0LedStageMsec[sD0CurrentStage];
+   lCurrentMsec= millis();
+   pinMode(sD0LedPin, OUTPUT);       // LED on pin sLedPin
+   sD0CurrentStage= 0;
+   lD0LedNextMsec= lCurrentMsec + lD0LedStageMsec[sD0CurrentStage];
   Serial << LOG0 << " sSetupD0Led(): Set lD0LedNextMsec to " << lD0LedNextMsec << endl;
   Serial << LOG0 << " sSetupD0Led(): Set call sTurnOnD0Led() with "
          << bD0LedStageIsOn[sD0CurrentStage] << endl;
-	sTurnOnD0Led(bD0LedStageIsOn[sD0CurrentStage]);
-	return 1;
-}	//sSetupD0Led
+   sTurnOnD0Led(bD0LedStageIsOn[sD0CurrentStage]);
+   return 1;
+}  //sSetupD0Led
 
 
 int sTurnOnD0Led(boolean bOn) {
-	if (bOn) {
-	  digitalWrite(sLedPin, HIGH);
-	}
-	else {
-	  digitalWrite(sLedPin, LOW);
-	}
-	return 1;
-}	//sTurnOnD0Led
+   if (bOn) {
+     digitalWrite(sLedPin, HIGH);
+   }
+   else {
+     digitalWrite(sLedPin, LOW);
+   }
+   return 1;
+}  //sTurnOnD0Led
 
 
 int sCycleD0Led() {
-	lCurrentMsec= millis();
-	if (lCurrentMsec > lD0LedNextMsec) {
-		if (sD0CurrentStage < sD0LedLastStage) {
-			sD0CurrentStage++;
-		}
-		else {
+   lCurrentMsec= millis();
+   if (lCurrentMsec > lD0LedNextMsec) {
+      if (sD0CurrentStage < sD0LedLastStage) {
+         sD0CurrentStage++;
+      }
+      else {
       Serial << LOG0 <<" sCycleD0Led(): Set D0 LED to stage Zero"<< endl;
-			sD0CurrentStage= 0;
-		}
-		lD0LedNextMsec= lCurrentMsec + lD0LedStageMsec[sD0CurrentStage];
-		sTurnOnD0Led(bD0LedStageIsOn[sD0CurrentStage]);
-	}
-	return 1;
-}	//sCycleD0Led
+         sD0CurrentStage= 0;
+      }
+      lD0LedNextMsec= lCurrentMsec + lD0LedStageMsec[sD0CurrentStage];
+      sTurnOnD0Led(bD0LedStageIsOn[sD0CurrentStage]);
+   }
+   return 1;
+}  //sCycleD0Led
 
 
 void loop()
 {
     WiFiClient client = server.available();  // try to get client
-		//sCycleD0Led();
+      //sCycleD0Led();
     if (client) {  // got client?
         boolean currentLineIsBlank = true;
         Serial << LOG0 <<" loop(): Got a Client"<< endl;
@@ -176,7 +179,7 @@ void loop()
         delay(1);      // give the web browser time to receive the data
         client.stop(); // close the connection
     } // end if (client)
-}	//loop
+}  //loop
 
 
 // switch LED and send back HTML for LED checkbox
@@ -184,41 +187,41 @@ void ProcessCheckbox(WiFiClient cl)
 {
     if (szHTTP_Request.indexOf("LED2=2") > -1) {  // see if checkbox was clicked
         // the checkbox was clicked, toggle the LED
-  			Serial << LOG0 <<" ProcessCheckbox(): Checkbox was clicked"<< endl;
+         Serial << LOG0 <<" ProcessCheckbox(): Checkbox was clicked"<< endl;
         if (bLedOn) {
-   				Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to FALSE"<< endl;
+               Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to FALSE"<< endl;
           bLedOn = false;
         }
         else {
-   				Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to TRUE"<< endl;
+               Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to TRUE"<< endl;
           bLedOn = true;
         }
     }
 
     if (bLedOn) {    // switch LED on
-  			Serial << LOG0 <<" ProcessCheckbox(): Turn external LED ON"<< endl;
+         Serial << LOG0 <<" ProcessCheckbox(): Turn external LED ON"<< endl;
         digitalWrite(sLedPin, HIGH);
         // checkbox is checked
         cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
         onclick=\"submit();\" checked>LED2");
     }
     else {              // switch LED off
-  			Serial << LOG0 <<" ProcessCheckbox(): Turn external LED OFF"<< endl;
+         Serial << LOG0 <<" ProcessCheckbox(): Turn external LED OFF"<< endl;
         digitalWrite(sLedPin, LOW);
         // checkbox is unchecked
         cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
         onclick=\"submit();\">LED2");
     }
-}	//ProcessCheckbox
+}  //ProcessCheckbox
 
 
 void GetSwitchState(WiFiClient cl) {
-	if (digitalRead(sSwitchPin)) {
-			cl.println("<p>ON</p>");
-	}
-	else {
-		cl.println("<p>OFF</p>");
-	}
-	return;
-}	//GetSwitchState
+   if (digitalRead(sSwitchPin)) {
+         cl.println("<p>ON</p>");
+   }
+   else {
+      cl.println("<p>OFF</p>");
+   }
+   return;
+}  //GetSwitchState
 //Last line
