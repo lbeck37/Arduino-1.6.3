@@ -1,26 +1,18 @@
-/* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
- 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
-*/
+// 07/2/9/15 Port from Powershift.ino to display using I2C on TinyScreen on TinyDuino (Pro mini processor)
+
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
 #include <SPI.h>
 #include <EasyButton.h>
 #include <Servo.h>
 #include <Wire.h>
-#include <U8glib.h>
+#include <TinyScreen.h>
+//#include <U8glib.h>
 #include <stdarg.h>
 
-const int MPU= 0x68;  // I2C address of the MPU-6050
-int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
-
-//#include <microsmooth.h>
-
-//Defines
+//Defines #if
+#define LOG0              lLineCount++ << " " << millis()
 #define UINT16             unsigned int
-
-#define APPLY_SMOOTHING    false
-//#define FILTER_NAME        SMA
-//#define FILTER_FUNC        sma_filter
 
 //Here come the const's
 static const uint8_t   ucContrast           = 100;
@@ -33,10 +25,7 @@ static const char      szSplashLine2[]      = {"* Max Performance *"};
 static const char      szSplashLine3[]      = {"*    Max Range    *"};
 static const char      szSplashLine4[]      = {"PowerShift"};
 static const char      szSplashLine5[]      = {"  by ShiftE"};
-static const char      szAccel[]            = {"Accel"};
-static const char      szGyro[]             = {"Gyro"};
 static const char      szServo[]            = {"Servo "};
-
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
 static const int       sServoMin             = 0;
@@ -96,44 +85,21 @@ static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
 static const unsigned long    ulGyroReadTime    = 500;   //Gyro reads spaced by this.
 
-//Constants for DOGS102 display.
-static const int       sDisplayWidth        = 102;
-static const int       sDisplayHeight       = 64;
-
-static const int       sDisplayNormal       = 0xC0;
-static const int       sDisplayFlipped      = 0xC8;
-
-static const int       sBrightness100       = 255;
-static const int       sBrightness75        = 192;
-static const int       sBrightness50        = 128;
-static const int       sBrightness25        =  64;
-static const int       sBrightness0         =   0;
-static const int       sDefaultBrightness   = sBrightness100;
-
-static const int       sFontNotSet         =   0;
-static const int       sFontNormal         =   1;
-static const int       sFontBig         =   2;
-static const int       sFontGearNum        =   3;
-static const int       sFontSquare         =   4;
 //End of the const's
+static long       lLineCount      = 0;      //Serial Monitor uses for clarity.
 
 static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
 
-#if APPLY_SMOOTHING
-   static UINT16  *pusSmoothingMemory[sNumGyroTypes][sNumAxis];
-#endif
-static int     asGyro             [sNumGyroTypes][sNumAxis];
-
-static int sCurrentMode                   = sNormalMode;
-static int sServoPosLast                  = 0;
+static int        sCurrentMode      = sNormalMode;
+static int        sServoPosLast     = 0;
+static boolean    bTestDisplay      = true;
 
 //*****Object creation*****
+TinyScreen TinyDisplay = TinyScreen(0);
+
 //Create servo object to control the servo
 Servo myservo;
-
-//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
-U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
@@ -146,27 +112,38 @@ static int              sButtonCountLast[]   = { 0, 0, 0};
 static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
-static unsigned long    ulNextGyroTime       = 0;  //msec when the gyro will be read
-static int              sCurrentFont         = sFontNotSet;
+//static int              sCurrentFont         = sFontNotSet;
 
 //State of display items being changed and needing refresh.
 static boolean     bButtonsChanged          = false;
 static boolean     bGearChanged             = false;
 static boolean     bServoChanged            = false;
 static boolean     bModeChanged             = false;
-static boolean     bGyroChanged             = false;
-
 //static int         sLC                      = 0;  //Serial Monitor Line Count, for clarity.
 
 static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char        sz10CharString[10];
 
+//TinyScreen stuff
+#define BLACK           0x00
+#define BLUE            0xE0
+#define RED             0x03
+#define GREEN           0x1C
+#define DGREEN          0x0C
+#define YELLOW          0x1F
+#define WHITE           0xFF
+#define ALPHA           0xFE
+#define BROWN           0x32
+
+uint8_t amtcolors=7;
+uint8_t colors[]={BLACK,BLUE,RED,GREEN,WHITE,DGREEN,YELLOW};
+
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
    Serial.begin(9600);
-   Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
-   Serial << sLC++ << "Free Ram= " << freeRam() << endl;
+   Serial << LOG0 <<" setup(): Begin July 29, 2015"<< endl;
+   Serial << LOG0 << " Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
 #ifdef DEBUG_ON
@@ -174,10 +151,10 @@ void setup() {
    sDrawMainScreen();
    delay(sMainDelay);
 #else
-   sSetupGyro();
+   //sSetupGyro();
    sFillGearLocations();
    sSetupServo();
-   sSetupSmoothing();
+   //sSetupSmoothing();
    sDrawStartScreen();
    //sTestContrast();
 #endif   //DEBUG_1
@@ -190,63 +167,76 @@ void setup() {
 
 // The Arduino loop() method gets called over and over.
 void loop() {
-   sCheckButtons();
-   sLoopI2C();
-   sDrawMainScreen();
-   //sTestContrast();
-   sHandleButtons();
+   if (bTestDisplay) {
+      sExerciseDisplay();
+   }  //if(bTestDisplay)
+   else {
+      sCheckButtons();
+      //sGyroLoop();
+      sDrawMainScreen();
+      //sTestContrast();
+      sHandleButtons();
+   } //if(bTestDisplay)
    return;
 }  //loop()
 
 
-int sSetupDisplay() {
-   Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
-   Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
-   u8g.setContrast(ucContrast);
-   sSwitchFont(sFontNormal);
-   u8g.setColorIndex(1);
-   if (bFlipDisplay) {
-      u8g.setRot180();
-   }  //if(bFlipDisplay)
+int sExerciseDisplay() {
+  TinyDisplay.setFont(liberationSans_10ptFontInfo);
+  TinyDisplay.fontColor(WHITE,BLACK);
+  TinyDisplay.setBrightness(15);
 
-   //Set backlight pin to be a PWM "analog" out pin.
-   //Drive LED backlight through 15 ohm resistor.
-   pinMode(sBacklightPin, OUTPUT);
-   sDisplaySetBrightness(sDefaultBrightness);
+  Serial << LOG0 << " sExerciseDisplay: Test Text" << endl;
+  for(int i=5;i<20;i++){
+    TinyDisplay.setCursor((3000-(i*5))%70,(i*14)%50);
+    TinyDisplay.print("text");
+    TinyDisplay.setCursor((i*7)%70,(6000-(i*6))%50);
+    TinyDisplay.print("text");
+    delay(150);
+  }
+  for(int i=0;i<5;i++){
+    TinyDisplay.setCursor(0,i*12);
+    TinyDisplay.print("FASTFASTFASTFAST");
+  }
+  delay(200);
+
+  Serial << LOG0 << " sExerciseDisplay: Test Brightness" << endl;
+  TinyDisplay.setCursor(15,20);
+  TinyDisplay.fontColor(BLACK,WHITE);
+  TinyDisplay.clearWindow(0,0,96,64);
+  TinyDisplay.setBrightness(15);
+  TinyDisplay.drawRect(0,0,96,64,1,WHITE);
+  TinyDisplay.print("BRIGHT!");
+  delay(500);
+  TinyDisplay.fontColor(WHITE,BLACK);
+  TinyDisplay.setCursor(30,20);
+  TinyDisplay.clearWindow(0,0,96,64);
+  TinyDisplay.setBrightness(0);
+  TinyDisplay.print("DIM!");
+  delay(500);
+  TinyDisplay.setBrightness(5);
+  delay(500);
+
+   return 1;
+}  //sExerciseDisplay
+
+
+int sSetupDisplay() {
+   Serial << LOG0 <<" sSetupDisplay(): Call begin() for Wire and TinyDisplay"<< endl;
+   Wire.begin();
+   TinyDisplay.begin();
+   TinyDisplay.setFont(liberationSans_16ptFontInfo);
+   TinyDisplay.fontColor(WHITE,BLACK);
+   TinyDisplay.setCursor(0,0);
+   TinyDisplay.print("Hello World");
+
+   //TinyDisplay.clearWindow()
    return 1;
 }  //sSetupDisplay
 
 
-int sTestContrast() {
-   for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
-      Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
-      u8g.setContrast(sContrast);
-      delay(1000);
-   }  //for(int sContrast=0...
-   return 1;
-}  //sTestContrast
-
-
-int sSetupGyro() {
-   Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
-   //Set up the I2C bus.
-   Wire.begin();
-   Wire.beginTransmission(MPU);
-   Wire.write(0x6B);  // PWR_MGMT_1 register
-   Wire.write(0);     // set to zero (wakes up the MPU-6050)
-   Wire.endTransmission(true);
-   //Initialize the data array.
-   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
-      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-         asGyro[sDataType][sAxis]= 0;
-      }  //for sDataType
-   }  //for sAxis
-   return 1;
-}  //sSetupGyro
-
-
 int sSetupServo() {
-   Serial << sLC++ <<"sSetupServo(): Begin"<< endl;
+   Serial << LOG0 <<" sSetupServo(): Begin"<< endl;
    if (bServoOn) {
       myservo.attach(sServoPin);
       sServoMove(asGearLocation[sCurrentGear]);
@@ -255,78 +245,22 @@ int sSetupServo() {
 } //sSetupServo
 
 
-int sLoopI2C() {
-   int      asGyroReading[sNumGyroTypes][sNumAxis];
-   boolean  bApplySmoothing= APPLY_SMOOTHING;
-
-   if (millis() > ulNextGyroTime) {
-      Wire.beginTransmission(MPU);
-      Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
-      Wire.endTransmission(false);
-      Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
-
-      // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
-      // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-      // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
-      // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
-      // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
-      // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
-      // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-      asGyroReading[sAccel][sXAxis]= Wire.read()<<8|Wire.read();
-      asGyroReading[sAccel][sYAxis]= Wire.read()<<8|Wire.read();
-      asGyroReading[sAccel][sZAxis]= Wire.read()<<8|Wire.read();
-
-      asGyroReading[sTemperature][sXAxis]= Wire.read()<<8|Wire.read();
-
-      asGyroReading[sRotation][sXAxis]=Wire.read()<<8|Wire.read();
-      asGyroReading[sRotation][sYAxis]=Wire.read()<<8|Wire.read();
-      asGyroReading[sRotation][sZAxis]=Wire.read()<<8|Wire.read();
-
-      //Initialize missing temperature fields.
-      for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
-         asGyroReading[sTemperature][sAxis]= 0;
-      }  //for
-
-      //Apply low-pass filter to data
-      for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
-         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-#if APPLY_SMOOTHING
-            asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
-                                                  pusSmoothingMemory[sDataType][sAxis]);
-#else
-            asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
-#endif
-         }  //for sDataType
-      }  //for sAxis
-      bGyroChanged= true;
-      ulNextGyroTime= millis() + ulGyroReadTime;
-   }  //if (millis()>ulNextGyroTime)
-   return 1;
-}  //sLoopI2C
-
-
 int sDrawStartScreen(void) {
-   //u8g.undoRotation();
-   //u8g.setRot180();
-   u8g.firstPage();
-   do {
-      sDisplaySplash();
-   } while(u8g.nextPage());
-
    delay(sSplashDelay);
    return 1;
 }  //sDrawStartScreen
 
 
 int sDrawMainScreen(void) {
-   //u8g.undoRotation();
-   //u8g.setRot180();
-   u8g.firstPage();
-   do {
-      sDisplayMainObjects();
-   } while(u8g.nextPage());
    return 1;
 }  //sDrawMainScreen
+
+
+int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
+   //sSwitchFont(sFont);
+   //u8g.drawStr( sXpixel, sYpixel, pcText);
+   return 1;
+}  //sDisplayText
 
 
 int sFormatLine(const char *format, ...)
@@ -344,7 +278,7 @@ int sDisplayMainObjects(void) {
       //sDisplayButtons();
       sDisplayCurrentGear();
       sDisplayServoPos();
-      sDisplayGyro();
+      //sDisplayGyro();
       sDisplayOdometer();
    }  //if(bScreenChanged())
    return 1;
@@ -352,6 +286,7 @@ int sDisplayMainObjects(void) {
 
 
 int sDisplaySplash(void) {
+  /*
 #if 0
    sDisplayText(0, sLPixel(1), sFontNormal, "PowerShift");
    sDisplayText(0, sLPixel(2), sFontNormal, "  by ShiftE");
@@ -366,53 +301,22 @@ int sDisplaySplash(void) {
    sDisplayText(8, 37, sFontNormal, szSplashLine1);
    sDisplayText(6, 46, sFontNormal, szSplashLine2);
    sDisplayText(6, 55, sFontNormal, szSplashLine3);
+   */
    return 1;
 }  //sDisplaySplash
 
 
-int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
-   sSwitchFont(sFont);
-   u8g.drawStr( sXpixel, sYpixel, pcText);
-   return 1;
-}  //sDisplayText
-
-
-int sDisplayGyro() {
-   int sXPixel   = 40;
-   int sStartLine= 3;
-   char szLocalBuffer[20];
-   strcpy(szLineBuffer, szAccel);
-   strcat(szLineBuffer, "  ");
-   strcat(szLineBuffer, szGyro);
-   sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
-   for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      sFormatLine("%5d %5d", sScaleGyro(asGyro[sAccel][sAxis]),
-                             sScaleGyro(asGyro[sRotation][sAxis]));
-      sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
-   }  //for sAxis
-   return 1;
-}  //sDisplayGyro
-
-
-int sScaleGyro(int sNumber) {
-   long wNumber= sNumber;
-   wNumber= (wNumber * 2000) / 32767;
-   int sScaleNumber= wNumber;
-   return sScaleNumber;
-}  //sScaleGyro
-
-
 int sDisplayCurrentGear() {
-   int sGearFont  = sFontGearNum;
+   //sint sGearFont  = sFontGearNum;
    int sLeftPixel = 4;
    int sTopPixel  = 6;
    if (sCurrentMode == sNormalMode) {
       itoa(sCurrentGear, sz10CharString, 10);
-      sDisplayText(sLeftPixel, sTopPixel, sGearFont, sz10CharString);
+      //sDisplayText(sLeftPixel, sTopPixel, sGearFont, sz10CharString);
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
-      sDisplayText(sLeftPixel, sTopPixel, sGearFont, "0");
+      //sDisplayText(sLeftPixel, sTopPixel, sGearFont, "0");
    }  //if (sCurrentMode..else
 
    return 1;
@@ -425,31 +329,14 @@ int sDisplayServoPos() {
    strcat(szLineBuffer, sz10CharString);
    //sDisplayText(50, sLPixel(1), sFontNormal, szLineBuffer);
    //sDisplayText(35, sLPixel(1), sFontBig, szLineBuffer);
-   sDisplayText(35, 4, sFontBig, szLineBuffer);
+   //sDisplayText(35, 4, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayServoPos
 
 
 int sDisplayOdometer() {
-#if 0
-   strcpy(szLineBuffer, "21.50");
-   //sFormatLine("%f", 21.50);
-   sDisplayText(6, 50, sFontBig, szLineBuffer);
-#endif
-   //sFormatLine("%3d\xB0", sScaleGyro(asGyro[sTemperature][sXAxis]));
-   int sGyroF= sDegF( asGyro[sTemperature][sXAxis]);
-   //sFormatLine("%3d\xB0", abs(sScaleGyro(asGyro[sTemperature][sXAxis])));
-   sFormatLine("%3d\xB0", sGyroF);
-   sDisplayText(6, 50, sFontBig, szLineBuffer);
    return 1;
 }  //sDisplayOdometer
-
-
-int sDegF(int sGyroReading) {
-   float fGyroF= ((1.8 * sGyroReading) / 340.0) + 103.13;
-   int sGyroF= fGyroF;
-   return sGyroF;
-}  //sDegF
 
 
 int sDisplayButtons() {
@@ -459,52 +346,19 @@ int sDisplayButtons() {
    itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    //sDisplayText(5, 82, sFontNormal, szLineBuffer);
-   sDisplayText(82, sLPixel(5), sFontNormal, szLineBuffer);
+   //sDisplayText(82, sLPixel(5), sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "D ");
    itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   sDisplayText(82, sLPixel(6), sFontNormal, szLineBuffer);
+   //sDisplayText(82, sLPixel(6), sFontNormal, szLineBuffer);
 
    strcpy(szLineBuffer, "S ");
    itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   sDisplayText(82, sLPixel(7), sFontNormal, szLineBuffer);
+   //sDisplayText(82, sLPixel(7), sFontNormal, szLineBuffer);
    return 1;
 }  //sDisplayButtons
-
-
-int sSwitchFont(int sFont) {
-   if (sFont != sCurrentFont) {
-      switch (sFont) {
-         case sFontNormal:
-            u8g.setFont(u8g_font_5x7);
-            break;
-         case sFontBig:
-            //u8g.setFont(u8g_font_fub11n);
-            u8g.setFont(u8g_font_7x13B);
-            break;
-         case sFontGearNum:
-            u8g.setFont(u8g_font_fub35n);
-            break;
-         case sFontSquare:
-            break;
-         default:
-            Serial << "sSwitchFont(): Bad case in switch()= " << sFont << endl;
-            break;
-      }  //switch
-      //Set the reference position for the font.
-      u8g.setFontRefHeightExtendedText();
-      u8g.setFontPosTop();
-   }  //if(sFont!=sCurrentFont)
-   return 1;
-}  //sSwitchFont
-
-
-int sDisplaySetBrightness(int sBrightness){
-   analogWrite(sBacklightPin, sBrightness);
-   return 1;
-}  //sDisplaySetBrightness
 
 
 int sLPixel(int sLineNumber) {
@@ -525,9 +379,14 @@ int sFillGearLocations(void) {
 
 boolean bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
+#if USE_GYRO
    boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged ||
                      bModeChanged || bGyroChanged;
    bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= bGyroChanged= false;
+#else
+   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged;
+   bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= false;
+#endif  //USE_GYRO
    return bChanged;
 }  //bScreenChanged
 
@@ -782,6 +641,259 @@ int sServoSetPosition(int sServoPos) {
    return 1;
 }  //sServoSetPosition
 
+/*
+//Move to bottom
+#include <SPI.h>
+#include <U8glib.h>
+const int MPU= 0x68;  // I2C address of the MPU-6050
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+
+#define APPLY_SMOOTHING    false
+#if APPLY_SMOOTHING
+  //#define FILTER_NAME        SMA
+  //#define FILTER_FUNC        sma_filter
+#endif
+#define USE_GYRO        false
+
+#if USE_DOGS102
+//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
+U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+#endif
+
+
+//#define USE_DOGS102     false
+#undef USE_DOGS102
+//Constants for DOGS102 display.
+static const int       sDisplayWidth        = 102;
+static const int       sDisplayHeight       = 64;
+
+static const int       sDisplayNormal       = 0xC0;
+static const int       sDisplayFlipped      = 0xC8;
+
+static const int       sBrightness100       = 255;
+static const int       sBrightness75        = 192;
+static const int       sBrightness50        = 128;
+static const int       sBrightness25        =  64;
+static const int       sBrightness0         =   0;
+static const int       sDefaultBrightness   = sBrightness100;
+
+static const int       sFontNotSet         =   0;
+static const int       sFontNormal         =   1;
+static const int       sFontBig         =   2;
+static const int       sFontGearNum        =   3;
+static const int       sFontSquare         =   4;
+
+#if USE_GYRO
+static const char      szAccel[]            = {"Accel"};
+static const char      szGyro[]             = {"Gyro"};
+#endif
+#if APPLY_SMOOTHING
+   static UINT16  *pusSmoothingMemory[sNumGyroTypes][sNumAxis];
+#endif
+#if USE_GYRO
+  static int     asGyro             [sNumGyroTypes][sNumAxis];
+#endif
+#if USE_GYRO
+static boolean     bGyroChanged             = false;
+#endif
+
+#if USE_GYRO
+static unsigned long    ulNextGyroTime       = 0;  //msec when the gyro will be read
+#endif
+
+int sSetupDogsDisplay() {
+   Serial << sLC++ <<"sSetupDogsDisplay(): Begin"<< endl;
+   Serial << sLC++ <<"sSetupDogsDisplay(): Set Contrast to "<< ucContrast << endl;
+   u8g.setContrast(ucContrast);
+   sSwitchFont(sFontNormal);
+   u8g.setColorIndex(1);
+   if (bFlipDisplay) {
+      u8g.setRot180();
+   }  //if(bFlipDisplay)
+
+   //Set backlight pin to be a PWM "analog" out pin.
+   //Drive LED backlight through 15 ohm resistor.
+   pinMode(sBacklightPin, OUTPUT);
+   sDisplaySetBrightness(sDefaultBrightness);
+   return 1;
+}  //sSetupDogsDisplay
+
+
+int sTestContrast() {
+   for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
+      Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
+      u8g.setContrast(sContrast);
+      delay(1000);
+   }  //for(int sContrast=0...
+   return 1;
+}  //sTestContrast
+
+
+int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
+   sSwitchFont(sFont);
+   u8g.drawStr( sXpixel, sYpixel, pcText);
+   return 1;
+}  //sDisplayText
+
+
+int sSwitchFont(int sFont) {
+   if (sFont != sCurrentFont) {
+      switch (sFont) {
+         case sFontNormal:
+            u8g.setFont(u8g_font_5x7);
+            break;
+         case sFontBig:
+            //u8g.setFont(u8g_font_fub11n);
+            u8g.setFont(u8g_font_7x13B);
+            break;
+         case sFontGearNum:
+            u8g.setFont(u8g_font_fub35n);
+            break;
+         case sFontSquare:
+            break;
+         default:
+            Serial << "sSwitchFont(): Bad case in switch()= " << sFont << endl;
+            break;
+      }  //switch
+      //Set the reference position for the font.
+      u8g.setFontRefHeightExtendedText();
+      u8g.setFontPosTop();
+   }  //if(sFont!=sCurrentFont)
+   return 1;
+}  //sSwitchFont
+
+
+int sDisplaySetBrightness(int sBrightness){
+   analogWrite(sBacklightPin, sBrightness);
+   return 1;
+}  //sDisplaySetBrightness
+
+
+int sDrawStartScreen(void) {
+   //u8g.undoRotation();
+   //u8g.setRot180();
+   u8g.firstPage();
+   do {
+      sDisplaySplash();
+   } while(u8g.nextPage());
+
+   delay(sSplashDelay);
+   return 1;
+}  //sDrawStartScreen
+
+
+int sDrawMainScreen(void) {
+   //u8g.undoRotation();
+   //u8g.setRot180();
+   u8g.firstPage();
+   do {
+      sDisplayMainObjects();
+   } while(u8g.nextPage());
+   return 1;
+}  //sDrawMainScreen
+#endif  //USE_DOGS102
+
+
+#if USE_GYRO
+int sDisplayGyro() {
+   int sXPixel   = 40;
+   int sStartLine= 3;
+   char szLocalBuffer[20];
+   strcpy(szLineBuffer, szAccel);
+   strcat(szLineBuffer, "  ");
+   strcat(szLineBuffer, szGyro);
+   sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
+   for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+      sFormatLine("%5d %5d", sScaleGyro(asGyro[sAccel][sAxis]),
+                             sScaleGyro(asGyro[sRotation][sAxis]));
+      sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
+   }  //for sAxis
+   return 1;
+}  //sDisplayGyro
+
+
+int sScaleGyro(int sNumber) {
+   long wNumber= sNumber;
+   wNumber= (wNumber * 2000) / 32767;
+   int sScaleNumber= wNumber;
+   return sScaleNumber;
+}  //sScaleGyro
+
+
+int sDegF(int sGyroReading) {
+   float fGyroF= ((1.8 * sGyroReading) / 340.0) + 103.13;
+   int sGyroF= fGyroF;
+   return sGyroF;
+}  //sDegF
+
+
+int sSetupGyro() {
+   Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
+   //Set up the I2C bus.
+   Wire.begin();
+   Wire.beginTransmission(MPU);
+   Wire.write(0x6B);  // PWR_MGMT_1 register
+   Wire.write(0);     // set to zero (wakes up the MPU-6050)
+   Wire.endTransmission(true);
+   //Initialize the data array.
+   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+         asGyro[sDataType][sAxis]= 0;
+      }  //for sDataType
+   }  //for sAxis
+   return 1;
+}  //sSetupGyro
+
+
+int sGyroLoop() {
+   int      asGyroReading[sNumGyroTypes][sNumAxis];
+   boolean  bApplySmoothing= APPLY_SMOOTHING;
+
+   if (millis() > ulNextGyroTime) {
+      Wire.beginTransmission(MPU);
+      Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+      Wire.endTransmission(false);
+      Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
+
+      // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
+      // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+      // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+      // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+      // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+      // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+      // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+      asGyroReading[sAccel][sXAxis]= Wire.read()<<8|Wire.read();
+      asGyroReading[sAccel][sYAxis]= Wire.read()<<8|Wire.read();
+      asGyroReading[sAccel][sZAxis]= Wire.read()<<8|Wire.read();
+
+      asGyroReading[sTemperature][sXAxis]= Wire.read()<<8|Wire.read();
+
+      asGyroReading[sRotation][sXAxis]=Wire.read()<<8|Wire.read();
+      asGyroReading[sRotation][sYAxis]=Wire.read()<<8|Wire.read();
+      asGyroReading[sRotation][sZAxis]=Wire.read()<<8|Wire.read();
+
+      //Initialize missing temperature fields.
+      for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
+         asGyroReading[sTemperature][sAxis]= 0;
+      }  //for
+
+      //Apply low-pass filter to data
+      for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
+         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+#if APPLY_SMOOTHING
+            asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
+                                                  pusSmoothingMemory[sDataType][sAxis]);
+#else
+            asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
+#endif  //APPLY_SMOOTHING
+         }  //for sDataType
+      }  //for sAxis
+      bGyroChanged= true;
+      ulNextGyroTime= millis() + ulGyroReadTime;
+   }  //if (millis()>ulNextGyroTime)
+   return 1;
+}  //sGyroLoop
+
 
 int sSetupSmoothing() {
    //Initialize memory for data smoothing and set data fields to zero.
@@ -795,7 +907,8 @@ int sSetupSmoothing() {
    }  //for sAxis
    return 1;
 }  //sSetupSmoothing
-
+#endif  //USE_GYRO
+*/
 
 //freeRam() returns the number of bytes currently free in RAM.
 int freeRam(void)

@@ -14,7 +14,7 @@
 #define UINT32       uint32_t
 
 static INT16 sLC    = 0;  //Serial Monitor Line Count, for clarity.
-
+/*
 //Protos
 INT16    sSetupSerialStreaming   (void);
 INT16    sFreeRam                (void);
@@ -41,5 +41,6 @@ int sFreeRam(void)
   }
   return free_memory;
 }  //sFreeRam
+*/
 #endif   //LBECK37_H
 //Last line.
