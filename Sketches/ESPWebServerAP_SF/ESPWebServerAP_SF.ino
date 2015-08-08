@@ -110,7 +110,7 @@ void setupWiFi()
   // last two bytes of the MAC (HEX'd) to "Thing-":
   uint8_t mac[WL_MAC_ADDR_LENGTH];
   WiFi.softAPmacAddress(mac);
-  String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
+  /*String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
                  String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
   macID.toUpperCase();
   String AP_NameString = "ESP8266 Thing " + macID;
@@ -119,12 +119,24 @@ void setupWiFi()
   memset(AP_NameChar, AP_NameString.length() + 1, 0);
 
   for (int i=0; i < AP_NameString.length(); i++) {
-    AP_NameChar[i]= AP_NameString.charAt(i);
-  } //for
+     AP_NameChar[i]= AP_NameString.charAt(i);
+   } //for
+   AP_NameString.toCharArray(AP_NameChar, AP_NameString.length() + 1);
+   WiFi.softAP(AP_NameChar, WiFiAPPSK);*/
 
-  Serial << LOG0 <<" setupWiFi(): Call WiFi.softAP("<< AP_NameChar <<", "<< WiFiAPPSK <<")" << endl;
-  WiFi.softAP(AP_NameChar, WiFiAPPSK);
-  return;
+   String NameString    = "Flojet";
+   int  sNameBufferLen= NameString.length() + 1;
+   //char acNameBuffer[NameString.length() + 1];
+   char acNameBuffer[sNameBufferLen];
+   char *pcNoPassword   = NULL;
+   int  sChannel        = 2;
+   //NameString(acNameBuffer, NameString.length() + 1);
+   NameString.toCharArray(acNameBuffer, sNameBufferLen);
+
+   Serial << LOG0 <<" setupWiFi(): Call WiFi.softAP("<< acNameBuffer <<", NULL, "<< sChannel <<")" << endl;
+   WiFi.softAP(acNameBuffer, pcNoPassword, sChannel);
+
+   return;
 } //setupWiFi
 
 
