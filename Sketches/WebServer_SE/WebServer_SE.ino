@@ -14,8 +14,8 @@
 static long       lLineCount  = 0;      //Serial Monitor uses for clarity.
 
 //const char     *szSSID                 = "P291spot";
-//const char     *szSSID                 = "Linky24";
-const char     *szSSID                 = "dlinky";
+const char     *szSSID                 = "Linky24";
+//const char     *szSSID                 = "dlinky";
 
 const char     *szPassword             = "Qazqaz11";
 const int      sD0LedPin                  = 0;
@@ -185,43 +185,46 @@ void loop()
 // switch LED and send back HTML for LED checkbox
 void ProcessCheckbox(WiFiClient cl)
 {
-    if (szHTTP_Request.indexOf("LED2=2") > -1) {  // see if checkbox was clicked
-        // the checkbox was clicked, toggle the LED
-         Serial << LOG0 <<" ProcessCheckbox(): Checkbox was clicked"<< endl;
-        if (bLedOn) {
-               Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to FALSE"<< endl;
-          bLedOn = false;
-        }
-        else {
-               Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to TRUE"<< endl;
-          bLedOn = true;
-        }
-    }
+  if (szHTTP_Request.indexOf("LED2=2") > -1) {  // see if checkbox was clicked
+    // the checkbox was clicked, toggle the LED
+    Serial << LOG0 <<" ProcessCheckbox(): Checkbox was clicked"<< endl;
+    if (bLedOn) {
+      Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to FALSE"<< endl;
+      bLedOn = false;
+    }  //if(bLedOn)
+    else {
+      Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to TRUE"<< endl;
+      bLedOn = true;
+    }  //if(bLedOn)else
+  }  //if(szHTTP_Request.indexOf(...
 
-    if (bLedOn) {    // switch LED on
-         Serial << LOG0 <<" ProcessCheckbox(): Turn external LED ON"<< endl;
-        digitalWrite(sLedPin, HIGH);
-        // checkbox is checked
-        cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
-        onclick=\"submit();\" checked>LED2");
-    }
-    else {              // switch LED off
-         Serial << LOG0 <<" ProcessCheckbox(): Turn external LED OFF"<< endl;
-        digitalWrite(sLedPin, LOW);
-        // checkbox is unchecked
-        cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
-        onclick=\"submit();\">LED2");
-    }
+  if (bLedOn) {    // switch LED on
+    Serial << LOG0 <<" ProcessCheckbox(): Turn external LED ON"<< endl;
+    digitalWrite(sLedPin, HIGH);
+    // checkbox is checked
+    cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
+    onclick=\"submit();\" checked>LED2");
+  }  //if(bLedOn)
+  else {              // switch LED off
+    Serial << LOG0 <<" ProcessCheckbox(): Turn external LED OFF"<< endl;
+    digitalWrite(sLedPin, LOW);
+    // checkbox is unchecked
+    cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
+    onclick=\"submit();\">LED2");
+  }  //if(bLedOn)else
+  return;
 }  //ProcessCheckbox
 
 
 void GetSwitchState(WiFiClient cl) {
-   if (digitalRead(sSwitchPin)) {
-         cl.println("<p>ON</p>");
-   }
-   else {
-      cl.println("<p>OFF</p>");
-   }
-   return;
+  if (digitalRead(sSwitchPin)) {
+    Serial << LOG0 <<" GetSwitchState(): Switch is ON"<< endl;
+    cl.println("<p>ON</p>");
+  }
+  else {
+    Serial << LOG0 <<" GetSwitchState(): Switch is OFF"<< endl;
+    cl.println("<p>OFF</p>");
+  }
+  return;
 }  //GetSwitchState
 //Last line

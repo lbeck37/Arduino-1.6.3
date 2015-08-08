@@ -1,5 +1,11 @@
-// 08/07/15 Port from Spark Fun AP Web Server example sketch
-#include <ESP8266WiFi.h>
+// 08/08/15 Port from Spark Fun AP Web Server example sketch
+//#include <ESP8266WiFi.h>
+#include <Arduino.h>
+#include <Streaming.h>
+#include <ESP8266WiFi.h>                //Note "extern ESP8266WiFiClass WiFi;" reference at end
+
+#define LOG0      lLineCount++ << " " << millis()
+static long       lLineCount  = 0;      //Serial Monitor uses for clarity.
 
 //////////////////////
 // WiFi Definitions //
@@ -9,19 +15,21 @@ const char WiFiAPPSK[] = "sparkfun";
 /////////////////////
 // Pin Definitions //
 /////////////////////
-//const int LED_PIN = 5; // Thing's onboard, green LED
-const int LED_PIN       = 0;        // Adafruit ESP8266 LED
+const int LED_PIN       = 5;        // Thing's onboard, green LED pulled low though 200 ohm
 const int ANALOG_PIN    = A0;       // The only analog pin on the Thing
 const int DIGITAL_PIN   = 12;       // Digital pin to be read
 
 WiFiServer server(80);
+
 
 void setup()
 {
   initHardware();
   setupWiFi();
   server.begin();
-}
+  return;
+} //setup
+
 
 void loop()
 {
@@ -47,7 +55,7 @@ void loop()
     val = -2; // Will print pin reads
   // Otherwise request will be invalid. We'll say as much in HTML
 
-  // Set GPIO5 according to the request
+  // Set LED according to the request
   if (val >= 0)
     digitalWrite(LED_PIN, val);
 
@@ -84,10 +92,13 @@ void loop()
 
   // The client will actually be disconnected
   // when the function returns and 'client' object is detroyed
-}
+  return;
+} //loop
+
 
 void setupWiFi()
 {
+  Serial << LOG0 << " setupWiFi(): Call WiFi.mode(WIFI_AP)" << endl;
   WiFi.mode(WIFI_AP);
 
   // Do a little work to get a unique-ish name. Append the
@@ -105,15 +116,20 @@ void setupWiFi()
   for (int i=0; i<AP_NameString.length(); i++)
     AP_NameChar[i] = AP_NameString.charAt(i);
 
+  Serial << LOG0 << " setupWiFi(): Call WiFi.softAP(AP_NameChar, WiFiAPPSK)" << endl;
+  return;
   WiFi.softAP(AP_NameChar, WiFiAPPSK);
-}
+} //setupWiFi
+
 
 void initHardware()
 {
   Serial.begin(115200);
+  Serial << LOG0 << " initHardware(): Begin" << endl;
   pinMode(DIGITAL_PIN, INPUT_PULLUP);
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
   // Don't need to set ANALOG_PIN as input,
   // that's all it can be.
-}
+} //initHardware
+//Last line.
