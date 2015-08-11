@@ -1,4 +1,4 @@
-// 08/04/15 Ported to ESP8266
+// 08/06/15 In Boise working off Vista64 desktop
 /*--------------------------------------------------------------
   Program:      eth_websrv_page
   References:   - WebServer example by David A. Mellis and
@@ -14,11 +14,10 @@
 static long       lLineCount  = 0;      //Serial Monitor uses for clarity.
 
 //const char     *szSSID                 = "P291spot";
-const char     *szSSID                 = "Linky24";
-//const char     *szSSID                 = "dlinky";
-
+//const char     *szSSID                 = "Linky2.4";
+const char     *szSSID                 = "dlinky";
 const char     *szPassword             = "Qazqaz11";
-const int      sD0LedPin                  = 0;
+const int      sD0LedPin               = 0;
 const int      sLedPin                    = 2;
 const int      sSwitchPin              = 4;
 
@@ -28,8 +27,8 @@ WiFiServer server(80);
 String szHTTP_Request;          // stores the HTTP request
 boolean bLedOn = false;   // state of LED, off by default
 
-const static long    lD0LedStageMsec[] = { 1000,  250,   250,  250,   250,  250}; //Msec that LED is on or off
-const static boolean  bD0LedStageIsOn[] = {false, true, false, true, false, true};
+const static long       lD0LedStageMsec[] = { 1000,  250,   250,  250,   250,  250}; //Msec that LED is on or off
+const static boolean    bD0LedStageIsOn[] = {false, true, false, true, false, true};
 const static int        sD0LedLastStage   = 6;
 static boolean          bD0LedIsOn           = false;
 static long             lD0LedNextMsec;          //Next time to change stage of LED
@@ -46,18 +45,34 @@ void setup()
 
 
 int sSetupWiFi() {
+  boolean   bDone= false;
+  //int       sStatus;
+  wl_status_t       sStatus;
   Serial.begin(115200);
   Serial << LOG0 << " sSetupWiFi(): Begin" << endl;
   delay(10);
 
   //Connect to WiFi network
-  Serial << LOG0 << " sSetupWiFi(): Connecting to "<< szSSID << endl;
+  Serial << LOG0 << " sSetupWiFi(): Call WiFi.begin("<< szSSID <<", "<< szPassword <<")" << endl;
   WiFi.begin(szSSID, szPassword);
 
-  while (WiFi.status() != WL_CONNECTED) {
+  Serial << LOG0 << " sSetupWiFi(): Call WiFi.status() until it returns WL_CONNECTED" << endl;
+  /*while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-  }
+  } //while(WiFi.status()...*/
+
+  while (!bDone) {
+    sStatus= WiFi.status();
+    Serial << LOG0 << " sSetupWiFi(): WiFi.status() returned "<< sStatus << endl;
+    if (sStatus == WL_CONNECTED) {
+      bDone= true;
+    } //if (WiFi.status()...
+    else {
+      delay(500);
+      Serial.print(".");
+    } //if (WiFi.status()...else
+  } //while(!bDone)
   Serial << endl << LOG0 <<" sSetupWiFi(): WiFi connected"<< endl;
 
   //Start the server
@@ -185,46 +200,43 @@ void loop()
 // switch LED and send back HTML for LED checkbox
 void ProcessCheckbox(WiFiClient cl)
 {
-  if (szHTTP_Request.indexOf("LED2=2") > -1) {  // see if checkbox was clicked
-    // the checkbox was clicked, toggle the LED
-    Serial << LOG0 <<" ProcessCheckbox(): Checkbox was clicked"<< endl;
-    if (bLedOn) {
-      Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to FALSE"<< endl;
-      bLedOn = false;
-    }  //if(bLedOn)
-    else {
-      Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to TRUE"<< endl;
-      bLedOn = true;
-    }  //if(bLedOn)else
-  }  //if(szHTTP_Request.indexOf(...
+    if (szHTTP_Request.indexOf("LED2=2") > -1) {  // see if checkbox was clicked
+        // the checkbox was clicked, toggle the LED
+         Serial << LOG0 <<" ProcessCheckbox(): Checkbox was clicked"<< endl;
+        if (bLedOn) {
+               Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to FALSE"<< endl;
+          bLedOn = false;
+        }
+        else {
+               Serial << LOG0 <<" ProcessCheckbox(): Set bLedOn to TRUE"<< endl;
+          bLedOn = true;
+        }
+    }
 
-  if (bLedOn) {    // switch LED on
-    Serial << LOG0 <<" ProcessCheckbox(): Turn external LED ON"<< endl;
-    digitalWrite(sLedPin, HIGH);
-    // checkbox is checked
-    cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
-    onclick=\"submit();\" checked>LED2");
-  }  //if(bLedOn)
-  else {              // switch LED off
-    Serial << LOG0 <<" ProcessCheckbox(): Turn external LED OFF"<< endl;
-    digitalWrite(sLedPin, LOW);
-    // checkbox is unchecked
-    cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
-    onclick=\"submit();\">LED2");
-  }  //if(bLedOn)else
-  return;
+    if (bLedOn) {    // switch LED on
+         Serial << LOG0 <<" ProcessCheckbox(): Turn external LED ON"<< endl;
+        digitalWrite(sLedPin, HIGH);
+        // checkbox is checked
+        cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
+        onclick=\"submit();\" checked>LED2");
+    }
+    else {              // switch LED off
+         Serial << LOG0 <<" ProcessCheckbox(): Turn external LED OFF"<< endl;
+        digitalWrite(sLedPin, LOW);
+        // checkbox is unchecked
+        cl.println("<input type=\"checkbox\" name=\"LED2\" value=\"2\" \
+        onclick=\"submit();\">LED2");
+    }
 }  //ProcessCheckbox
 
 
 void GetSwitchState(WiFiClient cl) {
-  if (digitalRead(sSwitchPin)) {
-    Serial << LOG0 <<" GetSwitchState(): Switch is ON"<< endl;
-    cl.println("<p>ON</p>");
-  }
-  else {
-    Serial << LOG0 <<" GetSwitchState(): Switch is OFF"<< endl;
-    cl.println("<p>OFF</p>");
-  }
-  return;
+   if (digitalRead(sSwitchPin)) {
+         cl.println("<p>ON</p>");
+   }
+   else {
+      cl.println("<p>OFF</p>");
+   }
+   return;
 }  //GetSwitchState
 //Last line
