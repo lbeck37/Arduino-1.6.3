@@ -1,4 +1,5 @@
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 8/29/15 Increase delay from 500 to 2000 msec after pump on to let pressure come up
 // 7/26 Work on completing with fill valve on pin relay 3.
 // 7/25 Changed to having Grey Drain and Black Flush cycles instead of just bPumpLoopRunning.
 // 7/17B Remove SD code and simplify on Ace
@@ -537,7 +538,7 @@ int sTurnPumpOn(boolean bOn){
   } //for
   //Give pressure time to come up.
   if (bPumpIsOn) {
-    delay(500);
+    delay(2000);  //Was 500
   } //if(bPumpIsOn())
   return 1;
 }  //sTurnPumpOn
