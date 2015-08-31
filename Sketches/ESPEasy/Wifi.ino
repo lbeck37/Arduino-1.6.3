@@ -105,7 +105,7 @@ boolean WifiConnect()
       WifiAPMode(true);
     } //if((Settings.WifiSSID[0]!=0)&&...else
   } //if (WiFi.status() != WL_CONNECTED)
-  Serial << LOG0 << " WifiConnect(): Leaving" << endl;
+  Serial << LOG0 << " WifiConnect(): Exit" << endl;
   //return;
 } //WifiConnect
 

@@ -139,6 +139,10 @@
 #define LOG0      lLineCount++ << " " << millis()
 static long       lLineCount= 0;      //Serial Monitor uses for clarity.
 
+static const long   lMsec           = 1000;
+static const long   lWDTimeoutMsec  = 30  * lMsec;  //Watchdog timeout
+
+
 // MQTT client
 PubSubClient MQTTclient("");
 
@@ -223,26 +227,26 @@ struct DeviceStruct
   char ValueNames[2][26];
 } Device[DEVICES_MAX];
 
-boolean printToWeb = false;
-String printWebString = "";
+boolean         printToWeb          = false;
+String          printWebString      = "";
 
-float UserVar[VARS_PER_TASK * TASKS_MAX];
-unsigned long pulseCounter[TASKS_MAX];
-unsigned long pulseTotalCounter[TASKS_MAX];
-byte switchstate[TASKS_MAX];
+float           UserVar             [VARS_PER_TASK * TASKS_MAX];
+unsigned long   pulseCounter        [TASKS_MAX];
+unsigned long   pulseTotalCounter   [TASKS_MAX];
+byte            switchstate         [TASKS_MAX];
 
-unsigned long timer;
-unsigned long timer100ms;
-unsigned long timer1s;
-unsigned long timerwd;
-unsigned int NC_Count = 0;
-unsigned int C_Count = 0;
-boolean AP_Mode = false;
-byte cmd_within_mainloop = 0;
-unsigned long connectionFailures;
-unsigned long wdcounter = 0;
+unsigned long   timer;
+unsigned long   timer100ms;
+unsigned long   timer1s;
+unsigned long   timerwd;
+unsigned int    NC_Count            = 0;
+unsigned int    C_Count             = 0;
+boolean         AP_Mode             = false;
+byte            cmd_within_mainloop = 0;
+unsigned long   connectionFailures;
+unsigned long   wdcounter           = 0;
 
-unsigned long pulseCounter1 = 0;
+unsigned long   pulseCounter1       = 0;
 byte switch1state = 0;
 
 boolean WebLoggedIn = false;
@@ -250,13 +254,6 @@ int WebLoggedInTimer = 300;
 
 void setup()
 {
-  /*
-  //Beck debug
-  Serial.begin(9600);
-  //sWaitForSerialMonitor();
-  Serial << LOG0 << " setup(): Begin" << endl;
-  return;*/
-
   EEPROM.begin(1024);
 
   LoadSettings();
@@ -297,10 +294,11 @@ void setup()
 
   // Setup timers
   Serial << LOG0 << " setup(): Set up timers" << endl;
-  timer = millis() + 30000; // startup delay 30 sec
-  timer100ms = millis() + 100; // timer for periodic actions 10 x per/sec
-  timer1s = millis() + 1000; // timer for periodic actions once per/sec
-  timerwd = millis() + 30000; // timer for watchdog once per 30 sec
+  timer = millis() + 30000;               // startup delay 30 sec
+  timer100ms = millis() + 100;            // timer for periodic actions 10 x per/sec
+  timer1s = millis() + 1000;              // timer for periodic actions once per/sec
+  //timerwd = millis() + 30000;           // timer for watchdog once per 30 sec
+  timerwd = millis() + lWDTimeoutMsec;    // timer for watchdog once per 30 sec
 
   // Setup LCD display
   Serial << LOG0 << " setup(): Set up LCD" << endl;
@@ -330,7 +328,6 @@ void loop()
 
   checkUDP();
 
-
   if (cmd_within_mainloop != 0)
   {
     switch (cmd_within_mainloop)
@@ -353,7 +350,9 @@ void loop()
   if (millis() > timerwd)
   {
     wdcounter++;
-    timerwd = millis() + 30000;
+    //timerwd = millis() + 30000;
+    timerwd = millis() + lWDTimeoutMsec;
+    Serial << LOG0 << " loop(): Watchdog expired, set next to "<< timerwd << endl;
     char str[40];
     str[0] = 0;
     Serial.print("WD   : ");

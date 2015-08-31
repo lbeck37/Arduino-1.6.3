@@ -5,20 +5,20 @@ void WebServerInit()
 {
   Serial << LOG0 << " WebServerInit(): Begin" << endl;
   // Prepare webserver pages
-  WebServer.on("/", handle_root);
-  WebServer.on("/config", handle_config);
-  WebServer.on("/hardware", handle_hardware);
-  WebServer.on("/devices", handle_devices);
-  WebServer.on("/json.htm", handle_json);
+  WebServer.on("/"          , handle_root);
+  WebServer.on("/config"    , handle_config);
+  WebServer.on("/hardware"  , handle_hardware);
+  WebServer.on("/devices"   , handle_devices);
+  WebServer.on("/json.htm"  , handle_json);
 #ifdef ESP_CONNEXIO
   WebServer.on("/eventlist", handle_eventlist);
 #endif
-  WebServer.on("/log", handle_log);
-  WebServer.on("/tools", handle_tools);
+  WebServer.on("/log"       , handle_log);
+  WebServer.on("/tools"     , handle_tools);
   WebServer.on("/i2cscanner", handle_i2cscanner);
   WebServer.on("/wifiscanner", handle_wifiscanner);
-  WebServer.on("/login", handle_login);
-  WebServer.on("/control", handle_control);
+  WebServer.on("/login"     , handle_login);
+  WebServer.on("/control"   , handle_control);
 
   Serial << LOG0 << " WebServerInit(): Call WebServer.begin()" << endl;
   WebServer.begin();
@@ -71,21 +71,29 @@ void addFooter(String& str)
 //********************************************************************************
 void handle_root() {
   Serial << LOG0 << " handle_root(): Begin" << endl;
-  if (!isLoggedIn()) return;
+  if (!isLoggedIn()) {
+    Serial << LOG0 << " handle_root(): Not logged in, Return" << endl;
+    return;
+  } //if (!isLoggedIn())
 
   int freeMem = ESP.getFreeHeap();
-  if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
+  if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG) {
     Serial.print(F("HTTP : Webrequest : "));
+  }
+
   String webrequest = WebServer.arg("cmd");
   webrequest.replace("%20", " ");
-  if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
+
+  if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG) {
     Serial.println(webrequest);
+  }
+
   char command[80];
   command[0] = 0;
   webrequest.toCharArray(command, 80);
 
-  if ((strcasecmp(command, "wifidisconnect") != 0) && (strcasecmp(command, "reboot") != 0))
-  {
+  if ((strcasecmp(command, "wifidisconnect") != 0) &&
+      (strcasecmp(command, "reboot") != 0)) {
     String reply = "";
     addMenu(reply);
 
@@ -128,12 +136,14 @@ void handle_root() {
     uint8_t mac[] = {0, 0, 0, 0, 0, 0};
     uint8_t* macread = WiFi.macAddress(mac);
     char macaddress[20];
-    sprintf_P(macaddress, PSTR("%02x:%02x:%02x:%02x:%02x:%02x"), macread[0], macread[1], macread[2], macread[3], macread[4], macread[5]);
+    sprintf_P(macaddress, PSTR("%02x:%02x:%02x:%02x:%02x:%02x"),
+              macread[0], macread[1], macread[2], macread[3], macread[4], macread[5]);
     reply += macaddress;
 
     reply += F("<TR><TD>AP MAC:<TD>");
     macread = WiFi.softAPmacAddress(mac);
-    sprintf_P(macaddress, PSTR("%02x:%02x:%02x:%02x:%02x:%02x"), macread[0], macread[1], macread[2], macread[3], macread[4], macread[5]);
+    sprintf_P(macaddress, PSTR("%02x:%02x:%02x:%02x:%02x:%02x"),
+              macread[0], macread[1], macread[2], macread[3], macread[4], macread[5]);
     reply += macaddress;
 
     reply += F("<TR><TD>ESP Chip ID:<TD>");
@@ -146,12 +156,12 @@ void handle_root() {
     reply += freeMem;
 
     reply += F("<TR bgcolor='#55bbff'><TD>Node List:<TD>IP<TD>Age<TR><TD><TD>");
-    for (byte x = 0; x < 32; x++)
-    {
-      if (Nodes[x].ip[0] != 0)
-      {
-        if (x == Settings.Unit)
+    for (byte x = 0; x < 32; x++) {
+      if (Nodes[x].ip[0] != 0) {
+        if (x == Settings.Unit) {
           reply += "<font color='blue'>";
+        } //if(x==Settings.Unit)
+
         char url[80];
         sprintf_P(url, PSTR("<a href='http://%u.%u.%u.%u'>%u.%u.%u.%u</a>"), Nodes[x].ip[0], Nodes[x].ip[1], Nodes[x].ip[2], Nodes[x].ip[3], Nodes[x].ip[0], Nodes[x].ip[1], Nodes[x].ip[2], Nodes[x].ip[3]);
         reply += "<TR><TD>Unit ";
@@ -160,36 +170,36 @@ void handle_root() {
         reply += url;
         reply += "<TD>";
         reply += Nodes[x].age;
-        if (x == Settings.Unit)
+        if (x == Settings.Unit) {
           reply += "</font color>";
-      }
-    }
+        } //if(x==Settings.Unit)
+      } //if(Nodes[x].ip[0]!=0)
+    } //for
 
     reply += F("</table></form>");
     addFooter(reply);
     WebServer.send(200, "text/html", reply);
     printWebString = "";
     printToWeb = false;
-  }
-  else
-  {
+  } //if((strcasecmp(command,"wifidisconnect")!=0)...
+  else {
     // have to disconnect or reboot from within the main loop
     // because the webconnection is still active at this point
     // disconnect here could result into a crash/reboot...
-    if (strcasecmp(command, "wifidisconnect") == 0)
-    {
+    if (strcasecmp(command, "wifidisconnect") == 0) {
       Serial.println(F("WIFI : Disconnecting..."));
       cmd_within_mainloop = CMD_WIFI_DISCONNECT;
     }
 
-    if (strcasecmp(command, "reboot") == 0)
-    {
+    if (strcasecmp(command, "reboot") == 0) {
       Serial.println(F("     : Rebooting..."));
       cmd_within_mainloop = CMD_REBOOT;
     }
 
     WebServer.send(200, "text/html", "OK");
-  }
+  }  //if((strcasecmp(command,"wifidisconnect")!=0)...else
+  Serial << LOG0 << " handle_root(): Return" << endl;
+  return;
 } //handle_root
 
 
@@ -379,6 +389,8 @@ void handle_config() {
   reply += F("</table></form>");
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
+  Serial << LOG0 << " handle_config(): Return" << endl;
+  return;
 } //handle_config
 
 
@@ -597,6 +609,8 @@ void handle_devices() {
 
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
+  Serial << LOG0 << " handle_devices(): Return" << endl;
+  return;
 } //handle_devices
 
 
@@ -634,6 +648,8 @@ void handle_hardware() {
   reply += F("</table></form>");
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
+  Serial << LOG0 << " handle_hardware(): Return" << endl;
+  return;
 } //handle_hardware
 
 
@@ -683,6 +699,8 @@ void addPinSelect(boolean forI2C, String& str, String name,  int choice)
     str += "</option>";
   }
   str += F("</select>");
+  //Serial << LOG0 << " addPinSelect(): Return" << endl;
+  return;
 } //addPinSelect
 
 
@@ -709,6 +727,7 @@ struct TransmissionStruct
   byte Flags;
   byte Checksum;
 };
+
 
 void handle_json() {
   Serial << LOG0 << " handle_json(): Begin" << endl;
@@ -757,6 +776,8 @@ void handle_json() {
   Wire.endTransmission();
 
   WebServer.send(200, "text/html", "OK");
+  Serial << LOG0 << " handle_json(): Return" << endl;
+  return;
 } //handle_json
 
 
@@ -765,7 +786,7 @@ void handle_json() {
 // Web Interface eventlist page
 //********************************************************************************
 void handle_eventlist() {
-  Serial << LOG0 << " handle_json(): Begin" << endl;
+  Serial << LOG0 << " handle_eventlist(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
@@ -831,7 +852,9 @@ void handle_eventlist() {
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
   free(TempString);
-} //handle_json
+  Serial << LOG0 << " handle_eventlist(): Return" << endl;
+  return;
+} //handle_eventlist
 #endif
 
 
@@ -873,6 +896,8 @@ void handle_log() {
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
   free(TempString);
+  Serial << LOG0 << " handle_log(): Return" << endl;
+  return;
 } //handle_log
 
 
@@ -926,6 +951,8 @@ void handle_tools() {
   WebServer.send(200, "text/html", reply);
   printWebString = "";
   printToWeb = false;
+  Serial << LOG0 << " handle_tools(): Return" << endl;
+  return;
 } //handle_tools
 
 
@@ -995,6 +1022,8 @@ void handle_i2cscanner() {
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
   free(TempString);
+  Serial << LOG0 << " handle_i2cscanner(): Return" << endl;
+  return;
 } //handle_i2cscanner
 
 
@@ -1031,7 +1060,10 @@ void handle_wifiscanner() {
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
   free(TempString);
+  Serial << LOG0 << " handle_wifiscanner(): Return" << endl;
+  return;
 } //handle_wifiscanner
+
 
 //********************************************************************************
 // Web Interface login page
@@ -1074,6 +1106,8 @@ void handle_login() {
   WebServer.send(200, "text/html", reply);
   printWebString = "";
   printToWeb = false;
+  Serial << LOG0 << " handle_login(): Return" << endl;
+  return;
 } //handle_login
 
 
@@ -1122,25 +1156,25 @@ void handle_control() {
   WebServer.send(200, "text/html", reply);
   printWebString = "";
   printToWeb = false;
+  Serial << LOG0 << " handle_control(): Return" << endl;
+  return;
 } //handle_control
 
 
 boolean isLoggedIn()
 {
-  Serial << LOG0 << " isLoggedIn(): Begin" << endl;
-  if (Settings.Password[0] == 0)
+  //Serial << LOG0 << " isLoggedIn(): Begin" << endl;
+  if (Settings.Password[0] == 0) {
     WebLoggedIn = true;
+  } //if(Settings.Password[0] =0)
 
-  if (!WebLoggedIn)
-    {
+  if (!WebLoggedIn) {
       String reply = F("<a class=\"button-link\" href=\"login\">Login</a>");
       WebServer.send(200, "text/html", reply);
-    }
-  else
-    {
+    } //if(!WebLoggedIn)
+  else {
       WebLoggedInTimer=0;
-    }
-
+    } //if(!WebLoggedIn)else
   return WebLoggedIn;
 } //isLoggedIn
 //Last line.

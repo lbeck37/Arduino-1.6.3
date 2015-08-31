@@ -11,7 +11,7 @@ void ExecuteCommand(char *Line)
   Command[0] = 0;
   int Par1 = 0;
   int Par2 = 0;
-  
+
   GetArgv(Line, Command, 1);
   if (GetArgv(Line, TmpStr1, 2)) Par1 = str2int(TmpStr1);
   if (GetArgv(Line, TmpStr1, 3)) Par2 = str2int(TmpStr1);
@@ -79,7 +79,7 @@ void ExecuteCommand(char *Line)
           Serial.println(Wire.read());
       }
     }
-    
+
   if (strcasecmp(Command, "ExtGPIO") == 0)
     extender(1,Par1,Par2);
   if (strcasecmp(Command, "ExtPWM") == 0)
@@ -94,7 +94,7 @@ void ExecuteCommand(char *Line)
       int value=extender(4,Par1,0);
       Serial.println(value);
     }
-    
+
   if (strcasecmp(Command, "DomoticzSend") == 0)
   {
     if (GetArgv(Line, TmpStr1, 4))
@@ -126,7 +126,7 @@ void ExecuteCommand(char *Line)
         portTX.endPacket();
       }
   }
-  
+
   if (strcasecmp(Command, "ExtWiredOut") == 0)
   {
     mcp23017(Par1, Par2);
@@ -172,7 +172,7 @@ void ExecuteCommand(char *Line)
       }
       }
   }
-  
+
   // ****************************************
   // configure settings commands:
   // ****************************************
@@ -268,7 +268,7 @@ void ExecuteCommand(char *Line)
     Serial.print("         SDA   : "); Serial.println((int)Settings.Pin_i2c_sda);
     Serial.print("         SCL   : "); Serial.println((int)Settings.Pin_i2c_scl);
     Serial.println();
-    
+
     Serial.println("Generic settings");
     Serial.print("  Version          : "); Serial.println((int)Settings.Version);
     Serial.print("  Unit             : "); Serial.println((int)Settings.Unit);
@@ -435,7 +435,8 @@ boolean LoadSettings()
 void ResetFactory(void)
 //********************************************************************************
 {
-  Serial.println("Reset!");
+  //Serial.println("Reset!");
+  Serial << LOG0 << " ResetFactory(): Begin" << endl;
   Settings.PID             = ESP_PROJECT_PID;
   Settings.Version         = VERSION;
   Settings.Unit            = UNIT;
