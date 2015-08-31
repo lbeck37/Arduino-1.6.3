@@ -1,4 +1,5 @@
-/****************************************************************************************************************************\
+// 08/30/15 Beck
+/****************\
  * Arduino project "ESP Easy" © Copyright www.esp8266.nu
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -15,7 +16,7 @@
  * Discussion      : http://www.esp8266.nu/forum/
  *
  * Additional information about licensing can be found at : http://www.gnu.org/licenses
-\*************************************************************************************************************************/
+\***************************************************/
 
 // This file incorporates work covered by the following copyright and permission notice:
 
@@ -56,9 +57,9 @@
 // You can allways change these during runtime and save to eeprom
 // After loading firmware, issue a 'reset' command to load the defaults.
 
-#define DEFAULT_NAME        "newdevice"         // Enter your device friendly name
-#define DEFAULT_SSID        "ssid"              // Enter your network SSID
-#define DEFAULT_KEY         "wpakey"            // Enter your network WPA key
+#define DEFAULT_NAME        "NodeMCU_37"        // Enter your device friendly name
+#define DEFAULT_SSID        "P291spot"          // Enter your network SSID
+#define DEFAULT_KEY         "Qazqaz11"          // Enter your network WPA key
 #define DEFAULT_SERVER      "192.168.0.8"       // Enter your Domoticz Server IP address
 #define DEFAULT_PORT        8080                // Enter your Domoticz Server port value
 #define DEFAULT_DELAY       60                  // Enter your Send delay in seconds
@@ -132,6 +133,11 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <LiquidCrystal_I2C.h>
+
+//Beck 8/30/15
+#include <Streaming.h>
+#define LOG0      lLineCount++ << " " << millis()
+static long       lLineCount= 0;      //Serial Monitor uses for clarity.
 
 // MQTT client
 PubSubClient MQTTclient("");
@@ -244,8 +250,15 @@ int WebLoggedInTimer = 300;
 
 void setup()
 {
+  /*
+  //Beck debug
+  Serial.begin(9600);
+  //sWaitForSerialMonitor();
+  Serial << LOG0 << " setup(): Begin" << endl;
+  return;*/
+
   EEPROM.begin(1024);
-  
+
   LoadSettings();
 
   // if different version, eeprom settings structure has changed. Full Reset needed
@@ -261,6 +274,7 @@ void setup()
   }
 
   Serial.begin(Settings.BaudRate);
+  Serial << LOG0 << " setup(): Just after calling Serial.begin()" << endl;
   Serial.print(F("\nINIT : Booting Build nr:"));
   Serial.println(BUILD);
 
@@ -276,28 +290,38 @@ void setup()
   WebServerInit();
 
   // setup UDP
-  if (Settings.UDPPort != 0)
+  if (Settings.UDPPort != 0) {
+    Serial << LOG0 << " setup(): Calling portRX.begin()" << endl;
     portRX.begin(Settings.UDPPort);
+  } //
 
   // Setup timers
+  Serial << LOG0 << " setup(): Set up timers" << endl;
   timer = millis() + 30000; // startup delay 30 sec
   timer100ms = millis() + 100; // timer for periodic actions 10 x per/sec
   timer1s = millis() + 1000; // timer for periodic actions once per/sec
   timerwd = millis() + 30000; // timer for watchdog once per 30 sec
 
   // Setup LCD display
+  Serial << LOG0 << " setup(): Set up LCD" << endl;
   lcd.init();                      // initialize the lcd
   lcd.backlight();
   lcd.print("ESP Easy");
 
   // Setup MQTT Client
-  if ((Settings.Protocol == 2) || (Settings.Protocol == 5))
+  if ((Settings.Protocol == 2) || (Settings.Protocol == 5)) {
+    Serial << LOG0 << " setup(): Call MQTTConnect()" << endl;
     MQTTConnect();
+  } //
 
+  Serial << LOG0 << " setup(): Call sendSysInfoUDP(3)" << endl;
   sendSysInfoUDP(3);
   Serial.println(F("INIT : Boot OK"));
   addLog(LOG_LEVEL_INFO,(char*)"Boot");
-}
+  Serial << LOG0 << " setup(): Exit" << endl;
+  return;
+}	//setup
+
 
 void loop()
 {
@@ -375,7 +399,7 @@ void loop()
     delayedReboot(60);
   }
 
-  backgroundtasks();   
+  backgroundtasks();
 
 }
 
@@ -429,7 +453,7 @@ void SensorSend()
           dallas(Settings.TaskDevicePin1[x], uvarNr);
           success = true;
           break;
-          
+
         case DEVICE_DHT11:
           dht(11, Settings.TaskDevicePin1[x], uvarNr);
           if (!isnan(UserVar[uvarNr - 1]) && (UserVar[(uvarNr+1) - 1] > 0))
@@ -510,7 +534,7 @@ void SensorSend()
                {
                  Serial.print("? error=");
                  Serial.println(error);
-               } 
+               }
           }
         }
         sendData(x, Device[Settings.TaskDeviceNumber[x]].VType, Settings.TaskDeviceID[x], uvarNr);

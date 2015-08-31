@@ -1,5 +1,6 @@
 void hardwareInit()
 {
+  Serial << LOG0 << " hardwareInit(): Begin" << endl;
   // configure hardware pins according to eeprom settings.
   if (Settings.Pin_i2c_sda != -1)
     {

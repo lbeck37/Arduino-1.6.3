@@ -3,16 +3,22 @@
 //********************************************************************************
 void WifiAPconfig()
 {
+  Serial << LOG0 << " WifiAPconfig(): Begin" << endl;
   // create and store unique AP SSID/PW to prevent ESP from starting AP mode with default SSID and No password!
   char ap_ssid[20];
   ap_ssid[0] = 0;
   strcpy(ap_ssid, "ESP_");
   sprintf_P(ap_ssid, PSTR("%s%u"), ap_ssid, Settings.Unit);
+
   // setup ssid for AP Mode when needed
+  Serial << LOG0 << " WifiAPconfig(): Call WiFi.softAP( "<< ap_ssid << ", " << Settings.WifiAPKey
+         << ")" << endl;
   WiFi.softAP(ap_ssid, Settings.WifiAPKey);
+
   // We start in STA mode
+  Serial << LOG0 << " WifiAPconfig(): Call WiFi.mode(WIFI_STA)" << endl;
   WiFi.mode(WIFI_STA);
-}
+} //WifiAPconfig
 
 
 //********************************************************************************
@@ -20,6 +26,7 @@ void WifiAPconfig()
 //********************************************************************************
 void WifiAPMode(boolean state)
 {
+  Serial << LOG0 << " WifiAPMode(): Begin" << endl;
   if (state)
   {
     AP_Mode = true;
@@ -37,7 +44,7 @@ void WifiAPMode(boolean state)
     Serial.println(F("WIFI : Ending AP Mode"));
     WiFi.mode(WIFI_STA);
   }
-}
+} //WifiAPMode
 
 
 //********************************************************************************
@@ -45,22 +52,27 @@ void WifiAPMode(boolean state)
 //********************************************************************************
 boolean WifiConnect()
 {
-  Serial.println(F("WIFI : Connecting..."));
+  Serial << LOG0 << " WifiConnect(): Begin" << endl;
+  //Serial.println(F("WIFI : Connecting..."));
   if (WiFi.status() != WL_CONNECTED)
   {
-    if ((Settings.WifiSSID[0] != 0)  && (strcasecmp(Settings.WifiSSID, "ssid") != 0))
+    if ((Settings.WifiSSID[0] != 0) && (strcasecmp(Settings.WifiSSID, "ssid") != 0))
     {
+      Serial << LOG0 << " WifiConnect(): Call WiFi.begin( "<< Settings.WifiSSID << ", "
+             << Settings.WifiKey << ")" << endl;
       WiFi.begin(Settings.WifiSSID, Settings.WifiKey);
       for (byte x = 0; x < 10; x++)
       {
         if (WiFi.status() != WL_CONNECTED)
         {
           delay(500);
-          Serial.println(".");
-        }
-        else
+          Serial.print(".");
+        } //if(WiFi.status()!=WL_CONNECTED)
+        else {
           break;
-      }
+        } //else
+      } //for
+      Serial.println();
 
       // fix ip if last octet is set
       if (Settings.IP_Octet != 0 && Settings.IP_Octet != 255)
@@ -72,7 +84,7 @@ boolean WifiConnect()
         Serial.print(F("IP   : Fixed IP :"));
         Serial.println(ip);
         WiFi.config(ip, gw, subnet);
-      }
+      } //if(Settings.IP_Octet!=0
 
       if (Settings.IP[0] != 0 && Settings.IP[0] != 255)
       {
@@ -84,17 +96,18 @@ boolean WifiConnect()
         IPAddress gw = Settings.Gateway;
         IPAddress subnet = Settings.Subnet;
         WiFi.config(ip, gw, subnet);
-      }
-
-    }
+      } //if(Settings.IP[0]!=0...
+    } //if((Settings.WifiSSID[0]!=0)&&...
     else
     {
       Serial.println(F("WIFI : No SSID!"));
       NC_Count = 1;
       WifiAPMode(true);
-    }
-  }
-}
+    } //if((Settings.WifiSSID[0]!=0)&&...else
+  } //if (WiFi.status() != WL_CONNECTED)
+  Serial << LOG0 << " WifiConnect(): Leaving" << endl;
+  //return;
+} //WifiConnect
 
 
 //********************************************************************************
@@ -102,8 +115,9 @@ boolean WifiConnect()
 //********************************************************************************
 boolean WifiDisconnect()
 {
+  Serial << LOG0 << " WifiDisconnect(): Begin" << endl;
   WiFi.disconnect();
-}
+} //WifiDisconnect
 
 
 //********************************************************************************
@@ -111,6 +125,7 @@ boolean WifiDisconnect()
 //********************************************************************************
 void WifiScan()
 {
+  Serial << LOG0 << " WifiScan(): Begin" << endl;
   Serial.println(F("WIFI : SSID Scan start"));
   int n = WiFi.scanNetworks();
   Serial.println(F("WIFI : Scan done"));
@@ -137,7 +152,7 @@ void WifiScan()
     }
   }
   Serial.println("");
-}
+} //WifiScan
 
 
 //********************************************************************************
@@ -145,6 +160,7 @@ void WifiScan()
 //********************************************************************************
 void WifiCheck()
 {
+  //Serial << LOG0 << " WifiCheck(): Begin" << endl;
   if (WiFi.status() != WL_CONNECTED)
   {
     NC_Count++;
@@ -168,5 +184,5 @@ void WifiCheck()
       }
     }
   }
-}
-
+} //WifiCheck
+//Last line.

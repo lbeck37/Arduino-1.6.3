@@ -3,6 +3,7 @@
 //********************************************************************************
 void WebServerInit()
 {
+  Serial << LOG0 << " WebServerInit(): Begin" << endl;
   // Prepare webserver pages
   WebServer.on("/", handle_root);
   WebServer.on("/config", handle_config);
@@ -18,11 +19,15 @@ void WebServerInit()
   WebServer.on("/wifiscanner", handle_wifiscanner);
   WebServer.on("/login", handle_login);
   WebServer.on("/control", handle_control);
+
+  Serial << LOG0 << " WebServerInit(): Call WebServer.begin()" << endl;
   WebServer.begin();
-}
+} //WebServerInit
+
 
 void addMenu(String& str)
 {
+  Serial << LOG0 << " addMenu(): Begin" << endl;
   // Inline style definitions
   str += F("<head><title>");
   str += Settings.Name;
@@ -51,17 +56,21 @@ void addMenu(String& str)
 #endif
   str += F("<a class=\"button-link\" href=\"log\">Log</a>");
   str += F("<a class=\"button-link\" href=\"tools\">Tools</a><BR><BR>");
-}
+} //addMenu
+
 
 void addFooter(String& str)
 {
+  Serial << LOG0 << " addFooter(): Begin" << endl;
   str += F("<h1>Powered by www.esp8266.nu</h1></body>");
-}
+} //addFooter
+
 
 //********************************************************************************
 // Web Interface root page
 //********************************************************************************
 void handle_root() {
+  Serial << LOG0 << " handle_root(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   int freeMem = ESP.getFreeHeap();
@@ -181,12 +190,14 @@ void handle_root() {
 
     WebServer.send(200, "text/html", "OK");
   }
-}
+} //handle_root
+
 
 //********************************************************************************
 // Web Interface config page
 //********************************************************************************
 void handle_config() {
+  Serial << LOG0 << " handle_config(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   char tmpstring[26];
@@ -317,7 +328,7 @@ void handle_config() {
       reply += F("'><TR><TD>Controller User:<TD><input type='text' name='controlleruser' value='");
       reply += Settings.ControllerUser;
     }
-    
+
   if (Settings.Protocol == 3 or Settings.Protocol == 4)
     {
       reply += F("'><TR><TD>Controller Password:<TD><input type='text' name='controllerpassword' value='");
@@ -368,12 +379,14 @@ void handle_config() {
   reply += F("</table></form>");
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
-}
+} //handle_config
+
 
 //********************************************************************************
 // Web Interface device page
 //********************************************************************************
 void handle_devices() {
+  Serial << LOG0 << " handle_devices(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   char tmpstring[26];
@@ -398,7 +411,7 @@ void handle_devices() {
         arg.toCharArray(argc,20);
         taskdeviceformula[varNr] = WebServer.arg(argc);
       }
-  
+
   String edit = WebServer.arg("edit");
   byte index = taskindex.toInt();
 
@@ -433,7 +446,7 @@ void handle_devices() {
     #ifdef ESP_CONNEXIO
       createEventlist();
     #endif
-    
+
     Save_Settings();
   }
 
@@ -447,7 +460,7 @@ void handle_devices() {
     reply += F("<TD>Value ");
     reply += varNr + 1;
   }
-  
+
   for (byte x=0; x < TASKS_MAX; x++)
   {
     reply += F("<TR><TD>");
@@ -487,13 +500,13 @@ void handle_devices() {
         reply += F("GPIO-");
         reply += Settings.Pin_i2c_scl;
       }
-      
+
     if (Settings.TaskDevicePin2[x] != -1)
       {
         reply += F("GPIO-");
         reply += Settings.TaskDevicePin2[x];
       }
-      
+
     if (Device[Settings.TaskDeviceNumber[x]].Number == DEVICE_PULSE)
       {
         reply += F("<TD>");
@@ -564,7 +577,7 @@ void handle_devices() {
       else
         reply += F("<input type=checkbox name=taskdevicepin1pullup>");
     }
-    
+
     for (byte varNr=0; varNr < VARS_PER_TASK; varNr++)
       {
         reply += F("<TR><TD>Formula Value ");
@@ -584,13 +597,14 @@ void handle_devices() {
 
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
-}
+} //handle_devices
 
 
 //********************************************************************************
 // Web Interface hardware page
 //********************************************************************************
 void handle_hardware() {
+  Serial << LOG0 << " handle_hardware(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
@@ -620,10 +634,12 @@ void handle_hardware() {
   reply += F("</table></form>");
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
-}
+} //handle_hardware
+
 
 void addPinSelect(boolean forI2C, String& str, String name,  int choice)
 {
+  Serial << LOG0 << " addPinSelect(): Begin" << endl;
   String options[12];
   options[0] = F(" ");
   options[1] = F("GPIO-0");
@@ -659,7 +675,7 @@ void addPinSelect(boolean forI2C, String& str, String name,  int choice)
     str += optionValues[x];
     str += "'";
     if (!forI2C && ((optionValues[x] == Settings.Pin_i2c_sda) || (optionValues[x] == Settings.Pin_i2c_scl)))
-      str += " disabled";    
+      str += " disabled";
     if (choice == optionValues[x])
       str += " selected";
     str += ">";
@@ -667,7 +683,8 @@ void addPinSelect(boolean forI2C, String& str, String name,  int choice)
     str += "</option>";
   }
   str += F("</select>");
-}
+} //addPinSelect
+
 
 //********************************************************************************
 // Nodo proof of concept. send json query as nodo event on I2C to mega
@@ -694,6 +711,7 @@ struct TransmissionStruct
 };
 
 void handle_json() {
+  Serial << LOG0 << " handle_json(): Begin" << endl;
   Serial.print(F("HTTP : Web json : idx: "));
   String idx = WebServer.arg("idx");
   String svalue = WebServer.arg("svalue");
@@ -739,13 +757,15 @@ void handle_json() {
   Wire.endTransmission();
 
   WebServer.send(200, "text/html", "OK");
-}
+} //handle_json
+
 
 #ifdef ESP_CONNEXIO
 //********************************************************************************
 // Web Interface eventlist page
 //********************************************************************************
 void handle_eventlist() {
+  Serial << LOG0 << " handle_json(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
@@ -811,13 +831,15 @@ void handle_eventlist() {
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
   free(TempString);
-}
+} //handle_json
 #endif
+
 
 //********************************************************************************
 // Web Interface log page
 //********************************************************************************
 void handle_log() {
+  Serial << LOG0 << " handle_log(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
@@ -851,17 +873,19 @@ void handle_log() {
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
   free(TempString);
-}
+} //handle_log
+
 
 //********************************************************************************
 // Web Interface debug page
 //********************************************************************************
 void handle_tools() {
+  Serial << LOG0 << " handle_tools(): Begin" << endl;
   if (!isLoggedIn()) return;
-  
+
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
     Serial.print(F("HTTP : Tools request : "));
-    
+
   String webrequest = WebServer.arg("cmd");
   webrequest.replace("%3B", ";");
   webrequest.replace("%2C", ",");
@@ -902,12 +926,14 @@ void handle_tools() {
   WebServer.send(200, "text/html", reply);
   printWebString = "";
   printToWeb = false;
-}
+} //handle_tools
+
 
 //********************************************************************************
 // Web Interface I2C scanner
 //********************************************************************************
 void handle_i2cscanner() {
+  Serial << LOG0 << " handle_i2cscanner(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
@@ -922,7 +948,7 @@ void handle_i2cscanner() {
   byte error, address;
   int nDevices;
   nDevices = 0;
-  for(address = 1; address <= 127; address++ ) 
+  for(address = 1; address <= 127; address++ )
     {
       Wire.beginTransmission(address);
       error = Wire.endTransmission();
@@ -955,11 +981,11 @@ void handle_i2cscanner() {
           }
           nDevices++;
         }
-      else if (error==4) 
+      else if (error==4)
         {
           reply += F("<TR><TD>Unknow error at address 0x");
           reply += String(address,HEX);
-        }    
+        }
     }
 
   if (nDevices == 0)
@@ -969,12 +995,14 @@ void handle_i2cscanner() {
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
   free(TempString);
-}
+} //handle_i2cscanner
+
 
 //********************************************************************************
 // Web Interface Wifi scanner
 //********************************************************************************
 void handle_wifiscanner() {
+  Serial << LOG0 << " handle_wifiscanner(): Begin" << endl;
   if (!isLoggedIn()) return;
 
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
@@ -999,21 +1027,20 @@ void handle_wifiscanner() {
       reply += WiFi.RSSI(i);
     }
   }
-
-
   reply += F("</table>");
   addFooter(reply);
   WebServer.send(200, "text/html", reply);
   free(TempString);
-}
+} //handle_wifiscanner
 
 //********************************************************************************
 // Web Interface login page
 //********************************************************************************
 void handle_login() {
+  Serial << LOG0 << " handle_login(): Begin" << endl;
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
     Serial.print(F("HTTP : Login request : "));
-    
+
   String webrequest = WebServer.arg("password");
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
     Serial.println(webrequest);
@@ -1043,17 +1070,18 @@ void handle_login() {
        reply += F("Invalid password!");
     }
   }
-  
+
   WebServer.send(200, "text/html", reply);
   printWebString = "";
   printToWeb = false;
-}
+} //handle_login
+
 
 //********************************************************************************
 // Web Interface control page (no password!)
 //********************************************************************************
 void handle_control() {
-
+  Serial << LOG0 << " handle_control(): Begin" << endl;
   if (Settings.SerialLogLevel >= LOG_LEVEL_DEBUG)
     Serial.print(F("HTTP : Webrequest : "));
   String webrequest = WebServer.arg("cmd");
@@ -1064,19 +1092,19 @@ void handle_control() {
   command[0] = 0;
   webrequest.toCharArray(command, 80);
   boolean validCmd = false;
-  
+
   char Cmd[40];
   Cmd[0] = 0;
   GetArgv(command, Cmd, 1);
 
   if ((strcasecmp(Cmd, "gpio") == 0) || (strcasecmp(Cmd, "pwm") == 0))
     validCmd = true;
-    
+
   String reply = "";
 
   printToWeb = true;
   printWebString = "";
-  
+
   if (validCmd)
     {
       #ifdef ESP_CONNEXIO
@@ -1088,19 +1116,21 @@ void handle_control() {
     }
     else
       reply += F("Unknown or restricted command!");
-    
+
   reply += printWebString;
   reply += F("</table></form>");
   WebServer.send(200, "text/html", reply);
   printWebString = "";
   printToWeb = false;
-}
+} //handle_control
+
 
 boolean isLoggedIn()
 {
+  Serial << LOG0 << " isLoggedIn(): Begin" << endl;
   if (Settings.Password[0] == 0)
     WebLoggedIn = true;
-    
+
   if (!WebLoggedIn)
     {
       String reply = F("<a class=\"button-link\" href=\"login\">Login</a>");
@@ -1110,7 +1140,7 @@ boolean isLoggedIn()
     {
       WebLoggedInTimer=0;
     }
-  
-  return WebLoggedIn;
-}
 
+  return WebLoggedIn;
+} //isLoggedIn
+//Last line.

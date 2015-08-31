@@ -1,14 +1,15 @@
 void Device_Init()
 {
   byte x=0;
-  
+  Serial << LOG0 << " Device_Init(): Begin" << endl;
+
   Device[++x].Number = DEVICE_DS18B20;
   strcpy(Device[x].Name,"Temperature DS18b20");
   Device[x].Type = DEVICE_TYPE_SINGLE;
   Device[x].VType = 1;
   Device[x].Ports = 0;
   strcpy(Device[x].ValueNames[0],"Temperature");
-  
+
   Device[++x].Number = DEVICE_DHT11;
   strcpy(Device[x].Name,"Temp + Hum DHT 11");
   Device[x].Type = DEVICE_TYPE_SINGLE;
@@ -16,7 +17,7 @@ void Device_Init()
   Device[x].Ports = 0;
   strcpy(Device[x].ValueNames[0],"Temperature");
   strcpy(Device[x].ValueNames[1],"Humidity");
-  
+
   Device[++x].Number = DEVICE_DHT22;
   strcpy(Device[x].Name,"Temp + Hum DHT 22");
   Device[x].Type = DEVICE_TYPE_SINGLE;
@@ -32,7 +33,7 @@ void Device_Init()
   Device[x].Ports = 0;
   strcpy(Device[x].ValueNames[0],"Temperature");
   strcpy(Device[x].ValueNames[1],"Pressure");
-  
+
   Device[++x].Number = DEVICE_BH1750;
   strcpy(Device[x].Name,"LUX BH1750");
   Device[x].Type = DEVICE_TYPE_I2C;
@@ -217,7 +218,7 @@ void pulseinit(byte Par1, byte Index)
  * The Mini Pro needs a small sketch to support this
 \*********************************************************************************************/
 int extender(byte Cmd, byte Port, int Value)
-{ 
+{
   uint8_t address = 0x7f;
   Wire.beginTransmission(address);
   Wire.write(Cmd);
@@ -542,7 +543,7 @@ boolean dallas(byte Par1, byte Par2)
   byte RelativePort = Par1;
 
   DallasPin = Par1;
-  
+
   pinMode(DallasPin, OUTPUT);
   digitalWrite(DallasPin, LOW);
 
@@ -602,14 +603,14 @@ byte read_dht_dat(void)
 boolean dht(byte type, byte Par1, byte Par2)
 {
   boolean success = false;
-  
+
   byte dht_dat[5];
   byte dht_in;
   byte i;
   byte Retry = 0;
 
   DHT_Pin = Par1;
-  
+
   do
   {
     pinMode(DHT_Pin, OUTPUT);
@@ -683,7 +684,7 @@ boolean dht(byte type, byte Par1, byte Par2)
 #define BMP085_ULTRAHIGHRES         3
 #define BMP085_CAL_AC1           0xAA  // R   Calibration data (16 bits)
 #define BMP085_CAL_AC2           0xAC  // R   Calibration data (16 bits)
-#define BMP085_CAL_AC3           0xAE  // R   Calibration data (16 bits)    
+#define BMP085_CAL_AC3           0xAE  // R   Calibration data (16 bits)
 #define BMP085_CAL_AC4           0xB0  // R   Calibration data (16 bits)
 #define BMP085_CAL_AC5           0xB2  // R   Calibration data (16 bits)
 #define BMP085_CAL_AC6           0xB4  // R   Calibration data (16 bits)
