@@ -1,4 +1,5 @@
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 8/31/15 Change pressure switch from a normally closed to a normally open switch.
 // 8/29/15 Increase delay from 500 to 2000 msec after pump on to let pressure come up
 // 7/26 Work on completing with fill valve on pin relay 3.
 // 7/25 Changed to having Grey Drain and Black Flush cycles instead of just bPumpLoopRunning.
@@ -27,6 +28,7 @@ static const int    sFinalFillSecs  = s5GalOnSecs / 2;
 static const long   lMsec           = 1000;
 static const long   lStatusMsec     = sStatusSecs  * lMsec;
 static const long   lTimeoutMsec    = sTimeoutSecs  * lMsec;
+static const long   lPumpOnDelayMsec= 1000;
 static const int    sIdleCycle      = 0;
 static const int    sGreyDrainCycle = 1;
 static const int    sBlackDrainCycle= 2;
@@ -35,6 +37,7 @@ static const int    sBlackIsDraining= 1;
 static const int    sBlackIsFilling = 2;
 static const float  fPulsesPerGal   = 1700.0;
 static const float  fGpmLowerLimit  = 3.0;
+static const boolean  bFlowSwitchIsNO  = true;
 
 //Values changed when debug is on.
 static int    sNumBlackFills  = 8;
@@ -334,13 +337,19 @@ int sStopCycle() {
 
 
 boolean bPressureSwitchIsOK() {
-  //Read NC automotive oil pressure switch and verify it is connected and closed
+  //Either verify the NC automotive oil pressure switch is connected and closed, or
+  //verify the NO hot tub switch is not closed.
   boolean bReturn= true;
   int sSwitch= digitalRead(sPressurePin);
-  if (sSwitch != LOW) {
-    Serial << LOG0 <<" bPressureSwitchIsOK(): Switch is either not connected or open."<< endl;
+  if (!bFlowSwitchIsNO && (sSwitch != LOW)) {
+    Serial << LOG0 <<" bPressureSwitchIsOK(): ERROR: Switch is either not connected or open."<< endl;
     bReturn= false;
-  } //if(sSwitch==LOW)
+  } //if(!bFlowSwitchIsNO&&(sSwitch!=LOW))
+
+  else if (bFlowSwitchIsNO && (sSwitch != HIGH)) {
+    Serial << LOG0 <<" bPressureSwitchIsOK(): ERROR: Switch is closed w/o pump running."<< endl;
+    bReturn= false;
+  } //elseif(bFlowSwitchIsNO&&(sSwitch!=HIGH))
   return bReturn;
 }  //bPressureSwitchIsOK
 
@@ -348,12 +357,17 @@ boolean bPressureSwitchIsOK() {
 boolean bPumpIsDry() {
   boolean bReturn= false;
   int sSwitch= digitalRead(sPressurePin);
-  if (sSwitch == LOW) {
+  /*if (sSwitch == LOW) {
     Serial << LOG0 <<" bPumpIsDry(): Pressure is low"<< endl;
     bReturn= true;
-  } //if(sSwitch==LOW)
+  } //if(sSwitch==LOW)*/
+
+  if ((bFlowSwitchIsNO && (sSwitch == HIGH)) || (!bFlowSwitchIsNO && (sSwitch == LOW))){
+    Serial << LOG0 <<" bPumpIsDry(): Pressure is low"<< endl;
+    bReturn= true;
+  } //if(s(bFlowSwitchIsNO&&(sSwitch == HIGH)||...
   return bReturn;
-}  //bPumpIsDry
+}  //bPumpIsDry bFlowSwitchIsNO
 
 
 int sHandleDryPump() {
@@ -538,7 +552,7 @@ int sTurnPumpOn(boolean bOn){
   } //for
   //Give pressure time to come up.
   if (bPumpIsOn) {
-    delay(2000);  //Was 500
+    delay(lPumpOnDelayMsec);
   } //if(bPumpIsOn())
   return 1;
 }  //sTurnPumpOn
