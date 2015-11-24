@@ -43,6 +43,8 @@ static long       lNumLoops= 1;
 //Associate DegF value with VirtualPin 2
 #define DegF_VirtualPin   V2
 
+#define AnalogInputPin    A0
+
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
 char auth[] = "55bce1afbf894b3bb67b7ea34f29d45a";
@@ -83,7 +85,10 @@ float fGetDegF() {
   float fSupplyVolts      = 3.32;
   float fCurrentSenseOhms = 2151;
   float fOneVoltCount     = 1023;
-  int   sVoltCount        = analogRead(0);
+
+  Serial << LOG0 << endl;
+
+  int   sVoltCount= analogRead(A0);
   Serial << LOG0 << " fGetDegF(): analogRead() returned " << sVoltCount << endl;
 
   float fSenseVolts= (sVoltCount / fOneVoltCount);
