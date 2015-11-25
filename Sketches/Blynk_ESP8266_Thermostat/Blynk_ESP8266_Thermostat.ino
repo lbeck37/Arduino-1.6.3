@@ -1,4 +1,5 @@
 /**************************************************************
+ * 11/25/15 Remove thermistor code (copied sketch to Blynk_ESP8266_ThermistorOLD.ino
  * 11/24/15 Reading temperature from I2C MPU9160 9-axis gyro
  * 11/23/15C Add in include of Thermistor library and send as VirtualPin to Blynk
  * 11/21/15 Larry Beck
@@ -33,8 +34,8 @@
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 #include <Wire.h>
-#include "I2Cdev.h"
-#include "MPU6050.h"
+#include <I2Cdev.h>
+#include <MPU6050.h>
 
 // class default I2C address is 0x68
 // specific I2C addresses may be passed as a parameter here
@@ -52,10 +53,12 @@ float     fDegF;
 #define LOG0      lLineCount++ << " " << millis()
 
 //Associate DegF value with VirtualPins 2 and 3
+#define DegF_VirtualPin1  V1
 #define DegF_VirtualPin2  V2
 #define DegF_VirtualPin3  V3
 #define AnalogInputPin    A0
 
+static int        sGyroTemperature;
 static long       lLineCount= 0;      //Serial Monitor uses for clarity.
 static long       lNumLoops= 1;
 
@@ -92,6 +95,13 @@ void loop()
 
 
 //BLYNK_READ(VirtualPin) handles the call from a Widget requesting data for a Virtual Pin
+BLYNK_READ(DegF_VirtualPin1)
+{
+  Blynk.virtualWrite(DegF_VirtualPin1, sGyroTemperature);
+} //BLYNK_READ(DegF_VirtualPin1)
+
+
+//BLYNK_READ(VirtualPin) handles the call from a Widget requesting data for a Virtual Pin
 BLYNK_READ(DegF_VirtualPin2)
 {
   float fDegF= fGetGyroDegF();
@@ -109,59 +119,19 @@ BLYNK_READ(DegF_VirtualPin3)
 
 
 float fGetGyroDegF() {
+  float fDegC;
   float fDegF;
   //accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-  int16_t sTemperature= accelgyro.getTemperature();
-  //Serial << LOG0 << " fGetGyroDegF(): Temperature count= " << sTemperature << endl;
+  sGyroTemperature= accelgyro.getTemperature();
 
-  //Beck- Copied this from Powershift.ino, not sure where I found it.
-  fDegF= ((1.8 * sTemperature) / 340.0) + 103.13;
-  //Serial << LOG0 << " fGetGyroDegF(): Returning fDegF= " << fDegF << endl;
-  return fDegF;
-}  //fGetGyroDegF
-
-
-//10kohm NTC thermistor connected to a measured 3.31v supply and then to a 2.151kohm resistor to ground.
-//ADC pin 0 is connected to the junction of the thermisor and resistor so measures the current through the
-//thermistor-resistor circuit and the voltage drop of the thermistor.
-/******************************************************************/
-/* Utilizes the Steinhart-Hart Thermistor Equation:       */
-/*   Temperature in Kelvin = 1 / {A + B[ln(R)] + C[ln(R)]^3}   */
-/*     where A = 0.001129148, B = 0.000234125 and C = 8.76741E-08  */
-/******************************************************************/
-float fGetThermistorDegF() {
-  float fDegF;
-  float fSupplyVolts      = 3.32;
-  float fCurrentSenseOhms = 2151;
-  float fOneVoltCount     = 1023;
-
-  Serial << LOG0 << endl;
-
-  int   sVoltCount= analogRead(A0);
-  Serial << LOG0 << " fGetThermistorDegF(): analogRead() returned " << sVoltCount << endl;
-
-  float fSenseVolts= (sVoltCount / fOneVoltCount);
-  Serial << LOG0 << " fGetThermistorDegF(): fSenseVolts= " << fSenseVolts << endl;
-
-  float fAmps= fSenseVolts / fCurrentSenseOhms;
-  Serial << LOG0 << " fGetThermistorDegF(): fAmps= " << fAmps << endl;
-
-  float fThermistorVolts= fSupplyVolts - fSenseVolts;
-  Serial << LOG0 << " fGetThermistorDegF(): fThermistorVolts= " << fThermistorVolts << endl;
-
-  float fThermistorOhms= fThermistorVolts / fAmps;
-  Serial << LOG0 << " fGetThermistorDegF(): fThermistorOhms= " << fThermistorOhms << endl;
-
-  float fLogR= log(fThermistorOhms);
-  float fLogRcubed= fLogR * fLogR * fLogR;
-
-  float fDegK= 1.0 / (0.001129148 + (0.000234125 * fLogR) + (0.0000000876741 * fLogRcubed));
-  float fDegC= fDegK - 273.15;  // Convert Kelvin to Celsius
-
+  //fDegC= (sGyroTemperature / 340.0) + 36.53;
+  fDegC= (sGyroTemperature / 340.0) + 33.5;
   fDegF= (fDegC * 1.8) + 32.0;
 
-  Serial << LOG0 << " fGetThermistorDegF(): Returning fDegF= " << fDegF << endl;
+  /*Beck- Copied this from Powershift.ino, not sure where I found it.
+  float fDegF1= ((1.8 * sGyroTemperature) / 340.0) + 103.13;
+  Serial << LOG0 << " fGetGyroDegF(): fDegF, earlier " << fDegF << ", " << fDegF1 << endl;
+  */
   return fDegF;
-}  //fGetThermistorDegF
-
+}  //fGetGyroDegF
 //Last line.
