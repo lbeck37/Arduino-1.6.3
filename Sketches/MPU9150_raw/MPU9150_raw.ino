@@ -44,9 +44,12 @@ THE SOFTWARE.
 // AD0 high = 0x69
 MPU6050 accelgyro;
 
-int16_t ax, ay, az;
-int16_t gx, gy, gz;
-int16_t mx, my, mz;
+int16_t   ax, ay, az;
+int16_t   gx, gy, gz;
+int16_t   mx, my, mz;
+
+int16_t   sTemp;
+float     fDegF;
 
 #define LED_PIN 13
 bool blinkState = false;
@@ -71,15 +74,11 @@ void setup() {
 
     // configure Arduino LED for
     pinMode(LED_PIN, OUTPUT);
-}
+} //setup
 
 void loop() {
     // read raw accel/gyro measurements from device
-    accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-
-    // these methods (and a few others) are also available
-    //accelgyro.getAcceleration(&ax, &ay, &az);
-    //accelgyro.getRotation(&gx, &gy, &gz);
+    accelgyro.getMotion10(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz, &sTemp, &fDegF);
 
     // display tab-separated accel/gyro x/y/z values
     Serial.print("a/g/m:\t");
@@ -93,12 +92,15 @@ void loop() {
     Serial.print(my); Serial.print("\t");
     Serial.println(mz);
 
-    int16_t sTemperature= accelgyro.getTemperature();
-    Serial.print("Temperature= ");
-    Serial.println(sTemperature);
+    //int16_t sTemperature= accelgyro.getTemperature();
+    Serial.print("Temperature count= ");
+    Serial.println(sTemp);
+    Serial.print("Temperature (Degrees F)= ");
+    Serial.println(fDegF);
 
     // blink LED to indicate activity
     blinkState = !blinkState;
     digitalWrite(LED_PIN, blinkState);
     delay(2000);
-}
+} //loop
+//Last line.

@@ -123,7 +123,7 @@ void MPU6050::setAuxVDDIOLevel(uint8_t level) {
 uint8_t MPU6050::getRate() {
     I2Cdev::readByte(devAddr, MPU6050_RA_SMPLRT_DIV, buffer);
     return buffer[0];
-} 
+}
 
 uint8_t MPU6050::checkMagStatus() {
     I2Cdev::readByte(MPU9150_RA_MAG_ADDRESS, 0x02, buffer);
@@ -869,7 +869,7 @@ void MPU6050::setMasterClockSpeed(uint8_t speed) {
  * operation, and if it is cleared, then it's a write operation. The remaining
  * bits (6-0) are the 7-bit device address of the slave device.
  *
- * In read mode, the result of the read is placed in the lowest available 
+ * In read mode, the result of the read is placed in the lowest available
  * EXT_SENS_DATA register. For further information regarding the allocation of
  * read results, please refer to the EXT_SENS_DATA register description
  * (Registers 73 - 96).
@@ -1706,6 +1706,68 @@ bool MPU6050::getIntDataReadyStatus() {
 
 // ACCEL_*OUT_* registers
 
+/** Get raw 6-axis motion sensor readings (accel/gyro) plus Temperature.
+ * Retrieves all currently available motion sensor values.
+ * @param ax 16-bit signed integer container for accelerometer X-axis value
+ * @param ay 16-bit signed integer container for accelerometer Y-axis value
+ * @param az 16-bit signed integer container for accelerometer Z-axis value
+ * @param gx 16-bit signed integer container for gyroscope X-axis value
+ * @param gy 16-bit signed integer container for gyroscope Y-axis value
+ * @param gz 16-bit signed integer container for gyroscope Z-axis value
+ * @param pfDegF floating point container for Temperature value
+ * @see getAcceleration()
+ * @see getRotation()
+ * @see MPU6050_RA_ACCEL_XOUT_H
+ */
+void MPU6050::getMotion7(int16_t* ax, int16_t* ay, int16_t* az,
+                         int16_t* gx, int16_t* gy, int16_t* gz,
+                         int16_t* psTemp, float* pfDegF) {
+  I2Cdev::readBytes(devAddr, MPU6050_RA_ACCEL_XOUT_H, 14, buffer);
+
+  *ax = (((int16_t)buffer[0]) << 8) | buffer[1];
+  *ay = (((int16_t)buffer[2]) << 8) | buffer[3];
+  *az = (((int16_t)buffer[4]) << 8) | buffer[5];
+  *psTemp= (((int16_t)buffer[6]) << 8) | buffer[7];
+  *gx = (((int16_t)buffer[8]) << 8) | buffer[9];
+  *gy = (((int16_t)buffer[10]) << 8) | buffer[11];
+  *gz = (((int16_t)buffer[12]) << 8) | buffer[13];
+
+  //Beck- Copied this from Powershift.ino, not sure where I found it.
+  *pfDegF= ((1.8 * *psTemp) / 340.0) + 103.13;
+  return;
+} //getMotion7
+
+
+/** Get raw 9-axis motion sensor readings (accel/gyro/compass) plus Temperature.
+ * @param ax 16-bit signed integer container for accelerometer X-axis value
+ * @param ay 16-bit signed integer container for accelerometer Y-axis value
+ * @param az 16-bit signed integer container for accelerometer Z-axis value
+ * @param gx 16-bit signed integer container for gyroscope X-axis value
+ * @param gy 16-bit signed integer container for gyroscope Y-axis value
+ * @param gz 16-bit signed integer container for gyroscope Z-axis value
+ * @param mx 16-bit signed integer container for magnetometer X-axis value
+ * @param my 16-bit signed integer container for magnetometer Y-axis value
+ * @param mz 16-bit signed integer container for magnetometer Z-axis value
+ * @param psTemperature 16-bit signed integer container for Temperature value
+ * @see getMotion7()
+ * @see getAcceleration()
+ * @see getRotation()
+ * @see MPU6050_RA_ACCEL_XOUT_H
+ */
+void MPU6050::getMotion10(int16_t* ax, int16_t* ay, int16_t* az,
+                          int16_t* gx, int16_t* gy, int16_t* gz,
+                          int16_t* mx, int16_t* my, int16_t* mz,
+                          int16_t* psTemp, float* pfDegF) {
+  //Get accel, gyro and temp
+  getMotion7(ax, ay, az, gx, gy, gz, psTemp, pfDegF);
+
+  //Get magnetometer
+  getMag(mx, my, mz);
+
+  return;
+} //getMotion10
+
+
 /** Get raw 9-axis motion sensor readings (accel/gyro/compass).
  * FUNCTION NOT FULLY IMPLEMENTED YET.
  * @param ax 16-bit signed integer container for accelerometer X-axis value
@@ -1723,33 +1785,36 @@ bool MPU6050::getIntDataReadyStatus() {
  * @see MPU6050_RA_ACCEL_XOUT_H
  */
 void MPU6050::getMotion9(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz, int16_t* mx, int16_t* my, int16_t* mz) {
-    
-	//get accel and gyro
-	getMotion6(ax, ay, az, gx, gy, gz);
-	
-	//read mag
-	I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
-	delay(10);
-	I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
-	delay(10);
-	I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
-	*mx = (((int16_t)buffer[1]) << 8) | buffer[0];
+
+  //get accel and gyro
+  getMotion6(ax, ay, az, gx, gy, gz);
+
+  //read mag
+  I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
+  delay(10);
+  I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
+  delay(10);
+  I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
+  *mx = (((int16_t)buffer[1]) << 8) | buffer[0];
         *my = (((int16_t)buffer[3]) << 8) | buffer[2];
-        *mz = (((int16_t)buffer[5]) << 8) | buffer[4];		
-}
+        *mz = (((int16_t)buffer[5]) << 8) | buffer[4];
+} //getMotion9
+
 
 void MPU6050::getMag(int16_t* mx, int16_t* my, int16_t* mz) {
-    
-	//read mag
-	I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
-	delay(10);
-	I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
-	delay(10);
-	I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
-	*mx = (((int16_t)buffer[1]) << 8) | buffer[0];
+
+  //read mag
+  I2Cdev::writeByte(devAddr, MPU6050_RA_INT_PIN_CFG, 0x02); //set i2c bypass enable pin to true to access magnetometer
+  delay(10);
+  I2Cdev::writeByte(MPU9150_RA_MAG_ADDRESS, 0x0A, 0x01); //enable the magnetometer
+  delay(10);
+  I2Cdev::readBytes(MPU9150_RA_MAG_ADDRESS, MPU9150_RA_MAG_XOUT_L, 6, buffer);
+  *mx = (((int16_t)buffer[1]) << 8) | buffer[0];
         *my = (((int16_t)buffer[3]) << 8) | buffer[2];
-        *mz = (((int16_t)buffer[5]) << 8) | buffer[4];		
-}
+        *mz = (((int16_t)buffer[5]) << 8) | buffer[4];
+} //getMag
+
+
 /** Get raw 6-axis motion sensor readings (accel/gyro).
  * Retrieves all currently available motion sensor values.
  * @param ax 16-bit signed integer container for accelerometer X-axis value
@@ -2967,7 +3032,7 @@ void MPU6050::readMemoryBlock(uint8_t *data, uint16_t dataSize, uint8_t bank, ui
 
         // read the chunk of data as specified
         I2Cdev::readBytes(devAddr, MPU6050_RA_MEM_R_W, chunkSize, data + i);
-        
+
         // increase byte index by [chunkSize]
         i += chunkSize;
 
@@ -3001,7 +3066,7 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
 
         // make sure this chunk doesn't go past the bank boundary (256 bytes)
         if (chunkSize > 256 - address) chunkSize = 256 - address;
-        
+
         if (useProgMem) {
             // write the chunk of data as specified
             for (j = 0; j < chunkSize; j++) progBuffer[j] = pgm_read_byte(data + i + j);
@@ -3115,7 +3180,7 @@ bool MPU6050::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, b
             Serial.println(" found...");*/
             if (special == 0x01) {
                 // enable DMP-related interrupts
-                
+
                 //setIntZeroMotionEnabled(true);
                 //setIntFIFOBufferOverflowEnabled(true);
                 //setIntDMPEnabled(true);
@@ -3127,7 +3192,7 @@ bool MPU6050::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, b
                 success = false;
             }
         }
-        
+
         if (!success) {
             if (useProgMem) free(progBuffer);
             return false; // uh oh
