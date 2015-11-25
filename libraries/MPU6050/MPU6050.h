@@ -38,16 +38,17 @@ THE SOFTWARE.
 #define _MPU6050_H_
 
 #include "I2Cdev.h"
-#include <avr/pgmspace.h>
+//#include <avr/pgmspace.h>
+#include "pgmspace.h"
 
 //Magnetometer Registers
-#define MPU9150_RA_MAG_ADDRESS		0x0C
-#define MPU9150_RA_MAG_XOUT_L		0x03
-#define MPU9150_RA_MAG_XOUT_H		0x04
-#define MPU9150_RA_MAG_YOUT_L		0x05
-#define MPU9150_RA_MAG_YOUT_H		0x06
-#define MPU9150_RA_MAG_ZOUT_L		0x07
-#define MPU9150_RA_MAG_ZOUT_H		0x08
+#define MPU9150_RA_MAG_ADDRESS    0x0C
+#define MPU9150_RA_MAG_XOUT_L   0x03
+#define MPU9150_RA_MAG_XOUT_H   0x04
+#define MPU9150_RA_MAG_YOUT_L   0x05
+#define MPU9150_RA_MAG_YOUT_H   0x06
+#define MPU9150_RA_MAG_ZOUT_L   0x07
+#define MPU9150_RA_MAG_ZOUT_H   0x08
 
 #define MPU6050_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
 #define MPU6050_ADDRESS_AD0_HIGH    0x69 // address pin high (VCC)
@@ -420,9 +421,9 @@ class MPU6050 {
         // SMPLRT_DIV register
         uint8_t getRate();
         void setRate(uint8_t rate);
-        
+
         uint8_t  checkMagStatus();
-     
+
         // CONFIG register
         uint8_t getExternalFrameSync();
         void setExternalFrameSync(uint8_t sync);
@@ -688,9 +689,9 @@ class MPU6050 {
         // WHO_AM_I register
         uint8_t getDeviceID();
         void setDeviceID(uint8_t id);
-        
+
         // ======== UNDOCUMENTED/DMP REGISTERS/METHODS ========
-        
+
         // XG_OFFS_TC register
         uint8_t getOTPBankValid();
         void setOTPBankValid(bool enabled);
@@ -740,13 +741,13 @@ class MPU6050 {
         // ZG_OFFS_USR* register
         int16_t getZGyroOffsetUser();
         void setZGyroOffsetUser(int16_t offset);
-        
+
         // INT_ENABLE register (DMP functions)
         bool getIntPLLReadyEnabled();
         void setIntPLLReadyEnabled(bool enabled);
         bool getIntDMPEnabled();
         void setIntDMPEnabled(bool enabled);
-        
+
         // DMP_INT_STATUS
         bool getDMPInt5Status();
         bool getDMPInt4Status();
@@ -758,18 +759,18 @@ class MPU6050 {
         // INT_STATUS register (DMP functions)
         bool getIntPLLReadyStatus();
         bool getIntDMPStatus();
-        
+
         // USER_CTRL register (DMP functions)
         bool getDMPEnabled();
         void setDMPEnabled(bool enabled);
         void resetDMP();
-        
+
         // BANK_SEL register
         void setMemoryBank(uint8_t bank, bool prefetchEnabled=false, bool userBank=false);
-        
+
         // MEM_START_ADDR register
         void setMemoryStartAddress(uint8_t address);
-        
+
         // MEM_R_W register
         uint8_t readMemoryByte();
         void writeMemoryByte(uint8_t data);
@@ -801,12 +802,12 @@ class MPU6050 {
             uint8_t dmpGetSampleStepSizeMS();
             uint8_t dmpGetSampleFrequency();
             int32_t dmpDecodeTemperature(int8_t tempReg);
-            
+
             // Register callbacks after a packet of FIFO data is processed
             //uint8_t dmpRegisterFIFORateProcess(inv_obj_func func, int16_t priority);
             //uint8_t dmpUnregisterFIFORateProcess(inv_obj_func func);
             uint8_t dmpRunFIFORateProcesses();
-            
+
             // Setup FIFO for various output
             uint8_t dmpSendQuaternion(uint_fast16_t accuracy);
             uint8_t dmpSendGyro(uint_fast16_t elements, uint_fast16_t accuracy);
@@ -836,7 +837,7 @@ class MPU6050 {
             uint8_t dmpGetRelativeQuaternion(Quaternion *data, const uint8_t* packet=0);
             uint8_t dmpGetGyro(int32_t *data, const uint8_t* packet=0);
             uint8_t dmpGetGyro(int16_t *data, const uint8_t* packet=0);
-            uint8_t dmpGetGyro(VectorInt16 *v, const uint8_t* packet=0);                  	
+            uint8_t dmpGetGyro(VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpGetMag (VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpSetLinearAccelFilterCoefficient(float coef);
             uint8_t dmpGetLinearAccel(int32_t *data, const uint8_t* packet=0);
@@ -867,7 +868,7 @@ class MPU6050 {
             uint8_t dmpGetQuantizedAccel(VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpGetExternalSensorData(int32_t *data, uint16_t size, const uint8_t* packet=0);
             uint8_t dmpGetEIS(int32_t *data, const uint8_t* packet=0);
-            
+
             uint8_t dmpGetEuler(float *data, Quaternion *q);
             uint8_t dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *gravity);
 
@@ -903,12 +904,12 @@ class MPU6050 {
             uint8_t dmpGetSampleStepSizeMS();
             uint8_t dmpGetSampleFrequency();
             int32_t dmpDecodeTemperature(int8_t tempReg);
-            
+
             // Register callbacks after a packet of FIFO data is processed
             //uint8_t dmpRegisterFIFORateProcess(inv_obj_func func, int16_t priority);
             //uint8_t dmpUnregisterFIFORateProcess(inv_obj_func func);
             uint8_t dmpRunFIFORateProcesses();
-            
+
             // Setup FIFO for various output
             uint8_t dmpSendQuaternion(uint_fast16_t accuracy);
             uint8_t dmpSendGyro(uint_fast16_t elements, uint_fast16_t accuracy);
@@ -941,7 +942,7 @@ class MPU6050 {
             uint8_t dmpGetGyro(VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpGetMag(int16_t *data, const uint8_t* packet=0);
             uint8_t dmpGetMag(VectorInt16 *v, const uint8_t* packet=0);
-	    uint8_t dmpSetLinearAccelFilterCoefficient(float coef);
+      uint8_t dmpSetLinearAccelFilterCoefficient(float coef);
             uint8_t dmpGetLinearAccel(int32_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccel(int16_t *data, const uint8_t* packet=0);
             uint8_t dmpGetLinearAccel(VectorInt16 *v, const uint8_t* packet=0);
@@ -970,7 +971,7 @@ class MPU6050 {
             uint8_t dmpGetQuantizedAccel(VectorInt16 *v, const uint8_t* packet=0);
             uint8_t dmpGetExternalSensorData(int32_t *data, uint16_t size, const uint8_t* packet=0);
             uint8_t dmpGetEIS(int32_t *data, const uint8_t* packet=0);
-            
+
             uint8_t dmpGetEuler(float *data, Quaternion *q);
             uint8_t dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *gravity);
 

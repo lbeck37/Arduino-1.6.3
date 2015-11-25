@@ -11,7 +11,7 @@ functions over I2C. It is very similar to the 6 DoF MPU6050 for which an extensi
 Most of the function of the MPU9150 can utilize the MPU6050 library.
 
 This Arduino sketch utilizes Jeff Rowberg's MPU6050 library to generate the basic sensor data
-for use in two sensor fusion algorithms becoming increasingly popular with DIY quadcopter and robotics engineers. 
+for use in two sensor fusion algorithms becoming increasingly popular with DIY quadcopter and robotics engineers.
 I have added and slightly modified Jeff's library here.
 
 This simple sketch will demo the following:
@@ -25,7 +25,7 @@ This simple sketch will demo the following:
   http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/IMU/PS-MPU-9150A.pdf
   and
   http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/IMU/RM-MPU-9150A-00.pdf.
-  
+
 In addition, the sketch will demo:
 * How to check for data updates using the data ready status register
 * How to display output at a rate different from the sensor data update and fusion filter update rates
@@ -37,27 +37,27 @@ In addition, the sketch will demo:
 
 Hardware setup: This library supports communicating with the
 MPU9150 over I2C. These are the only connections that need to be made:
-	MPU9150 --------- Arduino
-	 SCL ---------- SCL (A5 on older 'Duinos')
-	 SDA ---------- SDA (A4 on older 'Duinos')
-	 VDD ------------- 3.3V
-	 GND ------------- GND
+  MPU9150 --------- Arduino
+   SCL ---------- SCL (A5 on older 'Duinos')
+   SDA ---------- SDA (A4 on older 'Duinos')
+   VDD ------------- 3.3V
+   GND ------------- GND
 
 The LSM9DS0 has a maximum voltage of 3.5V. Make sure you power it
 off the 3.3V rail! And either use level shifters between SCL
-and SDA or just use a 3.3V Arduino Pro.	  
+and SDA or just use a 3.3V Arduino Pro.
 
-In addition, this sketch uses a Nokia 5110 48 x 84 pixel display which requires 
+In addition, this sketch uses a Nokia 5110 48 x 84 pixel display which requires
 digital pins 5 - 9 described below. If using SPI you might need to press one of the A0 - A3 pins
 into service as a digital input instead.
 
 Development environment specifics:
-	IDE: Arduino 1.0.5
-	Hardware Platform: Arduino Pro 3.3V/8MHz
-	MPU9150 Breakout Version: 1.0
+  IDE: Arduino 1.0.5
+  Hardware Platform: Arduino Pro 3.3V/8MHz
+  MPU9150 Breakout Version: 1.0
 
-This code is beerware. If you see me (or any other SparkFun 
-employee) at the local, and you've found our code helpful, please 
+This code is beerware. If you see me (or any other SparkFun
+employee) at the local, and you've found our code helpful, please
 buy us a round!
 
 Distributed as-is; no warranty is given.
@@ -88,8 +88,8 @@ MPU6050 mpu;
 // However, with this value, the LSM9SD0 response time is about 10 seconds to a stable initial quaternion.
 // Subsequent changes also require a longish lag time to a stable output, not fast enough for a quadcopter or robot car!
 // By increasing beta (GyroMeasError) by about a factor of fifteen, the response time constant is reduced to ~2 sec
-// I haven't noticed any reduction in solution accuracy. This is essentially the I coefficient in a PID control sense; 
-// the bigger the feedback coefficient, the faster the solution converges, usually at the expense of accuracy. 
+// I haven't noticed any reduction in solution accuracy. This is essentially the I coefficient in a PID control sense;
+// the bigger the feedback coefficient, the faster the solution converges, usually at the expense of accuracy.
 // In any case, this is the free parameter in the Madgwick filtering and fusion scheme.
 #define beta sqrt(3.0f / 4.0f) * GyroMeasError   // compute beta
 #define zeta sqrt(3.0f / 4.0f) * GyroMeasDrift   // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
@@ -107,7 +107,7 @@ float deltat = 0.0f;        // integration interval for both filter schemes
 uint16_t lastUpdate = 0; // used to calculate integration interval
 uint16_t now = 0;        // used to calculate integration interval
 
-float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
+float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values
 float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
 float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for Mahony method
 
@@ -115,11 +115,11 @@ float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for M
 void setup()
 {
   Serial.begin(38400); // Start serial at 38400 bps
- 
+
   display.begin(); // Initialize the display
   display.setContrast(58); // Set the contrast
   display.setRotation(0); //  0 or 2) width = width, 1 or 3) width = height, swapped etc.
-  
+
 // Start device display with ID of sensor
   display.clearDisplay();
   display.setTextSize(2);
@@ -136,7 +136,7 @@ void setup()
   display.setTextColor(BLACK); // Set pixel color; 1 on the monochrome screen
   display.clearDisplay();   // clears the screen and buffer
   display.display();
-            
+
 
     // initialize MPU6050 device
     Serial.println(F("Initializing I2C devices..."));
@@ -152,7 +152,7 @@ void setup()
 
    MagRate = 10; // set magnetometer read rate in Hz; 10 to 100 (max) Hz are reasonable values
 
-// Digital low pass filter configuration. 
+// Digital low pass filter configuration.
 // It also determines the internal sampling rate used by the device as shown in the table below.
 // The accelerometer output rate is fixed at 1kHz. This means that for a Sample
 // Rate greater than 1kHz, the same accelerometer sample may be output to the
@@ -199,20 +199,20 @@ void loop()
 //  The gyros and accelerometers can in principle be calibrated in addition to any factory calibration but they are generally
 //  pretty accurate. You can check the accelerometer by making sure the reading is +1 g in the positive direction for each axis.
 //  The gyro should read zero for each axis when the sensor is at rest. Small or zero adjustment should be needed for these sensors.
-//  The magnetometer is a different thing. Most magnetometers will be sensitive to circuit currents, computers, and 
+//  The magnetometer is a different thing. Most magnetometers will be sensitive to circuit currents, computers, and
 //  other both man-made and natural sources of magnetic field. The rough way to calibrate the magnetometer is to record
 //  the maximum and minimum readings (generally achieved at the North magnetic direction). The average of the sum divided by two
-//  should provide a pretty good calibration offset. Don't forget that for the MPU9150, the magnetometer x- and y-axes are switched 
+//  should provide a pretty good calibration offset. Don't forget that for the MPU9150, the magnetometer x- and y-axes are switched
 //  compared to the gyro and accelerometer!
-            if (mcount > 1000/MagRate) {  // this is a poor man's way of setting the magnetometer read rate (see below) 
+            if (mcount > 1000/MagRate) {  // this is a poor man's way of setting the magnetometer read rate (see below)
             mpu.getMag  ( &m1, &m2, &m3 );
             mx = m1*10.0f*1229.0f/4096.0f + 18.0f; // milliGauss (1229 microTesla per 2^12 bits, 10 mG per microTesla)
             my = m2*10.0f*1229.0f/4096.0f + 70.0f; // apply calibration offsets in mG that correspond to your environment and magnetometer
             mz = m3*10.0f*1229.0f/4096.0f + 270.0f;
             mcount = 0;
-            }           
+            }
          }
-   
+
   now = micros();
   deltat = ((now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
   lastUpdate = now;
@@ -221,7 +221,7 @@ void loop()
   // We have to make some allowance for this orientationmismatch in feeding the output to the quaternion filter.
   // For the MPU-9150, we have chosen a magnetic rotation that keeps the sensor forward along the x-axis just like
   // in the LSM9DS0 sensor. This rotation can be modified to allow any convenient orientation convention.
-  // This is ok by aircraft orientation standards!  
+  // This is ok by aircraft orientation standards!
   // Pass gyro rate as rad/s
    MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  my,  mx, mz);
 // MahonyQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f, my, mx, mz);
@@ -230,24 +230,24 @@ void loop()
     delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
 
-    Serial.print("ax = "); Serial.print((int)1000*ax);  
-    Serial.print(" ay = "); Serial.print((int)1000*ay); 
+    Serial.print("ax = "); Serial.print((int)1000*ax);
+    Serial.print(" ay = "); Serial.print((int)1000*ay);
     Serial.print(" az = "); Serial.print((int)1000*az); Serial.println(" mg");
-    Serial.print("gx = "); Serial.print( gx, 2); 
-    Serial.print(" gy = "); Serial.print( gy, 2); 
+    Serial.print("gx = "); Serial.print( gx, 2);
+    Serial.print(" gy = "); Serial.print( gy, 2);
     Serial.print(" gz = "); Serial.print( gz, 2); Serial.println(" deg/s");
-    Serial.print("mx = "); Serial.print( (int)mx ); 
-    Serial.print(" my = "); Serial.print( (int)my ); 
+    Serial.print("mx = "); Serial.print( (int)mx );
+    Serial.print(" my = "); Serial.print( (int)my );
     Serial.print(" mz = "); Serial.print( (int)mz ); Serial.println(" mG");
-    
+
     Serial.print("q0 = "); Serial.print(q[0]);
-    Serial.print(" qx = "); Serial.print(q[1]); 
-    Serial.print(" qy = "); Serial.print(q[2]); 
-    Serial.print(" qz = "); Serial.println(q[3]); 
-                   
-    
+    Serial.print(" qx = "); Serial.print(q[1]);
+    Serial.print(" qy = "); Serial.print(q[2]);
+    Serial.print(" qz = "); Serial.println(q[3]);
+
+
   // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
-  // In this coordinate system, the positive z-axis is down toward Earth. 
+  // In this coordinate system, the positive z-axis is down toward Earth.
   // Yaw is the angle between Sensor x-axis and Earth magnetic North (or true North if corrected for local declination, looking down on the sensor positive yaw is counterclockwise.
   // Pitch is angle between sensor x-axis and Earth ground plane, toward the Earth is positive, up toward the sky is negative.
   // Roll is angle between sensor y-axis and Earth ground plane, y-axis up is positive roll.
@@ -255,7 +255,7 @@ void loop()
   // Tait-Bryan angles as well as Euler angles are non-commutative; that is, the get the correct orientation the rotations must be
   // applied in the correct order which for this configuration is yaw, pitch, and then roll.
   // For more see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles which has additional links.
-    yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);   
+    yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);
     pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
     roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
     pitch *= 180.0f / PI;
@@ -268,46 +268,46 @@ void loop()
     Serial.print(pitch, 2);
     Serial.print(", ");
     Serial.println(roll, 2);
-    
+
     Serial.print("rate = "); Serial.print((float)1.0f/deltat, 2); Serial.println(" Hz");
 
     display.clearDisplay();
-     
- 
+
+
     display.setCursor(0, 0); display.print(" x   y   z  ");
 
-    display.setCursor(0,  8); display.print((int)(1000*ax)); 
-    display.setCursor(24, 8); display.print((int)(1000*ay)); 
-    display.setCursor(48, 8); display.print((int)(1000*az)); 
+    display.setCursor(0,  8); display.print((int)(1000*ax));
+    display.setCursor(24, 8); display.print((int)(1000*ay));
+    display.setCursor(48, 8); display.print((int)(1000*az));
     display.setCursor(72, 8); display.print("mg");
-    
-    display.setCursor(0,  16); display.print((int)(gx)); 
-    display.setCursor(24, 16); display.print((int)(gy)); 
-    display.setCursor(48, 16); display.print((int)(gz)); 
-    display.setCursor(66, 16); display.print("o/s");    
 
-    display.setCursor(0,  24); display.print((int)(mx)); 
-    display.setCursor(24, 24); display.print((int)(my)); 
-    display.setCursor(48, 24); display.print((int)(mz)); 
-    display.setCursor(72, 24); display.print("mG");    
- 
-    display.setCursor(0,  32); display.print((int)(yaw)); 
-    display.setCursor(24, 32); display.print((int)(pitch)); 
-    display.setCursor(48, 32); display.print((int)(roll)); 
-    display.setCursor(66, 32); display.print("ypr");  
-  
-    // With these settings the filter is updating at a ~145 Hz rate using the Madgwick scheme and 
+    display.setCursor(0,  16); display.print((int)(gx));
+    display.setCursor(24, 16); display.print((int)(gy));
+    display.setCursor(48, 16); display.print((int)(gz));
+    display.setCursor(66, 16); display.print("o/s");
+
+    display.setCursor(0,  24); display.print((int)(mx));
+    display.setCursor(24, 24); display.print((int)(my));
+    display.setCursor(48, 24); display.print((int)(mz));
+    display.setCursor(72, 24); display.print("mG");
+
+    display.setCursor(0,  32); display.print((int)(yaw));
+    display.setCursor(24, 32); display.print((int)(pitch));
+    display.setCursor(48, 32); display.print((int)(roll));
+    display.setCursor(66, 32); display.print("ypr");
+
+    // With these settings the filter is updating at a ~145 Hz rate using the Madgwick scheme and
     // >200 Hz using the Mahony scheme even though the display refreshes at only 2 Hz.
-    // The filter update rate is determined mostly by the mathematical steps in the respective algorithms, 
+    // The filter update rate is determined mostly by the mathematical steps in the respective algorithms,
     // the processor speed (8 MHz for the 3.3V Pro Mini), and the magnetometer ODR:
     // an ODR of 10 Hz for the magnetometer produce the above rates, maximum magnetometer ODR of 100 Hz produces
-    // filter update rates of 36 - 145 and ~38 Hz for the Madgwick and Mahony schemes, respectively. 
+    // filter update rates of 36 - 145 and ~38 Hz for the Madgwick and Mahony schemes, respectively.
     // This is presumably because the magnetometer read takes longer than the gyro or accelerometer reads.
-    // This filter update rate should be fast enough to maintain accurate platform orientation for 
+    // This filter update rate should be fast enough to maintain accurate platform orientation for
     // stabilization control of a fast-moving robot or quadcopter. Compare to the update rate of 200 Hz
     // produced by the on-board Digital Motion Processor of Invensense's MPU6050 6 DoF and MPU9150 9DoF sensors.
     // The 3.3 V 8 MHz Pro Mini is doing pretty well!
-    display.setCursor(0, 40); display.print("rt: "); display.print((1/deltat)); display.print(" Hz"); 
+    display.setCursor(0, 40); display.print("rt: "); display.print((1/deltat)); display.print(" Hz");
 
     display.display();
     count = millis();
@@ -412,11 +412,11 @@ void loop()
             q[3] = q4 * norm;
 
         }
-  
-  
-  
+
+
+
  // Similar to Madgwick scheme but uses proportional and integral filtering on the error between estimated reference vectors and
- // measured ones. 
+ // measured ones.
             void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz)
         {
             float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
@@ -436,7 +436,7 @@ void loop()
             float q2q4 = q2 * q4;
             float q3q3 = q3 * q3;
             float q3q4 = q3 * q4;
-            float q4q4 = q4 * q4;   
+            float q4q4 = q4 * q4;
 
             // Normalise accelerometer measurement
             norm = sqrt(ax * ax + ay * ay + az * az);
@@ -466,7 +466,7 @@ void loop()
             vz = q1q1 - q2q2 - q3q3 + q4q4;
             wx = 2.0f * bx * (0.5f - q3q3 - q4q4) + 2.0f * bz * (q2q4 - q1q3);
             wy = 2.0f * bx * (q2q3 - q1q4) + 2.0f * bz * (q1q2 + q3q4);
-            wz = 2.0f * bx * (q1q3 + q2q4) + 2.0f * bz * (0.5f - q2q2 - q3q3);  
+            wz = 2.0f * bx * (q1q3 + q2q4) + 2.0f * bz * (0.5f - q2q2 - q3q3);
 
             // Error is cross product between estimated direction and measured direction of gravity
             ex = (ay * vz - az * vy) + (my * wz - mz * wy);
@@ -506,10 +506,10 @@ void loop()
             q[1] = q2 * norm;
             q[2] = q3 * norm;
             q[3] = q4 * norm;
- 
+
         }
-        
-        
-      
+
+
+
 
 
