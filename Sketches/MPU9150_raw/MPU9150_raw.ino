@@ -1,3 +1,4 @@
+// 11/24/15 Beck- Using MPU-9150 with SparkFun Thing Dev board with ESP8266 wifi
 // I2C device class (I2Cdev) demonstration Arduino sketch for MPU9150
 // 1/4/2013 original by Jeff Rowberg <jeff@rowberg.net> at https://github.com/jrowberg/i2cdevlib
 //          modified by Aaron Weiss <aaron@sparkfun.com>
@@ -48,7 +49,6 @@ int16_t   ax, ay, az;
 int16_t   gx, gy, gz;
 int16_t   mx, my, mz;
 
-int16_t   sTemp;
 float     fDegF;
 
 #define LED_PIN 13
@@ -78,7 +78,8 @@ void setup() {
 
 void loop() {
     // read raw accel/gyro measurements from device
-    accelgyro.getMotion10(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz, &sTemp, &fDegF);
+    //accelgyro.getMotion10(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz, &sTemp, &fDegF);
+    accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
 
     // display tab-separated accel/gyro x/y/z values
     Serial.print("a/g/m:\t");
@@ -92,9 +93,13 @@ void loop() {
     Serial.print(my); Serial.print("\t");
     Serial.println(mz);
 
-    //int16_t sTemperature= accelgyro.getTemperature();
+    int16_t sTemperature= accelgyro.getTemperature();
     Serial.print("Temperature count= ");
-    Serial.println(sTemp);
+    Serial.println(sTemperature);
+
+    //Beck- Copied this from Powershift.ino, not sure where I found it.
+    fDegF= ((1.8 * sTemperature) / 340.0) + 103.13;
+
     Serial.print("Temperature (Degrees F)= ");
     Serial.println(fDegF);
 
