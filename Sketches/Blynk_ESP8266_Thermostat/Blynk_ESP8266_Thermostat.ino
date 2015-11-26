@@ -125,7 +125,7 @@ float fGetGyroDegF() {
   sGyroTemperature= accelgyro.getTemperature();
 
   //fDegC= (sGyroTemperature / 340.0) + 36.53;
-  fDegC= (sGyroTemperature / 340.0) + 33.5;
+  fDegC= (sGyroTemperature / 340.0) + 33.0;
   fDegF= (fDegC * 1.8) + 32.0;
 
   /*Beck- Copied this from Powershift.ino, not sure where I found it.
