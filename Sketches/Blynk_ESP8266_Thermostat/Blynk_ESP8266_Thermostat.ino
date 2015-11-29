@@ -1,4 +1,6 @@
-/**************************************************************
+/***** Blynk_ESP8266_Thermostat.ino *****
+ * 11/29/15B Add thermostat routine.
+ * 11/29/15 Clean up a little in prep to save as BlynkESP8266_Fireplace.ino
  * 11/25/15 Remove thermistor code (copied sketch to Blynk_ESP8266_ThermistorOLD.ino
  * 11/24/15 Reading temperature from I2C MPU9160 9-axis gyro
  * 11/23/15C Add in include of Thermistor library and send as VirtualPin to Blynk
@@ -12,21 +14,15 @@
  *   Blynk community:            http://community.blynk.cc
  *   Social networks:            http://www.fb.com/blynkapp
  *                               http://twitter.com/blynk_app
- *
  * Blynk library is licensed under MIT license
  * This example code is in public domain.
- *
  **************************************************************
  * This example runs directly on ESP8266 chip.
- *
  * You need to install this for ESP8266 development:
  *   https://github.com/esp8266/Arduino
- *
  * Please be sure to select the right ESP8266 module
  * in the Tools -> Board menu!
- *
  * Change WiFi ssid, pass, and Blynk auth token to run :)
- *
  **************************************************************/
 
 #include <Streaming.h>
@@ -36,6 +32,9 @@
 #include <Wire.h>
 #include <I2Cdev.h>
 #include <MPU6050.h>
+
+//Get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
+char acBlynkAuthToken[] = "55bce1afbf894b3bb67b7ea34f29d45a";
 
 // class default I2C address is 0x68
 // specific I2C addresses may be passed as a parameter here
@@ -49,7 +48,6 @@ int16_t   mx, my, mz;
 
 float     fDegF;
 
-
 #define LOG0      lLineCount++ << " " << millis()
 
 //Associate DegF value with VirtualPins 2 and 3
@@ -61,11 +59,6 @@ float     fDegF;
 static int        sGyroTemperature;
 static long       lLineCount= 0;      //Serial Monitor uses for clarity.
 static long       lNumLoops= 1;
-
-// You should get Auth Token in the Blynk App.
-// Go to the Project Settings (nut icon).
-char auth[] = "55bce1afbf894b3bb67b7ea34f29d45a";
-
 
 void setup()
 {
@@ -84,7 +77,7 @@ void setup()
     Serial << LOG0 << " setup(): MPU6050 connection failed" << endl;
   }
 
-  Blynk.begin(auth, "dlinky", "Qazqaz11");
+  Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11");
 } //setup
 
 
@@ -124,14 +117,10 @@ float fGetGyroDegF() {
   //accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
   sGyroTemperature= accelgyro.getTemperature();
 
-  //fDegC= (sGyroTemperature / 340.0) + 36.53;
+  //fDegC= (sGyroTemperature / 340.0) + 36.53;    //Numbers from datasheet.
   fDegC= (sGyroTemperature / 340.0) + 33.0;
   fDegF= (fDegC * 1.8) + 32.0;
 
-  /*Beck- Copied this from Powershift.ino, not sure where I found it.
-  float fDegF1= ((1.8 * sGyroTemperature) / 340.0) + 103.13;
-  Serial << LOG0 << " fGetGyroDegF(): fDegF, earlier " << fDegF << ", " << fDegF1 << endl;
-  */
   return fDegF;
 }  //fGetGyroDegF
 //Last line.
