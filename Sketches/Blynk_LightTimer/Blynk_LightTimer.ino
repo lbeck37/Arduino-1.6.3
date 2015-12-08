@@ -1,5 +1,5 @@
-#define SKETCH_NAME Blynk_Fireplace.ino
-#define FILE_DATE 12/08/2015
+static const char stSketchName  = "Blynk_Fireplace.ino";
+static const char stFileDate    = "Dec 8, 2015";
 /* 12/08/15 Copy from Blynk_Fireplace.ino
  */
 #include <Streaming.h>
@@ -47,6 +47,7 @@ void setup()
 {
   Serial.begin(9600);
   Serial << LOG0 << " setup(): Initialized serial to 9600 baud" << endl;
+  Serial << LOG0 << " setup(): Sketch: " << stSketchName << ", " << stFileDate << endl;
   Wire.begin();
   accelgyro.initialize();
 
