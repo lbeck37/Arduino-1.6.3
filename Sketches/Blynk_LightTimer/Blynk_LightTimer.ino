@@ -1,5 +1,5 @@
-static const char stSketchName  = "Blynk_Fireplace.ino";
-static const char stFileDate    = "Dec 8, 2015";
+static const char stSketchName[]  = "Blynk_Fireplace.ino";
+static const char stFileDate[]    = "Dec 8, 2015";
 /* 12/08/15 Copy from Blynk_Fireplace.ino
  */
 #include <Streaming.h>
@@ -11,7 +11,8 @@ static const char stFileDate    = "Dec 8, 2015";
 #include <MPU6050.h>
 //Get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 //char acBlynkAuthToken[] = "55bce1afbf894b3bb67b7ea34f29d45a";   //LEDonD4 Blynk token
-char acBlynkAuthToken[] = "0192b13c767c49e6a7fc8f3bbc5c8f7f";     //Fireplace Blynk token
+//char acBlynkAuthToken[] = "0192b13c767c49e6a7fc8f3bbc5c8f7f";     //Fireplace Blynk token
+char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
 
 // class default I2C address is 0x68
 // specific I2C addresses may be passed as a parameter here
