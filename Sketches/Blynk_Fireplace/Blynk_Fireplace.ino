@@ -1,9 +1,10 @@
 /***** Blynk_Fireplace.ino *****
+ * 12/07/15 Set up to work with inverting relay
  * 12/06/15 Copy from Blynk thermostat sketch.
  **************************************************************/
 
 #include <Streaming.h>
-//#define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
+#define BLYNK_PRINT Serial    // Comment out to disable prints and save space
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 #include <Wire.h>
@@ -28,15 +29,25 @@ float     fDegF;
 
 #define LOG0      lLineCount++ << " " << millis()
 
-//Associate DegF value with VirtualPins 2 and 3
-#define DegF_VirtualPin1  V1
-#define DegF_VirtualPin2  V2
-#define DegF_VirtualPin3  V3
-#define AnalogInputPin    A0
+//Define Virtual and Analog pin names
+#define DegF_VPin1      V1
+#define DegF_VPin2      V2
+#define DegF_VPin3      V3
+#define Flame_VPin5     V5
+#define Relay_VPin10    V10
 
-static int        sGyroTemperature;
-static long       lLineCount= 0;      //Serial Monitor uses for clarity.
-static long       lNumLoops= 1;
+#define AnalogInputPin      A0
+
+static const bool   bRelaysInverted   = true;
+static const int    sOpen             = 0;
+static const int    sClosed           = 1;
+static int          sRelayClosed;
+static int          sRelayOpen;
+static int          sFlameState;
+static int          sGyroTemperature;
+static int          sFlameRelayPin    = 12;
+static long         lLineCount        = 0;      //Serial Monitor uses for clarity. sRelayOpen
+static long         lNumLoops         = 1;
 
 void setup()
 {
@@ -65,29 +76,68 @@ void loop()
 } //loop
 
 
+int sSetupRelay(){
+  if (bRelaysInverted){
+    sRelayOpen  = HIGH;
+    sRelayClosed= LOW;
+  } //if(bRelaysInverted)
+  else{
+    sRelayOpen  = LOW;
+    sRelayClosed= HIGH;
+  } //if(bRelaysInverted)else
 
-//BLYNK_READ(VirtualPin) handles the call from a Widget requesting data for a Virtual Pin
-BLYNK_READ(DegF_VirtualPin1)
-{
-  Blynk.virtualWrite(DegF_VirtualPin1, sGyroTemperature);
-} //BLYNK_READ(DegF_VirtualPin1)
+  pinMode(sFlameRelayPin, OUTPUT);
+  sSetRelay(sOpen);
+  return 1;
+} //sSetupRelay
 
 
-//BLYNK_READ(VirtualPin) handles the call from a Widget requesting data for a Virtual Pin
-BLYNK_READ(DegF_VirtualPin2)
-{
+int sSetRelay(int sRelaySetting){
+  Serial << LOG0 << " sSetRelay: Received sRelaySetting= " << sRelaySetting << endl;
+  if (sRelaySetting == sOpen){
+    Serial << LOG0 << " sSetRelay: Call digitalWrite to OPEN relay on Pin " << sFlameRelayPin << endl;
+    digitalWrite(sFlameRelayPin, sRelayOpen);
+  } //if(sRelaySetting==sOpen)
+  else{
+    Serial << LOG0 << " sSetRelay: Call digitalWrite to CLOSE relay on Pin " << sFlameRelayPin << endl;
+    digitalWrite(sFlameRelayPin, sRelayClosed);
+  } //if(sRelaySetting==sOpen)else
+  sFlameState= sRelaySetting;
+  return 1;
+} //sSetRelay
+
+
+BLYNK_WRITE(Relay_VPin10){
+  int sRelayValue= param.asInt();
+  Serial << LOG0 << " BLYNK_WRITE(Relay_VPin10): Received Parameter= " << sRelayValue << endl;
+  sSetRelay(sRelayValue);
+  return;
+} //BLYNK_WRITE(Relay_VPin10)
+
+
+//BLYNK_READ(VPin) handles the call from a Widget requesting data for a Virtual Pin
+BLYNK_READ(DegF_VPin1){
+  Blynk.virtualWrite(DegF_VPin1, sGyroTemperature);
+} //BLYNK_READ(DegF_VPin1)
+
+
+BLYNK_READ(DegF_VPin2){
   float fDegF= fGetGyroDegF();
-  Serial << LOG0 << " BLYNK_READ(DegF_VirtualPin2): fGetGyroDegF() returned " << fDegF << endl;
-  Blynk.virtualWrite(DegF_VirtualPin2, fDegF);
-} //BLYNK_READ(DegF_VirtualPin2)
+  Serial << LOG0 << " BLYNK_READ(DegF_VPin2): fGetGyroDegF() returned " << fDegF << endl;
+  Blynk.virtualWrite(DegF_VPin2, fDegF);
+} //BLYNK_READ(DegF_VPin2)
 
 
-BLYNK_READ(DegF_VirtualPin3)
-{
+BLYNK_READ(DegF_VPin3){
   float fDegF= fGetGyroDegF();
-  Serial << LOG0 << " BLYNK_READ(DegF_VirtualPin3): fGetGyroDegF() returned " << fDegF << endl;
-  Blynk.virtualWrite(DegF_VirtualPin3, fDegF);
-} //BLYNK_READ(DegF_VirtualPin3)
+  Serial << LOG0 << " BLYNK_READ(DegF_VPin3): fGetGyroDegF() returned " << fDegF << endl;
+  Blynk.virtualWrite(DegF_VPin3, fDegF);
+} //BLYNK_READ(DegF_VPin3)
+
+
+BLYNK_READ(Flame_VPin5){
+  Blynk.virtualWrite(Flame_VPin5, sFlameState);
+} //BLYNK_READ(Flame_VPin5)
 
 
 float fGetGyroDegF() {
