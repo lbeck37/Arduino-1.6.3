@@ -1,5 +1,5 @@
 static const char stSketchName[]  = "Blynk_Fireplace.ino";
-static const char stFileDate[]    = "Dec 8, 2015";
+static const char stFileDate[]    = "Dec 8, 2015E";
 /* 12/08/15 Copy from Blynk_Fireplace.ino
  */
 #include <Streaming.h>
@@ -14,57 +14,40 @@ static const char stFileDate[]    = "Dec 8, 2015";
 //char acBlynkAuthToken[] = "0192b13c767c49e6a7fc8f3bbc5c8f7f";     //Fireplace Blynk token
 char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
 
-// class default I2C address is 0x68
-// specific I2C addresses may be passed as a parameter here
-// AD0 low = 0x68 (default for InvenSense evaluation board)
-// AD0 high = 0x69
-MPU6050 accelgyro;
-
-int16_t   ax, ay, az;
-int16_t   gx, gy, gz;
-int16_t   mx, my, mz;
-
 float     fDegF;
 #define LOG0      lLineCount++ << " " << millis()
 //Define Virtual and Analog pin names
 #define DegF_VPin1          V1
 #define DegF_VPin2          V2
 #define DegF_VPin3          V3
-#define LightState_VPin5    V5
+#define RelayState_VPin5    V5
+#define RelayState_VPin6    V6
 #define Relay_VPin10        V10
+#define Relay_VPin11        V11
 
-#define AnalogInputPin      A0
+static const bool   bRelaysInverted       = true;
+static const int    sRelayOpen            = HIGH;
+static const int    sRelayClosed          = LOW;
+static const int    sNumRelays            = 2;
+static const int    sRelayPin[]           = {4, 5};
 
-static const bool   bRelaysInverted   = true;
-static const int    sRelayOpen        = HIGH;
-static const int    sRelayClosed      = LOW;
-static int          sLightState;
-static int          sGyroTemperature;
-static int          sLightRelayPin    = 4;
+static int          sRelayState[2];
 static long         lLineCount        = 0;      //Serial Monitor uses for clarity. sRelayOpen
 static long         lNumLoops         = 1;
 
 void setup()
 {
   Serial.begin(9600);
-  Serial << LOG0 << " setup(): Initialized serial to 9600 baud" << endl;
+  Serial << endl << LOG0 << " setup(): Initialized serial to 9600 baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << stSketchName << ", " << stFileDate << endl;
   Wire.begin();
-  accelgyro.initialize();
-
-  // verify connection
-  Serial << LOG0 << " setup(): Calling testConnection()" << endl;
-  if (accelgyro.testConnection()) {
-    Serial << LOG0 << " setup(): MPU6050 connection successful" << endl;
-  }
-  else {
-    Serial << LOG0 << " setup(): MPU6050 connection failed" << endl;
-  }
 
   Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, dlinky, Qazqaz11)" << endl;
   Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11");
   Serial << LOG0 << " setup(): Back from Blynk.begin()" << endl;
-  sSetupRelay();
+
+  Serial << LOG0 << " setup(): sRelayPin[0]= " << sRelayPin[0] << ", sRelayPin[1]= " << sRelayPin[1] << endl;
+  sSetupRelays();
   return;
 } //setup
 
@@ -75,18 +58,21 @@ void loop()
 } //loop
 
 
-int sSetupRelay(){
-  Serial << LOG0 << " sSetupRelay: Call pinMode() to enable OUTPUT on Pin " << sLightRelayPin << endl;
-  pinMode(sLightRelayPin, OUTPUT);
-  sSetRelay(sLightRelayPin, sRelayOpen);
+int sSetupRelays(){
+  Serial << LOG0 << " sSetupRelays: Call pinMode() & sSetRelay() to enable OUTPUT on both pins" << endl;
+  for (int sRelay= 0; sRelay < sNumRelays; sRelay++){
+    pinMode(sRelayPin[sRelay], OUTPUT);
+    sSetRelay(sRelay, sRelayOpen);
+  } //for
   return 1;
-} //sSetupRelay
+} //sSetupRelays
 
 
-int sSetRelay(int sRelayPin, int sRelaySetting){
-  Serial << LOG0 << " sSetRelay: Call digitalWrite to set relay on Pin " << sRelayPin << " to " << sRelaySetting << endl;
-  digitalWrite(sRelayPin, sRelaySetting);
-  sLightState= sRelaySetting;
+int sSetRelay(int sRelay, int sRelaySetting){
+  Serial << LOG0 << " sSetRelay: Received sRelay= " << sRelay << endl;
+  Serial << LOG0 << " sSetRelay: Call digitalWrite to set relay on Pin " << sRelayPin[sRelay] << " to " << sRelaySetting << endl;
+  digitalWrite(sRelayPin[sRelay], sRelaySetting);
+  sRelayState[sRelay]= sRelaySetting;
   return 1;
 } //sSetRelay
 
@@ -104,45 +90,32 @@ BLYNK_WRITE(Relay_VPin10){
   else{
     sRelaySetting= sRelayOpen;
   }
-  sSetRelay(sLightRelayPin, sRelaySetting);
+  sSetRelay(0, sRelaySetting);
   return;
 } //BLYNK_WRITE(Relay_VPin10)
 
 
-BLYNK_READ(DegF_VPin1){
-  Blynk.virtualWrite(DegF_VPin1, sGyroTemperature);
-} //BLYNK_READ(DegF_VPin1)
+BLYNK_WRITE(Relay_VPin11){
+  int sBlynkButtonSetting= param.asInt();
+  int sRelaySetting;
+  Serial << LOG0 << " BLYNK_WRITE(Relay_VPin11): Received Parameter= " << sBlynkButtonSetting << endl;
+  if (sBlynkButtonSetting == 1){
+    sRelaySetting= sRelayClosed;
+  }
+  else{
+    sRelaySetting= sRelayOpen;
+  }
+  sSetRelay(1, sRelaySetting);
+  return;
+} //BLYNK_WRITE(Relay_VPin11)
 
 
-BLYNK_READ(DegF_VPin2){
-  float fDegF= fGetGyroDegF();
-  Serial << LOG0 << " BLYNK_READ(DegF_VPin2): fGetGyroDegF() returned " << fDegF << endl;
-  Blynk.virtualWrite(DegF_VPin2, fDegF);
-} //BLYNK_READ(DegF_VPin2)
+BLYNK_READ(RelayState_VPin5){
+  Blynk.virtualWrite(RelayState_VPin5, !sRelayState[0]);
+} //BLYNK_READ(RelayState_VPin5)
 
 
-BLYNK_READ(DegF_VPin3){
-  float fDegF= fGetGyroDegF();
-  Serial << LOG0 << " BLYNK_READ(DegF_VPin3): fGetGyroDegF() returned " << fDegF << endl;
-  Blynk.virtualWrite(DegF_VPin3, fDegF);
-} //BLYNK_READ(DegF_VPin3)
-
-
-BLYNK_READ(LightState_VPin5){
-  Blynk.virtualWrite(LightState_VPin5, !sLightState);
-} //BLYNK_READ(LightState_VPin5)
-
-
-float fGetGyroDegF() {
-  float fDegC;
-  float fDegF;
-  //accelgyro.getMotion9(&ax, &ay, &az, &gx, &gy, &gz, &mx, &my, &mz);
-  sGyroTemperature= accelgyro.getTemperature();
-
-  //fDegC= (sGyroTemperature / 340.0) + 36.53;    //Numbers from datasheet.
-  fDegC= (sGyroTemperature / 340.0) + 33.0;
-  fDegF= (fDegC * 1.8) + 32.0;
-
-  return fDegF;
-}  //fGetGyroDegF
+BLYNK_READ(RelayState_VPin6){
+  Blynk.virtualWrite(RelayState_VPin6, !sRelayState[1]);
+} //BLYNK_READ(RelayState_VPin6)
 //Last line.
