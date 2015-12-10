@@ -1,7 +1,6 @@
-static const char stSketchName[]  = "Blynk_LightTimer.ino";
-static const char stFileDate[]    = "Dec 9, 2015C";
-// 12/09/15 Add more virtual pins to set relays for timers.
-// 12/08/15 Copy from Blynk_Fireplace.ino
+static const char stSketchName[]  = "Blynk_Thermostat.ino";
+static const char stFileDate[]    = "Dec 9, 2015";
+// 12/09/15 Copy from Blynk_LightTimer.ino
 #include <Streaming.h>
 #define BLYNK_PRINT Serial    // Comment out to disable prints and save space
 #include <ESP8266WiFi.h>
