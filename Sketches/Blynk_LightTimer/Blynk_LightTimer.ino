@@ -1,5 +1,6 @@
 static const char stSketchName[]  = "Blynk_LightTimer.ino";
-static const char stFileDate[]    = "Dec 9, 2015C";
+static const char stFileDate[]    = "Dec 12, 2015B";
+// 12/09/15 Add more virtual pins for Blynk LCD and Terminal.
 // 12/09/15 Add more virtual pins to set relays for timers.
 // 12/08/15 Copy from Blynk_Fireplace.ino
 #include <Streaming.h>
@@ -14,7 +15,6 @@ static const char stFileDate[]    = "Dec 9, 2015C";
 //char acBlynkAuthToken[] = "0192b13c767c49e6a7fc8f3bbc5c8f7f";   //Fireplace Blynk token
 char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
 
-float     fDegF;
 #define LOG0      lLineCount++ << " " << millis()
 //Define Virtual and Analog pin names
 #define DegF_VPin1          V1
@@ -22,12 +22,19 @@ float     fDegF;
 #define DegF_VPin3          V3
 #define RelayState_VPin5    V5
 #define RelayState_VPin6    V6
+#define LCD_Line1_VPin7     V7
+#define LCD_Line1_VPin8     V8
+#define Terminal_VPin9      V9
 #define Relay_VPin10        V10   //Relay 0
 #define Relay_VPin11        V11   //Relay 0
 #define Relay_VPin12        V12   //Relay 0
 #define Relay_VPin20        V20   //Relay 1
 #define Relay_VPin21        V21   //Relay 1
 #define Relay_VPin22        V22   //Relay 1
+
+// Attach virtual serial terminal to Virtual Pin V1
+WidgetTerminal      terminal(Terminal_VPin9);
+WidgetLCD           lcd(1);
 
 static const bool   bRelaysInverted       = true;
 static const int    sRelayOpen            = HIGH;
@@ -38,6 +45,8 @@ static const int    sRelayPin[]           = {4, 5};
 static int          sRelayState[2];
 static long         lLineCount        = 0;      //Serial Monitor uses for clarity. sRelayOpen
 static long         lNumLoops         = 1;
+static float        fDegF;
+
 
 void setup()
 {
@@ -51,6 +60,13 @@ void setup()
   Serial << LOG0 << " setup(): Back from Blynk.begin()" << endl;
 
   Serial << LOG0 << " setup(): sRelayPin[0]= " << sRelayPin[0] << ", sRelayPin[1]= " << sRelayPin[1] << endl;
+
+  /*//Test writing to LCD
+  lcd.clear();
+  int sCharPos= 0;   //Position 0-15
+  int sLineNum= 0;   //Line 0-1
+  lcd.print(0, 0, "Wow! :)");*/
+
   sSetupRelays();
   return;
 } //setup
@@ -60,6 +76,54 @@ void loop()
 {
   Blynk.run();
 } //loop
+  // This will print Blynk Software version to the Terminal Widget when
+  // your hardware gets connected to Blynk Server
+
+
+int sTerminalPrintVersion(){
+  Serial << LOG0 << " sTerminalPrintVersion: Begin" << endl;
+  terminal.println(F("Blynk v" BLYNK_VERSION ": Device started"));
+  terminal.println("-------------");
+  terminal.println("Type 'Marco' and get a reply, or type");
+  terminal.println("anything else and get it printed back.");
+  terminal.flush();
+  return 1;
+} //sTerminalPrintVersion
+
+
+// You can send commands from Terminal to your hardware. Just use
+// the same Virtual Pin as your Terminal Widget
+int sWriteTermialLine(char *szString){
+  Serial << LOG0 << " sWriteTermialLine: Received String= " <<  szString << endl;
+
+  terminal.println(szString) ;
+
+  // Ensure everything is sent
+  terminal.flush();
+  return 1;
+} //sWriteTermialLine
+
+
+BLYNK_WRITE(Terminal_VPin9)
+{
+  Serial << LOG0 << " BLYNK_WRITE(Terminal_VPin9): Received Parameter= " <<  param.asStr() << endl;
+
+  // if you type "Marco" into Terminal Widget - it will respond: "Polo:"
+  if (String("Marco") == param.asStr()) {
+      terminal.println("You said: 'Marco'") ;
+      terminal.println("I said: 'Polo'") ;
+  } else {
+
+  // Send it back
+  terminal.print("You said:");
+  terminal.write(param.getBuffer(), param.getLength());
+  terminal.println();
+  }
+
+  // Ensure everything is sent
+  terminal.flush();
+  return;
+} //BLYNK_WRITE(Terminal_VPin9)
 
 
 int sSetupRelays(){
@@ -91,7 +155,15 @@ BLYNK_WRITE(Relay_VPin10){
   int sRelaySetting;
   Serial << LOG0 << " BLYNK_WRITE(Relay_VPin10): Received Parameter= " << sBlynkButtonSetting << endl;
   Serial << LOG0 << " ******* Blynk Button for Relay #0 ******" << endl;
-  if (sBlynkButtonSetting == 1){
+
+  //Test writing to LCD
+  lcd.clear();
+  int sCharPos= 0;   //Position 0-15
+  int sLineNum= 0;   //Line 0-1
+  lcd.print(0, 0, "Relay #0 set to: ");
+
+  sWriteTermialLine("BLYNK_WRITE(Relay_VPin10): Begin");
+ if (sBlynkButtonSetting == 1){
     sRelaySetting= sRelayClosed;
   }
   else{
@@ -100,6 +172,16 @@ BLYNK_WRITE(Relay_VPin10){
   sSetRelay(0, sRelaySetting);    //Set relay #0
   return;
 } //BLYNK_WRITE(Relay_VPin10)
+
+//BLYNK_READ() is called by the Blynk app on the phone at a 1 second interval.
+BLYNK_READ(RelayState_VPin5){
+  Blynk.virtualWrite(RelayState_VPin5, !sRelayState[0]);
+} //BLYNK_READ(RelayState_VPin5)
+
+
+BLYNK_READ(RelayState_VPin6){
+  Blynk.virtualWrite(RelayState_VPin6, !sRelayState[1]);
+} //BLYNK_READ(RelayState_VPin6)
 
 
 BLYNK_WRITE(Relay_VPin11){
@@ -138,6 +220,8 @@ BLYNK_WRITE(Relay_VPin20){
   int sRelaySetting;
   Serial << LOG0 << " BLYNK_WRITE(Relay_VPin20): Received Parameter= " << sBlynkButtonSetting << endl;
   Serial << LOG0 << " ******* Blynk Button for Relay #1 ******" << endl;
+
+  sWriteTermialLine("BLYNK_WRITE(Relay_VPin20): Begin");
   if (sBlynkButtonSetting == 1){
     sRelaySetting= sRelayClosed;
   }
@@ -178,14 +262,4 @@ BLYNK_WRITE(Relay_VPin22){
   sSetRelay(1, sRelaySetting);    //Set relay #1
   return;
 } //BLYNK_WRITE(Relay_VPin22)
-
-
-BLYNK_READ(RelayState_VPin5){
-  Blynk.virtualWrite(RelayState_VPin5, !sRelayState[0]);
-} //BLYNK_READ(RelayState_VPin5)
-
-
-BLYNK_READ(RelayState_VPin6){
-  Blynk.virtualWrite(RelayState_VPin6, !sRelayState[1]);
-} //BLYNK_READ(RelayState_VPin6)
 //Last line.
