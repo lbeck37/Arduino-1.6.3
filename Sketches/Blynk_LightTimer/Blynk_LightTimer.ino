@@ -25,12 +25,12 @@ char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer 
 #define LCD_Line1_VPin7     V7
 #define LCD_Line1_VPin8     V8
 #define Terminal_VPin9      V9
-#define Relay_VPin10        V10   //Relay 0
-#define Relay_VPin11        V11   //Relay 0
-#define Relay_VPin12        V12   //Relay 0
-#define Relay_VPin20        V20   //Relay 1
-#define Relay_VPin21        V21   //Relay 1
-#define Relay_VPin22        V22   //Relay 1
+#define Button_V10          V10   //Relay 0
+#define Timer_V11           V11   //Relay 0
+//#define Relay_VPin12        V12   //Relay 0
+#define Button_V20          V20   //Relay 1
+#define Timer_V21           V21   //Relay 1
+//#define Relay_VPin22        V22   //Relay 1
 
 // Attach virtual serial terminal to Virtual Pin V1
 WidgetTerminal      terminal(Terminal_VPin9);
@@ -93,15 +93,15 @@ int sTerminalPrintVersion(){
 
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
-int sWriteTermialLine(char *szString){
-  Serial << LOG0 << " sWriteTermialLine: Received String= " <<  szString << endl;
+int sWriteTerminalLine(char *szString){
+  Serial << LOG0 << " sWriteTerminalLine: Received String= " <<  szString << endl;
 
   terminal.println(szString) ;
 
   // Ensure everything is sent
   terminal.flush();
   return 1;
-} //sWriteTermialLine
+} //sWriteTerminalLine
 
 
 BLYNK_WRITE(Terminal_VPin9)
@@ -150,10 +150,10 @@ int sSetRelay(int sRelay, int sRelaySetting){
 //Opto-isolated relay is inverse logic, pulling input pin low cn relay.
 //Relay #0 is connected to Blynk virtual pins 10, 11, 12
 //Relay #1 is connected to Blynk virtual pins 20, 21, 22
-BLYNK_WRITE(Relay_VPin10){
+BLYNK_WRITE(Button_V10){
   int sBlynkButtonSetting= param.asInt();
   int sRelaySetting;
-  Serial << LOG0 << " BLYNK_WRITE(Relay_VPin10): Received Parameter= " << sBlynkButtonSetting << endl;
+  Serial << LOG0 << " BLYNK_WRITE(Button_V10): Received Parameter= " << sBlynkButtonSetting << endl;
   Serial << LOG0 << " ******* Blynk Button for Relay #0 ******" << endl;
 
   //Test writing to LCD
@@ -162,7 +162,7 @@ BLYNK_WRITE(Relay_VPin10){
   int sLineNum= 0;   //Line 0-1
   lcd.print(0, 0, "Relay #0 set to: ");
 
-  sWriteTermialLine("BLYNK_WRITE(Relay_VPin10): Begin");
+  sWriteTerminalLine("BLYNK_WRITE(Button_V10): Begin");
  if (sBlynkButtonSetting == 1){
     sRelaySetting= sRelayClosed;
   }
@@ -171,7 +171,7 @@ BLYNK_WRITE(Relay_VPin10){
   }
   sSetRelay(0, sRelaySetting);    //Set relay #0
   return;
-} //BLYNK_WRITE(Relay_VPin10)
+} //BLYNK_WRITE(Button_V10)
 
 //BLYNK_READ() is called by the Blynk app on the phone at a 1 second interval.
 BLYNK_READ(RelayState_VPin5){
@@ -184,10 +184,10 @@ BLYNK_READ(RelayState_VPin6){
 } //BLYNK_READ(RelayState_VPin6)
 
 
-BLYNK_WRITE(Relay_VPin11){
+BLYNK_WRITE(Timer_V11){
   int sBlynkButtonSetting= param.asInt();
   int sRelaySetting;
-  Serial << LOG0 << " BLYNK_WRITE(Relay_VPin11): Received Parameter= " << sBlynkButtonSetting << endl;
+  Serial << LOG0 << " BLYNK_WRITE(Timer_V11): Received Parameter= " << sBlynkButtonSetting << endl;
   Serial << LOG0 << " ******* Blynk Timer for Relay #0 ******" << endl;
   if (sBlynkButtonSetting == 1){
     sRelaySetting= sRelayClosed;
@@ -197,7 +197,7 @@ BLYNK_WRITE(Relay_VPin11){
   }
   sSetRelay(0, sRelaySetting);    //Set relay #0
   return;
-} //BLYNK_WRITE(Relay_VPin11)
+} //BLYNK_WRITE(Timer_V11)
 
 
 BLYNK_WRITE(Relay_VPin12){
@@ -215,13 +215,13 @@ BLYNK_WRITE(Relay_VPin12){
 } //BLYNK_WRITE(Relay_VPin12)
 
 
-BLYNK_WRITE(Relay_VPin20){
+BLYNK_WRITE(Button_V20){
   int sBlynkButtonSetting= param.asInt();
   int sRelaySetting;
-  Serial << LOG0 << " BLYNK_WRITE(Relay_VPin20): Received Parameter= " << sBlynkButtonSetting << endl;
+  Serial << LOG0 << " BLYNK_WRITE(Button_V20): Received Parameter= " << sBlynkButtonSetting << endl;
   Serial << LOG0 << " ******* Blynk Button for Relay #1 ******" << endl;
 
-  sWriteTermialLine("BLYNK_WRITE(Relay_VPin20): Begin");
+  sWriteTerminalLine("BLYNK_WRITE(Button_V20): Begin");
   if (sBlynkButtonSetting == 1){
     sRelaySetting= sRelayClosed;
   }
@@ -230,13 +230,13 @@ BLYNK_WRITE(Relay_VPin20){
   }
   sSetRelay(1, sRelaySetting);    //Set relay #1
   return;
-} //BLYNK_WRITE(Relay_VPin20)
+} //BLYNK_WRITE(Button_V20)
 
 
-BLYNK_WRITE(Relay_VPin21){
+BLYNK_WRITE(Timer_V21){
   int sBlynkButtonSetting= param.asInt();
   int sRelaySetting;
-  Serial << LOG0 << " BLYNK_WRITE(Relay_VPin21): Received Parameter= " << sBlynkButtonSetting << endl;
+  Serial << LOG0 << " BLYNK_WRITE(Timer_V21): Received Parameter= " << sBlynkButtonSetting << endl;
   Serial << LOG0 << " ******* Blynk Timer for Relay #1 ******" << endl;
   if (sBlynkButtonSetting == 1){
     sRelaySetting= sRelayClosed;
@@ -246,7 +246,7 @@ BLYNK_WRITE(Relay_VPin21){
   }
   sSetRelay(1, sRelaySetting);    //Set relay #1
   return;
-} //BLYNK_WRITE(Relay_VPin21)
+} //BLYNK_WRITE(Timer_V21)
 
 
 BLYNK_WRITE(Relay_VPin22){
