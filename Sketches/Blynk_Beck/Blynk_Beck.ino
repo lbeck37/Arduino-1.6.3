@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 12, 2015B";
+static const char szFileDate[]    = "Dec 13, 2015B";
+// 12/13/15 Merge in support for Fireplace.
 // 12/12/15 Created from Blynk_LightTimer.ino
 
 //Uncomment out desired implementation.
@@ -16,45 +17,60 @@ static const char szFileDate[]    = "Dec 12, 2015B";
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-//Get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
-#ifdef FRONT_LIGHTS
-  char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
-  static const char szSketchType[]    = "FRONT_LIGHTS";
-#endif
-#ifdef FIREPLACE
-  char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
-  static const char szSketchType[]    = "FIREPLACE";
-#endif
-#ifdef GARAGE
-  //char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";
-  static const char szSketchType[]    = "GARAGE";
-#endif
+//Define Virtual and Analog pin names
+#define DegC_V1          V1
+#define DegF_V2          V2
+#define DegF_V3          V3
+#define RelayState_V5    V5
+#define RelayState_V6    V6
+#define LCD_Line0_V7     V7
+#define LCD_Line1_V8     V8
+#define Terminal_V9      V9
+#define Button_V10       V10   //Relay 0
+#define Timer_V11        V11   //Relay 0
+#define Button_V20       V20   //Relay 1
+#define Timer_V21        V21   //Relay 1
 
 #define LOG0      lLineCount++ << " " << millis()
-
-//Define Virtual and Analog pin names
-#define DegF_VPin1          V1
-#define DegF_VPin2          V2
-#define DegF_VPin3          V3
-#define RelayState_VPin5    V5
-#define RelayState_VPin6    V6
-#define LCD_Line1_VPin7     V7
-#define LCD_Line1_VPin8     V8
-#define Terminal_VPin9      V9
-#define Button_V10          V10   //Relay 0
-#define Timer_V11           V11   //Relay 0
-#define Button_V20          V20   //Relay 1
-#define Timer_V21           V21   //Relay 1
-
-// Attach virtual serial terminal to Virtual Pin V1
-WidgetTerminal      terminal(Terminal_VPin9);
-WidgetLCD           LCDWidget(1);
 
 static const bool   bRelaysInverted       = true;
 static const int    sRelayOpen            = HIGH;
 static const int    sRelayClosed          = LOW;
 static const int    sNumRelays            = 2;
 static const int    sRelayPin[]           = {4, 5};
+//(3) types of sketches are supported: front lights, fireplace and garage
+static const int    sFrontLights          = 1;
+static const int    sFireplace            = 2;
+static const int    sGarage               = 3;
+static const int    sOneWirePin           = 12;   //Dallas DS18B20 Temperature Sensor
+
+//To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
+#ifdef FRONT_LIGHTS
+  char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
+  static const char szSketchType[]    = "FRONT_LIGHTS";
+  static int sSketchType= sFrontLights;
+#endif
+#ifdef FIREPLACE
+  char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
+  static const char szSketchType[]    = "FIREPLACE";
+  static int sSketchType= sFireplace;
+#endif
+#ifdef GARAGE
+  //char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";
+  static const char szSketchType[]    = "GARAGE";
+  static int sSketchType= sGarage;
+#endif
+
+//Attach virtual serial terminal to Virtual Pin V9
+WidgetTerminal      terminal(Terminal_V9);
+WidgetLCD           LCDWidget(1);
+
+//Maxim/Dallas OneWire sensors
+/* Set up a oneWire instance to communicate with any OneWire device*/
+OneWire oOneWire(sOneWirePin);
+
+/* Tell Dallas Temperature Library to use oneWire Library */
+DallasTemperature oSensors(&oOneWire);
 
 static int          sRelayState[2];
 static long         lLineCount        = 0;      //Serial Monitor uses for clarity.
@@ -155,23 +171,71 @@ int sBlynkLog(String szString, int sValue){
 } //sBlynkLog
 
 
+float fGetDegC() {
+  oSensors.requestTemperatures(); // Send the command to get temperatures
+  float fDegC= oSensors.getTempCByIndex(0);
+  return fDegC;
+}  //fGetDegC
+
+
+float fGetDegF() {
+  oSensors.requestTemperatures(); // Send the command to get temperatures
+  float fDegF= oSensors.getTempFByIndex(0);
+  return fDegF;
+}  //fGetDegF
+
+
+float fRound(float fNum) {
+  oSensors.requestTemperatures(); // Send the command to get temperatures
+  float fRounded= floor(fNum + 0.5);
+  return fRounded;
+}  //fRound
+
+
+/*
+  switch sSketchType{
+    case :
+      break;
+  } //switch
+  */
 //BLYNK_READ() functions are called by the Blynk app on the phone (at a 1 second interval)
 //and returns the value or state of some variable.
-BLYNK_READ(RelayState_VPin5){
-  Blynk.virtualWrite(RelayState_VPin5, !sRelayState[0]);
-} //BLYNK_READ(RelayState_VPin5)
-
-
-BLYNK_READ(RelayState_VPin6){
-  Blynk.virtualWrite(RelayState_VPin6, !sRelayState[1]);
-} //BLYNK_READ(RelayState_VPin6)
-
-
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
 //and pass a variable in the "param" object.
-BLYNK_WRITE(Terminal_VPin9)
+BLYNK_READ(DegC_V1){
+  float fDegC= fGetDegC();
+  Serial << LOG0 << " BLYNK_READ(DegC_V1): fGetDegC() returned " << fDegC << endl;
+  Blynk.virtualWrite(DegC_V1, fRound(fDegC));
+} //BLYNK_READ(DegC_V1)
+
+
+BLYNK_READ(DegF_V2){
+  float fDegF= fGetDegF();
+  Serial << LOG0 << " BLYNK_READ(DegF_V2): fGetDegF() returned " << fDegF << endl;
+  Blynk.virtualWrite(DegF_V2, fRound(fDegF));
+} //BLYNK_READ(DegF_V2)
+
+
+BLYNK_READ(DegF_V3){
+  float fDegF= fGetDegF();
+  //Serial << LOG0 << " BLYNK_READ(DegF_V3): fGetDegF() returned " << fDegF << endl;
+  Blynk.virtualWrite(DegF_V3, fDegF);
+} //BLYNK_READ(DegF_V3)
+
+
+BLYNK_READ(RelayState_V5){
+  Blynk.virtualWrite(RelayState_V5, !sRelayState[0]);
+} //BLYNK_READ(RelayState_V5)
+
+
+BLYNK_READ(RelayState_V6){
+  Blynk.virtualWrite(RelayState_V6, !sRelayState[1]);
+} //BLYNK_READ(RelayState_V6)
+
+
+BLYNK_WRITE(Terminal_V9)
 {
-  Serial << LOG0 << " BLYNK_WRITE(Terminal_VPin9): Received Parameter= " <<  param.asStr() << endl;
+  Serial << LOG0 << " BLYNK_WRITE(Terminal_V9): Received Parameter= " <<  param.asStr() << endl;
 
   // if you type "Marco" into Terminal Widget - it will respond: "Polo:"
   if (String("Marco") == param.asStr()) {
@@ -188,7 +252,7 @@ BLYNK_WRITE(Terminal_VPin9)
   // Ensure everything is sent
   terminal.flush();
   return;
-} //BLYNK_WRITE(Terminal_VPin9)
+} //BLYNK_WRITE(Terminal_V9)
 
 
 //Handler callback function called when Button set as a Switch is pressed.
