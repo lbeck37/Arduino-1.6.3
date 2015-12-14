@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 13, 2015G";
+static const char szFileDate[]    = "Dec 14, 2015";
+// 12/14/15 Test working on 17" Win7 I3 laptop
 // 12/13/15 Merge in support for Fireplace.
 // 12/12/15 Created from Blynk_LightTimer.ino
 
