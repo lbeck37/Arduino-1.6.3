@@ -1,13 +1,13 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 14, 2015";
-// 12/14/15 Test working on 17" Win7 I3 laptop
+static const char szFileDate[]    = "Dec 14, 2015L";
+// 12/14/15 Rearrange virtual pins, build GARAGE version.
 // 12/13/15 Merge in support for Fireplace.
 // 12/12/15 Created from Blynk_LightTimer.ino
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-  #define FIREPLACE
-//#define GARAGE
+//#define FIREPLACE
+#define GARAGE
 
 #include <Streaming.h>
 #include <ESP8266WiFi.h>
@@ -17,22 +17,48 @@ static const char szFileDate[]    = "Dec 14, 2015";
 #include <MPU6050.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#define ONEWIRE_PIN       12
 
-//Define Virtual and Analog pin names
-#define DegC_V1          V1
-#define DegF_V2          V2
-#define DegF_V3          V3
-#define RelayState_V5    V5
-#define RelayState_V6    V6
-#define Button_V10       V10   //Relay 0
-#define Timer_V11        V11   //Relay 0
-#define Button_V12       V12   //Relay 1
-#define Timer_V13        V13   //Relay 1
-#define LCD_Line0_V20    V20
-#define LCD_Line1_V21    V21
-#define Terminal_V22     V22
-#define LED_V23          V23
-#define LED_V24          V24
+//Define Virtual Pin names
+#define ReadF_V0          V0
+#define ReadF_V1          V1
+#define SetSetpointF_V2   V2
+#define GetSetpointF_V3   V3
+#define RunThermostat_V4  V4
+#define ThermoLED_V5      V5
+
+#define Unassigned_V6     V6
+
+#define Terminal_V7       V7
+#define LCD_Line0_V8      V8
+#define LCD_Line1_V9      V9
+
+//Relay #1
+#define Switch_1V10       V10
+#define TimerA_1V11       V11
+#define TimerB_1V12       V12
+#define State_1V13        V13
+#define LED_1V14          V14
+//Relay #2
+#define Switch_2V15       V15
+#define TimerA_2V16       V16
+#define TimerB_2V17       V17
+#define State_2V18        V18
+#define LED_2V19          V19
+//Relay #3
+#define Switch_3V20       V20
+#define TimerA_3V21       V21
+#define TimerB_3V22       V22
+#define State_3V23        V23
+#define LED_3V24          V24
+//Relay #4
+#define Switch_4V25       V25
+#define TimerA_4V26       V26
+#define TimerB_4V27       V27
+#define State_4V28        V28
+#define LED_4V29          V29
+#define Unassigned_V30    V30
+#define Unassigned_V31    V31
 
 #define LOG0      lLineCount++ << " " << millis()
 
@@ -45,7 +71,7 @@ static const int    sRelayPin[]           = {4, 5};
 static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
 static const int    sGarage               = 3;
-static const int    sOneWirePin           = 12;   //Dallas DS18B20 Temperature Sensor
+static const int    sOneWirePin           = ONEWIRE_PIN;   //Dallas DS18B20 Temperature Sensor
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
@@ -59,15 +85,16 @@ static const int    sOneWirePin           = 12;   //Dallas DS18B20 Temperature S
   static int sSketchType= sFireplace;
 #endif
 #ifdef GARAGE
-  //char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";
+  char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
   static const char szSketchType[]    = "GARAGE";
   static int sSketchType= sGarage;
 #endif
 
-WidgetTerminal      oTerminal(Terminal_V22);
+WidgetTerminal      oTerminal(Terminal_V7);
 WidgetLCD           LCDWidget(1);
-WidgetLED           oLED1(LED_V23);
-WidgetLED           oLED2(LED_V24);
+WidgetLED           oLED1(LED_1V14);
+WidgetLED           oLED2(LED_2V19);
+WidgetLED           oLED3(ThermoLED_V5);
 
 //Maxim/Dallas OneWire sensors
 /* Set up a oneWire instance to communicate with any OneWire device*/
@@ -80,7 +107,9 @@ static int          sRelayState[2];
 static long         lLineCount        = 0;      //Serial Monitor uses for clarity.
 static long         lLineCount2       = 0;      //For Blynk terminal window.
 static long         lNumLoops         = 1;
-static float        fDegF;
+static float        fLastDegF         = 37.37;  //Last temperature reading.
+static int          sCurrentSetPointF = 40;
+static bool         bRunThermostat    = false;
 
 
 void setup()
@@ -122,6 +151,7 @@ void vHandleBlynkLEDs(){
     Serial << LOG0 << " vHandleBlynkLEDs(): Call oLED1.on()" << endl;
     oLED1.on();
   } //if(sRelayState[0])else
+
   if (sRelayState[1]){
     Serial << LOG0 << " vHandleBlynkLEDs(): Call oLED2.off()" << endl;
     oLED2.off();
@@ -130,6 +160,16 @@ void vHandleBlynkLEDs(){
     Serial << LOG0 << " vHandleBlynkLEDs(): Call oLED2.on()" << endl;
     oLED2.on();
   } //if(sRelayState[1])else
+
+  if (bRunThermostat){
+    Serial << LOG0 << " vHandleBlynkLEDs(): Call oLED3.on()" << endl;
+    oLED3.on();
+  } //if(sRelayState[1])
+  else{
+    Serial << LOG0 << " vHandleBlynkLEDs(): Call oLED3.off()" << endl;
+    oLED3.off();
+  } //if(sRelayState[1])else
+
   return;
 } //vHandleBlynkLEDs
 
@@ -206,64 +246,88 @@ int sSetRelay(int sRelay, int sRelaySetting){
 } //sSetRelay
 
 
-float fGetDegC() {
-  oSensors.requestTemperatures(); // Send the command to get temperatures
-  float fDegC= oSensors.getTempCByIndex(0);
-  return fDegC;
-}  //fGetDegC
-
-
-float fGetDegF() {
-  float fDegF= 37.37;   //Value used for default in testing w/o reading sensor.
-  oSensors.requestTemperatures(); // Send the command to get temperatures
-  fDegF= oSensors.getTempFByIndex(0);
-  return fDegF;
+float fGetDegF(bool bTakeReading){
+  float fDegFReturn= 37.37;   //Value used for default in testing w/o reading sensor. fLastDegF
+  if (bTakeReading){
+    oSensors.requestTemperatures(); // Send the command to get temperatures
+    fDegFReturn= oSensors.getTempFByIndex(0);
+    fLastDegF= fDegFReturn;
+  } //if(bTakeReading)
+  else{
+    fDegFReturn= fLastDegF;
+  } //if(bTakeReading)else
+  return fDegFReturn;
 }  //fGetDegF
 
 
-float fRound(float fNum) {
+float fRound(float fNum){
   oSensors.requestTemperatures(); // Send the command to get temperatures
   float fRounded= floor(fNum + 0.5);
   return fRounded;
 }  //fRound
 
 
+int sSendIntToBlynk(int sVirtualPin, int sValue){
+  String szString= " sSendIntToBlynk: ";
+  sBlynkLog(szString, sValue);
+  Blynk.virtualWrite(sVirtualPin, sValue);
+  return 1;
+} //sSendIntToBlynk
+
+
 //BLYNK_READ() functions are called by the Blynk app on the phone (at a 1 second interval)
 //and returns the value or state of some variable.
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
 //and pass a variable in the "param" object.
-BLYNK_READ(DegC_V1){
-  float fDegC= fGetDegC();
-  Serial << LOG0 << " BLYNK_READ(DegC_V1): fGetDegC() returned " << fDegC << endl;
-  Blynk.virtualWrite(DegC_V1, fRound(fDegC));
-} //BLYNK_READ(DegC_V1)
+BLYNK_READ(ReadF_V0){
+  bool bTakeReading= true;
+  float fDegF= fGetDegF(bTakeReading);
+  Serial << LOG0 << " BLYNK_READ(ReadF_V0): fGetDegF() returned " << fDegF << endl;
 
-
-BLYNK_READ(DegF_V2){
-  float fDegF= fGetDegF();
-  Serial << LOG0 << " BLYNK_READ(DegF_V2): fGetDegF() returned " << fDegF << endl;
-
-  String szString= " DegF_V2: ";
+  String szString= " ReadF_V0: ";
   sBlynkLog(szString, fDegF);
 
-  Blynk.virtualWrite(DegF_V2, fRound(fDegF));
-} //BLYNK_READ(DegF_V2)
+  Blynk.virtualWrite(ReadF_V0, fRound(fDegF));
+} //BLYNK_READ(ReadF_V0)
 
 
-BLYNK_READ(DegF_V3){
-  float fDegF= fGetDegF();
-  Blynk.virtualWrite(DegF_V3, fDegF);
-} //BLYNK_READ(DegF_V3)
+BLYNK_READ(ReadF_V1){
+  bool bTakeReading= false;
+  float fDegF= fGetDegF(bTakeReading);
+  Blynk.virtualWrite(ReadF_V1, fDegF);
+} //BLYNK_READ(ReadF_V1)
 
 
-BLYNK_READ(RelayState_V5){
-  Blynk.virtualWrite(RelayState_V5, !sRelayState[0]);
-} //BLYNK_READ(RelayState_V5)
+BLYNK_WRITE(SetSetpointF_V2){
+  int sThermoSetting= param.asInt();
+  sCurrentSetPointF= sThermoSetting;
+  String szString= " SetSetpointF_V2: ";
+  sBlynkLog(szString, sCurrentSetPointF);
+  //Send set point back to Value box set with PUSH from GetSetpointF_V3.
+  sSendIntToBlynk(GetSetpointF_V3, sCurrentSetPointF);
+  return;
+} //BLYNK_WRITE(Switch_2V15)
 
 
-BLYNK_READ(RelayState_V6){
-  Blynk.virtualWrite(RelayState_V6, !sRelayState[1]);
-} //BLYNK_READ(RelayState_V6)
+BLYNK_READ(GetSetpointF_V3){
+  int sReturnF= sCurrentSetPointF;
+  Serial << LOG0 << " BLYNK_READ(GetSetpointF_V3): Sending " << sReturnF << " back to Blynk" << endl;
+  Blynk.virtualWrite(GetSetpointF_V3, sReturnF);
+} //BLYNK_READ(GetSetpointF_V3)
+
+
+BLYNK_WRITE(RunThermostat_V4){
+  //Turn thermostat on and off.
+  bRunThermostat= param.asInt();
+  String szString= " RunThermostat_V4: ";
+  sBlynkLog(szString, bRunThermostat);
+
+  //Send set point back to Value box set with PUSH from GetSetpointF_V3.
+  sSendIntToBlynk(GetSetpointF_V3, sCurrentSetPointF);
+
+  vHandleBlynkLEDs();
+  return;
+} //BLYNK_WRITE(RunThermostat_V4)
 
 
 //Handler callback function called when Button set as a Switch is pressed.
@@ -271,13 +335,13 @@ BLYNK_READ(RelayState_V6){
 //Opto-isolated relay is inverse logic, pulling input pin low cn relay.
 //Relay #0 is connected to Blynk virtual pins 10, 11, 12
 //Relay #1 is connected to Blynk virtual pins 20, 21, 22
-BLYNK_WRITE(Button_V10){
+BLYNK_WRITE(Switch_1V10){
   int sSetting= param.asInt();
   int sRelaySetting;
-  Serial << LOG0 << " BLYNK_WRITE(Button_V10): Received Parameter= " << sSetting << endl;
+  Serial << LOG0 << " BLYNK_WRITE(Switch_1V10): Received Parameter= " << sSetting << endl;
   Serial << LOG0 << " ******* Blynk Button for Relay #0 ******" << endl;
 
-  String szString= " Button_V10: ";
+  String szString= " Switch_1V10: ";
   sBlynkLog(szString, sSetting);
 /*
   //Test writing to LCD
@@ -294,16 +358,16 @@ BLYNK_WRITE(Button_V10){
   }
   sSetRelay(0, sRelaySetting);    //Set relay #0
   return;
-} //BLYNK_WRITE(Button_V10)
+} //BLYNK_WRITE(Switch_1V10)
 
 
-BLYNK_WRITE(Timer_V11){
+BLYNK_WRITE(TimerA_1V11){
   int sSetting= param.asInt();
   int sRelaySetting;
-  Serial << LOG0 << " BLYNK_WRITE(Timer_V11): Received Parameter= " << sSetting << endl;
+  Serial << LOG0 << " BLYNK_WRITE(TimerA_1V11): Received Parameter= " << sSetting << endl;
   Serial << LOG0 << " ******* Blynk Timer for Relay #0 ******" << endl;
 
-  String szString= " Timer_V11: ";
+  String szString= " TimerA_1V11: ";
   sBlynkLog(szString, sSetting);
 
   if (sSetting == 1){
@@ -314,16 +378,21 @@ BLYNK_WRITE(Timer_V11){
     }
   sSetRelay(0, sRelaySetting);    //Set relay #0
   return;
-  } //BLYNK_WRITE(Timer_V11)
+  } //BLYNK_WRITE(TimerA_1V11)
 
 
-BLYNK_WRITE(Button_V12){
+BLYNK_READ(State_1V13){
+  Blynk.virtualWrite(State_1V13, !sRelayState[0]);
+} //BLYNK_READ(State_1V13)
+
+
+BLYNK_WRITE(Switch_2V15){
   int sSetting= param.asInt();
   int sRelaySetting;
-  Serial << LOG0 << " BLYNK_WRITE(Button_V12): Received Parameter= " << sSetting << endl;
+  Serial << LOG0 << " BLYNK_WRITE(Switch_2V15): Received Parameter= " << sSetting << endl;
   Serial << LOG0 << " ******* Blynk Button for Relay #1 ******" << endl;
 
-  String szString= " Button_V12: ";
+  String szString= " Switch_2V15: ";
   sBlynkLog(szString, sSetting);
 
   if (sSetting == 1){
@@ -334,16 +403,16 @@ BLYNK_WRITE(Button_V12){
   }
   sSetRelay(1, sRelaySetting);    //Set relay #1
   return;
-} //BLYNK_WRITE(Button_V12)
+} //BLYNK_WRITE(Switch_2V15)
 
 
-BLYNK_WRITE(Timer_V13){
+BLYNK_WRITE(TimerA_2V16){
   int sSetting= param.asInt();
   int sRelaySetting;
-  Serial << LOG0 << " BLYNK_WRITE(Timer_V13): Received Parameter= " << sSetting << endl;
+  Serial << LOG0 << " BLYNK_WRITE(TimerA_2V16): Received Parameter= " << sSetting << endl;
   Serial << LOG0 << " ******* Blynk Timer for Relay #1 ******" << endl;
 
-  String szString= " Timer_V13: ";
+  String szString= " TimerA_2V16: ";
   sBlynkLog(szString, sSetting);
 
   if (sSetting == 1){
@@ -354,12 +423,18 @@ BLYNK_WRITE(Timer_V13){
   }
   sSetRelay(1, sRelaySetting);    //Set relay #1
   return;
-} //BLYNK_WRITE(Timer_V13)
+} //BLYNK_WRITE(TimerA_2V16)
+
+
+BLYNK_READ(State_2V18){
+  Blynk.virtualWrite(State_2V18, !sRelayState[1]);
+} //BLYNK_READ(State_2V18)
+
 
 /*
-BLYNK_WRITE(Terminal_V22)
+BLYNK_WRITE(Terminal_V7)
 {
-  Serial << LOG0 << " BLYNK_WRITE(Terminal_V22): Received Parameter= " <<  param.asStr() << endl;
+  Serial << LOG0 << " BLYNK_WRITE(Terminal_V7): Received Parameter= " <<  param.asStr() << endl;
   // if you type "Marco" into Terminal Widget - it will respond: "Polo:"
   if (String("Marco") == param.asStr()) {
       oTerminal.println("You said: 'Marco'") ;
@@ -375,6 +450,6 @@ BLYNK_WRITE(Terminal_V22)
   // Ensure everything is sent
   oTerminal.flush();
   return;
-} //BLYNK_WRITE(Terminal_V22)
+} //BLYNK_WRITE(Terminal_V7)
 */
 //Last line.
