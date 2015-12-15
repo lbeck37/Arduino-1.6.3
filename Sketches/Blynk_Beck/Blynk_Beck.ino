@@ -1,13 +1,14 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 14, 2015L";
+static const char szFileDate[]    = "Dec 15, 2015";
+// 12/15/15 Remove relat state virtual pins, implement thermostat for GARAGE version.
 // 12/14/15 Rearrange virtual pins, build GARAGE version.
 // 12/13/15 Merge in support for Fireplace.
 // 12/12/15 Created from Blynk_LightTimer.ino
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-//#define FIREPLACE
-#define GARAGE
+#define FIREPLACE
+//#define GARAGE
 
 #include <Streaming.h>
 #include <ESP8266WiFi.h>
@@ -37,26 +38,30 @@ static const char szFileDate[]    = "Dec 14, 2015L";
 #define Switch_1V10       V10
 #define TimerA_1V11       V11
 #define TimerB_1V12       V12
-#define State_1V13        V13
-#define LED_1V14          V14
+#define LED_1V13          V13
+
+#define Unassigned_V14    V14
 //Relay #2
 #define Switch_2V15       V15
 #define TimerA_2V16       V16
 #define TimerB_2V17       V17
-#define State_2V18        V18
-#define LED_2V19          V19
+#define LED_2V18          V18
+
+#define Unassigned_V19    V19
 //Relay #3
 #define Switch_3V20       V20
 #define TimerA_3V21       V21
 #define TimerB_3V22       V22
-#define State_3V23        V23
-#define LED_3V24          V24
+#define LED_3V23          V23
+
+#define Unassigned_V24    V24
 //Relay #4
 #define Switch_4V25       V25
 #define TimerA_4V26       V26
 #define TimerB_4V27       V27
-#define State_4V28        V28
-#define LED_4V29          V29
+#define LED_4V28          V28
+
+#define Unassigned_V29    V29
 #define Unassigned_V30    V30
 #define Unassigned_V31    V31
 
@@ -92,8 +97,8 @@ static const int    sOneWirePin           = ONEWIRE_PIN;   //Dallas DS18B20 Temp
 
 WidgetTerminal      oTerminal(Terminal_V7);
 WidgetLCD           LCDWidget(1);
-WidgetLED           oLED1(LED_1V14);
-WidgetLED           oLED2(LED_2V19);
+WidgetLED           oLED1(LED_1V13);
+WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(ThermoLED_V5);
 
 //Maxim/Dallas OneWire sensors
@@ -381,9 +386,7 @@ BLYNK_WRITE(TimerA_1V11){
   } //BLYNK_WRITE(TimerA_1V11)
 
 
-BLYNK_READ(State_1V13){
-  Blynk.virtualWrite(State_1V13, !sRelayState[0]);
-} //BLYNK_READ(State_1V13)
+//WidgetLED oLED1(LED_1V13) is constructed earlier
 
 
 BLYNK_WRITE(Switch_2V15){
@@ -426,10 +429,7 @@ BLYNK_WRITE(TimerA_2V16){
 } //BLYNK_WRITE(TimerA_2V16)
 
 
-BLYNK_READ(State_2V18){
-  Blynk.virtualWrite(State_2V18, !sRelayState[1]);
-} //BLYNK_READ(State_2V18)
-
+//WidgetLED oLED1(LED_2V18) is constructed earlier
 
 /*
 BLYNK_WRITE(Terminal_V7)
