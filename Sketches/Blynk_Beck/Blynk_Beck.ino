@@ -1,9 +1,7 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-<<<<<<< HEAD
-//static const char szFileDate[]    = "Dec 16, 2015H";
+static const char szFileDate[]    = "Dec 16, 2015H";
 // 12/16/15 Implement thermostat for GARAGE version.
-static const char szFileDate[]    = "Dec 15, 2015C";
-// 12/15/15 Remove relat state virtual pins, implement thermostat for GARAGE version.
+// 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
 // 12/14/15 Rearrange virtual pins, build GARAGE version.
 // 12/13/15 Merge in support for Fireplace.
 // 12/12/15 Created from Blynk_LightTimer.ino
@@ -11,7 +9,7 @@ static const char szFileDate[]    = "Dec 15, 2015C";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGE
+#define GARAGE
 
 #include <Streaming.h>
 #include <Time.h>
