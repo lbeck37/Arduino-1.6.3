@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 16, 2015H";
+static const char szFileDate[]    = "Dec 16, 2015J";
 // 12/16/15 Implement thermostat for GARAGE version.
 // 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
 // 12/14/15 Rearrange virtual pins, build GARAGE version.
@@ -80,7 +80,7 @@ static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
 static const int    sGarage               = 3;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
-static const int    sMaxFDelta            = 2;            //Amount to allow room temp to rise above setpoint.
+static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
 static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;
@@ -88,9 +88,9 @@ static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
 static const int    sThermoRelay      = 0;      //Relay number that turns furnace on and off.
-static const long   sThermoReadSpacing= 3000;   //Number of Msec between reads in sHandleThermostat()
-static const long   sThermoTimesInRow = 3;      //Number of times in a row temp is outside range before thermostat switches
-static const float  fMaxHeatRangeF    = 2.00;    //Maximum temperature above setpoint before heat is turned off.
+static const long   sThermoReadSpacing= 3000;   //Number of mSec between reads
+static const long   sThermoTimesInRow = 3;      //Max times temp is outside range before switch
+static const float  fMaxHeatRangeF    = 2.00;   //Temp above setpoint before heat is turned off
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
@@ -128,7 +128,7 @@ static long         lLineCount2       = 0;      //For Blynk terminal window.
 static long         lNumLoops         = 1;
 static float        fLastDegF         = 37.37;  //Last temperature reading.
 static int          sCurrentSetpointF = 40;
-static int          sThermoTimesCount = 0;      //Number of times temperature out of range sCurrentSetpointF to fThermoTurnOffDegF
+static int          sThermoTimesCount = 0;      //Number of times temperature out of range
 static long         lNextThermoMsec   = 0;
 static bool         bThermoOn         = false;  //Whether thermostat is running.
 static bool         bHeatIsOn         = false;  //If switch is on to turn on furnace.
