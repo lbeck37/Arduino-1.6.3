@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 15, 2015";
+static const char szFileDate[]    = "Dec 15, 2015B";
 // 12/15/15 Remove relat state virtual pins, implement thermostat for GARAGE version.
 // 12/14/15 Rearrange virtual pins, build GARAGE version.
 // 12/13/15 Merge in support for Fireplace.
@@ -11,6 +11,7 @@ static const char szFileDate[]    = "Dec 15, 2015";
 //#define GARAGE
 
 #include <Streaming.h>
+#include <Time.h>
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 #include <Wire.h>
@@ -78,6 +79,11 @@ static const int    sFireplace            = 2;
 static const int    sGarage               = 3;
 static const int    sOneWirePin           = ONEWIRE_PIN;   //Dallas DS18B20 Temperature Sensor
 
+static const long   lMsecPerDay           = 86400000;
+static const long   lMsecPerHour          =  3600000;
+static const long   lMsecPerMin           =    60000;
+static const long   lMsecPerSec           =     1000;
+
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
   char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
@@ -119,6 +125,7 @@ static bool         bRunThermostat    = false;
 
 void setup()
 {
+  sSetupTime();
   Serial.begin(9600);
   Serial << endl << LOG0 << " setup(): Initialized serial to 9600 baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szSketchType << ", " << szFileDate << endl;
@@ -145,6 +152,11 @@ void loop()
 {
   Blynk.run();
 } //loop
+
+int sSetupTime(){
+  setTime(0,0,0, 0,0,0);  //hr, min, sec, day, month, year
+  return 1;
+} //sSetupTime
 
 
 void vHandleBlynkLEDs(){
@@ -190,14 +202,56 @@ int sTerminalPrintVersion(){
 } //sTerminalPrintVersion
 
 
+String szGetTime(){
+  long    lMsecNow  = millis();
+  String  szString;
+
+  int sDays    =    lMsecNow                                               / lMsecPerDay ;
+  int sHours   =   (lMsecNow % lMsecPerDay)                                / lMsecPerHour;
+  int sMinutes =  ((lMsecNow % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
+  int sSeconds = (((lMsecNow % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
+  int sMsec    =    lMsecNow % lMsecPerSec;
+  //Serial << LOG0 << " szGetTime: Days, Hours, Min, Sec, mSec " << sDays << ", " << sHours << ", " << sMinutes << ", " << sSeconds << ", " << sMsec << endl;
+  /*szString = String(sDays) + ":";
+  szString+= String(sHours) + ":";
+  szString+= String(sMinutes) + ":";
+  szString+= String(sSeconds) + ".";
+  szString+= String(sMsec) + " ";     //Send with trailing blank to seperate from next field.
+  */
+  szString = String(sDays) + ":";
+  szString+= String(szAddZeros(sHours, 2)) + ":";
+  szString+= String(szAddZeros(sMinutes, 2)) + ":";
+  szString+= String(szAddZeros(sSeconds, 2)) + ".";
+  szString+= String(szAddZeros(sMsec, 3)) + " ";     //Send with trailing blank to seperate from next field.
+  //Serial << LOG0 << " szGetTime: Returning |" << szString << "|" << endl;
+  return szString;
+} //szGetTime
+
+
+//szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
+String szAddZeros(int sValue, int sNumDigits){
+  String szReturn;
+  if ((sNumDigits == 3) && (sValue < 100)){
+    szReturn= "0";
+  } //if((sNumDigits==3)&&(sValue<100)
+  if (sValue < 10){
+    szReturn += "0";
+  } //if(lValue<10)
+  szReturn += String(sValue);
+  return szReturn;
+} //szAddZeros
+
+
 int sBlynkLog(String szString, int sValue){
-  long lMillis= millis();
-  long lCurrentLine= lLineCount2++;
+  String  szTime= szGetTime();
+  long    lMillis= millis();
+  long    lCurrentLine= lLineCount2++;
 
   String szTermString= "";
   szTermString += lCurrentLine;
   szTermString += " ";
-  szTermString += lMillis;
+  //szTermString += lMillis;
+  szTermString += szTime;
   szTermString += szString;
   szTermString +=  sValue;
   sWriteTerminalLine(szTermString);
@@ -206,13 +260,15 @@ int sBlynkLog(String szString, int sValue){
 
 
 int sBlynkLog(String szString, float fValue){
+  String szTime= szGetTime();
   long lMillis= millis();
   long lCurrentLine= lLineCount2++;
 
   String szTermString= "";
   szTermString += lCurrentLine;
   szTermString += " ";
-  szTermString += lMillis;
+  //szTermString += lMillis;
+  szTermString += szTime;
   szTermString += szString;
   szTermString +=  fValue;
   sWriteTerminalLine(szTermString);
