@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 16, 2015S";
+static const char szFileDate[]    = "Dec 17, 2015B";
+// 12/17/15 Add HandleSystem() to take care of relays also in loop().
 // 12/16/15 Implement thermostat for GARAGE version.
 // 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
 // 12/14/15 Rearrange virtual pins, build GARAGE version.
@@ -69,12 +70,13 @@ static const char szFileDate[]    = "Dec 16, 2015S";
 
 #define LOG0    szLogLineHeader(lLineCount++)
 
-static const int    sSwitchOpen           = HIGH;
-static const int    sSwitchClosed         = LOW;
+static const int    sSwitchOpen           = 0;
+static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
 static const int    sOn                   = 1;
-static const int    sNumRelays            = 2;
-static const int    sRelayPin[]           = {4, 5};
+static const int    sNumSwitches          = 2;
+static const int    asSwitchPin[]         = {0, 4, 5};    //0 not used, switches are at 1,2,...
+static const int    asSwitchPolarity[]    = {0, -1, -1};  //Opto-isolated relays close when pulled low.
 //(3) types of sketches are supported: front lights, fireplace and garage
 static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
@@ -87,10 +89,10 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
-static const int    sThermoRelay      = 0;      //Relay number that turns furnace on and off.
-static const long   sThermoReadSpacing= 5000;   //Number of mSec between reads
-static const long   sThermoTimesInRow = 3;      //Max times temp is outside range before switch
-static const float  fMaxHeatRangeF    = 2.00;   //Temp above setpoint before heat is turned off
+static const int    sThermoSwitchNum      = 1;      //Switch number that turns furnace on and off.
+static const long   sSystemHandlerSpacing = 10000;   //Number of mSec between running system handlers
+static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
+static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
@@ -122,14 +124,14 @@ OneWire oOneWire(sOneWirePin);
 /* Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature oSensors(&oOneWire);
 
-static int          sRelayState[2];
+static int          asSwitchState[sNumSwitches + 1];
 static long         lLineCount        = 0;      //Serial Monitor uses for clarity.
 static long         lLineCount2       = 0;      //For Blynk terminal window.
 static long         lNumLoops         = 1;
 static float        fLastDegF         = 37.37;  //Last temperature reading.
 static int          sSetpointF        = 37;
 static int          sThermoTimesCount = 0;      //Number of times temperature out of range
-static long         lNextThermoMsec   = 0;
+static long         lNextHandlerMsec  = 0;
 static bool         bThermoOn         = true;  //Whether thermostat is running.
 static bool         bHeatIsOn         = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF    = sSetpointF + fMaxHeatRangeF;
@@ -140,21 +142,21 @@ void setup()
   Serial.begin(9600);
   Serial << endl << LOG0 << " setup(): Initialized serial to 9600 baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szSketchType << ", " << szFileDate << endl;
+
   Wire.begin();
 
   Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, dlinky, Qazqaz11)" << endl;
   Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11");
-  Serial << LOG0 << " setup(): Back from Blynk.begin()" << endl;
-
-  Serial << LOG0 << " setup(): sRelayPin[0]= " << sRelayPin[0] << ", sRelayPin[1]= " << sRelayPin[1] << endl;
+  String szLogString = "Blynk.begin returned";
+  LogToBoth(szLogString);
+  SetupSwitches();
+  //Serial << LOG0 << " setup(): Back from Blynk.begin()" << endl;
 
   /*//Test writing to LCD
   LCDWidget.clear();
   int sCharPos= 0;   //Position 0-15
   int sLineNum= 0;   //Line 0-1
   LCDWidget.print(0, 0, "Wow! :)");*/
-
-  sSetupRelays();
   return;
 } //setup
 
@@ -162,7 +164,7 @@ void setup()
 void loop()
 {
   Blynk.run();
-  sHandleThermostat();
+  HandleSystem();
 } //loop
 
 int sSetupTime(){
@@ -171,120 +173,171 @@ int sSetupTime(){
 } //sSetupTime
 
 
-int sDebugHandleThermostat(float fDegF){
-  String szLogString = "sHandleThermostat";
-  String szLogString2= " ";
-  sLogToBoth(szLogString);
+void DebugHandleThermostat(float fDegF){
+  //String szLogString2= " ";
+  String szLogString = "HandleThermostat";
+  LogToBoth(szLogString);
   szLogString= " DegF=";
-  sLogToBoth(szLogString, fDegF);
+  LogToBoth(szLogString, fDegF);
   szLogString= " SetpointF=";
-  sLogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, sSetpointF);
   szLogString= " OffDegF=";
-  sLogToBoth(szLogString, fThermoOffDegF);
+  LogToBoth(szLogString, fThermoOffDegF);
   szLogString= " bHeatIsOn=";
-  sLogToBoth(szLogString, bHeatIsOn);
+  LogToBoth(szLogString, bHeatIsOn);
   szLogString= " OnCount=";
-  sLogToBoth(szLogString, sThermoTimesCount);
-  return 1;
-} //sDebugHandleThermostat
+  LogToBoth(szLogString, sThermoTimesCount);
+  return;
+} //DebugHandleThermostat
 
 
-int sHandleThermostat(){
-  if (millis() >= lNextThermoMsec){
-    String szLogString = "sHandleThermostat";
-    lNextThermoMsec= millis() + sThermoReadSpacing;
-    //Only do anything if the thermostat is turned on.
-    if (bThermoOn){
-      float fCurrentF= fGetDegF(true);
-      sDebugHandleThermostat(fCurrentF);
-      if (bHeatIsOn){
-        if (fCurrentF >= fThermoOffDegF){
-          if (++sThermoTimesCount >= sThermoTimesInRow){
-            szLogString= " Open Switch";
-            sLogToBoth(szLogString);
-            sSetThermoSwitch(sSwitchOpen);
-            bHeatIsOn= false;
-            sThermoTimesCount= 0;
-          } //if(sThermoTimesCount>=sThermoTimesInRow)
-        } //if(fCurrentF>=fThermoOffDegF)
-        else{
+void HandleSystem(){
+  if (millis() >= lNextHandlerMsec){
+    lNextHandlerMsec= millis() + sSystemHandlerSpacing;
+    HandleThermostat();
+    HandleBlynkLEDs();
+    HandleThermoSwitch();
+  } //if(millis()>=lNextHandlerMsec)
+  return;
+} //HandleSystem
+
+
+void HandleThermostat(){
+  //if (millis() >= lNextHandlerMsec){
+  String szLogString = "";
+  //Only do anything if the thermostat is turned on.
+  if (bThermoOn){
+    float fCurrentF= fGetDegF(true);
+    DebugHandleThermostat(fCurrentF);
+    if (bHeatIsOn){
+      if (fCurrentF >= fThermoOffDegF){
+        if (++sThermoTimesCount >= sThermoTimesInRow){
+          szLogString= " Open Switch";
+          LogToBoth(szLogString);
+          SetThermoSwitch(sSwitchOpen);
+          bHeatIsOn= false;
           sThermoTimesCount= 0;
-        } //if(fCurrentF>=fThermoOffDegF)else
-      } //if(bHeatIsOn)
+        } //if(sThermoTimesCount>=sThermoTimesInRow)
+      } //if(fCurrentF>=fThermoOffDegF)
       else{
-        if (fCurrentF < sSetpointF){
-          if (++sThermoTimesCount >= sThermoTimesInRow){
-            szLogString= " Close Switch";
-            sLogToBoth(szLogString);
-            bHeatIsOn= true;
-            sSetThermoSwitch(sSwitchClosed);
-            sThermoTimesCount= 0;
-          } //if(sThermoTimesCount>=sThermoTimesInRow)
-        } //if(fCurrentF<sSetpointF)
-        else{
-          sThermoTimesCount= 0;
-        } //if(fCurrentF<sSetpointF)else
-      } //if(bHeatIsOn)else
-    } //if(bThermoOn)
+        sThermoTimesCount= 0;
+      } //if(fCurrentF>=fThermoOffDegF)else
+    } //if(bHeatIsOn)
     else{
-      sLogToBoth(szLogString);
-      szLogString= " bThermoOn is false";
-      sLogToBoth(szLogString);
-    }
-  } //if(millis()>=lNextThermoMsec)
-  return 1;
-} //sHandleThermostat
+      if (fCurrentF < sSetpointF){
+        if (++sThermoTimesCount >= sThermoTimesInRow){
+          szLogString= " Close Switch";
+          LogToBoth(szLogString);
+          bHeatIsOn= true;
+          SetThermoSwitch(sSwitchClosed);
+          sThermoTimesCount= 0;
+        } //if(sThermoTimesCount>=sThermoTimesInRow)
+      } //if(fCurrentF<sSetpointF)
+      else{
+        sThermoTimesCount= 0;
+      } //if(fCurrentF<sSetpointF)else
+    } //if(bHeatIsOn)else
+  } //if(bThermoOn)
+  else{
+    LogToBoth(szLogString);
+    szLogString= " bThermoOn is false";
+    LogToBoth(szLogString);
+  }
+  //} //if(millis()>=lNextHandlerMsec)
+  return;
+} //HandleThermostat
 
 
-int sSetThermoState(int sState){
-  if (sState == sOn){
+void HandleBlynkLEDs(){
+  Serial << LOG0 << " HandleBlynkLEDs(): Switch 1, 2, bThermoOn: " << asSwitchState[1] << ", " << asSwitchState[2] << ", " << bThermoOn << endl;
+  String szLogString = "HandleBlynkLEDs()";
+  LogToBoth(szLogString);
+  if (asSwitchState[1]){
+    oLED1.on();
+  } //if(asSwitchState[1])
+  else{
+    oLED1.off();
+  } //if(asSwitchState[1])else
+
+  if (asSwitchState[2]){
+    oLED2.on();
+  } //if(asSwitchState[2])
+  else{
+    oLED2.off();
+  } //if(asSwitchState[2])else
+
+  if (bThermoOn){
+    oLED3.on();
+  } //if(bThermoOn)
+  else{
+    oLED3.off();
+  } //if(bThermoOn)else
+  return;
+} //HandleBlynkLEDs
+
+
+void HandleThermoSwitch(){
+  String szLogString = "HandleThermoSwitch()";
+  LogToBoth(szLogString);
+  //int sSetting;
+  //Make sure Thermostat switch state represents bHeatOn correctly.
+  if (bHeatIsOn){
+    asSwitchState[sThermoSwitchNum]= sOn;
+  } //if(bHeatIsOn)
+  else{
+    asSwitchState[sThermoSwitchNum]= sOff;
+  } //if(bHeatIsOn)else
+  int sSetting= asSwitchPolarity[sThermoSwitchNum] * asSwitchState[sThermoSwitchNum];
+  SetSwitch(sThermoSwitchNum, sSetting);
+  return;
+} //HandleThermoSwitch
+
+
+void SetThermoState(int sSwitchState){
+  if (sSwitchState == sOn){
     bThermoOn= true;
   } //if(sState==sOn)
   else{
     bThermoOn= false;
     bHeatIsOn= false;
     sThermoTimesCount= 0;
-    sSetThermoSwitch(sSwitchOpen);
+    SetThermoSwitch(sSwitchOpen);
   } //if(sState==sOn)else
-  return 1;
-} //sSetThermoState
+  return;
+} //SetThermoState
 
 
-int sSetThermoSwitch(int sRelaySetting){
-  sSetRelay(sThermoRelay, sRelaySetting);
-  return 1;
-} //sSetThermoSwitch
+void SetThermoSwitch(int sSwitchSetting){
+  SetSwitch(sThermoSwitchNum, sSwitchSetting);
+  return;
+} //SetThermoSwitch
 
 
-int sHandleBlynkLEDs(){
-  if (sRelayState[0]){
-    Serial << LOG0 << " sHandleBlynkLEDs(): Call oLED1.off()" << endl;
-    oLED1.off();
-  } //if(sRelayState[0])
-  else{
-    Serial << LOG0 << " sHandleBlynkLEDs(): Call oLED1.on()" << endl;
-    oLED1.on();
-  } //if(sRelayState[0])else
+void SetupSwitches(){
+  String szLogString = "SetupSwitches()";
+  LogToBoth(szLogString);
+  //Serial << LOG0 << " SetupSwitches: Call pinMode() & SetSwitch() to enable OUTPUT on both pins" << endl;
+  for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
+    pinMode(asSwitchPin[sSwitch], OUTPUT);
+    SetSwitch(sSwitch, sSwitchOpen);
+  } //for
+  return;
+} //SetupSwitches
 
-  if (sRelayState[1]){
-    Serial << LOG0 << " sHandleBlynkLEDs(): Call oLED2.off()" << endl;
-    oLED2.off();
-  } //if(sRelayState[1])
-  else{
-    Serial << LOG0 << " sHandleBlynkLEDs(): Call oLED2.on()" << endl;
-    oLED2.on();
-  } //if(sRelayState[1])else
 
-  if (bThermoOn){
-    Serial << LOG0 << " sHandleBlynkLEDs(): Call oLED3.on()" << endl;
-    oLED3.on();
-  } //if(bThermoOn)
-  else{
-    Serial << LOG0 << " sHandleBlynkLEDs(): Call oLED3.off()" << endl;
-    oLED3.off();
-  } //if(bThermoOn)else
-  return 1;
-} //sHandleBlynkLEDs
+void SetSwitch(int sSwitch, int sSetting){
+  //Serial << LOG0 << " SetSwitch: Call digitalWrite to set relay on Pin " << asSwitchPin[sRelay] << " to " << sSwitchSetting << endl;
+  /*String szLogString= "Set Switch ";
+  szLogString += sRelay;
+  szLogString += " to ";
+  szLogString += !sSwitchSetting;
+  LogToBoth(szLogString);*/
+
+  digitalWrite(asSwitchPin[sSwitch], sSetting);
+  asSwitchState[sSwitch]= sSetting;
+  HandleBlynkLEDs();
+  return;
+} //SetSwitch
 
 
 String szGetTime(long lMsec){
@@ -332,20 +385,20 @@ int sTerminalPrintVersion(){
 
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
-//int sWriteTerminalLine(char *szString){
-int sWriteTerminalLine(String szString){
+//int WriteTerminalLine(char *szString){
+void WriteTerminalLine(String szString){
   oTerminal.println(szString) ;
   oTerminal.flush();          // Ensure everything is sent
-  return 1;
-} //sWriteTerminalLine
+  return;
+} //WriteTerminalLine
 
 
-int sWriteTerminalString(String szString){
+void WriteTerminalString(String szString){
   oTerminal.print(szString);
   oTerminal.print(" ");       //Send training space
   oTerminal.flush();          // Ensure everything is sent
-  return 1;
-} //sWriteTerminalString
+  return;
+} //WriteTerminalString
 
 
 String szLogLineHeader(long lLineCount){
@@ -359,95 +412,71 @@ String szLogLineHeader(long lLineCount){
 } //szLogLineHeader
 
 
-//sLogToBoth() and sBlynkLogLine()have multiple versions
+//LogToBoth() and BlynkLogLine()have multiple versions
 //depending on there being a 2nd variable and its type.
-int sLogToBoth(String szLogString){
+void LogToBoth(String szLogString){
   Serial << LOG0 << szLogString << endl;
-  sBlynkLogLine(szLogString);
-  return 1;
-} //sLogToBoth:empty
+  BlynkLogLine(szLogString);
+  return;
+} //LogToBoth:empty
 
 
-int sLogToBoth(String szLogString, String szLogValue){
+void LogToBoth(String szLogString, String szLogValue){
   Serial << LOG0 << szLogString << " " << szLogValue << endl;
-  sBlynkLogLine(szLogString, szLogValue);
-  return 1;
-} //sLogToBoth:String
+  BlynkLogLine(szLogString, szLogValue);
+  return;
+} //LogToBoth:String
 
 
-int sLogToBoth(String szLogString, int sLogValue){
+void LogToBoth(String szLogString, int sLogValue){
   Serial << LOG0 << szLogString << " " << sLogValue << endl;
-  sBlynkLogLine(szLogString, sLogValue);
-  return 1;
-} //sLogToBoth:int
+  BlynkLogLine(szLogString, sLogValue);
+  return;
+} //LogToBoth:int
 
 
-int sLogToBoth(String szLogString, float fLogValue){
+void LogToBoth(String szLogString, float fLogValue){
   Serial << LOG0 << szLogString << " " << fLogValue << endl;
-  sBlynkLogLine(szLogString, fLogValue);
-  return 1;
-} //sLogToBoth:float
+  BlynkLogLine(szLogString, fLogValue);
+  return;
+} //LogToBoth:float
 
 
-int sBlynkLogLine(String szString){
+void BlynkLogLine(String szString){
   String szTermString= szLogLineHeader(lLineCount2++);
   szTermString += szString;
-  sWriteTerminalLine(szTermString);
-  return 1;
-} //sBlynkLogLine:empty
+  WriteTerminalLine(szTermString);
+  return;
+} //BlynkLogLine:empty
 
 
-int sBlynkLogLine(String szString, String szLogValue){
+void BlynkLogLine(String szString, String szLogValue){
   String szTermString= szLogLineHeader(lLineCount2++);
   szTermString += szString;
   szTermString +=  " ";
   szTermString +=  szLogValue;
-  sWriteTerminalLine(szTermString);
-  return 1;
-} //sBlynkLogLine:String
+  WriteTerminalLine(szTermString);
+  return;
+} //BlynkLogLine:String
 
 
-int sBlynkLogLine(String szString, int sValue){
+void BlynkLogLine(String szString, int sValue){
   String szTermString= szLogLineHeader(lLineCount2++);
   szTermString += szString;
   szTermString +=  " ";
   szTermString +=  sValue;
-  sWriteTerminalLine(szTermString);
-  return 1;
-} //sBlynkLogLine:int
+  WriteTerminalLine(szTermString);
+  return;
+} //BlynkLogLine:int
 
 
-int sBlynkLogLine(String szString, float fValue){
+void BlynkLogLine(String szString, float fValue){
   String szTermString= szLogLineHeader(lLineCount2++);
   szTermString += szString;
   szTermString +=  fValue;
-  sWriteTerminalLine(szTermString);
-  return 1;
-} //sBlynkLogLine:float
-
-
-int sSetupRelays(){
-  //Serial << LOG0 << " sSetupRelays: Call pinMode() & sSetRelay() to enable OUTPUT on both pins" << endl;
-  for (int sRelay= 0; sRelay < sNumRelays; sRelay++){
-    pinMode(sRelayPin[sRelay], OUTPUT);
-    sSetRelay(sRelay, sSwitchOpen);
-  } //for
-  return 1;
-} //sSetupRelays
-
-
-int sSetRelay(int sRelay, int sRelaySetting){
-  //Serial << LOG0 << " sSetRelay: Call digitalWrite to set relay on Pin " << sRelayPin[sRelay] << " to " << sRelaySetting << endl;
-  String szLogString= "Set Switch ";
-  szLogString += sRelay;
-  szLogString += " to ";
-  szLogString += !sRelaySetting;
-  sLogToBoth(szLogString);
-  digitalWrite(sRelayPin[sRelay], sRelaySetting);
-  sRelayState[sRelay]= sRelaySetting;
-  sHandleBlynkLEDs();
-  return 1;
-} //sSetRelay
+  WriteTerminalLine(szTermString);
+  return;
+} //BlynkLogLine:float
 
 
 float fGetDegF(bool bTakeReading){
@@ -471,12 +500,12 @@ float fRound(float fNum){
 }  //fRound
 
 
-int sSendIntToBlynk(int sVirtualPin, int sValue){
-  String szString= " sSendIntToBlynk: ";
-  sBlynkLogLine(szString, sValue);
+void SendIntToBlynk(int sVirtualPin, int sValue){
+  String szString= " SendIntToBlynk: ";
+  BlynkLogLine(szString, sValue);
   Blynk.virtualWrite(sVirtualPin, sValue);
-  return 1;
-} //sSendIntToBlynk
+  return;
+} //SendIntToBlynk
 
 
 //BLYNK_READ() functions are called by the Blynk app on the phone (at a 1 second interval)
@@ -487,7 +516,7 @@ BLYNK_READ(ReadF_V0){
   bool bTakeReading= true;
   float fDegF= fGetDegF(bTakeReading);
   String szLogString= "Read ReadF_V0 ";
-  sLogToBoth(szLogString, fDegF);
+  LogToBoth(szLogString, fDegF);
 
   Blynk.virtualWrite(ReadF_V0, fRound(fDegF));
 } //BLYNK_READ(ReadF_V0)
@@ -497,7 +526,7 @@ BLYNK_READ(ReadF_V1){
   bool bTakeReading= false;
   float fDegF= fGetDegF(bTakeReading);
   String szLogString= "Read ReadF_V1 ";
-  sLogToBoth(szLogString, fDegF);
+  LogToBoth(szLogString, fDegF);
 
   Blynk.virtualWrite(ReadF_V1, fDegF);
 } //BLYNK_READ(ReadF_V1)
@@ -508,10 +537,10 @@ BLYNK_WRITE(SetSetpointF_V2){
   sSetpointF= sThermoSetting;
   fThermoOffDegF= sSetpointF + fMaxHeatRangeF;
   String szLogString= "SetSetpointF_V2 ";
-  sLogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, sSetpointF);
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  sSendIntToBlynk(GetSetpointF_V3, sSetpointF);
+  SendIntToBlynk(GetSetpointF_V3, sSetpointF);
   return;
 } //BLYNK_WRITE(Switch_2V15)
 
@@ -519,7 +548,7 @@ BLYNK_WRITE(SetSetpointF_V2){
 BLYNK_READ(GetSetpointF_V3){
   int sReturnF= sSetpointF;
   String szLogString= "GetSetpointF_V3 ";
-  sLogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, sSetpointF);
 
   Blynk.virtualWrite(GetSetpointF_V3, sReturnF);
 } //BLYNK_READ(GetSetpointF_V3)
@@ -529,16 +558,17 @@ BLYNK_WRITE(ThermoSwitch_V4){
   //Turn thermostat on and off.
   int sParam= param.asInt();
   String szLogString= "ThermoSwitch_V4 ";
-  sLogToBoth(szLogString, sParam);
-  sSetThermoState(sParam);
+  LogToBoth(szLogString, sParam);
+  SetThermoState(sParam);
+  HandleThermoSwitch();
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  sSendIntToBlynk(GetSetpointF_V3, sSetpointF);
-
-  sHandleBlynkLEDs();
+  SendIntToBlynk(GetSetpointF_V3, sSetpointF);
+  HandleBlynkLEDs();
   return;
 } //BLYNK_WRITE(ThermoSwitch_V4)
 
+//WidgetLED oLED3(ThermoLED_V5) is constructed earlier
 
 //Handler callback function called when Button set as a Switch is pressed.
 //Light around button is lit when 1 is passed as parameter, unlit when 0 is passed.
@@ -547,10 +577,10 @@ BLYNK_WRITE(ThermoSwitch_V4){
 //Relay #1 is connected to Blynk virtual pins 20, 21, 22
 BLYNK_WRITE(Switch_1V10){
   int sSetting= param.asInt();
-  int sRelaySetting;
+  int sSwitchSetting;
   String szLogString= "Set Switch_1V10 ";
-  szLogString += sRelaySetting;
-  sLogToBoth(szLogString);
+  szLogString += sSwitchSetting;
+  LogToBoth(szLogString);
 /*
   //Test writing to LCD
   LCDWidget.clear();
@@ -559,48 +589,48 @@ BLYNK_WRITE(Switch_1V10){
   LCDWidget.print(0, 0, "Relay #0 set to: ");
 */
   if (sSetting == 1){
-    sRelaySetting= sSwitchClosed;
+    sSwitchSetting= sSwitchClosed;
   }
   else{
-    sRelaySetting= sSwitchOpen;
+    sSwitchSetting= sSwitchOpen;
   }
-  sSetRelay(0, sRelaySetting);    //Set relay #0
+  SetSwitch(0, sSwitchSetting);    //Set relay #0
   return;
 } //BLYNK_WRITE(Switch_1V10)
 
 
 BLYNK_WRITE(TimerA_1V11){
   int sSetting= param.asInt();
-  int sRelaySetting;
+  int sSwitchSetting;
   String szLogString= "Set TimerA_1V11 ";
-  szLogString += sRelaySetting;
-  sLogToBoth(szLogString);
+  szLogString += sSwitchSetting;
+  LogToBoth(szLogString);
 
   if (sSetting == 1){
-    sRelaySetting= sSwitchClosed;
+    sSwitchSetting= sSwitchClosed;
     }
   else{
-    sRelaySetting= sSwitchOpen;
+    sSwitchSetting= sSwitchOpen;
     }
-  sSetRelay(0, sRelaySetting);    //Set relay #0
+  SetSwitch(0, sSwitchSetting);    //Set relay #0
   return;
   } //BLYNK_WRITE(TimerA_1V11)
 
 
 BLYNK_WRITE(TimerB_1V12){
   int sSetting= param.asInt();
-  int sRelaySetting;
+  int sSwitchSetting;
   String szLogString= "Set TimerB_1V12 ";
-  szLogString += sRelaySetting;
-  sLogToBoth(szLogString);
+  szLogString += sSwitchSetting;
+  LogToBoth(szLogString);
 
   if (sSetting == 1){
-    sRelaySetting= sSwitchClosed;
+    sSwitchSetting= sSwitchClosed;
     }
   else{
-    sRelaySetting= sSwitchOpen;
+    sSwitchSetting= sSwitchOpen;
     }
-  sSetRelay(0, sRelaySetting);
+  SetSwitch(0, sSwitchSetting);
   return;
   } //BLYNK_WRITE(TimerB_1V12)
 
@@ -610,54 +640,54 @@ BLYNK_WRITE(TimerB_1V12){
 
 BLYNK_WRITE(Switch_2V15){
   int sSetting= param.asInt();
-  int sRelaySetting;
+  int sSwitchSetting;
   String szLogString= "Set Switch2V15 ";
-  szLogString += sRelaySetting;
-  sLogToBoth(szLogString);
+  szLogString += sSwitchSetting;
+  LogToBoth(szLogString);
 
   if (sSetting == 1){
-    sRelaySetting= sSwitchClosed;
+    sSwitchSetting= sSwitchClosed;
   }
   else{
-    sRelaySetting= sSwitchOpen;
+    sSwitchSetting= sSwitchOpen;
   }
-  sSetRelay(1, sRelaySetting);    //Set relay #1
+  SetSwitch(1, sSwitchSetting);    //Set relay #1
   return;
 } //BLYNK_WRITE(Switch_2V15)
 
 
 BLYNK_WRITE(TimerA_2V16){
   int sSetting= param.asInt();
-  int sRelaySetting;
+  int sSwitchSetting;
   String szLogString= "Set TimerA_2V16 ";
-  szLogString += sRelaySetting;
-  sLogToBoth(szLogString);
+  szLogString += sSwitchSetting;
+  LogToBoth(szLogString);
 
   if (sSetting == 1){
-    sRelaySetting= sSwitchClosed;
+    sSwitchSetting= sSwitchClosed;
   }
   else{
-    sRelaySetting= sSwitchOpen;
+    sSwitchSetting= sSwitchOpen;
   }
-  sSetRelay(1, sRelaySetting);
+  SetSwitch(1, sSwitchSetting);
   return;
 } //BLYNK_WRITE(TimerA_2V16)
 
 
 BLYNK_WRITE(TimerB_2V17){
   int sSetting= param.asInt();
-  int sRelaySetting;
+  int sSwitchSetting;
   String szLogString= "Set TimerB_2V17 ";
-  szLogString += sRelaySetting;
-  sLogToBoth(szLogString);
+  szLogString += sSwitchSetting;
+  LogToBoth(szLogString);
 
   if (sSetting == 1){
-    sRelaySetting= sSwitchClosed;
+    sSwitchSetting= sSwitchClosed;
   }
   else{
-    sRelaySetting= sSwitchOpen;
+    sSwitchSetting= sSwitchOpen;
   }
-  sSetRelay(1, sRelaySetting);
+  SetSwitch(1, sSwitchSetting);
   return;
 } //BLYNK_WRITE(TimerB_2V17)
 
