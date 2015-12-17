@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 17, 2015F";
+static const char szFileDate[]    = "Dec 17, 2015G";
 // 12/17/15 Add HandleSystem() to take care of relays also in loop().
 // 12/16/15 Implement thermostat for GARAGE version.
 // 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
@@ -226,7 +226,7 @@ void HandleThermostat(){
       } //if(fCurrentF>=fThermoOffDegF)else
     } //if(bHeatIsOn)
     else{
-      if (fCurrentF < sSetpointF){
+      if (fCurrentF <= sSetpointF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnHeatOn(true);
           /*szLogString= " Turn Thermo ON";
