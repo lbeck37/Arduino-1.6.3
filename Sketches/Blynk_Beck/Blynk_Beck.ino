@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 18, 2015B";
+static const char szFileDate[]    = "Dec 18, 2015D";
 // 12/18/15 Added Auth Token for DEVELOPMENT project for testing.
 // 12/17/15 Add HandleSystem() to take care of relays also in loop().
 // 12/16/15 Implement thermostat for GARAGE version.
@@ -93,30 +93,29 @@ static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
 static const int    sThermoSwitchNum      = 1;      //Switch number that turns furnace on and off.
-static const long   sSystemHandlerSpacing = 10000;   //Number of mSec between running system handlers
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
   char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
-  static const char szSketchType[]    = "FRONT_LIGHTS";
-  static int sSketchType= sFrontLights;
+  static const char szProjectType[]    = "FRONT_LIGHTS";
+  static int sProjectType= sFrontLights;
 #endif
 #ifdef FIREPLACE
   char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
-  static const char szSketchType[]    = "FIREPLACE";
-  static int sSketchType= sFireplace;
+  static const char szProjectType[]    = "FIREPLACE";
+  static int sProjectType= sFireplace;
 #endif
 #ifdef GARAGE
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
-  static const char szSketchType[]    = "GARAGE";
-  static int sSketchType= sGarage;
+  static const char szProjectType[]    = "GARAGE";
+  static int sProjectType= sGarage;
 #endif
 #ifdef DEVELOPMENT
-  char acBlynkAuthToken[] = "55bce1afbf894b3bb67b7ea34f29d45a";
-  static const char szSketchType[]    = "DEVELOPMENT";
-  static int sSketchType= sDevelopment;
+  static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
+  static const char szProjectType[]     = "DEVELOPMENT";
+  static const int  sProjectType        = sDevelopment;
 #endif
 
 WidgetTerminal      oTerminal(Terminal_V7);
@@ -133,23 +132,24 @@ OneWire oOneWire(sOneWirePin);
 DallasTemperature oSensors(&oOneWire);
 
 static int          asSwitchState[sNumSwitches + 1];
-static long         lLineCount        = 0;      //Serial Monitor uses for clarity.
-static long         lLineCount2       = 0;      //For Blynk terminal window.
-static long         lNumLoops         = 1;
-static float        fLastDegF         = 37.37;  //Last temperature reading.
-static int          sSetpointF        = 37;
-static int          sThermoTimesCount = 0;      //Number of times temperature out of range
-static long         lNextHandlerMsec  = 0;
-static bool         bThermoOn         = true;  //Whether thermostat is running.
-static bool         bHeatIsOn         = false;  //If switch is on to turn on furnace.
-static float        fThermoOffDegF    = sSetpointF + fMaxHeatRangeF;
+static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
+static long         lLineCount2           = 0;      //For Blynk terminal window.
+static long         lNumLoops             = 1;
+static float        fLastDegF             = 37.37;  //Last temperature reading.
+static int          sSetpointF            = 37;
+static int          sThermoTimesCount     = 0;      //Number of times temperature out of range
+static long         lNextHandlerMsec      = 0;
+static bool         bThermoOn             = true;   //Whether thermostat is running.
+static bool         bHeatIsOn             = false;  //If switch is on to turn on furnace.
+static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
+static long         sSystemHandlerSpacing = 10000;  //Number of mSec between running system handlers
 
 void setup()
 {
   sSetupTime();
   Serial.begin(9600);
   Serial << endl << LOG0 << " setup(): Initialized serial to 9600 baud" << endl;
-  Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szSketchType << ", " << szFileDate << endl;
+  Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
 
   Wire.begin();
 
@@ -157,6 +157,7 @@ void setup()
   Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11");
   String szLogString = "Blynk.begin returned";
   LogToBoth(szLogString);
+  SetupSystem();
   SetupSwitches();
   //Serial << LOG0 << " setup(): Back from Blynk.begin()" << endl;
 
@@ -181,6 +182,122 @@ int sSetupTime(){
 } //sSetupTime
 
 
+void SetupSystem(){
+  String szLogString = "SetupSystem()";
+  LogToBoth(szLogString);
+  switch (sProjectType){
+    case sGarage:
+      sSystemHandlerSpacing = 10 * lMsecPerSec;
+      break;
+    case sDevelopment:
+      sSystemHandlerSpacing = 10 * lMsecPerSec;
+      break;
+    default:
+      sSystemHandlerSpacing = 10 * lMsecPerSec;
+      break;
+  } //switch
+  return;
+} //SetupSystem
+
+
+void SetupSwitches(){
+  String szLogString = "SetupSwitches()";
+  LogToBoth(szLogString);
+  for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
+    pinMode(asSwitchPin[sSwitch], OUTPUT);
+    SetSwitch(sSwitch, sSwitchOpen);
+  } //for
+  return;
+} //SetupSwitches
+
+
+void HandleSystem(){
+  if (millis() >= lNextHandlerMsec){
+    lNextHandlerMsec= millis() + sSystemHandlerSpacing;
+    switch (sProjectType){
+      case sFrontLights:
+        HandleFrontLights();
+        break;
+      case sFireplace:
+        HandleFireplace();
+        break;
+      case sGarage:
+        HandleThermostat();
+        HandleBlynkLEDs();
+        HandleThermoSwitch();
+        break;
+      case sDevelopment:
+        HandleDevelopment();
+        break;
+      default:
+        String szLogString= "HandleSystem:Bad switch";
+        LogToBoth(szLogString, sProjectType);
+        break;
+    } //switch
+  } //if(millis()>=lNextHandlerMsec)
+  return;
+} //HandleSystem
+
+
+void HandleDevelopment(){
+  String szLogString = "HandleDevelopment()";
+  LogToBoth(szLogString);
+  return;
+} //HandleDevelopment
+
+
+void HandleFrontLights(){
+  String szLogString = "HandleFrontLights()";
+  LogToBoth(szLogString);
+  return;
+} //HandleFrontLights
+
+
+void HandleFireplace(){
+  String szLogString = "HandleFireplace()";
+  LogToBoth(szLogString);
+  return;
+} //HandleFireplace
+
+
+void HandleThermostat(){
+  //if (millis() >= lNextHandlerMsec){
+  String szLogString = "";
+  //Only do anything if the thermostat is turned on.
+  if (bThermoOn){
+    float fCurrentF= fRound(fGetDegF(true));
+    DebugHandleThermostat(fCurrentF);
+    if (bHeatIsOn){
+      if (fCurrentF >= fThermoOffDegF){
+        if (++sThermoTimesCount >= sThermoTimesInRow){
+          TurnHeatOn(false);
+        } //if(sThermoTimesCount>=sThermoTimesInRow)
+      } //if(fCurrentF>=fThermoOffDegF)
+      else{
+        sThermoTimesCount= 0;
+      } //if(fCurrentF>=fThermoOffDegF)else
+    } //if(bHeatIsOn)
+    else{
+      if (fCurrentF <= sSetpointF){
+        if (++sThermoTimesCount >= sThermoTimesInRow){
+          TurnHeatOn(true);
+        } //if(sThermoTimesCount>=sThermoTimesInRow)
+      } //if(fCurrentF<sSetpointF)
+      else{
+        sThermoTimesCount= 0;
+      } //if(fCurrentF<sSetpointF)else
+    } //if(bHeatIsOn)else
+  } //if(bThermoOn)
+  else{
+    LogToBoth(szLogString);
+    szLogString= " bThermoOn is false";
+    LogToBoth(szLogString);
+  }
+  //} //if(millis()>=lNextHandlerMsec)
+  return;
+} //HandleThermostat
+
+
 void DebugHandleThermostat(float fDegF){
   //String szLogString2= " ";
   String szLogString = "HandleThermostat";
@@ -199,68 +316,7 @@ void DebugHandleThermostat(float fDegF){
 } //DebugHandleThermostat
 
 
-void HandleSystem(){
-  if (millis() >= lNextHandlerMsec){
-    lNextHandlerMsec= millis() + sSystemHandlerSpacing;
-    HandleThermostat();
-    HandleBlynkLEDs();
-    HandleThermoSwitch();
-  } //if(millis()>=lNextHandlerMsec)
-  return;
-} //HandleSystem
-
-
-void HandleThermostat(){
-  //if (millis() >= lNextHandlerMsec){
-  String szLogString = "";
-  //Only do anything if the thermostat is turned on.
-  if (bThermoOn){
-    //float fCurrentF= fGetDegF(true);
-    float fCurrentF= fRound(fGetDegF(true));
-    DebugHandleThermostat(fCurrentF);
-    if (bHeatIsOn){
-      if (fCurrentF >= fThermoOffDegF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnHeatOn(false);
-          /*szLogString= " Open Switch";
-          LogToBoth(szLogString);
-          SetThermoSwitch(sSwitchOpen);
-          bHeatIsOn= false;
-          sThermoTimesCount= 0;*/
-        } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fCurrentF>=fThermoOffDegF)
-      else{
-        sThermoTimesCount= 0;
-      } //if(fCurrentF>=fThermoOffDegF)else
-    } //if(bHeatIsOn)
-    else{
-      if (fCurrentF <= sSetpointF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnHeatOn(true);
-          /*szLogString= " Turn Thermo ON";
-          LogToBoth(szLogString);
-          bHeatIsOn= true;
-          SetThermoSwitch(sSwitchClosed);
-          sThermoTimesCount= 0;*/
-        } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fCurrentF<sSetpointF)
-      else{
-        sThermoTimesCount= 0;
-      } //if(fCurrentF<sSetpointF)else
-    } //if(bHeatIsOn)else
-  } //if(bThermoOn)
-  else{
-    LogToBoth(szLogString);
-    szLogString= " bThermoOn is false";
-    LogToBoth(szLogString);
-  }
-  //} //if(millis()>=lNextHandlerMsec)
-  return;
-} //HandleThermostat
-
-
 void HandleBlynkLEDs(){
-  //Serial << LOG0 << "HandleBlynkLEDs(): Switch 1, 2, bThermoOn: " << asSwitchState[1] << ", " << asSwitchState[2] << ", " << bThermoOn << endl;
   String szLogString = "HandleBlynkLEDs()";
   LogToBoth(szLogString);
   if (asSwitchState[1]){
@@ -291,7 +347,6 @@ void HandleThermoSwitch(){
   String szLogString = "HandleThermoSwitch()";
   LogToBoth(szLogString);
   Serial << LOG0 << "HandleThermoSwitch(): bThermoOn, bHeatIsOn " << bThermoOn << ", " << bHeatIsOn << endl;
-  //int sSetting;
   //Make sure Thermostat switch state represents bHeatOn correctly.
   if (bHeatIsOn){
     Serial << LOG0 << "HandleThermoSwitch(): Set asSwitchState[sThermoSwitchNum] to sOn" << endl;
@@ -345,18 +400,6 @@ void SetThermoSwitch(int sSwitchState){
 } //SetThermoSwitch
 
 
-void SetupSwitches(){
-  String szLogString = "SetupSwitches()";
-  LogToBoth(szLogString);
-  //Serial << LOG0 << " SetupSwitches: Call pinMode() & SetSwitch() to enable OUTPUT on both pins" << endl;
-  for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
-    pinMode(asSwitchPin[sSwitch], OUTPUT);
-    SetSwitch(sSwitch, sSwitchOpen);
-  } //for
-  return;
-} //SetupSwitches
-
-
 void SetSwitch(int sSwitch, int sSwitchState){
   int sSwitchPin= asSwitchPin[sSwitch];
   bool bPinSetting;
@@ -375,7 +418,6 @@ void SetSwitch(int sSwitch, int sSwitchState){
 
 
 String szGetTime(long lMsec){
-  //long    lMsecNow  = millis();
   String  szString;
 
   int sDays    =    lMsec                                               / lMsecPerDay ;
