@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 17, 2015G";
+static const char szFileDate[]    = "Dec 18, 2015B";
+// 12/18/15 Added Auth Token for DEVELOPMENT project for testing.
 // 12/17/15 Add HandleSystem() to take care of relays also in loop().
 // 12/16/15 Implement thermostat for GARAGE version.
 // 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
@@ -10,7 +11,8 @@ static const char szFileDate[]    = "Dec 17, 2015G";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-#define GARAGE
+//#define GARAGE
+#define DEVELOPMENT
 
 #include <Streaming.h>
 #include <Time.h>
@@ -81,6 +83,7 @@ static const bool   abSwitchInverted[]    = {0, true, true};  //Opto-isolated re
 static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
 static const int    sGarage               = 3;
+static const int    sDevelopment          = 4;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
@@ -109,6 +112,11 @@ static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
   static const char szSketchType[]    = "GARAGE";
   static int sSketchType= sGarage;
+#endif
+#ifdef DEVELOPMENT
+  char acBlynkAuthToken[] = "55bce1afbf894b3bb67b7ea34f29d45a";
+  static const char szSketchType[]    = "DEVELOPMENT";
+  static int sSketchType= sDevelopment;
 #endif
 
 WidgetTerminal      oTerminal(Terminal_V7);
@@ -252,9 +260,9 @@ void HandleThermostat(){
 
 
 void HandleBlynkLEDs(){
-  Serial << LOG0 << "HandleBlynkLEDs(): Switch 1, 2, bThermoOn: " << asSwitchState[1] << ", " << asSwitchState[2] << ", " << bThermoOn << endl;
-  //String szLogString = "HandleBlynkLEDs()";
-  //LogToBoth(szLogString);
+  //Serial << LOG0 << "HandleBlynkLEDs(): Switch 1, 2, bThermoOn: " << asSwitchState[1] << ", " << asSwitchState[2] << ", " << bThermoOn << endl;
+  String szLogString = "HandleBlynkLEDs()";
+  LogToBoth(szLogString);
   if (asSwitchState[1]){
     oLED1.on();
   } //if(asSwitchState[1])
