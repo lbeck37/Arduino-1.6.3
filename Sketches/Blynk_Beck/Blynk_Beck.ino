@@ -544,7 +544,8 @@ BLYNK_READ(ReadF_V0){
   String szLogString= "Read ReadF_V0 ";
   LogToBoth(szLogString, fDegF);
 
-  Blynk.virtualWrite(ReadF_V0, fRound(fDegF));
+  //Blynk.virtualWrite(ReadF_V0, fRound(fDegF));
+  Blynk.virtualWrite(ReadF_V0, fDegF);
 } //BLYNK_READ(ReadF_V0)
 
 
