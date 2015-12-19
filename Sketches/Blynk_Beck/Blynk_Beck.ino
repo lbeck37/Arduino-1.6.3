@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 18, 2015F";
+static const char szFileDate[]    = "Dec 18, 2015G";
 // 12/18/15 Added Auth Token for DEVELOPMENT project for testing.
 // 12/17/15 Add HandleSystem() to take care of relays also in loop().
 // 12/16/15 Implement thermostat for GARAGE version.
@@ -8,6 +8,7 @@ static const char szFileDate[]    = "Dec 18, 2015F";
 // 12/13/15 Merge in support for Fireplace.
 // 12/12/15 Created from Blynk_LightTimer.ino
 //Open issues:
+//  - Switches 3 and 4 LEDs are not working.
 //  - Add virtual pin and LED for turning on DEBUG.
 //  - Get LEDs off at beginning.
 
