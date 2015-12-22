@@ -15,8 +15,8 @@ static const char szFileDate[]    = "Dec 18, 2015G";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGE
-#define DEVELOPMENT
+#define GARAGE
+//#define DEVELOPMENT
 
 //#define DEBUG     //When defined, some additional logging is turned on.
 
