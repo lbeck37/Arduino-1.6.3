@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 18, 2015G";
+static const char szFileDate[]    = "Dec 21, 2015A";
+// 12/21/15 Added Auth Token for HEATER project for testing.
 // 12/18/15 Added Auth Token for DEVELOPMENT project for testing.
 // 12/17/15 Add HandleSystem() to take care of relays also in loop().
 // 12/16/15 Implement thermostat for GARAGE version.
@@ -15,7 +16,8 @@ static const char szFileDate[]    = "Dec 18, 2015G";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-#define GARAGE
+//#define GARAGE
+#define HEATER
 //#define DEVELOPMENT
 
 //#define DEBUG     //When defined, some additional logging is turned on.
@@ -92,7 +94,8 @@ static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto
 static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
 static const int    sGarage               = 3;
-static const int    sDevelopment          = 4;
+static const int    sHeater               = 4;
+static const int    sDevelopment          = 5;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
@@ -120,6 +123,11 @@ static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
   static const char szProjectType[]    = "GARAGE";
   static int sProjectType= sGarage;
+#endif
+#ifdef HEATER
+  char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
+  static const char szProjectType[]    = "HEATER";
+  static int sProjectType= sHeater;
 #endif
 #ifdef DEVELOPMENT
   //static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
@@ -261,6 +269,9 @@ void HandleSystem(){
         //HandleBlynkLEDs();
         HandleThermoSwitch();
         break;
+      case sHeater:
+        HandleHeater();
+        break;
       case sDevelopment:
         HandleDevelopment();
         break;
@@ -280,6 +291,13 @@ void HandleDevelopment(){
   LogToBoth(szLogString);
   return;
 } //HandleDevelopment
+
+
+void HandleHeater(){
+  String szLogString = "HandleHeater()";
+  LogToBoth(szLogString);
+  return;
+} //HandleHeater
 
 
 void HandleFrontLights(){
