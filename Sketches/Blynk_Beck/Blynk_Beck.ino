@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 21, 2015A";
+static const char szFileDate[]    = "Dec 24, 2015";
+// 12/24/15 Received new SF Things, switch IPof local server.
 // 12/21/15 Added Auth Token for HEATER project for testing.
 // 12/18/15 Added Auth Token for DEVELOPMENT project for testing.
 // 12/17/15 Add HandleSystem() to take care of relays also in loop().
@@ -17,8 +18,8 @@ static const char szFileDate[]    = "Dec 21, 2015A";
 //#define FRONT_LIGHTS
 //#define FIREPLACE
 //#define GARAGE
-#define HEATER
-//#define DEVELOPMENT
+//#define HEATER
+#define DEVELOPMENT
 
 //#define DEBUG     //When defined, some additional logging is turned on.
 
@@ -205,8 +206,10 @@ void StartBlynk(){
     case sDevelopment:
       szLogString = "StartBlynk: sDevelopment";
       LogToBoth(szLogString);
-      Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, dlinky, Qazqaz11, IPAddress(192,168,3,106)" << endl;
-      Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11", IPAddress(192,168,3,106));
+      /*Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, dlinky, Qazqaz11, IPAddress(192,168,3,106)" << endl;
+      Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11", IPAddress(192,168,3,106));*/
+      Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, dlinky, Qazqaz11, IPAddress(192,168,15,191)" << endl;
+      Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11", IPAddress(192,168,15,191));
       break;
     default:
       szLogString = "StartBlynk: default";
