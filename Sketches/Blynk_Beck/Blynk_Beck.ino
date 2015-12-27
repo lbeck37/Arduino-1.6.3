@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 21, 2015A";
+static const char szFileDate[]    = "Dec 23, 2015";
 // 12/21/15 Added Auth Token for HEATER project for testing.
 // 12/18/15 Added Auth Token for DEVELOPMENT project for testing.
 // 12/17/15 Add HandleSystem() to take care of relays also in loop().
