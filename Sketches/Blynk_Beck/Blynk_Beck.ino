@@ -17,10 +17,10 @@ static const char szFileDate[]    = "Dec 26, 2015A";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-#define FIREPLACE
+//#define FIREPLACE
 //#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
-//#define HEATER
+#define HEATER
 //#define DEVELOPMENT
 
 //#define DEBUG     //When defined, some additional logging is turned on.
