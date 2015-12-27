@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 24, 2015B";
+static const char szFileDate[]    = "Dec 26, 2015A";
+// 12/26/15 Switch to C1200spot from dlinky.
 // 12/24/15 Switch Garage to be local server, switch IPof local server.
 // 12/21/15 Added Auth Token for HEATER project for testing.
 // 12/18/15 Added Auth Token for DEVELOPMENT project for testing.
@@ -16,9 +17,9 @@ static const char szFileDate[]    = "Dec 24, 2015B";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-//#define FIREPLACE
+#define FIREPLACE
 //#define GARAGE
-#define GARAGE_LOCAL    //Run off local Blynk server.
+//#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEVELOPMENT
 
@@ -110,6 +111,9 @@ static const long   lMsecPerSec           =     1000;
 static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
+
+static const char   szRouterName[]        = "C1200spot";
+static const char   szRouterPW[]          = "Qazqaz11";
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
@@ -219,10 +223,12 @@ void StartBlynk(){
       Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11", IPAddress(192,168,15,191));
       break;
     default:
-      szLogString = "StartBlynk: default connect to local server";
+      szLogString = "StartBlynk: default connect to Blynk server";
       LogToBoth(szLogString);
-      Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, dlinky, Qazqaz11)" << endl;
-      Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11");
+      //Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, " << szRouterName << ", " << szRouterPW << ")" << endl;
+      Serial << LOG0 << " setup(): Call Blynk.begin(" << acBlynkAuthToken << ", " << szRouterName
+             << ", " << szRouterPW << ")" << endl;
+      Blynk.begin(acBlynkAuthToken, szRouterName, szRouterPW);
       break;
   } //switch
   szLogString = "Blynk.begin returned";
