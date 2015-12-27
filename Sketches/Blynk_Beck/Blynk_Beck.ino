@@ -1,9 +1,10 @@
 static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 26, 2015A";
+static const char szFileDate[]    = "Dec 27, 2015A";
+// 12/27/15 Add DEV_REMOTE.
 // 12/26/15 Switch to C1200spot from dlinky.
 // 12/24/15 Switch Garage to be local server, switch IPof local server.
 // 12/21/15 Added Auth Token for HEATER project for testing.
-// 12/18/15 Added Auth Token for DEVELOPMENT project for testing.
+// 12/18/15 Added Auth Token for DEV_LOCAL project for testing.
 // 12/17/15 Add HandleSystem() to take care of relays also in loop().
 // 12/16/15 Implement thermostat for GARAGE version.
 // 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
@@ -20,8 +21,9 @@ static const char szFileDate[]    = "Dec 26, 2015A";
 //#define FIREPLACE
 //#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
-#define HEATER
-//#define DEVELOPMENT
+//#define HEATER
+//#define DEV_LOCAL
+#define DEV_REMOTE
 
 //#define DEBUG     //When defined, some additional logging is turned on.
 
@@ -100,6 +102,7 @@ static const int    sGarage               = 3;
 static const int    sGarageLocal          = 4;
 static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
+static const int    sDevRemote            = 7;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
@@ -141,11 +144,16 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const char szProjectType[]    = "HEATER";
   static int sProjectType= sHeater;
 #endif
-#ifdef DEVELOPMENT
+#ifdef DEV_LOCAL
   //static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char acBlynkAuthToken[]    = "9fc34bc2cbb34ddf8d392f7c562fb52e";   //Local server
-  static const char szProjectType[]     = "DEVELOPMENT";
+  static const char szProjectType[]     = "DEV_LOCAL";
   static const int  sProjectType        = sDevLocal;
+#endif
+#ifdef DEV_REMOTE
+  static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
+  static const char szProjectType[]     = "DEV_REMOTE";
+  static const int  sProjectType        = sDevRemote;
 #endif
 
 WidgetTerminal      oTerminal(Terminal_V7);
@@ -292,6 +300,7 @@ void HandleSystem(){
         HandleHeater();
         break;
       case sDevLocal:
+      case sDevRemote:
         HandleDevelopment();
         break;
       default:
