@@ -1,5 +1,6 @@
-static const char szSketchName[]  = "Blynk_Beck.ino";
-static const char szFileDate[]    = "Dec 27, 2015A";
+static const char szSketchName[]  = "BlynkBeck.ino";
+static const char szFileDate[]    = "Dec 28, 2015A";
+// 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
 // 12/26/15 Switch to C1200spot from dlinky.
 // 12/24/15 Switch Garage to be local server, switch IPof local server.
@@ -18,12 +19,12 @@ static const char szFileDate[]    = "Dec 27, 2015A";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-//#define FIREPLACE
+#define FIREPLACE
 //#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-#define DEV_REMOTE
+//#define DEV_REMOTE
 
 //#define DEBUG     //When defined, some additional logging is turned on.
 
@@ -93,7 +94,7 @@ static const int    sNotInit              = -3737;
 static const int    sNumSwitches          = 4;
 static const int    sMaxNumSwitches       = 4;
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
-static const int    asSwitchPin[]         = {-1, 4, 5, -1, -1};    //0 is not a switch, switches are at 1,2,3,4
+static const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 //(3) types of sketches are supported: front lights, fireplace and garage
 static const int    sFrontLights          = 1;
@@ -106,6 +107,7 @@ static const int    sDevRemote            = 7;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
+static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
@@ -187,17 +189,17 @@ static bool         bFurnaceOn            = false;  //If switch is on to turn on
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing;          //Number of mSec between running system handlers
 #ifdef DEBUG
-  static bool         bDebug                = true;    //Used to select places to disable bDebugLog.
+  static bool       bDebug                = true;    //Used to select places to disable bDebugLog.
 #else
-  static bool         bDebug                = false;   //Used to select places to disable bDebugLog.
+  static bool       bDebug                = false;   //Used to select places to disable bDebugLog.
 #endif
 static bool         bDebugLog             = true;   //Used to limit number of printouts.
 
 void setup()
 {
   sSetupTime();
-  Serial.begin(9600);
-  Serial << endl << LOG0 << " setup(): Initialized serial to 9600 baud" << endl;
+  Serial.begin(lSerialMonitorBaud);
+  Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
 
   Wire.begin();
