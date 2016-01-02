@@ -11,7 +11,7 @@
 #include <ESP8266HTTPUpdateServer.h>
 
 //const char* host = "esp8266-webupdate";
-const char* host = "ESP";
+const char* host = "esp37";
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
