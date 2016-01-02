@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckOTA_DNS_SD.ino";
-static const char szFileDate[]    = "Dec 28, 2015A";
+static const char szFileDate[]    = "Dec 29, 2015";
 // 12/27/15 Beck from DNS_SD_Arduino_OTA.ino example
 
 #include <Streaming.h>
@@ -75,7 +75,9 @@ void loop() {
       uint32_t sWritten;
       while(!Update.isFinished()){
         sWritten= Update.write(oWiFiClient);
-        if(sWritten > 0) oWiFiClient.print(sWritten, DEC);
+        if(sWritten > 0){
+          oWiFiClient.print(sWritten, DEC);
+        } //if(sWritten > 0)
       } //while
       Serial.setDebugOutput(false);
 
@@ -97,11 +99,13 @@ void loop() {
   //IDE Monitor (connected to Serial)
   if (oTelnetServer.hasClient()){
     if (!oTelnetClient || !oTelnetClient.connected()){
-      if(oTelnetClient) oTelnetClient.stop();
-      oTelnetClient = oTelnetServer.available();
+      if(oTelnetClient){
+        oTelnetClient.stop();
+      } //if(oTelnetClient)
+      oTelnetClient= oTelnetServer.available();
     } //if(!oTelnetClient||!oTelnetClient.connected())
     else{
-      WiFiClient toKill = oTelnetServer.available();
+      WiFiClient toKill= oTelnetServer.available();
       toKill.stop();
     } //if(!oTelnetClient||!oTelnetClient.connected())else
   } //if(oTelnetServer.hasClient())
