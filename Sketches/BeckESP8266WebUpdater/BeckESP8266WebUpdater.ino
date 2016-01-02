@@ -7,11 +7,12 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
-/*
+
 #include <ESP8266HTTPUpdateServer.h>
 
-const char* host = "esp8266-webupdate";
-const char* ssid = "C1200spot";
+//const char* host = "esp8266-webupdate";
+const char* host = "ESP";
+const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
 ESP8266WebServer httpServer(80);
@@ -43,6 +44,7 @@ void loop(void){
   httpServer.handleClient();
   delay(1);
 }
-*/
+/*
 void setup(void){}
 void loop(void){}
+*/
