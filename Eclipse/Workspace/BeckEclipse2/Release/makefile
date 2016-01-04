@@ -9,6 +9,8 @@ RM := rm -f
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir.mk
+-include arduino/core/spiffs/subdir.mk
+-include arduino/core/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
