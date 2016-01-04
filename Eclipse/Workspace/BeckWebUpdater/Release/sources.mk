@@ -2,7 +2,6 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
-INO_SRCS := 
 ASM_SRCS := 
 O_UPPER_SRCS := 
 CPP_SRCS := 
@@ -27,7 +26,6 @@ C++_DEPS :=
 LINK_OBJ := 
 CXX_DEPS := 
 ASM_DEPS := 
-INO_DEPS := 
 SIZEDUMMY := 
 S_UPPER_DEPS := 
 ELF := 
@@ -35,6 +33,8 @@ CPP_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+arduino/core \
+arduino/core/spiffs \
 Libraries/ESP8266HTTPUpdateServer/src \
 . \
 

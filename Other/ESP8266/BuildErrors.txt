@@ -1,0 +1,454 @@
+15:24:18 **** Clean-only build of configuration Release for project BeckWebUpdater ****
+make clean
+rm -f  arduino.ar  BeckWebUpdater.eep  BeckWebUpdater.bin  ./.ino.cpp.o  ./Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.o  ./BeckESP8266WebUpdater.ino.d  BeckWebUpdater.elf  ./.ino.cpp.d  ./Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.d  BeckWebUpdater
+makefile:98: recipe for target 'clean' failed
+process_begin: CreateProcess(NULL, rm -f arduino.ar BeckWebUpdater.eep BeckWebUpdater.bin ./.ino.cpp.o ./Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.o ./BeckESP8266WebUpdater.ino.d BeckWebUpdater.elf ./.ino.cpp.d ./Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.d BeckWebUpdater, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [clean] Error 2 (ignored)
+' '
+
+15:24:19 Build Finished (took 1s.16ms)
+
+15:24:20 **** Build of configuration Release for project BeckWebUpdater ****
+make all
+'Building file: ../.ino.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF".ino.cpp.d" -MT".ino.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "../.ino.cpp"  ".ino.cpp.o"   -Wall
+subdir.mk:18: recipe for target '.ino.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MF.ino.cpp.d -MT.ino.cpp.o -D__IN_ECLIPSE__=1 -x c++ ../.ino.cpp .ino.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [.ino.cpp.o] Error 2 (ignored)
+'Finished building: ../.ino.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.d" -MT"Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp"  "Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.o"   -Wall
+Libraries/ESP8266HTTPUpdateServer/src/subdir.mk:18: recipe for target 'Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFLibraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.d -MTLibraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [Libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/libraries/ESP8266HTTPUpdateServer/src/ESP8266HTTPUpdateServer.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_cache.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/spiffs_cache.c.d" -MT"arduino/spiffs_cache.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_cache.c"  "arduino/spiffs_cache.c.o"   -Wall
+arduino/core/spiffs/subdir.mk:30: recipe for target 'arduino/spiffs_cache.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/spiffs_cache.c.d -MTarduino/spiffs_cache.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_cache.c arduino/spiffs_cache.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/spiffs_cache.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_cache.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_check.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/spiffs_check.c.d" -MT"arduino/spiffs_check.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_check.c"  "arduino/spiffs_check.c.o"   -Wall
+arduino/core/spiffs/subdir.mk:37: recipe for target 'arduino/spiffs_check.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/spiffs_check.c.d -MTarduino/spiffs_check.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_check.c arduino/spiffs_check.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/spiffs_check.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_check.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_gc.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/spiffs_gc.c.d" -MT"arduino/spiffs_gc.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_gc.c"  "arduino/spiffs_gc.c.o"   -Wall
+arduino/core/spiffs/subdir.mk:44: recipe for target 'arduino/spiffs_gc.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/spiffs_gc.c.d -MTarduino/spiffs_gc.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_gc.c arduino/spiffs_gc.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/spiffs_gc.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_gc.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_hydrogen.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/spiffs_hydrogen.c.d" -MT"arduino/spiffs_hydrogen.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_hydrogen.c"  "arduino/spiffs_hydrogen.c.o"   -Wall
+arduino/core/spiffs/subdir.mk:51: recipe for target 'arduino/spiffs_hydrogen.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/spiffs_hydrogen.c.d -MTarduino/spiffs_hydrogen.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_hydrogen.c arduino/spiffs_hydrogen.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/spiffs_hydrogen.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_hydrogen.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_nucleus.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/spiffs_nucleus.c.d" -MT"arduino/spiffs_nucleus.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_nucleus.c"  "arduino/spiffs_nucleus.c.o"   -Wall
+arduino/core/spiffs/subdir.mk:58: recipe for target 'arduino/spiffs_nucleus.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/spiffs_nucleus.c.d -MTarduino/spiffs_nucleus.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_nucleus.c arduino/spiffs_nucleus.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/spiffs_nucleus.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs/spiffs_nucleus.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Esp.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/Esp.cpp.d" -MT"arduino/Esp.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Esp.cpp"  "arduino/Esp.cpp.o"   -Wall
+arduino/core/subdir.mk:131: recipe for target 'arduino/Esp.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/Esp.cpp.d -MTarduino/Esp.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Esp.cpp arduino/Esp.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/Esp.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Esp.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/FS.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/FS.cpp.d" -MT"arduino/FS.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/FS.cpp"  "arduino/FS.cpp.o"   -Wall
+arduino/core/subdir.mk:138: recipe for target 'arduino/FS.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/FS.cpp.d -MTarduino/FS.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/FS.cpp arduino/FS.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/FS.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/FS.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/HardwareSerial.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/HardwareSerial.cpp.d" -MT"arduino/HardwareSerial.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/HardwareSerial.cpp"  "arduino/HardwareSerial.cpp.o"   -Wall
+arduino/core/subdir.mk:145: recipe for target 'arduino/HardwareSerial.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/HardwareSerial.cpp.d -MTarduino/HardwareSerial.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/HardwareSerial.cpp arduino/HardwareSerial.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/HardwareSerial.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/HardwareSerial.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/IPAddress.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/IPAddress.cpp.d" -MT"arduino/IPAddress.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/IPAddress.cpp"  "arduino/IPAddress.cpp.o"   -Wall
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/IPAddress.cpp.d -MTarduino/IPAddress.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/IPAddress.cpp arduino/IPAddress.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/IPAddress.cpp.o] Error 2 (ignored)
+arduino/core/subdir.mk:152: recipe for target 'arduino/IPAddress.cpp.o' failed
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/IPAddress.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/MD5Builder.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/MD5Builder.cpp.d" -MT"arduino/MD5Builder.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/MD5Builder.cpp"  "arduino/MD5Builder.cpp.o"   -Wall
+arduino/core/subdir.mk:159: recipe for target 'arduino/MD5Builder.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/MD5Builder.cpp.d -MTarduino/MD5Builder.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/MD5Builder.cpp arduino/MD5Builder.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/MD5Builder.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/MD5Builder.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Print.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/Print.cpp.d" -MT"arduino/Print.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Print.cpp"  "arduino/Print.cpp.o"   -Wall
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/Print.cpp.d -MTarduino/Print.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Print.cpp arduino/Print.cpp.o -Wall, ...) failed.
+arduino/core/subdir.mk:166: recipe for target 'arduino/Print.cpp.o' failed
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/Print.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Print.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Stream.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/Stream.cpp.d" -MT"arduino/Stream.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Stream.cpp"  "arduino/Stream.cpp.o"   -Wall
+arduino/core/subdir.mk:173: recipe for target 'arduino/Stream.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/Stream.cpp.d -MTarduino/Stream.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Stream.cpp arduino/Stream.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/Stream.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Stream.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/StreamString.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/StreamString.cpp.d" -MT"arduino/StreamString.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/StreamString.cpp"  "arduino/StreamString.cpp.o"   -Wall
+arduino/core/subdir.mk:180: recipe for target 'arduino/StreamString.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/StreamString.cpp.d -MTarduino/StreamString.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/StreamString.cpp arduino/StreamString.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/StreamString.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/StreamString.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Tone.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/Tone.cpp.d" -MT"arduino/Tone.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Tone.cpp"  "arduino/Tone.cpp.o"   -Wall
+arduino/core/subdir.mk:187: recipe for target 'arduino/Tone.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/Tone.cpp.d -MTarduino/Tone.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Tone.cpp arduino/Tone.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/Tone.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Tone.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Updater.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/Updater.cpp.d" -MT"arduino/Updater.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Updater.cpp"  "arduino/Updater.cpp.o"   -Wall
+arduino/core/subdir.mk:194: recipe for target 'arduino/Updater.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/Updater.cpp.d -MTarduino/Updater.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Updater.cpp arduino/Updater.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/Updater.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/Updater.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/WMath.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/WMath.cpp.d" -MT"arduino/WMath.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/WMath.cpp"  "arduino/WMath.cpp.o"   -Wall
+arduino/core/subdir.mk:201: recipe for target 'arduino/WMath.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/WMath.cpp.d -MTarduino/WMath.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/WMath.cpp arduino/WMath.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/WMath.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/WMath.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/WString.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/WString.cpp.d" -MT"arduino/WString.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/WString.cpp"  "arduino/WString.cpp.o"   -Wall
+arduino/core/subdir.mk:208: recipe for target 'arduino/WString.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/WString.cpp.d -MTarduino/WString.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/WString.cpp arduino/WString.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/WString.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/WString.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/abi.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/abi.cpp.d" -MT"arduino/abi.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/abi.cpp"  "arduino/abi.cpp.o"   -Wall
+arduino/core/subdir.mk:215: recipe for target 'arduino/abi.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/abi.cpp.d -MTarduino/abi.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/abi.cpp arduino/abi.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/abi.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/abi.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/cont.S'
+'Starting S compile'
+MMD -MP -MF"arduino/cont.S.d" -MT"arduino/cont.S.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/cont.S"  "arduino/cont.S.o"   -Wall
+process_begin: CreateProcess(NULL, MMD -MP -MFarduino/cont.S.d -MTarduino/cont.S.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/cont.S arduino/cont.S.o -Wall, ...) failed.
+arduino/core/subdir.mk:222: recipe for target 'arduino/cont.S.o' failed
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/cont.S.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/cont.S'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/cont_util.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/cont_util.c.d" -MT"arduino/cont_util.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/cont_util.c"  "arduino/cont_util.c.o"   -Wall
+arduino/core/subdir.mk:229: recipe for target 'arduino/cont_util.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/cont_util.c.d -MTarduino/cont_util.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/cont_util.c arduino/cont_util.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/cont_util.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/cont_util.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_eboot_command.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_eboot_command.c.d" -MT"arduino/core_esp8266_eboot_command.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_eboot_command.c"  "arduino/core_esp8266_eboot_command.c.o"   -Wall
+arduino/core/subdir.mk:236: recipe for target 'arduino/core_esp8266_eboot_command.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_eboot_command.c.d -MTarduino/core_esp8266_eboot_command.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_eboot_command.c arduino/core_esp8266_eboot_command.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_eboot_command.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_eboot_command.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_flash_utils.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_flash_utils.c.d" -MT"arduino/core_esp8266_flash_utils.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_flash_utils.c"  "arduino/core_esp8266_flash_utils.c.o"   -Wall
+arduino/core/subdir.mk:243: recipe for target 'arduino/core_esp8266_flash_utils.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_flash_utils.c.d -MTarduino/core_esp8266_flash_utils.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_flash_utils.c arduino/core_esp8266_flash_utils.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_flash_utils.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_flash_utils.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_i2s.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_i2s.c.d" -MT"arduino/core_esp8266_i2s.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_i2s.c"  "arduino/core_esp8266_i2s.c.o"   -Wall
+arduino/core/subdir.mk:250: recipe for target 'arduino/core_esp8266_i2s.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_i2s.c.d -MTarduino/core_esp8266_i2s.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_i2s.c arduino/core_esp8266_i2s.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_i2s.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_i2s.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_main.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_main.cpp.d" -MT"arduino/core_esp8266_main.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_main.cpp"  "arduino/core_esp8266_main.cpp.o"   -Wall
+arduino/core/subdir.mk:257: recipe for target 'arduino/core_esp8266_main.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_main.cpp.d -MTarduino/core_esp8266_main.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_main.cpp arduino/core_esp8266_main.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_main.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_main.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_noniso.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_noniso.c.d" -MT"arduino/core_esp8266_noniso.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_noniso.c"  "arduino/core_esp8266_noniso.c.o"   -Wall
+arduino/core/subdir.mk:264: recipe for target 'arduino/core_esp8266_noniso.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_noniso.c.d -MTarduino/core_esp8266_noniso.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_noniso.c arduino/core_esp8266_noniso.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_noniso.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_noniso.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_phy.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_phy.c.d" -MT"arduino/core_esp8266_phy.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_phy.c"  "arduino/core_esp8266_phy.c.o"   -Wall
+arduino/core/subdir.mk:271: recipe for target 'arduino/core_esp8266_phy.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_phy.c.d -MTarduino/core_esp8266_phy.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_phy.c arduino/core_esp8266_phy.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_phy.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_phy.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_postmortem.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_postmortem.c.d" -MT"arduino/core_esp8266_postmortem.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_postmortem.c"  "arduino/core_esp8266_postmortem.c.o"   -Wall
+arduino/core/subdir.mk:278: recipe for target 'arduino/core_esp8266_postmortem.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_postmortem.c.d -MTarduino/core_esp8266_postmortem.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_postmortem.c arduino/core_esp8266_postmortem.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_postmortem.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_postmortem.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_si2c.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_si2c.c.d" -MT"arduino/core_esp8266_si2c.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_si2c.c"  "arduino/core_esp8266_si2c.c.o"   -Wall
+arduino/core/subdir.mk:285: recipe for target 'arduino/core_esp8266_si2c.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_si2c.c.d -MTarduino/core_esp8266_si2c.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_si2c.c arduino/core_esp8266_si2c.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_si2c.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_si2c.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_timer.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_timer.c.d" -MT"arduino/core_esp8266_timer.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_timer.c"  "arduino/core_esp8266_timer.c.o"   -Wall
+arduino/core/subdir.mk:292: recipe for target 'arduino/core_esp8266_timer.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_timer.c.d -MTarduino/core_esp8266_timer.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_timer.c arduino/core_esp8266_timer.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_timer.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_timer.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_wiring.c.d" -MT"arduino/core_esp8266_wiring.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring.c"  "arduino/core_esp8266_wiring.c.o"   -Wall
+arduino/core/subdir.mk:299: recipe for target 'arduino/core_esp8266_wiring.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_wiring.c.d -MTarduino/core_esp8266_wiring.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring.c arduino/core_esp8266_wiring.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_wiring.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_analog.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_wiring_analog.c.d" -MT"arduino/core_esp8266_wiring_analog.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_analog.c"  "arduino/core_esp8266_wiring_analog.c.o"   -Wall
+arduino/core/subdir.mk:306: recipe for target 'arduino/core_esp8266_wiring_analog.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_wiring_analog.c.d -MTarduino/core_esp8266_wiring_analog.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_analog.c arduino/core_esp8266_wiring_analog.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_wiring_analog.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_analog.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_digital.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_wiring_digital.c.d" -MT"arduino/core_esp8266_wiring_digital.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_digital.c"  "arduino/core_esp8266_wiring_digital.c.o"   -Wall
+arduino/core/subdir.mk:313: recipe for target 'arduino/core_esp8266_wiring_digital.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_wiring_digital.c.d -MTarduino/core_esp8266_wiring_digital.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_digital.c arduino/core_esp8266_wiring_digital.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_wiring_digital.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_digital.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_pulse.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_wiring_pulse.c.d" -MT"arduino/core_esp8266_wiring_pulse.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_pulse.c"  "arduino/core_esp8266_wiring_pulse.c.o"   -Wall
+arduino/core/subdir.mk:320: recipe for target 'arduino/core_esp8266_wiring_pulse.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_wiring_pulse.c.d -MTarduino/core_esp8266_wiring_pulse.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_pulse.c arduino/core_esp8266_wiring_pulse.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_wiring_pulse.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_pulse.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_pwm.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_wiring_pwm.c.d" -MT"arduino/core_esp8266_wiring_pwm.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_pwm.c"  "arduino/core_esp8266_wiring_pwm.c.o"   -Wall
+arduino/core/subdir.mk:327: recipe for target 'arduino/core_esp8266_wiring_pwm.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_wiring_pwm.c.d -MTarduino/core_esp8266_wiring_pwm.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_pwm.c arduino/core_esp8266_wiring_pwm.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_wiring_pwm.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_pwm.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_shift.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/core_esp8266_wiring_shift.c.d" -MT"arduino/core_esp8266_wiring_shift.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_shift.c"  "arduino/core_esp8266_wiring_shift.c.o"   -Wall
+arduino/core/subdir.mk:334: recipe for target 'arduino/core_esp8266_wiring_shift.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/core_esp8266_wiring_shift.c.d -MTarduino/core_esp8266_wiring_shift.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_shift.c arduino/core_esp8266_wiring_shift.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/core_esp8266_wiring_shift.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/core_esp8266_wiring_shift.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/debug.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/debug.cpp.d" -MT"arduino/debug.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/debug.cpp"  "arduino/debug.cpp.o"   -Wall
+arduino/core/subdir.mk:341: recipe for target 'arduino/debug.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/debug.cpp.d -MTarduino/debug.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/debug.cpp arduino/debug.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/debug.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/debug.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/libc_replacements.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/libc_replacements.c.d" -MT"arduino/libc_replacements.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/libc_replacements.c"  "arduino/libc_replacements.c.o"   -Wall
+arduino/core/subdir.mk:348: recipe for target 'arduino/libc_replacements.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/libc_replacements.c.d -MTarduino/libc_replacements.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/libc_replacements.c arduino/libc_replacements.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/libc_replacements.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/libc_replacements.c'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/pgmspace.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/pgmspace.cpp.d" -MT"arduino/pgmspace.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/pgmspace.cpp"  "arduino/pgmspace.cpp.o"   -Wall
+arduino/core/subdir.mk:355: recipe for target 'arduino/pgmspace.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/pgmspace.cpp.d -MTarduino/pgmspace.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/pgmspace.cpp arduino/pgmspace.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/pgmspace.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/pgmspace.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs_api.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/spiffs_api.cpp.d" -MT"arduino/spiffs_api.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs_api.cpp"  "arduino/spiffs_api.cpp.o"   -Wall
+arduino/core/subdir.mk:362: recipe for target 'arduino/spiffs_api.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/spiffs_api.cpp.d -MTarduino/spiffs_api.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs_api.cpp arduino/spiffs_api.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/spiffs_api.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs_api.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs_hal.cpp'
+'Starting C++ compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/spiffs_hal.cpp.d" -MT"arduino/spiffs_hal.cpp.o" -D__IN_ECLIPSE__=1 -x c++ "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs_hal.cpp"  "arduino/spiffs_hal.cpp.o"   -Wall
+arduino/core/subdir.mk:369: recipe for target 'arduino/spiffs_hal.cpp.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/spiffs_hal.cpp.d -MTarduino/spiffs_hal.cpp.o -D__IN_ECLIPSE__=1 -x c++ C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs_hal.cpp arduino/spiffs_hal.cpp.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/spiffs_hal.cpp.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/spiffs_hal.cpp'
+' '
+'Building file: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/time.c'
+'Starting C compile'
+I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer" -I"C:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src" -MMD -MP -MF"arduino/time.c.d" -MT"arduino/time.c.o" -D__IN_ECLIPSE__=1 "C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/time.c"  "arduino/time.c.o"   -Wall
+arduino/core/subdir.mk:376: recipe for target 'arduino/time.c.o' failed
+process_begin: CreateProcess(NULL, IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\cores\esp8266 -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\variants\nodemcu -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer -IC:\Users\Larry\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\ESP8266HTTPUpdateServer\src -MMD -MP -MFarduino/time.c.d -MTarduino/time.c.o -D__IN_ECLIPSE__=1 C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/time.c arduino/time.c.o -Wall, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: [arduino/time.c.o] Error 2 (ignored)
+'Finished building: C:/Users/Larry/AppData/Roaming/Arduino15/packages/esp8266/hardware/esp8266/2.0.0/cores/esp8266/time.c'
+' '
+'Starting archiver'
+./arduino/spiffs_cache.c.o ./arduino/spiffs_check.c.o ./arduino/spiffs_gc.c.o ./arduino/spiffs_hydrogen.c.o ./arduino/spiffs_nucleus.c.o  ./arduino/Esp.cpp.o ./arduino/FS.cpp.o ./arduino/HardwareSerial.cpp.o ./arduino/IPAddress.cpp.o ./arduino/MD5Builder.cpp.o ./arduino/Print.cpp.o ./arduino/Stream.cpp.o ./arduino/StreamString.cpp.o ./arduino/Tone.cpp.o ./arduino/Updater.cpp.o ./arduino/WMath.cpp.o ./arduino/WString.cpp.o ./arduino/abi.cpp.o ./arduino/cont.S.o ./arduino/cont_util.c.o ./arduino/core_esp8266_eboot_command.c.o ./arduino/core_esp8266_flash_utils.c.o ./arduino/core_esp8266_i2s.c.o ./arduino/core_esp8266_main.cpp.o ./arduino/core_esp8266_noniso.c.o ./arduino/core_esp8266_phy.c.o ./arduino/core_esp8266_postmortem.c.o ./arduino/core_esp8266_si2c.c.o ./arduino/core_esp8266_timer.c.o ./arduino/core_esp8266_wiring.c.o ./arduino/core_esp8266_wiring_analog.c.o ./arduino/core_esp8266_wiring_digital.c.o ./arduino/core_esp8266_wiring_pulse.c.o ./arduino/core_esp8266_wiring_pwm.c.o ./arduino/core_esp8266_wiring_shift.c.o ./arduino/debug.cpp.o ./arduino/libc_replacements.c.o ./arduino/pgmspace.cpp.o ./arduino/spiffs_api.cpp.o ./arduino/spiffs_hal.cpp.o ./arduino/time.c.o
+makefile:72: recipe for target 'arduino.ar' failed
+process_begin: CreateProcess(NULL, ./arduino/spiffs_cache.c.o ./arduino/spiffs_check.c.o ./arduino/spiffs_gc.c.o ./arduino/spiffs_hydrogen.c.o ./arduino/spiffs_nucleus.c.o ./arduino/Esp.cpp.o ./arduino/FS.cpp.o ./arduino/HardwareSerial.cpp.o ./arduino/IPAddress.cpp.o ./arduino/MD5Builder.cpp.o ./arduino/Print.cpp.o ./arduino/Stream.cpp.o ./arduino/StreamString.cpp.o ./arduino/Tone.cpp.o ./arduino/Updater.cpp.o ./arduino/WMath.cpp.o ./arduino/WString.cpp.o ./arduino/abi.cpp.o ./arduino/cont.S.o ./arduino/cont_util.c.o ./arduino/core_esp8266_eboot_command.c.o ./arduino/core_esp8266_flash_utils.c.o ./arduino/core_esp8266_i2s.c.o ./arduino/core_esp8266_main.cpp.o ./arduino/core_esp8266_noniso.c.o ./arduino/core_esp8266_phy.c.o ./arduino/core_esp8266_postmortem.c.o ./arduino/core_esp8266_si2c.c.o ./arduino/core_esp8266_timer.c.o ./arduino/core_esp8266_wiring.c.o ./arduino/core_esp8266_wiring_analog.c.o ./arduino/core_esp8266_wiring_digital.c.o ./arduino/core_esp8266_wiring_pulse.c.o ./arduino/core_esp8266_wiring_pwm.c.o ./arduino/core_esp8266_wiring_shift.c.o ./arduino/debug.cpp.o ./arduino/libc_replacements.c.o ./arduino/pgmspace.cpp.o ./arduino/spiffs_api.cpp.o ./arduino/spiffs_hal.cpp.o ./arduino/time.c.o, ...) failed.
+make (e=2): The system cannot find the file specified.
+
+make: *** [arduino.ar] Error 2
+
+15:24:51 Build Finished (took 30s.737ms)
+
