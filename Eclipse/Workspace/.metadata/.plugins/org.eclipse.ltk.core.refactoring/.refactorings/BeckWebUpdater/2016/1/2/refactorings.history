@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move &apos;BeckESP8266WebUpdater.ino&apos; to &apos;BeckWebUpdater&apos;" description="Move &apos;BeckESP8266WebUpdater.ino&apos; to &apos;BeckWebUpdater&apos;" destination="/BeckWebUpdater" element1="BeckESP8266WebUpdater/BeckESP8266WebUpdater.ino" flags="7" id="org.eclipse.ltk.core.refactoring.move.resources" resources="1" stamp="1451943351793" updateReferences="true"/>
+</session>

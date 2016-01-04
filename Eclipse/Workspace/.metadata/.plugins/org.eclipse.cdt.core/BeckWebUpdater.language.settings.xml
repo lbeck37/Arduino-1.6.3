@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project>
+	<configuration id="it.baeyens.arduino.core.toolChain.release.920518959" name="Release">
+		<extension point="org.eclipse.cdt.core.LanguageSettingsProvider">
+			<provider id="it.baeyens.arduino.languageSettingsProvider"/>
+		</extension>
+	</configuration>
+</project>
