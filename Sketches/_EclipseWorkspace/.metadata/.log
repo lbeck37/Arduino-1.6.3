@@ -91,3 +91,6 @@ Caused by: java.io.IOException: CreateProcess error=2, The system cannot find th
 	at java.lang.ProcessImpl.<init>(Unknown Source)
 	at java.lang.ProcessImpl.start(Unknown Source)
 	... 60 more
+
+!ENTRY org.eclipse.cdt.core 1 0 2016-01-03 18:30:53.898
+!MESSAGE Indexed 'BeckEclipse2' (42 sources, 247 headers) in 18.3 sec: 28,451 declarations; 58,423 references; 8 unresolved inclusions; 37 syntax errors; 102 unresolved names (0.12%)
