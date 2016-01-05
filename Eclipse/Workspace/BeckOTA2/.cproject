@@ -23,6 +23,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266HTTPUpdateServer}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266HTTPUpdateServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266WiFi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266WiFi/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266WebServer}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266WebServer/src}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.cpp.sketch.input.511718356" name="CPP source files" superClass="it.baeyens.arduino.compiler.cpp.sketch.input"/>
 							</tool>
@@ -32,6 +36,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/arduino/variant}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266HTTPUpdateServer}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266HTTPUpdateServer/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266WiFi}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266WiFi/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266WebServer}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/BeckOTA2/Libraries/ESP8266WebServer/src}&quot;"/>
 								</option>
 								<inputType id="it.baeyens.arduino.compiler.c.sketch.input.46454060" name="C Source Files" superClass="it.baeyens.arduino.compiler.c.sketch.input"/>
 							</tool>
