@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>BeckOTA2</name>
+	<name>BeckWebUpdater</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -25,6 +25,38 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>it.baeyens.arduinonature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>Libraries/ESP8266HTTPUpdateServer</name>
+			<type>2</type>
+			<locationURI>ArduinoHardwareLibPath/ESP8266HTTPUpdateServer</locationURI>
+		</link>
+		<link>
+			<name>Libraries/ESP8266WebServer</name>
+			<type>2</type>
+			<locationURI>ArduinoHardwareLibPath/ESP8266WebServer</locationURI>
+		</link>
+		<link>
+			<name>Libraries/ESP8266WiFi</name>
+			<type>2</type>
+			<locationURI>ArduinoHardwareLibPath/ESP8266WiFi</locationURI>
+		</link>
+		<link>
+			<name>Libraries/ESP8266mDNS</name>
+			<type>2</type>
+			<locationURI>ArduinoHardwareLibPath/ESP8266mDNS</locationURI>
+		</link>
+		<link>
+			<name>arduino/core</name>
+			<type>2</type>
+			<locationURI>ArduinoPlatformPath/esp8266</locationURI>
+		</link>
+		<link>
+			<name>arduino/variant</name>
+			<type>2</type>
+			<locationURI>ArduinoPinPath/nodemcu</locationURI>
+		</link>
+	</linkedResources>
 	<variableList>
 		<variable>
 			<name>ArduinoHardwareLibPath</name>
