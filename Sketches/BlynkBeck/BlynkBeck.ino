@@ -19,12 +19,12 @@ static const char szFileDate[]    = "Dec 28, 2015A";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-#define FIREPLACE
+//#define FIREPLACE
 //#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-//#define DEV_REMOTE
+#define DEV_REMOTE
 
 //#define DEBUG     //When defined, some additional logging is turned on.
 
@@ -178,13 +178,13 @@ DallasTemperature oSensors(&oOneWire);
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
 static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
-static long         lLineCount2           = 0;      //For Blynk terminal window.
-static long         lNumLoops             = 1;
+//static long         lLineCount2           = 0;      //For Blynk terminal window.
+//static long         lNumLoops             = 1;
 static float        fLastDegF             = 37.37;  //Last temperature reading.
 static int          sSetpointF            = 37;
-static int          sThermoTimesCount     = 0;      //Number of times temperature out of range
-static long         lNextHandlerMsec      = 0;
-static bool         bThermoOn             = true;   //Whether thermostat is running.
+static int          	sThermoTimesCount     = 0;      //Number of times temperature out of range
+static unsigned long 	ulNextHandlerMsec      = 0;
+static bool         	bThermoOn             = true;   //Whether thermostat is running.
 static bool         bFurnaceOn            = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing;          //Number of mSec between running system handlers
@@ -248,7 +248,7 @@ void StartBlynk(){
 
 
 int sSetupTime(){
-  setTime(0,0,0, 0,0,0);  //hr, min, sec, day, month, year
+  //setTime(0,0,0, 0,0,0);  //hr, min, sec, day, month, year
   return 1;
 } //sSetupTime
 
@@ -281,10 +281,10 @@ void SetupSwitches(){
 
 
 void HandleSystem(){
-  if (millis() >= lNextHandlerMsec){
+  if (millis() >= ulNextHandlerMsec){
     String szLogString = "HandleSystem()";
     LogToBoth(szLogString);
-    lNextHandlerMsec= millis() + sSystemHandlerSpacing;
+    ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
     switch (sProjectType){
       case sFrontLights:
         HandleFrontLights();
@@ -311,7 +311,7 @@ void HandleSystem(){
         break;
     } //switch
     HandleBlynkLEDs();
-  } //if(millis()>=lNextHandlerMsec)
+  } //if(millis()>=ulNextHandlerMsec)
   return;
 } //HandleSystem
 
@@ -378,7 +378,7 @@ void HandleThermostat(){
     szLogString= " bThermoOn is false";
     LogToBoth(szLogString);
   }
-  //} //if(millis()>=lNextHandlerMsec)
+  //} //if(millis()>=ulNextHandlerMsec)
   return;
 } //HandleThermostat
 
