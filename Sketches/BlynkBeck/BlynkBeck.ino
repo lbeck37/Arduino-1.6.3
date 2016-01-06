@@ -31,6 +31,10 @@ static const char szFileDate[]    = "Dec 28, 2015A";
 #include <Streaming.h>
 #include <Time.h>
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+#include <ESP8266HTTPUpdateServer.h>
 #include <BlynkSimpleEsp8266.h>
 #include <Wire.h>
 #include <I2Cdev.h>
