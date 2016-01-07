@@ -69,8 +69,8 @@
  C:\Dev\_Repos\Arduino\libraries\Blynk/WidgetLCD.h \
  C:\Dev\_Repos\Arduino\libraries\Blynk/WidgetTerminal.h \
  C:\Dev\_Repos\Arduino\libraries\Blynk/WidgetBridge.h \
- C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\Wire/Wire.h \
  C:\Dev\_Repos\Arduino\libraries\I2Cdev/I2Cdev.h \
+ C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\Wire/Wire.h \
  C:\Dev\_Repos\Arduino\libraries\MPU6050/MPU6050.h \
  C:\Dev\_Repos\Arduino\libraries\MPU6050/pgmspace.h \
  C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\OneWire/OneWire.h \
@@ -217,9 +217,9 @@ C:\Dev\_Repos\Arduino\libraries\Blynk/WidgetTerminal.h:
 
 C:\Dev\_Repos\Arduino\libraries\Blynk/WidgetBridge.h:
 
-C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\Wire/Wire.h:
-
 C:\Dev\_Repos\Arduino\libraries\I2Cdev/I2Cdev.h:
+
+C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\Wire/Wire.h:
 
 C:\Dev\_Repos\Arduino\libraries\MPU6050/MPU6050.h:
 

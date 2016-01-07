@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Dec 28, 2015A";
+static const char szFileDate[]    = "Jan 6, 2016A";
+// 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
 // 12/26/15 Switch to C1200spot from dlinky.
@@ -36,7 +37,7 @@ static const char szFileDate[]    = "Dec 28, 2015A";
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <BlynkSimpleEsp8266.h>
-#include <Wire.h>
+//#include <Wire.h>
 #include <I2Cdev.h>
 #include <MPU6050.h>
 #include <OneWire.h>
@@ -96,7 +97,7 @@ static const int    sOff                  = 0;
 static const int    sOn                   = 1;
 static const int    sNotInit              = -3737;
 static const int    sNumSwitches          = 4;
-static const int    sMaxNumSwitches       = 4;
+//static const int    sMaxNumSwitches       = 4;
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 static const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
@@ -109,7 +110,7 @@ static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sDevRemote            = 7;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
-static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
+//static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
@@ -121,8 +122,9 @@ static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that 
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
-static const char   szRouterName[]        = "C1200spot";
+static const char   szRouterName[]        = "Aspot24";
 static const char   szRouterPW[]          = "Qazqaz11";
+static const char   acHostname[]          = "esp37";
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
@@ -174,22 +176,25 @@ WidgetLED           oLED4(LED_4V28);
 
 //Maxim/Dallas OneWire sensors
 /* Set up a oneWire instance to communicate with any OneWire device*/
-OneWire oOneWire(sOneWirePin);
+OneWire 				oOneWire(sOneWirePin);
 
 /* Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature oSensors(&oOneWire);
+DallasTemperature 		oSensors(&oOneWire);
+
+ESP8266WebServer 		oHttpServer(80);
+ESP8266HTTPUpdateServer oHttpUpdater;
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
 static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
 //static long         lLineCount2           = 0;      //For Blynk terminal window.
 //static long         lNumLoops             = 1;
-static float        fLastDegF             = 37.37;  //Last temperature reading.
-static int          sSetpointF            = 37;
+static float        	fLastDegF             = 37.37;  //Last temperature reading.
+static int          	sSetpointF            = 37;
 static int          	sThermoTimesCount     = 0;      //Number of times temperature out of range
-static unsigned long 	ulNextHandlerMsec      = 0;
+static unsigned long 	ulNextHandlerMsec     = 0;
 static bool         	bThermoOn             = true;   //Whether thermostat is running.
-static bool         bFurnaceOn            = false;  //If switch is on to turn on furnace.
+static bool         	bFurnaceOn            = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing;          //Number of mSec between running system handlers
 #ifdef DEBUG
@@ -206,8 +211,8 @@ void setup()
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
 
-  Wire.begin();
-  StartBlynk();
+  //Wire.begin();
+  SetupWiFi();
   SetupSwitches();
   SetupSystem();
   /*//Test writing to LCD
@@ -221,34 +226,46 @@ void setup()
 
 void loop()
 {
+  HandleHttpServer();
   Blynk.run();
   HandleSystem();
 } //loop
 
 
-void StartBlynk(){
-  String szLogString;
+void SetupWiFi(){
+  //String szLogString;
+  Serial << LOG0 << " SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ", IPAddress(192,168,15,191)" << endl;
+  WiFi.begin(szRouterName, szRouterPW);
   switch (sProjectType){
     case sGarageLocal:
     case sDevLocal:
-      szLogString = "StartBlynk: sGarageLocal or sDevLocal connect to local server";
-      LogToBoth(szLogString);
-      Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, dlinky, Qazqaz11, IPAddress(192,168,15,191)" << endl;
-      Blynk.begin(acBlynkAuthToken, "dlinky", "Qazqaz11", IPAddress(192,168,15,191));
+      //szLogString = "SetupWiFi: sGarageLocal or sDevLocal connect to local server";
+      //LogToBoth(szLogString);
+      Serial << LOG0 << " setup(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
+      Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
       break;
     default:
-      szLogString = "StartBlynk: default connect to Blynk server";
-      LogToBoth(szLogString);
+      //szLogString = "StartBlynk: default connect to Blynk server";
+      //LogToBoth(szLogString);
       //Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, " << szRouterName << ", " << szRouterPW << ")" << endl;
-      Serial << LOG0 << " setup(): Call Blynk.begin(" << acBlynkAuthToken << ", " << szRouterName
-             << ", " << szRouterPW << ")" << endl;
-      Blynk.begin(acBlynkAuthToken, szRouterName, szRouterPW);
+      //Blynk.begin(acBlynkAuthToken, szRouterName, szRouterPW);
+      Serial << LOG0 << " SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
+      Blynk.config(acBlynkAuthToken);
       break;
   } //switch
-  szLogString = "Blynk.begin returned";
-  LogToBoth(szLogString);
+  Serial << LOG0 << " SetupWiFi(): Blynk.config() returned" << endl;
   return;
-} //StartBlynk
+} //SetupWiFi
+
+
+void SetupHttpServer() {
+	MDNS.begin(acHostname);
+	oHttpUpdater.setup(&oHttpServer);
+	oHttpServer.begin();
+	MDNS.addService("http", "tcp", 80);
+    Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready! Open http://" << acHostname
+    	   << ".local/update in your browser" << endl;
+}
 
 
 int sSetupTime(){
@@ -282,6 +299,13 @@ void SetupSwitches(){
   } //for
   return;
 } //SetupSwitches
+
+
+void HandleHttpServer() {
+	oHttpServer.handleClient();
+	delay(1);
+    return;
+}	//HandleHttpServer
 
 
 void HandleSystem(){
