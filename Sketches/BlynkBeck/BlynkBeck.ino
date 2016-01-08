@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 7, 2016D";
+static const char szFileDate[]    = "Jan 8, 2016A";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -34,8 +34,8 @@ static const char szFileDate[]    = "Jan 7, 2016D";
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-  //C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\
-  //ESP8266WebServer\src\ESP8266WebServer.cpp
+	//C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\
+	//   ESP8266WebServer\src\ESP8266WebServer.cpp
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <BlynkSimpleEsp8266.h>
