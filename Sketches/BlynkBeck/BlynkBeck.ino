@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 7, 2016C";
+static const char szFileDate[]    = "Jan 7, 2016D";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -40,8 +40,8 @@ static const char szFileDate[]    = "Jan 7, 2016C";
 #include <ESP8266HTTPUpdateServer.h>
 #include <BlynkSimpleEsp8266.h>
 //#include <Wire.h>
-#include <I2Cdev.h>
-#include <MPU6050.h>
+//#include <I2Cdev.h>
+//#include <MPU6050.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #define ONEWIRE_PIN       12

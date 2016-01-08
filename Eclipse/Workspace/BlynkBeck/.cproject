@@ -69,6 +69,18 @@
 							<tool id="it.baeyens.arduino.tool.size.1542207807" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size"/>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="it.baeyens.arduino.core.toolChain.release.1905639150.1250910192" name="/" resourcePath="Libraries">
+						<toolChain id="it.baeyens.arduino.core.toolChain.release.1300356026" name="Arduino Toolchain" superClass="it.baeyens.arduino.core.toolChain.release" unusedChildren="">
+							<tool id="it.baeyens.arduino.tool.sketch.compiler.cpp.862623219" name="Arduino C++ Compiler" superClass="it.baeyens.arduino.tool.sketch.compiler.cpp.1077452138"/>
+							<tool id="it.baeyens.arduino.tool.compiler.c.1509131632" name="Arduino C Compiler" superClass="it.baeyens.arduino.tool.compiler.c.344080514"/>
+							<tool id="it.baeyens.arduino.tool.sketch.compiler.s.702368783" name="Arduino Assembler" superClass="it.baeyens.arduino.tool.sketch.compiler.s.1623323261"/>
+							<tool id="it.baeyens.arduino.tool.ar.1149747727" name="Arduino archiver" superClass="it.baeyens.arduino.tool.ar.1153389166"/>
+							<tool id="it.baeyens.arduino.tool.combine.1725938781" name="Arduino combiner" superClass="it.baeyens.arduino.tool.combine.1027305466"/>
+							<tool id="it.baeyens.arduino.tool.objcopy.eep.859146420" name="Arduino tool Create eeprom" superClass="it.baeyens.arduino.tool.objcopy.eep.162192526"/>
+							<tool id="it.baeyens.arduino.tool.objcopy.flash.1733822470" name="Arduino tool Create hex" superClass="it.baeyens.arduino.tool.objcopy.flash.1117258838"/>
+							<tool id="it.baeyens.arduino.tool.size.1074154230" name="Arduino tool Print Size" superClass="it.baeyens.arduino.tool.size.1542207807"/>
+						</toolChain>
+					</folderInfo>
 					<sourceEntries>
 						<entry excluding="Libraries/*/?xamples|Libraries/*/?xtras" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
