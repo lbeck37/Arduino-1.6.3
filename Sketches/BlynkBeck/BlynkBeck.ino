@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 6, 2016A";
+static const char szFileDate[]    = "Jan 7, 2016C";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -34,6 +34,8 @@ static const char szFileDate[]    = "Jan 6, 2016A";
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+  //C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\
+  //ESP8266WebServer\src\ESP8266WebServer.cpp
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <BlynkSimpleEsp8266.h>
@@ -176,12 +178,12 @@ WidgetLED           oLED4(LED_4V28);
 
 //Maxim/Dallas OneWire sensors
 /* Set up a oneWire instance to communicate with any OneWire device*/
-OneWire 				oOneWire(sOneWirePin);
+OneWire         oOneWire(sOneWirePin);
 
 /* Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature 		oSensors(&oOneWire);
+DallasTemperature     oSensors(&oOneWire);
 
-ESP8266WebServer 		oHttpServer(80);
+ESP8266WebServer    oHttpServer(80);
 ESP8266HTTPUpdateServer oHttpUpdater;
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
@@ -189,12 +191,12 @@ static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotI
 static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
 //static long         lLineCount2           = 0;      //For Blynk terminal window.
 //static long         lNumLoops             = 1;
-static float        	fLastDegF             = 37.37;  //Last temperature reading.
-static int          	sSetpointF            = 37;
-static int          	sThermoTimesCount     = 0;      //Number of times temperature out of range
-static unsigned long 	ulNextHandlerMsec     = 0;
-static bool         	bThermoOn             = true;   //Whether thermostat is running.
-static bool         	bFurnaceOn            = false;  //If switch is on to turn on furnace.
+static float          fLastDegF             = 37.37;  //Last temperature reading.
+static int            sSetpointF            = 37;
+static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
+static unsigned long  ulNextHandlerMsec     = 0;
+static bool           bThermoOn             = true;   //Whether thermostat is running.
+static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing;          //Number of mSec between running system handlers
 #ifdef DEBUG
@@ -213,6 +215,7 @@ void setup()
 
   //Wire.begin();
   SetupWiFi();
+  SetupHttpServer();
   SetupSwitches();
   SetupSystem();
   /*//Test writing to LCD
@@ -259,12 +262,12 @@ void SetupWiFi(){
 
 
 void SetupHttpServer() {
-	MDNS.begin(acHostname);
-	oHttpUpdater.setup(&oHttpServer);
-	oHttpServer.begin();
-	MDNS.addService("http", "tcp", 80);
+  MDNS.begin(acHostname);
+  oHttpUpdater.setup(&oHttpServer);
+  oHttpServer.begin();
+  MDNS.addService("http", "tcp", 80);
     Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready! Open http://" << acHostname
-    	   << ".local/update in your browser" << endl;
+         << ".local/update in your browser" << endl;
 }
 
 
@@ -302,10 +305,10 @@ void SetupSwitches(){
 
 
 void HandleHttpServer() {
-	oHttpServer.handleClient();
-	delay(1);
+  oHttpServer.handleClient();
+  delay(1);
     return;
-}	//HandleHttpServer
+} //HandleHttpServer
 
 
 void HandleSystem(){
