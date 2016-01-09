@@ -274,7 +274,7 @@ void SetupHttpServer() {
     Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready! Open http://" << acHostname
          << ".local/update in your browser" << endl;
 #endif
-}
+}	//SetupHttpServer
 
 
 int sSetupTime(){

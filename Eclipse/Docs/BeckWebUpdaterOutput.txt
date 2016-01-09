@@ -1,0 +1,30 @@
+setup(): Booting BeckWebUpdater.ino Jan 8, 2016E
+SetupHttpServer(): HTTPUpdateServer ready! Open http://esp37.local/update in your browser
+New client
+New client
+Update: BeckWebUpdater.bin
+sleep disable
+...........................LmacRxBlk:1
+................................LmacRxBlk:1
+....................LmacRxBlk:1
+....................LmacRxBlk:1
+....................LmacRxBlk:1
+.......Update Success: 258032
+Rebooting...
+
+Jan  8 2013,rst cause:2, boot mode:(3,6)
+
+load 0x4010f000, len 1264, room 16
+tail 0
+chksum 0x42
+csum 0x42
+@cp:0
+ld
+
+setup(): Booting BeckWebUpdater.ino Jan 8, 2016F
+SetupHttpServer(): HTTPUpdateServer ready! Open http://esp37.local/update in your browser
+New client
+Update: BeckWebUpdater.bin
+sleep disable
+..............................................................................................................................Update Success: 258032
+Rebooting...

@@ -1,5 +1,5 @@
-static const char szSketchName[]  = "BeckWebUpdater.ino";
-static const char szFileDate[]    = "Jan 8, 2016B";
+static const char acSketchName[]  = "BeckWebUpdater.ino";
+static const char acFileDate[]    = "Jan 8, 2016H";
 // 1/5/16 Get running on V64 eclipseArduino
 // To upload through terminal you can use: curl -F "image=@firmware.bin" esp8266-webupdate.local/update
 
@@ -13,39 +13,47 @@ static const char szFileDate[]    = "Jan 8, 2016B";
 //#define LOG0    szLogLineHeader(++lLineCount)
 //static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
 
-const char* host = "esp37F";
-const char* ssid = "Aspot24";
-const char* password = "Qazqaz11";
+static const char   acRouterName[]        = "Aspot24";
+static const char   acRouterPW[]          = "Qazqaz11";
+static const char   acHostname[]          = "esp37";
 
-ESP8266WebServer httpServer(80);
-ESP8266HTTPUpdateServer httpUpdater;
+ESP8266WebServer    		oHttpServer(80);
+ESP8266HTTPUpdateServer 	oHttpUpdateServer(true);
 
 void setup(void){
 
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Booting BeckWebUpdater.bin Jan 8, 2016B");
+  Serial.printf("setup(): Booting %s %s\n", acSketchName, acFileDate);
   WiFi.mode(WIFI_AP_STA);
-  WiFi.begin(ssid, password);
+  WiFi.begin(acRouterName, acRouterPW);
 
   while(WiFi.waitForConnectResult() != WL_CONNECTED){
-    WiFi.begin(ssid, password);
+    WiFi.begin(acRouterName, acRouterPW);
     Serial.println("WiFi failed, retrying.");
   }
+  SetupHttpServer();
+}	//setup
 
-  MDNS.begin(host);
-
-  httpUpdater.setup(&httpServer);
-  httpServer.begin();
-
-  MDNS.addService("http", "tcp", 80);
-  Serial.printf("HTTPUpdateServer ready! Open http://%s.local/update in your browser\n", host);
-}
 
 void loop(void){
-  httpServer.handleClient();
+  HandleHttpServer();
+}	//loop
+
+
+void SetupHttpServer() {
+  MDNS.begin(acHostname);
+  oHttpUpdateServer.setup(&oHttpServer);
+  oHttpServer.begin();
+  MDNS.addService("http", "tcp", 80);
+  Serial.printf("SetupHttpServer(): HTTPUpdateServer ready! Open http://%s.local/update in your browser\n", acHostname);
+}	//SetupHttpServer
+
+
+void HandleHttpServer() {
+  oHttpServer.handleClient();
   delay(1);
-}
+} //HandleHttpServer
 
 
 /*String szLogLineHeader(long lLineCount){
@@ -58,5 +66,4 @@ void loop(void){
   return szHeader;
 } //szLogLineHeader
 */
-
-
+//Last line.

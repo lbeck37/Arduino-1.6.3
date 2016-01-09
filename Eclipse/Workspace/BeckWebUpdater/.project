@@ -27,6 +27,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>BeckWebUpdater.ino</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Sketches/BeckWebUpdater/BeckWebUpdater.ino</locationURI>
+		</link>
+		<link>
 			<name>Libraries/ESP8266HTTPUpdateServer</name>
 			<type>2</type>
 			<locationURI>ArduinoHardwareLibPath/ESP8266HTTPUpdateServer</locationURI>
