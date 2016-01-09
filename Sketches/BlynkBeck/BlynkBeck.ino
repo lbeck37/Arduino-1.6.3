@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 8, 2016A";
+static const char szFileDate[]    = "Jan 8, 2016H";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -27,17 +27,18 @@ static const char szFileDate[]    = "Jan 8, 2016A";
 //#define DEV_LOCAL
 #define DEV_REMOTE
 
-//#define DEBUG     //When defined, some additional logging is turned on.
+#define DEBUG		true
+#define	 OTA_ON		//Used to highlight code needed for OTA
 
 #include <Streaming.h>
 #include <Time.h>
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-	//C:\Users\PC\AppData\Roaming\Arduino15\packages\esp8266\hardware\esp8266\2.0.0\libraries\
-	//   ESP8266WebServer\src\ESP8266WebServer.cpp
-#include <ESP8266mDNS.h>
-#include <ESP8266HTTPUpdateServer.h>
+#ifdef OTA_ON
+  #include <ESP8266WiFi.h>
+  #include <WiFiClient.h>
+  #include <ESP8266WebServer.h>
+  #include <ESP8266mDNS.h>
+  #include <ESP8266HTTPUpdateServer.h>
+#endif
 #include <BlynkSimpleEsp8266.h>
 //#include <Wire.h>
 //#include <I2Cdev.h>
@@ -128,6 +129,12 @@ static const char   szRouterName[]        = "Aspot24";
 static const char   szRouterPW[]          = "Qazqaz11";
 static const char   acHostname[]          = "esp37";
 
+#ifdef DEBUG
+  static const bool       bDebug                = true;    //Used to select places to disable bDebugLog.
+#else
+  static const bool       bDebug                = false;   //Used to select places to disable bDebugLog.
+#endif
+
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
   char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
@@ -183,8 +190,10 @@ OneWire         oOneWire(sOneWirePin);
 /* Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature     oSensors(&oOneWire);
 
-ESP8266WebServer    oHttpServer(80);
-ESP8266HTTPUpdateServer oHttpUpdater;
+#ifdef OTA_ON
+  ESP8266WebServer    		oHttpServer(80);
+  ESP8266HTTPUpdateServer 	oHttpUpdateServer(bDebug);
+#endif
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
@@ -199,11 +208,6 @@ static bool           bThermoOn             = true;   //Whether thermostat is ru
 static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing;          //Number of mSec between running system handlers
-#ifdef DEBUG
-  static bool       bDebug                = true;    //Used to select places to disable bDebugLog.
-#else
-  static bool       bDebug                = false;   //Used to select places to disable bDebugLog.
-#endif
 static bool         bDebugLog             = true;   //Used to limit number of printouts.
 
 void setup()
@@ -262,12 +266,14 @@ void SetupWiFi(){
 
 
 void SetupHttpServer() {
+#ifdef OTA_ON
   MDNS.begin(acHostname);
-  oHttpUpdater.setup(&oHttpServer);
+  oHttpUpdateServer.setup(&oHttpServer);
   oHttpServer.begin();
   MDNS.addService("http", "tcp", 80);
     Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready! Open http://" << acHostname
          << ".local/update in your browser" << endl;
+#endif
 }
 
 
@@ -288,7 +294,7 @@ void SetupSystem(){
       sSystemHandlerSpacing = 10 * lMsecPerSec;
       break;
   } //switch
-  HandleBlynkLEDs();
+  //HandleBlynkLEDs();
   return;
 } //SetupSystem
 
@@ -305,9 +311,10 @@ void SetupSwitches(){
 
 
 void HandleHttpServer() {
+#ifdef OTA_ON
   oHttpServer.handleClient();
   delay(1);
-    return;
+#endif
 } //HandleHttpServer
 
 
@@ -453,7 +460,7 @@ void DebugHandleBlynkLEDs(){
 void HandleBlynkLEDs(){
   String szLogString = "HandleBlynkLEDs()";
   LogToBoth(szLogString);
-  DebugHandleBlynkLEDs();
+  //DebugHandleBlynkLEDs();
   //Only send data back to Blynk if state of LED has changed.
   //static int asSwitchLastState[]= {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
   bDebugLog= bDebug;  //If bDebug is OfF then we turn logging off for this routine, resetting at end.
@@ -514,7 +521,7 @@ void HandleBlynkLEDs(){
         default:
           break;
       } //switch
-      LogToBoth(szLogString, sSwitch);
+      //LogToBoth(szLogString, sSwitch);
     } //if(asSwitchState[sSwitch]!=asSwitchLastState[sSwitch])
   } //for
   bDebugLog= true;
@@ -584,7 +591,6 @@ void SetSwitch(int sSwitch, int sSwitchState){
   int sSwitchPin= asSwitchPin[sSwitch];
   bool bPinSetting;
   asSwitchState[sSwitch]= sSwitchState;
-
   bDebugLog= bDebug;
   if (abSwitchInverted[sSwitch]){
     bPinSetting= !sSwitchState;
@@ -602,7 +608,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
   szLogString += sSwitchPin;
   szLogString += ",";
   szLogString += bPinSetting;
-  LogToBoth(szLogString);
+  //LogToBoth(szLogString);
 
   //Some switch positions don't have pins, just Blynk LEDs.
   if (sSwitchPin >= 0){
@@ -610,7 +616,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
     asSwitchState[sSwitch]= sSwitchState;
   } //if(sSwitchPin>=0)
   bDebugLog= true;
-  HandleBlynkLEDs();
+  //HandleBlynkLEDs();
   return;
 } //SetSwitch
 
@@ -843,7 +849,7 @@ BLYNK_WRITE(ThermoSwitch_V4){
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
   SendIntToBlynk(GetSetpointF_V3, sSetpointF);
-  HandleBlynkLEDs();
+  //HandleBlynkLEDs();
   return;
 } //BLYNK_WRITE(ThermoSwitch_V4)
 
