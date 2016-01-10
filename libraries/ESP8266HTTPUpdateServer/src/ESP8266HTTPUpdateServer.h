@@ -1,8 +1,6 @@
 #ifndef __HTTP_UPDATE_SERVER_H
 #define __HTTP_UPDATE_SERVER_H
 
-//#define UPLOAD_FILE_ABORTED   1
-
 class ESP8266WebServer;
 
 class ESP8266HTTPUpdateServer
