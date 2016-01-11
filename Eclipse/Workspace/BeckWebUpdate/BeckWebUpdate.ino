@@ -17,6 +17,12 @@ ESP8266WebServer server(80);
 const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 void setup(void){
+  SetupServer();
+  return;
+} //setup
+
+
+void SetupServer(void){
   Serial.begin(115200);
   Serial.println();
   Serial.println("Booting Sketch...");
@@ -61,15 +67,24 @@ void setup(void){
     });
     server.begin();
     MDNS.addService("http", "tcp", 80);
-  
+
     Serial.printf("Ready! Open http://%s.local in your browser to perform an OTA update\n", host);
   } else {
     Serial.println("WiFi Failed");
   }
-}	//setup
+  return;
+} //SetupServer
 
- 
+
 void loop(void){
+  HandleClient();
+  return;
+} //loop
+
+
+void HandleClient(void){
   server.handleClient();
   delay(1);
-} 
+  return;
+} //HandleClient
+//Last line.
