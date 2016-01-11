@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 8, 2016H";
+static const char szFileDate[]    = "Jan 10, 2016D";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -32,13 +32,11 @@ static const char szFileDate[]    = "Jan 8, 2016H";
 
 #include <Streaming.h>
 #include <Time.h>
-#ifdef OTA_ON
-  #include <ESP8266WiFi.h>
-  #include <WiFiClient.h>
-  #include <ESP8266WebServer.h>
-  #include <ESP8266mDNS.h>
-  #include <ESP8266HTTPUpdateServer.h>
-#endif
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+//#include <ESP8266HTTPUpdateServer.h>
 #include <BlynkSimpleEsp8266.h>
 //#include <Wire.h>
 //#include <I2Cdev.h>
@@ -190,10 +188,12 @@ OneWire         oOneWire(sOneWirePin);
 /* Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature     oSensors(&oOneWire);
 
-#ifdef OTA_ON
+#if false
   ESP8266WebServer    		oHttpServer(80);
   ESP8266HTTPUpdateServer 	oHttpUpdateServer(bDebug);
 #endif
+  ESP8266WebServer 	oWebServer(80);
+  const char* 		acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
@@ -219,7 +219,7 @@ void setup()
 
   //Wire.begin();
   SetupWiFi();
-  SetupHttpServer();
+  //SetupHttpServer();
   SetupSwitches();
   SetupSystem();
   /*//Test writing to LCD
@@ -233,16 +233,18 @@ void setup()
 
 void loop()
 {
-  HandleHttpServer();
-  Blynk.run();
-  HandleSystem();
+  //HandleHttpServer();
+  HandleClient();
+  //Blynk.run();
+  //HandleSystem();
 } //loop
 
 
 void SetupWiFi(){
   //String szLogString;
-  Serial << LOG0 << " SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ", IPAddress(192,168,15,191)" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
+  //Serial << LOG0 << " SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ", IPAddress(192,168,15,191)" << endl;
+  //WiFi.begin(szRouterName, szRouterPW);
+  SetupServer();
   switch (sProjectType){
     case sGarageLocal:
     case sDevLocal:
@@ -265,16 +267,76 @@ void SetupWiFi(){
 } //SetupWiFi
 
 
+void SetupServer(void) {
+  //Serial.begin(115200);
+  //Serial.println();
+  //Serial.println("Booting Sketch...");
+  //Serial.printf("setup(): Sketch: %s, %s\n", szSketchName, szFileDate);
+  WiFi.mode(WIFI_AP_STA);
+  Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << endl;
+  WiFi.begin(szRouterName, szRouterPW);
+  if(WiFi.waitForConnectResult() == WL_CONNECTED) {
+    MDNS.begin(acHostname);
+    oWebServer.on("/", HTTP_GET, [](){
+      oWebServer.sendHeader("Connection", "close");
+      oWebServer.sendHeader("Access-Control-Allow-Origin", "*");
+      oWebServer.send(200, "text/html", acServerIndex);
+    });
+    oWebServer.on("/update", HTTP_POST, []() {
+      oWebServer.sendHeader("Connection", "close");
+      oWebServer.sendHeader("Access-Control-Allow-Origin", "*");
+      oWebServer.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
+      ESP.restart();
+    },[](){
+      HTTPUpload& upload = oWebServer.upload();
+      if(upload.status == UPLOAD_FILE_START) {
+        Serial.setDebugOutput(true);
+        WiFiUDP::stopAll();
+        uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+        Serial.printf("SetupServer(): maxSketchSpace= %u\n", ulMaxSketchSpace);
+        Serial.printf("SetupServer(): Update filename: %s\n", upload.filename.c_str());
+        if(!Update.begin(ulMaxSketchSpace)) {//start with max available size
+          Update.printError(Serial);
+        }	//if(!Update.begin(maxSketchSpace))
+      }	//if(WiFi.waitForConnectResult()==WL_CONNECTED)
+      else if(upload.status == UPLOAD_FILE_WRITE) {
+        if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+          Update.printError(Serial);
+        }	//if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+      }	//else if(upload.status==UPLOAD_FILE_WRITE)
+      else if(upload.status == UPLOAD_FILE_END){
+        if(Update.end(true)){ //true to set the size to the current progress
+          Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+        }	//if(Update.end(true))
+        else {
+          Update.printError(Serial);
+        }	//if(Update.end(true))else
+        Serial.setDebugOutput(false);
+      }	//else if(upload.status==UPLOAD_FILE_END)
+      yield();
+    });
+    oWebServer.begin();
+    MDNS.addService("http", "tcp", 80);
+
+    Serial.printf("Ready! Open http://%s.local in your browser to perform an OTA update\n", acHostname);
+  }	//if(WiFi.waitForConnectResult()==WL_CONNECTED)
+  else {
+    Serial.println("WiFi Failed");
+  }	//if(WiFi.waitForConnectResult()==WL_CONNECTED)else
+  return;
+} //SetupServer
+
+
+#if false
 void SetupHttpServer() {
-#ifdef OTA_ON
   MDNS.begin(acHostname);
   oHttpUpdateServer.setup(&oHttpServer);
   oHttpServer.begin();
   MDNS.addService("http", "tcp", 80);
     Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready! Open http://" << acHostname
          << ".local/update in your browser" << endl;
-#endif
 }	//SetupHttpServer
+#endif
 
 
 int sSetupTime(){
@@ -287,7 +349,8 @@ void SetupSystem(){
   String szLogString = "SetupSystem()";
   LogToBoth(szLogString);
   switch (sProjectType){
-    case sDevLocal:
+  case sDevRemote:
+  case sDevLocal:
       sSystemHandlerSpacing = 10 * lMsecPerSec;
       break;
     default:
@@ -310,12 +373,19 @@ void SetupSwitches(){
 } //SetupSwitches
 
 
+void HandleClient(void){
+  oWebServer.handleClient();
+  delay(1);
+  return;
+} //HandleClient
+
+
+#if false
 void HandleHttpServer() {
-#ifdef OTA_ON
   oHttpServer.handleClient();
   delay(1);
-#endif
 } //HandleHttpServer
+#endif
 
 
 void HandleSystem(){

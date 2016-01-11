@@ -12,8 +12,8 @@ const char* host = "esp37";
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
-ESP8266WebServer server(80);
-const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+ESP8266WebServer oWebServer(80);
+const char* acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 void setup(void){
   SetupServer();
@@ -30,18 +30,18 @@ void SetupServer(void) {
   WiFi.begin(ssid, password);
   if(WiFi.waitForConnectResult() == WL_CONNECTED) {
     MDNS.begin(host);
-    server.on("/", HTTP_GET, [](){
-      server.sendHeader("Connection", "close");
-      server.sendHeader("Access-Control-Allow-Origin", "*");
-      server.send(200, "text/html", serverIndex);
+    oWebServer.on("/", HTTP_GET, [](){
+      oWebServer.sendHeader("Connection", "close");
+      oWebServer.sendHeader("Access-Control-Allow-Origin", "*");
+      oWebServer.send(200, "text/html", acServerIndex);
     });
-    server.on("/update", HTTP_POST, []() {
-      server.sendHeader("Connection", "close");
-      server.sendHeader("Access-Control-Allow-Origin", "*");
-      server.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
+    oWebServer.on("/update", HTTP_POST, []() {
+      oWebServer.sendHeader("Connection", "close");
+      oWebServer.sendHeader("Access-Control-Allow-Origin", "*");
+      oWebServer.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
       ESP.restart();
     },[](){
-      HTTPUpload& upload = server.upload();
+      HTTPUpload& upload = oWebServer.upload();
       if(upload.status == UPLOAD_FILE_START) {
         Serial.setDebugOutput(true);
         WiFiUDP::stopAll();
@@ -68,7 +68,7 @@ void SetupServer(void) {
       }	//else if(upload.status==UPLOAD_FILE_END)
       yield();
     });
-    server.begin();
+    oWebServer.begin();
     MDNS.addService("http", "tcp", 80);
 
     Serial.printf("Ready! Open http://%s.local in your browser to perform an OTA update\n", host);
@@ -87,7 +87,7 @@ void loop(void){
 
 
 void HandleClient(void){
-  server.handleClient();
+  oWebServer.handleClient();
   delay(1);
   return;
 } //HandleClient

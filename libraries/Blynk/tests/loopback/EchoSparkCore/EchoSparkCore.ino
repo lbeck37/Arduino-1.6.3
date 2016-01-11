@@ -1,5 +1,5 @@
 
-IPAddress server(192, 168, 0, 105);
+IPAddress oWebServer(192, 168, 0, 105);
 uint16_t port = 8888;
 
 void setup(void)
@@ -25,9 +25,9 @@ TCPClient client;
 void loop(void)
 {
   Serial.print("Connecting to ");
-  Serial.print(server);  Serial.print(":");  Serial.println(port);
+  Serial.print(oWebServer);  Serial.print(":");  Serial.println(port);
 
-  if (1 == client.connect(server, port)) {
+  if (1 == client.connect(oWebServer, port)) {
     Serial.println("Connected.");
     /* Echo incoming data */
     while (client.connected()) {
