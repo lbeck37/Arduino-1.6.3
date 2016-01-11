@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 10, 2016D";
+static const char szFileDate[]    = "Jan 10, 2016F";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -28,7 +28,7 @@ static const char szFileDate[]    = "Jan 10, 2016D";
 #define DEV_REMOTE
 
 #define DEBUG		true
-#define	 OTA_ON		//Used to highlight code needed for OTA
+#define	DEBUG_OTA		//Used to skip Blynk code while debugging OTA
 
 #include <Streaming.h>
 #include <Time.h>
@@ -235,8 +235,10 @@ void loop()
 {
   //HandleHttpServer();
   HandleClient();
+#ifndef DEBUG_OTA
   //Blynk.run();
   //HandleSystem();
+#endif
 } //loop
 
 
