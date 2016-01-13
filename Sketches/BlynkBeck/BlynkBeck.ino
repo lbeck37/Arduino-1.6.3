@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 12, 2016A";
+static const char szFileDate[]    = "Jan 13, 2016k";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -27,7 +27,8 @@ static const char szFileDate[]    = "Jan 12, 2016A";
 //#define DEV_LOCAL
 #define DEV_REMOTE
 
-#define DEBUG		true
+#define SKIP_BLYNK		true
+#define DEBUG			true
 #define	DEBUG_OTA		//Used to skip Blynk code while debugging OTA
 
 #include <Streaming.h>
@@ -92,6 +93,7 @@ static const char szFileDate[]    = "Jan 12, 2016A";
 
 #define LOG0    szLogLineHeader(++lLineCount)
 
+static const bool	bSkipBlynk			  = SKIP_BLYNK;
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
@@ -188,12 +190,11 @@ OneWire         oOneWire(sOneWirePin);
 /* Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature     oSensors(&oOneWire);
 
-#if false
-  ESP8266WebServer    		oHttpServer(80);
-  ESP8266HTTPUpdateServer 	oHttpUpdateServer(bDebug);
-#endif
-  ESP8266WebServer 	oWebServer(80);
-  const char* 		acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+//BSP cores\esp8266\Updater.cpp
+//	UpdaterClass Update;
+
+ESP8266WebServer 	oWebServer(80);
+const char* 		acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
@@ -237,14 +238,16 @@ void loop()
 {
   //HandleHttpServer();
   HandleClient();
-if (true){
+if (!bSkipBlynk){
   if (!bUpdating) {
 	  Blynk.run();
 	  HandleSystem();
   }	//if(!bUpdating)
   else {
+      Serial << LOG0 << " loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
 	  if (millis() > ulUpdateTimeoutMsec) {
 		  bUpdating= false;
+	      Serial << LOG0 << " loop(): Set bUpdating to " << bUpdating << endl;
 	  }	//if(millis()>ulUpdateTimeoutMsec)
   }	//if(!bUpdating)else
 }	//if(false)
@@ -252,9 +255,6 @@ if (true){
 
 
 void SetupWiFi(){
-  //String szLogString;
-  //Serial << LOG0 << " SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ", IPAddress(192,168,15,191)" << endl;
-  //WiFi.begin(szRouterName, szRouterPW);
   SetupServer();
   switch (sProjectType){
     case sGarageLocal:
@@ -279,10 +279,6 @@ void SetupWiFi(){
 
 
 void SetupServer(void) {
-  //Serial.begin(115200);
-  //Serial.println();
-  //Serial.println("Booting Sketch...");
-  //Serial.printf("setup(): Sketch: %s, %s\n", szSketchName, szFileDate);
   WiFi.mode(WIFI_AP_STA);
   Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << endl;
   WiFi.begin(szRouterName, szRouterPW);
@@ -299,26 +295,29 @@ void SetupServer(void) {
       oWebServer.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
       ESP.restart();
     },[](){
-      bUpdating= true;
-      HTTPUpload& upload = oWebServer.upload();
-      if(upload.status == UPLOAD_FILE_START) {
+      HTTPUpload& stHTTPUpload = oWebServer.upload();
+      if(stHTTPUpload.status == UPLOAD_FILE_START) {
+        Serial << LOG0 << " Handle /update HTTP_POST: UPLOAD_FILE_START" << endl;
+        PauseBlynk();
         Serial.setDebugOutput(true);
         WiFiUDP::stopAll();
         uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-        Serial.printf("SetupServer(): maxSketchSpace= %u\n", ulMaxSketchSpace);
-        Serial.printf("SetupServer(): Update filename: %s\n", upload.filename.c_str());
+        Serial << LOG0 << " Handle /update HTTP_POST: ulMaxSketchSpace= " << ulMaxSketchSpace << endl;
+        Serial << LOG0 << " Handle /update HTTP_POST: Update filename= " << stHTTPUpload.filename.c_str() << endl;
         if(!Update.begin(ulMaxSketchSpace)) {//start with max available size
           Update.printError(Serial);
         }	//if(!Update.begin(maxSketchSpace))
       }	//if(WiFi.waitForConnectResult()==WL_CONNECTED)
-      else if(upload.status == UPLOAD_FILE_WRITE) {
-        if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+      else if(stHTTPUpload.status == UPLOAD_FILE_WRITE) {
+        //Serial << LOG0 << " Handle /update HTTP_POST: UPLOAD_FILE_WRITE, upload.currentSize= " << stHTTPUpload.currentSize << endl;
+        if(Update.write(stHTTPUpload.buf, stHTTPUpload.currentSize) != stHTTPUpload.currentSize) {
           Update.printError(Serial);
         }	//if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
       }	//else if(upload.status==UPLOAD_FILE_WRITE)
-      else if(upload.status == UPLOAD_FILE_END){
+      else if(stHTTPUpload.status == UPLOAD_FILE_END){
         if(Update.end(true)){ //true to set the size to the current progress
-          Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+          //Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+          Serial << LOG0 << " Handle /update HTTP_POST: UPLOAD_FILE_END (rebooting?), upload.totalSize= " << stHTTPUpload.totalSize << endl;
         }	//if(Update.end(true))
         else {
           Update.printError(Serial);
@@ -329,8 +328,7 @@ void SetupServer(void) {
     });
     oWebServer.begin();
     MDNS.addService("http", "tcp", 80);
-
-    Serial.printf("Ready! Open http://%s.local in your browser to perform an OTA update\n", acHostname);
+    Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
   }	//if(WiFi.waitForConnectResult()==WL_CONNECTED)
   else {
     Serial.println("WiFi Failed");
@@ -339,16 +337,13 @@ void SetupServer(void) {
 } //SetupServer
 
 
-#if false
-void SetupHttpServer() {
-  MDNS.begin(acHostname);
-  oHttpUpdateServer.setup(&oHttpServer);
-  oHttpServer.begin();
-  MDNS.addService("http", "tcp", 80);
-    Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready! Open http://" << acHostname
-         << ".local/update in your browser" << endl;
-}	//SetupHttpServer
-#endif
+void PauseBlynk() {
+    bUpdating= true;
+    Serial << LOG0 << " PauseBlynk(): Set bUpdating to " << bUpdating << endl;
+    ulUpdateTimeoutMsec= millis() + 20000;
+	return;
+}	//PauseBlynk
+
 
 
 int sSetupTime(){
