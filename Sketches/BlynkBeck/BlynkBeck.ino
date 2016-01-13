@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 11, 2016B";
+static const char szFileDate[]    = "Jan 12, 2016A";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -204,11 +204,13 @@ static float          fLastDegF             = 37.37;  //Last temperature reading
 static int            sSetpointF            = 37;
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
+static unsigned long  ulUpdateTimeoutMsec 	= 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
-static long         sSystemHandlerSpacing;          //Number of mSec between running system handlers
+static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool         bDebugLog             = true;   //Used to limit number of printouts.
+static bool         bUpdating             = false;   //Turns off Blynk.
 
 void setup()
 {
@@ -235,10 +237,17 @@ void loop()
 {
   //HandleHttpServer();
   HandleClient();
-#ifndef DEBUG_OTA
-  //Blynk.run();
-  //HandleSystem();
-#endif
+if (true){
+  if (!bUpdating) {
+	  Blynk.run();
+	  HandleSystem();
+  }	//if(!bUpdating)
+  else {
+	  if (millis() > ulUpdateTimeoutMsec) {
+		  bUpdating= false;
+	  }	//if(millis()>ulUpdateTimeoutMsec)
+  }	//if(!bUpdating)else
+}	//if(false)
 } //loop
 
 
@@ -290,6 +299,7 @@ void SetupServer(void) {
       oWebServer.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
       ESP.restart();
     },[](){
+      bUpdating= true;
       HTTPUpload& upload = oWebServer.upload();
       if(upload.status == UPLOAD_FILE_START) {
         Serial.setDebugOutput(true);
