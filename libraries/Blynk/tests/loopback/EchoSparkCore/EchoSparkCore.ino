@@ -1,5 +1,5 @@
 
-IPAddress oWebServer(192, 168, 0, 105);
+IPAddress oESP8266WebServer(192, 168, 0, 105);
 uint16_t port = 8888;
 
 void setup(void)
@@ -25,9 +25,9 @@ TCPClient client;
 void loop(void)
 {
   Serial.print("Connecting to ");
-  Serial.print(oWebServer);  Serial.print(":");  Serial.println(port);
+  Serial.print(oESP8266WebServer);  Serial.print(":");  Serial.println(port);
 
-  if (1 == client.connect(oWebServer, port)) {
+  if (1 == client.connect(oESP8266WebServer, port)) {
     Serial.println("Connected.");
     /* Echo incoming data */
     while (client.connected()) {

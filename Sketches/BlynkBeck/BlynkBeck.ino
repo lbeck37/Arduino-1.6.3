@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 13, 2016s";
+static const char szFileDate[]    = "Jan 15, 2016b";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -27,8 +27,8 @@ static const char szFileDate[]    = "Jan 13, 2016s";
 //#define DEV_LOCAL
 #define DEV_REMOTE
 
-#define SKIP_BLYNK    true
-#define DEBUG     true
+#define SKIP_BLYNK    	true
+#define DEBUG     		true
 #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 
 #include <Streaming.h>
@@ -93,7 +93,7 @@ static const char szFileDate[]    = "Jan 13, 2016s";
 
 #define LOG0    szLogLineHeader(++lLineCount)
 
-static const bool bSkipBlynk        = SKIP_BLYNK;
+static const bool bSkipBlynk        	= SKIP_BLYNK;
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
@@ -188,12 +188,11 @@ WidgetLED           oLED4(LED_4V28);
 OneWire         oOneWire(sOneWirePin);
 
 /* Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature     oSensors(&oOneWire);
+DallasTemperature	oSensors(&oOneWire);
 
-//BSP cores\esp8266\Updater.cpp
-//  UpdaterClass Update;
+ESP8266WebServer  	oESP8266WebServer(80);
+//UpdaterClass 		Update;	//Declaration at the end of cores\esp8266\Updater.h from BSP
 
-ESP8266WebServer  oWebServer(80);
 const char*     acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
@@ -234,23 +233,22 @@ void setup()
 } //setup
 
 
-void loop()
-{
-  //HandleHttpServer();
-  HandleClient();
-if (!bSkipBlynk){
-  if (!bUpdating) {
-    Blynk.run();
-    HandleSystem();
-  } //if(!bUpdating)
-  else {
-      Serial << LOG0 << " loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
-    if (millis() > ulUpdateTimeoutMsec) {
-      bUpdating= false;
-        Serial << LOG0 << " loop(): Set bUpdating to " << bUpdating << endl;
-    } //if(millis()>ulUpdateTimeoutMsec)
-  } //if(!bUpdating)else
-} //if(false)
+void loop() {
+	HandleHttpServer();
+	if (!bSkipBlynk) {
+		if (!bUpdating) {
+			Blynk.run();
+			HandleSystem();
+		} //if(!bUpdating)
+		else {
+			Serial << LOG0 << " loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
+			if (millis() > ulUpdateTimeoutMsec) {
+				bUpdating = false;
+				Serial << LOG0 << " loop(): Set bUpdating to " << bUpdating
+						<< endl;
+			} //if(millis()>ulUpdateTimeoutMsec)
+		} //if(!bUpdating)else
+	} //if(!bSkipBlynk)
 } //loop
 
 
@@ -284,21 +282,21 @@ void SetupServer(void) {
   WiFi.begin(szRouterName, szRouterPW);
   if(WiFi.waitForConnectResult() == WL_CONNECTED) {
     MDNS.begin(acHostname);
-    oWebServer.on("/", HTTP_GET, [](){
-      oWebServer.sendHeader("Connection", "close");
-      oWebServer.sendHeader("Access-Control-Allow-Origin", "*");
-      oWebServer.send(200, "text/html", acServerIndex);
+    oESP8266WebServer.on("/", HTTP_GET, [](){
+      oESP8266WebServer.sendHeader("Connection", "close");
+      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
+      oESP8266WebServer.send(200, "text/html", acServerIndex);
     });
-    oWebServer.on("/update", HTTP_POST, []() {
-      oWebServer.sendHeader("Connection", "close");
-      oWebServer.sendHeader("Access-Control-Allow-Origin", "*");
+    oESP8266WebServer.on("/update", HTTP_POST, []() {
+      oESP8266WebServer.sendHeader("Connection", "close");
+      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
       //oWebServer.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
-      oWebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
+      oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
       ESP.restart();
     },[](){
       HandleUpdate();
     });
-    oWebServer.begin();
+    oESP8266WebServer.begin();
     MDNS.addService("http", "tcp", 80);
     Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
   } //if(WiFi.waitForConnectResult()==WL_CONNECTED)
@@ -310,18 +308,20 @@ void SetupServer(void) {
 
 
 void HandleUpdate() {
-	HTTPUpload& stHTTPUpload = oWebServer.upload();
+	//upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
+	HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
 	if (stHTTPUpload.status == UPLOAD_FILE_START) {
-		Serial << LOG0 << " HandleUpdate(): UPLOAD_FILE_START" << endl;
 		PauseBlynk();
 		Serial.setDebugOutput(true);
 		WiFiUDP::stopAll();
-		uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000)
-				& 0xFFFFF000;
-		Serial << LOG0 << " HandleUpdate(): ulMaxSketchSpace= "
-				<< ulMaxSketchSpace << endl;
-		Serial << LOG0 << " HandleUpdate(): Update filename= "
-				<< stHTTPUpload.filename.c_str() << endl;
+		uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+		Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_START" << endl;
+		Serial << LOG0 << " HandleUpdate(): ulMaxSketchSpace  = " << ulMaxSketchSpace << endl;
+		Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
+		Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
+		Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
+		Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
+		Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
 		if (!Update.begin(ulMaxSketchSpace)) { //start with max available size
 			Update.printError(Serial);
 		} //if(!Update.begin(maxSketchSpace))
@@ -334,6 +334,12 @@ void HandleUpdate() {
 		} //if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
 	} //else if(upload.status==UPLOAD_FILE_WRITE)
 	else if (stHTTPUpload.status == UPLOAD_FILE_END) {
+		Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_END" << endl;
+		Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
+		Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
+		Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
+		Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
+		Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
 		HandleFileEnd(stHTTPUpload);
 #if false
 		if (Update.end(true)) { //true to set the size to the current progress
@@ -408,19 +414,11 @@ void SetupSwitches(){
 } //SetupSwitches
 
 
-void HandleClient(void){
-  oWebServer.handleClient();
+void HandleHttpServer(void){
+  oESP8266WebServer.handleClient();
   delay(1);
   return;
-} //HandleClient
-
-
-#if false
-void HandleHttpServer() {
-  oHttpServer.handleClient();
-  delay(1);
 } //HandleHttpServer
-#endif
 
 
 void HandleSystem(){
