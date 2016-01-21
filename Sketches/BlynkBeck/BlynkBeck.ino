@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "Jan 15, 2016b";
+static const char szFileDate[]    = "Jan 21, 2016D";
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -37,11 +37,7 @@ static const char szFileDate[]    = "Jan 15, 2016b";
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
-//#include <ESP8266HTTPUpdateServer.h>
 #include <BlynkSimpleEsp8266.h>
-//#include <Wire.h>
-//#include <I2Cdev.h>
-//#include <MPU6050.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #define ONEWIRE_PIN       12
@@ -191,6 +187,7 @@ OneWire         oOneWire(sOneWirePin);
 DallasTemperature	oSensors(&oOneWire);
 
 ESP8266WebServer  	oESP8266WebServer(80);
+
 //UpdaterClass 		Update;	//Declaration at the end of cores\esp8266\Updater.h from BSP
 
 const char*     acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
@@ -221,14 +218,8 @@ void setup()
 
   //Wire.begin();
   SetupWiFi();
-  //SetupHttpServer();
   SetupSwitches();
   SetupSystem();
-  /*//Test writing to LCD
-  LCDWidget.clear();
-  int sCharPos= 0;   //Position 0-15
-  int sLineNum= 0;   //Line 0-1
-  LCDWidget.print(0, 0, "Wow! :)");*/
   return;
 } //setup
 
@@ -257,16 +248,10 @@ void SetupWiFi(){
   switch (sProjectType){
     case sGarageLocal:
     case sDevLocal:
-      //szLogString = "SetupWiFi: sGarageLocal or sDevLocal connect to local server";
-      //LogToBoth(szLogString);
       Serial << LOG0 << " setup(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
       Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
       break;
     default:
-      //szLogString = "StartBlynk: default connect to Blynk server";
-      //LogToBoth(szLogString);
-      //Serial << LOG0 << " setup(): Call Blynk.begin(acBlynkAuthToken, " << szRouterName << ", " << szRouterPW << ")" << endl;
-      //Blynk.begin(acBlynkAuthToken, szRouterName, szRouterPW);
       Serial << LOG0 << " SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
       Blynk.config(acBlynkAuthToken);
       break;
@@ -290,7 +275,6 @@ void SetupServer(void) {
     oESP8266WebServer.on("/update", HTTP_POST, []() {
       oESP8266WebServer.sendHeader("Connection", "close");
       oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-      //oWebServer.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
       oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
       ESP.restart();
     },[](){
