@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Jan 10, 2016A";
+static const char acFileDate[]    = "Feb 9, 2016A";
 // 1/5/16 Get running on V64 eclipseArduino
 // To upload through terminal you can use: curl -F "image=@firmware.bin" esp8266-webupdate.local/update
 
