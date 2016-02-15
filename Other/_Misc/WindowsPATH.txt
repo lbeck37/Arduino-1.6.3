@@ -30,3 +30,11 @@ C:\ProgramData\Oracle\Java\javapath;C:\Program Files\Broadcom\Broadcom 802.11\Dr
 C:\ProgramData\Oracle\Java\javapath;C:\Program Files\Broadcom\Broadcom 802.11\Driver;C:\Program Files\Common Files\Microsoft Shared\Windows Live;C:\Program Files (x86)\Common Files\Microsoft Shared\Windows Live;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Windows Live\Shared;C:\Program Files\WIDCOMM\Bluetooth Software\;C:\Program Files\WIDCOMM\Bluetooth Software\syswow64;C:\Program Files\Broadcom\WHL\;C:\Program Files\Broadcom\WHL\syswow64;C:\Program Files\Broadcom\WHL\SysWow64\;C:\Program Files\Broadcom\WHL\SysWow64\syswow64;C:\Program Files (x86)\Intel\Services\IPT\;C:\Program Files (x86)\Git\cmd;c:\Program Files (x86)\Common Files\Adobe\AGL;C:\Program Files\Microsoft Network Monitor 3\;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Dev\Tools\nodejs\
 
 User PATH
+ANDROID_SDK=C:\Dev\Tools\android-sdk
+ANDROID_TOOLS=C:\Dev\Tools\android-sdk\tools
+ANT_DIR=C:\Dev\Tools\apache-ant-1.9.6\bin
+
+PATH1=%ANDROID_SDK%\platform-tools:C:\Dev\Tools\android-sdk\tools
+PATH2=C:\Dev\Tools\apache-ant-1.9.6\bin:C:\Program Files\Java\jdk1.7.0_79\bin:C:\Dev\Tools\nodejs
+
+PATH=C:\Dev\Tools\android-sdk\platform-tools;C:\Dev\Tools\android-sdk\tools;C:\Dev\Tools\apache-ant-1.9.6\bin;C:\Program Files\Java\jdk1.7.0_79\bin;C:\Dev\Tools\nodejs
