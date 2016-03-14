@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Task list</title>
-<link rel="stylesheet" type="text/css" href="styles/tasks.css"
-	media="screen" />
-
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Task list</title>
+	<link rel="stylesheet" type="text/css" href="styles/tasks.css" media="screen" />
 </head>
+
 <body>
 	<header>
 		<span>Task list</span>
@@ -15,21 +15,24 @@
 		<section>
 			<form>
 				<div>
-					<label>Task</label> <input type="text" required="required"
-						name="task" class="large" placeholder="Breakfast at Tiffanys" />
+					<label>Task</label>
+					<input type="text" required="required" name="task" class="large"
+						placeholder="Breakfast at Tiffanys" />
 				</div>
 				<div>
 					<label>Required by</label> <input type="date" required="required"
-						name="requiredBy" />
+            name="requiredBy" />
 				</div>
 				<div>
-					<label>Category</label> <select name="category">
+					<label>Category</label>
+          <select name="category">
 						<option value="Personal">Personal</option>
 						<option value="Work">Work</option>
 					</select>
 				</div>
 				<nav>
-					<a href="#">Save task</a> <a href="#">Clear task</a>
+					<a href="#">Save task</a>
+          <a href="#">Clear task</a>
 				</nav>
 			</form>
 		</section>
