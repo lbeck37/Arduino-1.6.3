@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Mar 30, 2016A";
+static const char acFileDate[]    = "Mar 30, 2016C";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <Streaming.h>
@@ -25,27 +25,22 @@ ESP8266WebServer    			oHttpServer(80);
 ESP8266HTTPUpdateServer 	oHttpUpdateServer(true);
 
 void setup(void){
-#if 0
-  Serial.begin(115200);
-  Serial.println();
-  Serial.printf("setup(): Booting %s %s\n", acSketchName, acFileDate);
-#else
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << acSketchName << ", " << acFileDate << endl;
-#endif	//0
 
+  Serial << LOG0 << " setup(): Setting WiFi mode to WIFI_AP_STA" << endl;
   WiFi.mode(WIFI_AP_STA);
+
+  Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
   WiFi.begin(acRouterName, acRouterPW);
 
+  Serial << LOG0 << " setup(): Call WiFi.waitForConnectResult()" << endl;
   while(WiFi.waitForConnectResult() != WL_CONNECTED){
+	Serial << LOG0 << " setup(): WiFi failed, retrying." << endl;
+	Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
     WiFi.begin(acRouterName, acRouterPW);
-#if 0
-    Serial.println("WiFi failed, retrying.");
-#else
-  Serial << LOG0 << " setup(): WiFi failed, retrying." << endl;
-#endif	//0
-  }
+   }
   SetupHttpServer();
 }	//setup
 
@@ -60,11 +55,7 @@ void SetupHttpServer() {
   oHttpUpdateServer.setup(&oHttpServer);
   oHttpServer.begin();
   MDNS.addService("http", "tcp", 80);
-#if 0
-  Serial.printf("SetupHttpServer(): HTTPUpdateServer ready! Open http://%s.local/update in your browser\n", acHostname);
-#else
   Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready! Open http://" << acHostname << ".local/update in your browser" << endl;
-#endif	//USE_STREAMING
 }	//SetupHttpServer
 
 
