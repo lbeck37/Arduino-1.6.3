@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Mar 30, 2016C";
+static const char acFileDate[]    = "Mar 30, 2016D";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <Streaming.h>
@@ -21,7 +21,7 @@ static const char   acRouterName[]        = "Aspot24";
 static const char   acRouterPW[]          = "Qazqaz11";
 static const char   acHostname[]          = "esp39";
 
-ESP8266WebServer    			oHttpServer(80);
+ESP8266WebServer    		oHttpServer(80);
 ESP8266HTTPUpdateServer 	oHttpUpdateServer(true);
 
 void setup(void){
@@ -51,11 +51,20 @@ void loop(void){
 
 
 void SetupHttpServer() {
+  Serial << LOG0 << " SetupHttpServer(): Call MDNS.begin(" << acHostname << ")" << endl;
   MDNS.begin(acHostname);
+
+  Serial << LOG0 << " SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)" << endl;
   oHttpUpdateServer.setup(&oHttpServer);
+
+  Serial << LOG0 << " SetupHttpServer(): Call oHttpServer.begin())" << endl;
   oHttpServer.begin();
+
+  Serial << LOG0 << " SetupHttpServer(): Call MDNS.addService(http, tcp, 80)" << endl;
   MDNS.addService("http", "tcp", 80);
-  Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready! Open http://" << acHostname << ".local/update in your browser" << endl;
+
+  Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready!" << endl;
+  Serial << LOG0 << " SetupHttpServer(): Open http://" << acHostname << ".local/update to do OTA Update" << endl;
 }	//SetupHttpServer
 
 
@@ -75,9 +84,9 @@ String szLogLineHeader(long lLineCount){
   return szHeader;
 } //szLogLineHeader
 
+
 String szGetTime(long lMsec){
   String  szString;
-
   int sDays    =    lMsec                                               / lMsecPerDay ;
   int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
   int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
@@ -87,7 +96,7 @@ String szGetTime(long lMsec){
   szString+= String(szAddZeros(sHours, 2)) + ":";
   szString+= String(szAddZeros(sMinutes, 2)) + ":";
   szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";     //Send with trailing blank to seperate from next field.
+  szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
   return szString;
 } //szGetTime
 
@@ -104,5 +113,4 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
-
 //Last line.
