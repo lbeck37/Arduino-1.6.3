@@ -1,13 +1,27 @@
-static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Mar 31, 2016C";
-// 1/5/16 Get running on V64 eclipseArduino
+//
+// Copyright 2015 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// FirebasePush_ESP8266 is a sample that push a new timestamp to firebase
+// on each reset.
 
 #include <Streaming.h>
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
-#include <ESP8266HTTPUpdateServer.h>
+#include <Firebase.h>
+
+static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
+static const char szFileDate[]    = "Apr 3, 2016A";
 
 #define LOG0    	szLogLineHeader(++lLineCount)
 static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
@@ -17,63 +31,60 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
-//static const char   acRouterName[]        = "Aspot24";
-//static const char   acRouterPW[]          = "Qazqaz11";
-static const char   acRouterName[]        = "TrailheadBoise";
-static const char   acRouterPW[]          = "Trailhead2015";
+static const char   acRouterName[]        = "Aspot24";
+static const char   acRouterPW[]          = "Qazqaz11";
+//static const char   acRouterName[]        = "TrailheadBoise";
+//static const char   acRouterPW[]          = "Trailhead2015";
 static const char   acHostname[]          = "esp39";
 
-ESP8266WebServer    		oHttpServer(80);
-ESP8266HTTPUpdateServer 	oHttpUpdateServer(true);
+// create firebase client.
+Firebase fbase = Firebase("example.firebaseio.com")
+                   .auth("secret_or_token");
 
-void setup(void){
+void setup() {
+  //Serial.begin(9600);
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  Serial << LOG0 << " setup(): Sketch: " << acSketchName << ", " << acFileDate << endl;
+  Serial << LOG0 << " setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
 
-  Serial << LOG0 << " setup(): Setting WiFi mode to WIFI_AP_STA" << endl;
-  WiFi.mode(WIFI_AP_STA);
-
+  // connect to wifi.
+  //WiFi.begin("SSID", "PASSWORD");
   Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
   WiFi.begin(acRouterName, acRouterPW);
 
-  Serial << LOG0 << " setup(): Call WiFi.waitForConnectResult()" << endl;
-  while(WiFi.waitForConnectResult() != WL_CONNECTED){
-	Serial << LOG0 << " setup(): WiFi failed, retrying." << endl;
-	Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
-    WiFi.begin(acRouterName, acRouterPW);
-   }
-  SetupHttpServer();
+  Serial.print("connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("connected: ");
+  Serial.println(WiFi.localIP());
+
+   // add a new entry.
+  FirebasePush push = fbase.push("/logs", "{\".sv\": \"timestamp\"}");
+  if (push.error()) {
+      Serial.println("Firebase push failed");
+      Serial.println(push.error().message());
+      return;
+  }
+
+  // print key.
+  Serial.println(push.name());
+
+  // get all entries.
+  FirebaseGet get = fbase.get("/logs");
+  if (get.error()) {
+      Serial.println("Firebase get failed");
+      Serial.println(push.error().message());
+      return;
+  }
+  // print json.
+  Serial.println(get.json());
 }	//setup
 
-
-void loop(void){
-  HandleHttpServer();
+void loop() {
 }	//loop
-
-
-void SetupHttpServer() {
-  Serial << LOG0 << " SetupHttpServer(): Call MDNS.begin(" << acHostname << ")" << endl;
-  MDNS.begin(acHostname);
-
-  Serial << LOG0 << " SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)" << endl;
-  oHttpUpdateServer.setup(&oHttpServer);
-
-  Serial << LOG0 << " SetupHttpServer(): Call oHttpServer.begin())" << endl;
-  oHttpServer.begin();
-
-  Serial << LOG0 << " SetupHttpServer(): Call MDNS.addService(http, tcp, 80)" << endl;
-  MDNS.addService("http", "tcp", 80);
-
-  Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready!" << endl;
-  Serial << LOG0 << " SetupHttpServer(): Open http://" << acHostname << ".local/update to do OTA Update" << endl;
-}	//SetupHttpServer
-
-
-void HandleHttpServer() {
-  oHttpServer.handleClient();
-  delay(1);
-} //HandleHttpServer
 
 
 String szLogLineHeader(long lLineCount){
