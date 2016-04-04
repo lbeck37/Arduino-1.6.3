@@ -1,27 +1,10 @@
-//
 // Copyright 2015 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
-// FirebasePush_ESP8266 is a sample that push a new timestamp to firebase
-// on each reset.
-
+// FirebasePush_ESP8266 is a sample that push a new timestamp to firebase on each reset
 #include <Streaming.h>
 #include <Firebase.h>
 
 static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
-static const char szFileDate[]    = "Apr 3, 2016A";
+static const char szFileDate[]    = "Apr 4, 2016A";
 
 #define LOG0    	szLogLineHeader(++lLineCount)
 static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
@@ -35,11 +18,12 @@ static const char   acRouterName[]        = "Aspot24";
 static const char   acRouterPW[]          = "Qazqaz11";
 //static const char   acRouterName[]        = "TrailheadBoise";
 //static const char   acRouterPW[]          = "Trailhead2015";
-static const char   acHostname[]          = "esp39";
+//static const char   acHostname[]          = "esp39";
 static const String acDatabaseURL         = "intense-fire-3958.firebaseio.com";
 static const String acFirebaseSecret      = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
 static const String acPushPath		      = "/logs";
-static const String acPushJSON		      = "{\".sv\": \"timestamp\"}";
+//static const String acPushJSON		      = "{\".sv\": \"timestamp\"}";
+static const String acPushJSON		      = "{\"Data37\": \"Abcdef37\"}";
 
 
 void setup() {
@@ -49,7 +33,7 @@ void setup() {
 
   //Create Firebase client.
   Serial << LOG0 << " setup(): Call Firebase('" << acDatabaseURL << "').auth('" << acFirebaseSecret << "')" << endl;
-  Firebase fbase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
+  Firebase oFBase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
 
   //Connect to wifi.
   Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
@@ -64,10 +48,8 @@ void setup() {
   Serial << endl << LOG0 << " setup(): Connected to " << WiFi.localIP() << endl;
 
   //Push the current timestamp to Firebase.
-  //Serial << LOG0 << " setup(): Call fbase.push('/logs', '{\\'.sv\': \\'timestamp\\'}')" << endl;
-  //FirebasePush push = fbase.push("/logs", "{\".sv\": \"timestamp\"}");
-  Serial << LOG0 << " setup(): Call fbase.push(" << acPushPath << ", " << acPushJSON << ")" << endl;
-  FirebasePush push = fbase.push(acPushPath, acPushJSON);
+  Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << acPushJSON << ")" << endl;
+  FirebasePush push = oFBase.push(acPushPath, acPushJSON);
   if (push.error()) {
       //Serial.println("Firebase push failed");
       //Serial.println(push.error().message());
@@ -81,7 +63,7 @@ void setup() {
 
   //Get all entries.
   Serial << LOG0 << " setup(): Call fbase.get('/logs')" << endl;
-  FirebaseGet get = fbase.get("/logs");
+  FirebaseGet get = oFBase.get("/logs");
   if (get.error()) {
       //Serial.println("Firebase get failed");
       //Serial.println(push.error().message()); //They meant to call get.error()

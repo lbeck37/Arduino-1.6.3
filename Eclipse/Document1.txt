@@ -59,3 +59,8 @@ NDEF Message 3 records, 68 bytes
 
 Place a NFC tag on the reader and it will be read.
 
+apr
+const
+firebase
+wifi
+timestamp
