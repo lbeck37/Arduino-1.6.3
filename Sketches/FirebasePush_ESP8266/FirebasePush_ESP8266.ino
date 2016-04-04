@@ -36,52 +36,64 @@ static const char   acRouterPW[]          = "Qazqaz11";
 //static const char   acRouterName[]        = "TrailheadBoise";
 //static const char   acRouterPW[]          = "Trailhead2015";
 static const char   acHostname[]          = "esp39";
+static const String acDatabaseURL         = "intense-fire-3958.firebaseio.com";
+static const String acFirebaseSecret      = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
+static const String acPushPath		      = "/logs";
+static const String acPushJSON		      = "{\".sv\": \"timestamp\"}";
 
-// create firebase client.
-Firebase fbase = Firebase("example.firebaseio.com")
-                   .auth("secret_or_token");
 
 void setup() {
-  //Serial.begin(9600);
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
 
-  // connect to wifi.
-  //WiFi.begin("SSID", "PASSWORD");
+  //Create Firebase client.
+  Serial << LOG0 << " setup(): Call Firebase('" << acDatabaseURL << "').auth('" << acFirebaseSecret << "')" << endl;
+  Firebase fbase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
+
+  //Connect to wifi.
   Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
   WiFi.begin(acRouterName, acRouterPW);
 
-  Serial.print("connecting");
+  //Serial.print("connecting");
+  Serial << LOG0 << " setup(): Call WiFi.status(), wait for WL_CONNECTED" << endl;
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
-  Serial.println();
-  Serial.print("connected: ");
-  Serial.println(WiFi.localIP());
+  Serial << endl << LOG0 << " setup(): Connected to " << WiFi.localIP() << endl;
 
-   // add a new entry.
-  FirebasePush push = fbase.push("/logs", "{\".sv\": \"timestamp\"}");
+  //Push the current timestamp to Firebase.
+  //Serial << LOG0 << " setup(): Call fbase.push('/logs', '{\\'.sv\': \\'timestamp\\'}')" << endl;
+  //FirebasePush push = fbase.push("/logs", "{\".sv\": \"timestamp\"}");
+  Serial << LOG0 << " setup(): Call fbase.push(" << acPushPath << ", " << acPushJSON << ")" << endl;
+  FirebasePush push = fbase.push(acPushPath, acPushJSON);
   if (push.error()) {
-      Serial.println("Firebase push failed");
-      Serial.println(push.error().message());
+      //Serial.println("Firebase push failed");
+      //Serial.println(push.error().message());
+      Serial << LOG0 << " setup(): Firebase push failed, Error: " << push.error().message() << endl;
       return;
   }
 
   // print key.
-  Serial.println(push.name());
+  //Serial.println(push.name());
+  Serial << LOG0 << " setup(): Call to push.name() returned: " << push.name() << endl;
 
-  // get all entries.
+  //Get all entries.
+  Serial << LOG0 << " setup(): Call fbase.get('/logs')" << endl;
   FirebaseGet get = fbase.get("/logs");
   if (get.error()) {
-      Serial.println("Firebase get failed");
-      Serial.println(push.error().message());
+      //Serial.println("Firebase get failed");
+      //Serial.println(push.error().message()); //They meant to call get.error()
+      Serial << LOG0 << " setup(): Firebase get failed, Error: " << get.error().message() << endl;
       return;
   }
-  // print json.
-  Serial.println(get.json());
+  //Print json.
+  //Serial.println(get.json());
+  Serial << LOG0 << " setup(): get.json(): " << get.json() << endl;
+  return;
 }	//setup
+
 
 void loop() {
 }	//loop
