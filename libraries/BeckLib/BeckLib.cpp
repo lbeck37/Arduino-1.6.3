@@ -42,69 +42,57 @@ String szAddZeros(int sValue, int sNumDigits){
 } //szAddZeros
 
 
+void FbaseLogLine(Firebase oFBase, String acPushPath, String szLogString){
+	String szPushString= szMakeJSONObject("Log", "szLogString");
+	Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
+	//FirebasePush push = oFBase.push(acPushPath, acPushJSON);
+	FirebasePush push = oFBase.push(acPushPath, szPushString);
+	if (push.error()) {
+		Serial << LOG0 << " setup(): Firebase push failed, Error: " << push.error().message() << endl;
+		return;
+	}	//if(push.error())
+  return;
+} //FbaseLogLine
+
+
+String szMakeJSONObject(String szName, String szValue){
+  String szJSONObject= "{\"";
+  szJSONObject += szName;
+  szJSONObject += "\": \"";
+  szJSONObject += szValue;
+  szJSONObject += "\"}";
+  return szJSONObject;
+} //szMakeJSONObject
+
+
 //LogToBoth() and BlynkLogLine()have multiple versions
 //depending on there being a 2nd variable and its type.
-void LogToBoth(String szLogString){
-  Serial << LOG0 << szLogString << endl;
-  BlynkLogLine(szLogString);
+void LogToBoth(Firebase oFBase, String acPushPath, String szLogString){
+  Serial << szLogString << endl;
+  FbaseLogLine(oFBase, acPushPath, szLogString);
   return;
 } //LogToBoth:empty
 
 
+/*
 void LogToBoth(String szLogString, String szLogValue){
   Serial << LOG0 << szLogString << " " << szLogValue << endl;
-  BlynkLogLine(szLogString, szLogValue);
+  FbaseLogLine(szLogString);
   return;
 } //LogToBoth:String
 
 
 void LogToBoth(String szLogString, int sLogValue){
   Serial << LOG0 << szLogString << " " << sLogValue << endl;
-  //BlynkLogLine(szLogString, sLogValue);
+  FbaseLogLine(szLogString);
   return;
 } //LogToBoth:int
 
 
 void LogToBoth(String szLogString, float fLogValue){
   Serial << LOG0 << szLogString << " " << fLogValue << endl;
-  //BlynkLogLine(szLogString, fLogValue);
+  FbaseLogLine(szLogString);
   return;
 } //LogToBoth:float
-
-
-void BlynkLogLine(String szString){
-  String szTermString= szLogLineHeader(lLineCount);
-  szTermString += szString;
-  //WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:empty
-
-
-void BlynkLogLine(String szString, String szLogValue){
-  String szTermString= szLogLineHeader(lLineCount);
-  szTermString += szString;
-  szTermString +=  " ";
-  szTermString +=  szLogValue;
-  //WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:String
-
-
-void BlynkLogLine(String szString, int sValue){
-  String szTermString= szLogLineHeader(lLineCount);
-  szTermString += szString;
-  szTermString +=  " ";
-  szTermString +=  sValue;
-  //WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:int
-
-
-void BlynkLogLine(String szString, float fValue){
-  String szTermString= szLogLineHeader(lLineCount);
-  szTermString += szString;
-  szTermString +=  fValue;
-  //WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:float
+*/
 //Last line.

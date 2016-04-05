@@ -7,18 +7,19 @@
 static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
 static const char szFileDate[]    = "Apr 4, 2016B";
 
-//static const long   lSerialMonitorBaud    = 115200;
-static const char   acRouterName[]        = "Aspot24";
-static const char   acRouterPW[]          = "Qazqaz11";
+//static const long   	lSerialMonitorBaud    = 115200;
+static const char   	acRouterName[]        = "Aspot24";
+static const char   	acRouterPW[]          = "Qazqaz11";
 //static const char   acRouterName[]        = "TrailheadBoise";
 //static const char   acRouterPW[]          = "Trailhead2015";
-//static const char   acHostname[]          = "esp39";
-static const String acDatabaseURL         = "intense-fire-3958.firebaseio.com";
-static const String acFirebaseSecret      = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static const String acPushPath		      = "/logs";
+//static const String   acHostname[]          = "esp39";
+static const String 	acDatabaseURL         = "intense-fire-3958.firebaseio.com";
+static const String 	acFirebaseSecret      = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
+static const String 	acPushPath		      = "/logs";
 //static const String acPushJSON		      = "{\".sv\": \"timestamp\"}";
 //static const String acPushJSON		      = "{\"Data37\": \"Abcdef37\"}";
 
+String	szLogLine;
 
 void setup() {
   Serial.begin(lSerialMonitorBaud);
@@ -30,7 +31,9 @@ void setup() {
   Firebase oFBase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
 
   //Connect to wifi.
-  Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
+  //Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
+  szLogLine=  LOG0 + " setup(): Call WiFi.begin(" + acRouterName + ", " + acRouterPW + ")";
+  LogToBoth(oFBase, acPushPath, szLogLine);
   WiFi.begin(acRouterName, acRouterPW);
 
   //Serial.print("connecting");
@@ -41,6 +44,9 @@ void setup() {
   }
   Serial << endl << LOG0 << " setup(): Connected to " << WiFi.localIP() << endl;
 
+  WriteFirebase(oFBase);
+
+/*
   //Push the current timestamp to Firebase.
   String szPushString= szMakeJSONObject("Name1", "LarryB");
   Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
@@ -63,6 +69,7 @@ void setup() {
   }	//if(get.error())
   //Print json.
   Serial << LOG0 << " setup(): get.json(): " << get.json() << endl;
+*/
   return;
 }	//setup
 
@@ -71,6 +78,34 @@ void loop() {
 }	//loop
 
 
+void WriteFirebase(Firebase oFBase) {
+	//Push the current timestamp to Firebase.
+	String szPushString= szMakeJSONObject("Name1", "LarryB");
+	Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
+	//FirebasePush push = oFBase.push(acPushPath, acPushJSON);
+	FirebasePush push = oFBase.push(acPushPath, szPushString);
+	if (push.error()) {
+		Serial << LOG0 << " setup(): Firebase push failed, Error: " << push.error().message() << endl;
+		return;
+	}	//if(push.error())
+
+	// print key.
+	Serial << LOG0 << " setup(): Call to push.name() returned: " << push.name() << endl;
+
+	//Get all entries.
+	Serial << LOG0 << " setup(): Call fbase.get('/logs')" << endl;
+	FirebaseGet get = oFBase.get("/logs");
+	if (get.error()) {
+		Serial << LOG0 << " setup(): Firebase get failed, Error: " << get.error().message() << endl;
+		return;
+	}	//if(get.error())
+	//Print json.
+	Serial << LOG0 << " setup(): get.json(): " << get.json() << endl;
+	return;
+}	//WriteFirebase
+
+
+/*
 String szMakeJSONObject(String szName, String szValue){
   String szJSONObject= "{\"";
   szJSONObject += szName;
@@ -79,6 +114,7 @@ String szMakeJSONObject(String szName, String szValue){
   szJSONObject += "\"}";
   return szJSONObject;
 } //szMakeJSONObject
+*/
 
 
 /*
