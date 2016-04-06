@@ -43,7 +43,7 @@ String szAddZeros(int sValue, int sNumDigits){
 
 
 void FbaseLogLine(Firebase oFBase, String acPushPath, String szLogString){
-	String szPushString= szMakeJSONObject("Log", "szLogString");
+	String szPushString= szMakeJSONObject("Log", szLogString);
 	Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
 	//FirebasePush push = oFBase.push(acPushPath, acPushJSON);
 	FirebasePush push = oFBase.push(acPushPath, szPushString);

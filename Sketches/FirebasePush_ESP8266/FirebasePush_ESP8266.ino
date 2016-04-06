@@ -5,7 +5,7 @@
 #include <Firebase.h>
 
 static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
-static const char szFileDate[]    = "Apr 4, 2016B";
+static const char szFileDate[]    = "Apr 5, 2016A";
 
 //static const long   	lSerialMonitorBaud    = 115200;
 static const char   	acRouterName[]        = "Aspot24";
