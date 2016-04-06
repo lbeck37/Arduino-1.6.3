@@ -44,11 +44,10 @@ String szAddZeros(int sValue, int sNumDigits){
 
 void FbaseLogLine(Firebase oFBase, String acPushPath, String szLogString){
 	String szPushString= szMakeJSONObject("Log", szLogString);
-	Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
-	//FirebasePush push = oFBase.push(acPushPath, acPushJSON);
+	//Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
 	FirebasePush push = oFBase.push(acPushPath, szPushString);
 	if (push.error()) {
-		Serial << LOG0 << " setup(): Firebase push failed, Error: " << push.error().message() << endl;
+		Serial << LOG0 << " FbaseLogLine(): Firebase push failed, Error: " << push.error().message() << endl;
 		return;
 	}	//if(push.error())
   return;
@@ -72,27 +71,4 @@ void LogToBoth(Firebase oFBase, String acPushPath, String szLogString){
   FbaseLogLine(oFBase, acPushPath, szLogString);
   return;
 } //LogToBoth:empty
-
-
-/*
-void LogToBoth(String szLogString, String szLogValue){
-  Serial << LOG0 << szLogString << " " << szLogValue << endl;
-  FbaseLogLine(szLogString);
-  return;
-} //LogToBoth:String
-
-
-void LogToBoth(String szLogString, int sLogValue){
-  Serial << LOG0 << szLogString << " " << sLogValue << endl;
-  FbaseLogLine(szLogString);
-  return;
-} //LogToBoth:int
-
-
-void LogToBoth(String szLogString, float fLogValue){
-  Serial << LOG0 << szLogString << " " << fLogValue << endl;
-  FbaseLogLine(szLogString);
-  return;
-} //LogToBoth:float
-*/
 //Last line.
