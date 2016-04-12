@@ -1,6 +1,30 @@
 //BeckLib.cpp
 #include <BeckLib.h>
 
+void SetupHttpServer(char* acHostname, ESP8266WebServer oHttpServer, ESP8266HTTPUpdateServer oHttpUpdateServer){
+  Serial << LOG0 << " SetupHttpServer(): Call MDNS.begin(" << acHostname << ")" << endl;
+  MDNS.begin(acHostname);
+
+  Serial << LOG0 << " SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)" << endl;
+  oHttpUpdateServer.setup(&oHttpServer);
+
+  Serial << LOG0 << " SetupHttpServer(): Call oHttpServer.begin())" << endl;
+  oHttpServer.begin();
+
+  Serial << LOG0 << " SetupHttpServer(): Call MDNS.addService(http, tcp, 80)" << endl;
+  MDNS.addService("http", "tcp", 80);
+
+  Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready!" << endl;
+  Serial << LOG0 << " SetupHttpServer(): Open http://" << acHostname << ".local/update to do OTA Update" << endl;
+}	//SetupHttpServer
+
+
+void HandleHttpServer(ESP8266WebServer oHttpServer){
+  oHttpServer.handleClient();
+  delay(1);
+} //HandleHttpServer
+
+
 String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
@@ -70,5 +94,5 @@ void LogToBoth(Firebase oFBase, String acPushPath, String szLogString){
   Serial << szLogString << endl;
   FbaseLogLine(oFBase, acPushPath, szLogString);
   return;
-} //LogToBoth:empty
+} //LogToBoth
 //Last line.

@@ -4,22 +4,26 @@
 #include <Streaming.h>
 #include <Firebase.h>
 
-static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
-static const char szFileDate[]    = "Apr 5, 2016c";
+//#define USE_WIFI
 
-//static const long   	lSerialMonitorBaud    = 115200;
+static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
+static const char szFileDate[]    = "Apr 7, 2016A";
+
 static const char   	acRouterName[]        = "Aspot24";
 static const char   	acRouterPW[]          = "Qazqaz11";
 //static const char   acRouterName[]        = "TrailheadBoise";
 //static const char   acRouterPW[]          = "Trailhead2015";
-//static const String   acHostname[]          = "esp39";
 static const String 	acDatabaseURL         = "intense-fire-3958.firebaseio.com";
 static const String 	acFirebaseSecret      = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static const String 	acPushPath		      = "/logs";
-//static const String acPushJSON		      = "{\".sv\": \"timestamp\"}";
-//static const String acPushJSON		      = "{\"Data37\": \"Abcdef37\"}";
+static const String 	acPushPath		      	= "/logs";
 
-String	szLogLine;
+#ifdef USE_WIFI
+static char   			acHostname[]          = "esp39";
+ESP8266WebServer		oHttpServer(80);
+ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
+#endif
+
+String										szLogLine;
 
 void setup() {
   Serial.begin(lSerialMonitorBaud);
@@ -49,10 +53,19 @@ void setup() {
     delay(500);
   }
   //Serial << endl << LOG0 << " setup(): Connected to " << WiFi.localIP() << endl;
-  szLogLine=  LOG0 + "  *setup(): Connected to " + WiFi.localIP();
+  //szLogLine=  LOG0 + " *setup(): Connected to " + WiFi.localIP();
+  szLogLine=  LOG0 + " *setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
   LogToBoth(oFBase, acPushPath, szLogLine);
 
+#ifdef USE_WIFI
+  szLogLine=  LOG0 + "  *setup(): Call WriteStringToFirebase()";
+  LogToBoth(oFBase, acPushPath, szLogLine);
   WriteStringToFirebase(oFBase);
+
+  szLogLine=  LOG0 + "  *setup(): Call SetupHttpServer()";
+  LogToBoth(oFBase, acPushPath, szLogLine);
+  SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
+#endif
 
   szLogLine=  LOG0 + "  *setup(): Done.";
   LogToBoth(oFBase, acPushPath, szLogLine);
@@ -61,6 +74,7 @@ void setup() {
 
 
 void loop() {
+  //HandleHttpServer(oHttpServer);
 }	//loop
 
 
