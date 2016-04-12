@@ -1,7 +1,9 @@
-//BeckLib.cpp
+//BeckLib.cpp, April 12, 2016
 #include <BeckLib.h>
 
-void SetupHttpServer(char* acHostname, ESP8266WebServer oHttpServer, ESP8266HTTPUpdateServer oHttpUpdateServer){
+void SetupHttpServer(char* acHostname,
+					ESP8266WebServer oHttpServer,
+					ESP8266HTTPUpdateServer oHttpUpdateServer){
   Serial << LOG0 << " SetupHttpServer(): Call MDNS.begin(" << acHostname << ")" << endl;
   MDNS.begin(acHostname);
 

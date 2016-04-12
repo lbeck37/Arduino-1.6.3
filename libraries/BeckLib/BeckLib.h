@@ -1,3 +1,4 @@
+//BeckLib.h, April 12, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Arduino.h>
@@ -31,6 +32,4 @@ void		LogToBoth(String szLogString, String szLogValue);
 void		LogToBoth(String szLogString, int sLogValue);
 void		LogToBoth(String szLogString, float fLogValue);
 */
-
 #endif   //BECKLIB_H
-//Last line.

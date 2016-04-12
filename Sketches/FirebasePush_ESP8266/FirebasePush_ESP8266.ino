@@ -4,23 +4,23 @@
 #include <Streaming.h>
 #include <Firebase.h>
 
-//#define USE_WIFI
+#define OTA_UPDATES
 
 static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
-static const char szFileDate[]    = "Apr 7, 2016A";
+static const char szFileDate[]    = "Apr 12, 2016F";
 
 static const char   	acRouterName[]        = "Aspot24";
 static const char   	acRouterPW[]          = "Qazqaz11";
 //static const char   acRouterName[]        = "TrailheadBoise";
 //static const char   acRouterPW[]          = "Trailhead2015";
 static const String 	acDatabaseURL         = "intense-fire-3958.firebaseio.com";
-static const String 	acFirebaseSecret      = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static const String 	acPushPath		      	= "/logs";
+static const String 	acFirebaseSecret	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
+static const String 	acPushPath			= "/logs";
 
-#ifdef USE_WIFI
+#ifdef OTA_UPDATES
 static char   			acHostname[]          = "esp39";
 ESP8266WebServer		oHttpServer(80);
-ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
+//ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
 #endif
 
 String										szLogLine;
@@ -57,10 +57,12 @@ void setup() {
   szLogLine=  LOG0 + " *setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
   LogToBoth(oFBase, acPushPath, szLogLine);
 
-#ifdef USE_WIFI
+#if 0
+/*
   szLogLine=  LOG0 + "  *setup(): Call WriteStringToFirebase()";
   LogToBoth(oFBase, acPushPath, szLogLine);
   WriteStringToFirebase(oFBase);
+*/
 
   szLogLine=  LOG0 + "  *setup(): Call SetupHttpServer()";
   LogToBoth(oFBase, acPushPath, szLogLine);
