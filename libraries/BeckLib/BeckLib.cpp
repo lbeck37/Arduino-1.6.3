@@ -1,6 +1,7 @@
 //BeckLib.cpp, April 12, 2016
 #include <BeckLib.h>
 
+/*
 void SetupHttpServer(char* acHostname,
 					ESP8266WebServer oHttpServer,
 					ESP8266HTTPUpdateServer oHttpUpdateServer){
@@ -25,6 +26,7 @@ void HandleHttpServer(ESP8266WebServer oHttpServer){
   oHttpServer.handleClient();
   delay(1);
 } //HandleHttpServer
+*/
 
 
 String szLogLineHeader(long lLineCount){
@@ -68,6 +70,13 @@ String szAddZeros(int sValue, int sNumDigits){
 } //szAddZeros
 
 
+void LogToSerial(String szLogString){
+  Serial << szLogString << endl;
+  return;
+} //LogToSerial
+
+
+/*
 void FbaseLogLine(Firebase oFBase, String acPushPath, String szLogString){
 	String szPushString= szMakeJSONObject("Log", szLogString);
 	//Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
@@ -90,12 +99,6 @@ String szMakeJSONObject(String szName, String szValue){
 } //szMakeJSONObject
 
 
-void LogToSerial(String szLogString){
-  Serial << szLogString << endl;
-  return;
-} //LogToSerial
-
-
 //LogToBoth() and BlynkLogLine()have multiple versions
 //depending on there being a 2nd variable and its type.
 void LogToBoth(Firebase oFBase, String acPushPath, String szLogString){
@@ -104,4 +107,5 @@ void LogToBoth(Firebase oFBase, String acPushPath, String szLogString){
   FbaseLogLine(oFBase, acPushPath, szLogString);
   return;
 } //LogToBoth
+*/
 //Last line.

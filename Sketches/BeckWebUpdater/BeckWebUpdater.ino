@@ -1,7 +1,9 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Mar 31, 2016C";
+static const char acFileDate[]    = "Apr 12, 2016H";
 // 1/5/16 Get running on V64 eclipseArduino
 
+#include <BeckLib.h>
+/*
 #include <Streaming.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -16,12 +18,13 @@ static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
+*/
 
-//static const char   acRouterName[]        = "Aspot24";
-//static const char   acRouterPW[]          = "Qazqaz11";
-static const char   acRouterName[]        = "TrailheadBoise";
-static const char   acRouterPW[]          = "Trailhead2015";
-static const char   acHostname[]          = "esp39";
+static const char   acRouterName[]        = "Aspot24";
+static const char   acRouterPW[]          = "Qazqaz11";
+//static const char   acRouterName[]        = "TrailheadBoise";
+//static const char   acRouterPW[]          = "Trailhead2015";
+static char   		acHostname[]          = "esp39";
 
 ESP8266WebServer    		oHttpServer(80);
 ESP8266HTTPUpdateServer 	oHttpUpdateServer(true);
@@ -44,11 +47,13 @@ void setup(void){
     WiFi.begin(acRouterName, acRouterPW);
    }
   SetupHttpServer();
+  //SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
 }	//setup
 
 
 void loop(void){
   HandleHttpServer();
+  //HandleHttpServer(oHttpServer);
 }	//loop
 
 
@@ -76,6 +81,7 @@ void HandleHttpServer() {
 } //HandleHttpServer
 
 
+/*
 String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
@@ -115,4 +121,5 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
+*/
 //Last line.
