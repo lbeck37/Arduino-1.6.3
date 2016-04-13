@@ -19,8 +19,8 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
-//void 		SetupHttpServer(char* acHostname, ESP8266WebServer oHttpServer, ESP8266HTTPUpdateServer oHttpUpdateServer);
-//void 		HandleHttpServer(ESP8266WebServer oHttpServer);
+void 		SetupHttpServer(char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
+void 		HandleHttpServer(ESP8266WebServer oHttpServer);
 String 		szLogLineHeader(long lLineCount);
 String 		szGetTime(long lMsec);
 String 		szAddZeros(int sValue, int sNumDigits);

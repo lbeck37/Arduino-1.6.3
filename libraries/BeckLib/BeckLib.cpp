@@ -1,10 +1,9 @@
 //BeckLib.cpp, April 12, 2016
 #include <BeckLib.h>
 
-/*
 void SetupHttpServer(char* acHostname,
-					ESP8266WebServer oHttpServer,
-					ESP8266HTTPUpdateServer oHttpUpdateServer){
+					ESP8266WebServer& oHttpServer,
+					ESP8266HTTPUpdateServer& oHttpUpdateServer){
   Serial << LOG0 << " SetupHttpServer(): Call MDNS.begin(" << acHostname << ")" << endl;
   MDNS.begin(acHostname);
 
@@ -22,11 +21,10 @@ void SetupHttpServer(char* acHostname,
 }	//SetupHttpServer
 
 
-void HandleHttpServer(ESP8266WebServer oHttpServer){
+void HandleHttpServer(ESP8266WebServer& oHttpServer){
   oHttpServer.handleClient();
   delay(1);
 } //HandleHttpServer
-*/
 
 
 String szLogLineHeader(long lLineCount){
