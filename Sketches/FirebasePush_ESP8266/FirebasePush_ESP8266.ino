@@ -7,7 +7,7 @@
 #define OTA_UPDATES
 
 static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
-static const char szFileDate[]    = "Apr 12, 2016F";
+static const char szFileDate[]    = "Apr 12, 2016S";
 
 static const char   	acRouterName[]        = "Aspot24";
 static const char   	acRouterPW[]          = "Qazqaz11";
@@ -20,7 +20,7 @@ static const String 	acPushPath			= "/logs";
 #ifdef OTA_UPDATES
 static char   			acHostname[]          = "esp39";
 ESP8266WebServer		oHttpServer(80);
-//ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
+ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
 #endif
 
 String										szLogLine;
@@ -29,35 +29,43 @@ void setup() {
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
 
-  //Create Firebase client.
-  Serial << LOG0 << " setup(): Call Firebase('" << acDatabaseURL << "').auth('" << acFirebaseSecret << "')" << endl;
-  Firebase oFBase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
-
   //Log sketch name and date.
-  //Serial << LOG0 << " setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
-  szLogLine=  LOG0 + " *setup(): Sketch: " + szSketchName + ", " + szFileDate + ")";
-  LogToBoth(oFBase, acPushPath, szLogLine);
+  Serial << LOG0 << " setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+
+  //Set WiFi mode.
+  Serial << LOG0 << " setup(): Setting WiFi mode to WIFI_AP_STA" << endl;
+  WiFi.mode(WIFI_AP_STA);
 
   //Connect to wifi.
-  //Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
-  szLogLine=  LOG0 + " *setup(): Call WiFi.begin(" + acRouterName + ", " + acRouterPW + ")";
-  LogToBoth(oFBase, acPushPath, szLogLine);
+  Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
   WiFi.begin(acRouterName, acRouterPW);
 
   //Serial.print("connecting");
-  //Serial << LOG0 << " setup(): Call WiFi.status(), wait for WL_CONNECTED" << endl;
-  szLogLine=  LOG0 + " *setup(): Call WiFi.status(), wait for WL_CONNECTED";
-  LogToBoth(oFBase, acPushPath, szLogLine);
+  Serial << LOG0 << " setup(): Call WiFi.status(), wait for WL_CONNECTED" << endl;
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(500);
   }
-  //Serial << endl << LOG0 << " setup(): Connected to " << WiFi.localIP() << endl;
-  //szLogLine=  LOG0 + " *setup(): Connected to " + WiFi.localIP();
-  szLogLine=  LOG0 + " *setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
-  LogToBoth(oFBase, acPushPath, szLogLine);
 
-#if 0
+  Serial << endl << LOG0 << " setup(): Connected to " << WiFi.localIP() << endl;
+  //szLogLine=  LOG0 + " *setup(): Connected to " + WiFi.localIP();
+
+/*
+  //Create Firebase client.
+  Serial << LOG0 << " setup(): Create Firebase client" << endl;
+  Serial << LOG0 << " setup(): Call Firebase('" << acDatabaseURL << "').auth('" << acFirebaseSecret << "')" << endl;
+  Firebase oFBase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
+*/
+
+  szLogLine=  LOG0 + " *setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
+  LogToSerial(szLogLine);
+  //LogToBoth(oFBase, acPushPath, szLogLine);
+
+  szLogLine=  LOG0 + " *setup(): Sketch: " + szSketchName + ", " + szFileDate;
+  LogToSerial(szLogLine);
+  //LogToBoth(oFBase, acPushPath, szLogLine);
+
+#if 1
 /*
   szLogLine=  LOG0 + "  *setup(): Call WriteStringToFirebase()";
   LogToBoth(oFBase, acPushPath, szLogLine);
@@ -65,18 +73,20 @@ void setup() {
 */
 
   szLogLine=  LOG0 + "  *setup(): Call SetupHttpServer()";
-  LogToBoth(oFBase, acPushPath, szLogLine);
+  LogToSerial(szLogLine);
+  //LogToBoth(oFBase, acPushPath, szLogLine);
   SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
 #endif
 
   szLogLine=  LOG0 + "  *setup(): Done.";
-  LogToBoth(oFBase, acPushPath, szLogLine);
+  LogToSerial(szLogLine);
+  //LogToBoth(oFBase, acPushPath, szLogLine);
   return;
 }	//setup
 
 
 void loop() {
-  //HandleHttpServer(oHttpServer);
+  HandleHttpServer(oHttpServer);
 }	//loop
 
 

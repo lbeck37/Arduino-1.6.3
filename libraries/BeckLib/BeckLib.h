@@ -21,11 +21,12 @@ static const long   lMsecPerSec           =     1000;
 
 void 		SetupHttpServer(char* acHostname, ESP8266WebServer oHttpServer, ESP8266HTTPUpdateServer oHttpUpdateServer);
 void 		HandleHttpServer(ESP8266WebServer oHttpServer);
-String 	szLogLineHeader(long lLineCount);
-String 	szGetTime(long lMsec);
-String 	szAddZeros(int sValue, int sNumDigits);
+String 		szLogLineHeader(long lLineCount);
+String 		szGetTime(long lMsec);
+String 		szAddZeros(int sValue, int sNumDigits);
 void		FbaseLogLine(Firebase oFBase, String acPushPath, String szLogString);
-String 	szMakeJSONObject(String szName, String szValue);
+String 		szMakeJSONObject(String szName, String szValue);
+void 		LogToSerial(String szLogString);
 void		LogToBoth(Firebase oFBase, String acPushPath, String szLogString);
 /*
 void		LogToBoth(String szLogString, String szLogValue);
