@@ -1,8 +1,11 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Apr 12, 2016K";
+static const char acFileDate[]    = "Apr 13, 2016D";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
+
+#define BECKLIB_HTTP
+
 /*
 #include <Streaming.h>
 #include <ESP8266WiFi.h>
@@ -46,17 +49,24 @@ void setup(void){
 	Serial << LOG0 << " setup(): Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
     WiFi.begin(acRouterName, acRouterPW);
    }
+#ifndef BECKLIB_HTTP
   SetupHttpServer();
-  //SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
+#else
+  SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
+#endif
 }	//setup
 
 
 void loop(void){
+#ifndef BECKLIB_HTTP
   HandleHttpServer();
-  //HandleHttpServer(oHttpServer);
+#else
+  HandleHttpServer(oHttpServer);
+#endif
 }	//loop
 
 
+#ifndef BECKLIB_HTTP
 void SetupHttpServer() {
   Serial << LOG0 << " SetupHttpServer(): Call MDNS.begin(" << acHostname << ")" << endl;
   MDNS.begin(acHostname);
@@ -79,6 +89,7 @@ void HandleHttpServer() {
   oHttpServer.handleClient();
   delay(1);
 } //HandleHttpServer
+#endif
 
 
 /*

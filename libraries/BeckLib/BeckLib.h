@@ -1,4 +1,4 @@
-//BeckLib.h, April 12, 2016
+//BeckLib.h, April 13, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 //#include <Arduino.h>
@@ -20,7 +20,7 @@ static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
 void 		SetupHttpServer(char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
-void 		HandleHttpServer(ESP8266WebServer oHttpServer);
+void 		HandleHttpServer(ESP8266WebServer& oHttpServer);
 String 		szLogLineHeader(long lLineCount);
 String 		szGetTime(long lMsec);
 String 		szAddZeros(int sValue, int sNumDigits);
