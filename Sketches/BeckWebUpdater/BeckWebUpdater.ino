@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Apr 13, 2016D";
+static const char acFileDate[]    = "Apr 13, 2016E";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
