@@ -1,5 +1,8 @@
-//BeckLib.cpp, April 13, 2016
+//BeckLib.cpp, April 14B, 2016
 #include <BeckLib.h>
+
+//Local function protos
+String szMakeJSONObject(String szName, String szValue);
 
 void SetupHttpServer(char* acHostname,
 					ESP8266WebServer& oHttpServer,
@@ -74,15 +77,27 @@ void LogToSerial(String szLogString){
 } //LogToSerial
 
 
-/*
-void FbaseLogLine(Firebase oFBase, String acPushPath, String szLogString){
+//LogToBoth() and BlynkLogLine()have multiple versions
+//depending on there being a 2nd variable and its type.
+void LogToBoth(Firebase& oFBase, String acPushPath, String szLogString){
+  //Serial << szLogString << endl;
+  LogToSerial(szLogString);
+  FbaseLogLine(oFBase, acPushPath, szLogString);
+  return;
+} //LogToBoth
+
+
+void FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString){
+	Serial << LOG0 << " FbaseLogLine(): Call szMakeJSONObject()" << endl;
 	String szPushString= szMakeJSONObject("Log", szLogString);
-	//Serial << LOG0 << " setup(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
+	Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
 	FirebasePush push = oFBase.push(acPushPath, szPushString);
 	if (push.error()) {
-		Serial << "X" << LOG0 << " FbaseLogLine(): Firebase push failed, Error: " << push.error().message() << endl;
-		return;
+		Serial << LOG0 << " FbaseLogLine(): Firebase push failed, Error: " << push.error().message() << endl;
 	}	//if(push.error())
+	else {
+		Serial << LOG0 << " FbaseLogLine(): Firebase returned not Error: " << endl;
+	}	//if(push.error())else
   return;
 } //FbaseLogLine
 
@@ -95,15 +110,4 @@ String szMakeJSONObject(String szName, String szValue){
   szJSONObject += "\"}";
   return szJSONObject;
 } //szMakeJSONObject
-
-
-//LogToBoth() and BlynkLogLine()have multiple versions
-//depending on there being a 2nd variable and its type.
-void LogToBoth(Firebase oFBase, String acPushPath, String szLogString){
-  //Serial << szLogString << endl;
-  LogToSerial(szLogString);
-  FbaseLogLine(oFBase, acPushPath, szLogString);
-  return;
-} //LogToBoth
-*/
 //Last line.
