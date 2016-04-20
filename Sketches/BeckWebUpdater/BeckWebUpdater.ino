@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Apr 20, 2016F";
+static const char acFileDate[]    = "Apr 20, 2016J";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
@@ -50,11 +50,6 @@ void setup(void){
   Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
   Serial << LOG0 << "     .auth('" << acFirebaseSecret << "')" << endl;
   Firebase oFBase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
-#if 0
-  //Firebase oFBase = Firebase("intense-fire-3958.firebaseio.com").auth("LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe");
-  Firebase oFBase = Firebase(acDatabaseURL);
-  oFBase.auth(acFirebaseSecret);
-#endif
 
   //Serial << LOG0 << " Setup() done in version: " << acFileDate << endl;
   szLogLine= LOG0 + " Setup() done in version: " + acFileDate;
