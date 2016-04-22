@@ -10,7 +10,7 @@
 long         lLineCount= 0;      //Serial Monitor uses for clarity.
 
 static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
-static const char szFileDate[]    = "Apr 21, 2016E";
+static const char szFileDate[]    = "Apr 21, 2016F";
 
 static const char   	acRouterName[]        = "Aspot24";
 static const char   	acRouterPW[]          = "Qazqaz11";
