@@ -1,9 +1,6 @@
 //BeckLib.cpp, April 14B, 2016
 #include <BeckLib.h>
 
-//Local function protos
-String szMakeJSONObject(String szName, String szValue);
-
 void SetupHttpServer(char* acHostname,
 					ESP8266WebServer& oHttpServer,
 					ESP8266HTTPUpdateServer& oHttpUpdateServer){

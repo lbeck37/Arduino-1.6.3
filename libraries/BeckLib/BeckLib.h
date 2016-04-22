@@ -28,6 +28,8 @@ String 		szAddZeros(int sValue, int sNumDigits);
 void 		LogToSerial(String szLogString);
 void 		LogToBoth(Firebase& oFBase, String acPushPath, String szLogString);
 void 		FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString);
+String 		szMakeJSONObject(String szName, String szValue);
+
 /*
 void		LogToBoth(String szLogString, String szLogValue);
 void		LogToBoth(String szLogString, int sLogValue);

@@ -4,10 +4,13 @@
 #include <Streaming.h>
 #include <Firebase.h>
 
-#define OTA_UPDATES
+//#define OTA_UPDATES
+
+//Global variables
+long         lLineCount= 0;      //Serial Monitor uses for clarity.
 
 static const char szSketchName[]  = "FirebasePush_ESP8266.ino";
-static const char szFileDate[]    = "Apr 12, 2016S";
+static const char szFileDate[]    = "Apr 21, 2016D";
 
 static const char   	acRouterName[]        = "Aspot24";
 static const char   	acRouterPW[]          = "Qazqaz11";
@@ -50,12 +53,10 @@ void setup() {
   Serial << endl << LOG0 << " setup(): Connected to " << WiFi.localIP() << endl;
   //szLogLine=  LOG0 + " *setup(): Connected to " + WiFi.localIP();
 
-/*
   //Create Firebase client.
   Serial << LOG0 << " setup(): Create Firebase client" << endl;
   Serial << LOG0 << " setup(): Call Firebase('" << acDatabaseURL << "').auth('" << acFirebaseSecret << "')" << endl;
   Firebase oFBase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
-*/
 
   szLogLine=  LOG0 + " *setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
   LogToSerial(szLogLine);
@@ -65,13 +66,11 @@ void setup() {
   LogToSerial(szLogLine);
   //LogToBoth(oFBase, acPushPath, szLogLine);
 
-#if 1
-/*
   szLogLine=  LOG0 + "  *setup(): Call WriteStringToFirebase()";
   LogToBoth(oFBase, acPushPath, szLogLine);
   WriteStringToFirebase(oFBase);
-*/
 
+#ifdef OTA_UPDATES
   szLogLine=  LOG0 + "  *setup(): Call SetupHttpServer()";
   LogToSerial(szLogLine);
   //LogToBoth(oFBase, acPushPath, szLogLine);
@@ -86,7 +85,9 @@ void setup() {
 
 
 void loop() {
+#ifdef OTA_UPDATES
   HandleHttpServer(oHttpServer);
+#endif
 }	//loop
 
 
