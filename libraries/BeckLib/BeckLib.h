@@ -25,6 +25,7 @@ void 		HandleHttpServer(ESP8266WebServer& oHttpServer);
 String 		szLogLineHeader(long lLineCount);
 String 		szGetTime(long lMsec);
 String 		szAddZeros(int sValue, int sNumDigits);
+
 void 		LogToSerial(String szLogString);
 void 		LogToBoth(Firebase& oFBase, String acPushPath, String szLogString);
 void 		FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString);

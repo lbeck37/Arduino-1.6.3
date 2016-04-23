@@ -1,5 +1,8 @@
-//BeckLib.cpp, April 14B, 2016
+//BeckLib.cpp, April 23, 2016
 #include <BeckLib.h>
+
+//Global variables
+long         lLineCount= 0;      //Serial Monitor uses for clarity.
 
 void SetupHttpServer(char* acHostname,
 					ESP8266WebServer& oHttpServer,
@@ -86,9 +89,12 @@ void LogToBoth(Firebase& oFBase, String acPushPath, String szLogString){
 
 void FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString){
 	Serial << LOG0 << " FbaseLogLine(): Call szMakeJSONObject()" << endl;
-	String szPushString= szMakeJSONObject("Log", szLogString);
-	Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(" << acPushPath << ", " << szPushString << ")" << endl;
-	FirebasePush push = oFBase.push(acPushPath, szPushString);
+	String szJSONPushString= szMakeJSONObject("Log", szLogString);
+	//Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(" << acPushPath << ", " << szJSONPushString << ")" << endl;
+	Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(acPushPath, szJSONPushString)" << endl;
+	Serial << LOG0 << " FbaseLogLine(): acPushPath      = |" << acPushPath << "|" << endl;
+	Serial << LOG0 << " FbaseLogLine(): szJSONPushString= |" << szJSONPushString << "|" << endl;
+	FirebasePush push = oFBase.push(acPushPath, szJSONPushString);
 	if (push.error()) {
 		Serial << LOG0 << " FbaseLogLine(): Firebase push failed, Error: " << push.error().message() << endl;
 	}	//if(push.error())
