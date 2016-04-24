@@ -1,4 +1,4 @@
-// 4/21/16 Touched by Beck
+// 4/21/16C Touched by Beck
 //
 // Copyright 2015 Google Inc.
 //
@@ -51,16 +51,22 @@ Firebase::Firebase() {
 
 
 Firebase::Firebase(const String& host) : host_(host) {
+  Serial << LOG0 << " Firebase ctor  Current Value: host_= " << host_ << endl;
+  Serial << LOG0 << "   host_= " << host_ << ", auth_= " << auth_ << endl;
   http_.setReuse(true);
 }
 
 
 Firebase& Firebase::auth(const String& auth) {
   auth_ = auth;
+  Serial << LOG0 << " Firebase::auth()  Current Value: host_= " << host_ << endl;
+  Serial << LOG0 << "   auth_= " << auth_ << endl;
   return *this;
 }
 
 FirebaseGet Firebase::get(const String& path) {
+  Serial << LOG0 << " Firebase::get()  Current Values: path= " << path << endl;
+  Serial << LOG0 << "   host_= " << host_ << ", auth_= " << auth_ << endl;
   return FirebaseGet(host_, auth_, path, &http_);
 }
 
@@ -86,7 +92,7 @@ FirebaseCall::FirebaseCall(const String& host, const String& auth,
                            const char* method, const String& path,
                            const String& data, HTTPClient* http) : http_(http) {
   String url = makeFirebaseURL(path, auth);
-  Serial << LOG0 << " FirebaseCall() Begin  host= " << host << ", auth= " << auth << endl;
+  Serial << LOG0 << " FirebaseCall() Ctor  host= " << host << ", auth= " << auth << endl;
   Serial << LOG0 << "  url= " << url << "   method= " << method << ", path= " << path << ", data= " << data << endl;
 
   http_->setReuse(true);
@@ -104,7 +110,7 @@ FirebaseCall::FirebaseCall(const String& host, const String& auth,
     http_->collectHeaders(headers, 1);
   }
 
-  Serial << LOG0 << " FirebaseCall() http_->sendRequest(method,  data, length)" << endl;
+  Serial << LOG0 << " FirebaseCall() Ctor: Calling http_->sendRequest(method,  data, length)" << endl;
   Serial << LOG0 << "   method= " << method << ", data= " << data.c_str() << ", length= " << data.length() << endl;
   int status = http_->sendRequest(method, (uint8_t*)data.c_str(), data.length());
 
@@ -139,6 +145,7 @@ FirebaseGet::FirebaseGet(const String& host, const String& auth,
                          const String& path,
                          HTTPClient* http)
   : FirebaseCall(host, auth, "GET", path, "", http) {
+  Serial << LOG0 << " FirebaseGet() Ctor:  host= " << host << ", auth= " << auth << ", path= " << path << endl;
   if (!error()) {
     // TODO: parse json
     json_ = response();
