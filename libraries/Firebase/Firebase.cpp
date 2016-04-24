@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+#include <BeckLib.h>
 #include "Firebase.h"
 
 // Detect whether stable version of HTTP library is installed instead of
@@ -85,6 +86,9 @@ FirebaseCall::FirebaseCall(const String& host, const String& auth,
                            const char* method, const String& path,
                            const String& data, HTTPClient* http) : http_(http) {
   String url = makeFirebaseURL(path, auth);
+  Serial << LOG0 << " FirebaseCall() Begin  host= " << host << ", auth= " << auth << endl;
+  Serial << LOG0 << "  url= " << url << "   method= " << method << ", path= " << path << ", data= " << data << endl;
+
   http_->setReuse(true);
   http_->begin(host, kFirebasePort, url, true, kFirebaseFingerprint);
 
@@ -100,6 +104,8 @@ FirebaseCall::FirebaseCall(const String& host, const String& auth,
     http_->collectHeaders(headers, 1);
   }
 
+  Serial << LOG0 << " FirebaseCall() http_->sendRequest(method,  data, length)" << endl;
+  Serial << LOG0 << "   method= " << method << ", data= " << data.c_str() << ", length= " << data.length() << endl;
   int status = http_->sendRequest(method, (uint8_t*)data.c_str(), data.length());
 
   // TODO: Add a max redirect check

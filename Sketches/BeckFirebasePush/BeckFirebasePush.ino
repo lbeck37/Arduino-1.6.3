@@ -1,6 +1,6 @@
 // 4/23/16 Was FirebasePush_ESP8266.ino example
 static const char acSketchName[]  = "BeckFirebasePush.ino";
-static const char acFileDate[]    = "Apr 23, 2016F";
+static const char acFileDate[]    = "Apr 23, 2016L";
 
 // FirebasePush_ESP8266 is a sample that push a new timestamp to firebase
 // on each reset.
@@ -21,7 +21,7 @@ Firebase fbase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
 void setup() {
   Serial.begin(115200);
   Serial << endl;
-  Serial << LOG0 << " Setup() done in " << acSketchName << ", version: " << acFileDate << endl;
+  Serial << LOG0 << " Setup() Begin " << acSketchName << ", version: " << acFileDate << endl;
 
   // connect to wifi.
   //WiFi.begin("SSID", "PASSWORD");
@@ -40,8 +40,9 @@ void setup() {
    // add a new entry.
   FirebasePush push = fbase.push("/logs", "{\".sv\": \"timestamp\"}");
   if (push.error()) {
-      Serial.println("Firebase push failed");
-      Serial.println(push.error().message());  
+      //Serial.println("Firebase push failed");
+      //Serial.println(push.error().message());
+      Serial << LOG0 << " Setup() fbase.push() failed, error= " << push.error().message() << endl;
    }
 
   // print key.
@@ -52,13 +53,14 @@ void setup() {
   // get all entries.
   FirebaseGet get = fbase.get("/logs");
   if (get.error()) {
-      Serial.println("Firebase get failed");
-      Serial.println(get.error().message());
-      return;
+      //Serial.println("Firebase get failed");
+      //Serial.println(get.error().message());
+      Serial << LOG0 << " Setup() fbase.get() failed, error= " << get.error().message() << endl;
   }
   // print json.
   //Serial.println(get.json());
-  Serial << LOG0 << " get.json()= " << get.json() << endl;
+  Serial << LOG0 << " Setup() Call get.json()= " << get.json() << endl;
+  Serial << LOG0 << " Setup() Done " << acSketchName << ", version: " << acFileDate << endl;
 }
 
 void loop() {
