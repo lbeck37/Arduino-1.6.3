@@ -1,11 +1,8 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Apr 24, 2016D";
+static const char acFileDate[]    = "Apr 24, 2016M";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
-
-//Global variables
-//long         lLineCount= 0;      //Serial Monitor uses for clarity.
 
 //static const char   acRouterName[]        = "TrailheadBoise";
 //static const char   acRouterPW[]          = "Trailhead2015";
@@ -46,6 +43,7 @@ void setup(void){
   //Create Firebase client.
   Serial << LOG0 << " Create Firebase client" << endl;
 
+  //Creation and call to auth() need to be separate, return value from auth() is not same Firebase object.
   Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
   Firebase oFBase = Firebase(acDatabaseURL);
   oFBase.PrintPrivates();
@@ -63,10 +61,10 @@ void setup(void){
 
   SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
 
-  szLogLine= LOG0 + " Setup(): Open http://" + acHostname + ".local/update in browser to do OTA Update";
+  szLogLine= LOG0 + " *setup(): Open http://" + acHostname + ".local/update in browser to do OTA Update";
   LogToBoth(oFBase, acPushPath, szLogLine);
 
-  szLogLine= LOG0 + " Setup() done in " + acSketchName + ", version: " + acFileDate;
+  szLogLine= LOG0 + " *setup() Done in " + acSketchName + ", version: " + acFileDate;
   LogToBoth(oFBase, acPushPath, szLogLine);
   return;
 }	//setup

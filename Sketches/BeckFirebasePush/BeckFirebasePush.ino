@@ -1,4 +1,6 @@
 // 4/23/16 Was FirebasePush_ESP8266.ino example
+// Maybe not fully working, used this with printouts until I determined it was the
+// stringing of Firebase() ctor and auth() call together.
 static const char acSketchName[]  = "BeckFirebasePush.ino";
 static const char acFileDate[]    = "Apr 24, 2016F";
 
@@ -40,7 +42,9 @@ void setup() {
   Serial << LOG0 << " Setup() Call  Firebase(acDatabaseURL).auth(acFirebaseSecret)" << endl;
   Serial << LOG0 << "   acDatabaseURL   = " << acDatabaseURL << endl;
   Serial << LOG0 << "   acFirebaseSecret= " << acFirebaseSecret << endl;
-  Firebase fbase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
+  //Creation and call to auth() need to be separate, return value from auth() is not same Firebase object.
+  Firebase fbase = Firebase(acDatabaseURL);
+  fbase.auth(acFirebaseSecret);
   fbase.PrintPrivates();
 
    // add a new entry.

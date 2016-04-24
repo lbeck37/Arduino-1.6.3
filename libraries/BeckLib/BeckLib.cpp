@@ -1,5 +1,6 @@
 //BeckLib.cpp, April 23, 2016
 #include <BeckLib.h>
+//#define DEBUG_LOGGING
 
 //Global variables
 long         lLineCount= 0;      //Serial Monitor uses for clarity.
@@ -88,18 +89,24 @@ void LogToBoth(Firebase& oFBase, String acPushPath, String szLogString){
 
 
 void FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString){
+#ifdef DEBUG_LOGGING
 	Serial << LOG0 << " FbaseLogLine(): Call szMakeJSONObject()" << endl;
-	String szJSONPushString= szMakeJSONObject("Log", szLogString);
 	//Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(" << acPushPath << ", " << szJSONPushString << ")" << endl;
+#endif
+	String szJSONPushString= szMakeJSONObject("Log", szLogString);
+#ifdef DEBUG_LOGGING
 	Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(acPushPath, szJSONPushString)" << endl;
 	Serial << LOG0 << " FbaseLogLine(): acPushPath      = |" << acPushPath << "|" << endl;
 	Serial << LOG0 << " FbaseLogLine(): szJSONPushString= |" << szJSONPushString << "|" << endl;
+#endif
 	FirebasePush push = oFBase.push(acPushPath, szJSONPushString);
 	if (push.error()) {
 		Serial << LOG0 << " FbaseLogLine(): Firebase push failed, Error: " << push.error().message() << endl;
 	}	//if(push.error())
 	else {
-		Serial << LOG0 << " FbaseLogLine(): Firebase returned not Error: " << endl;
+#ifdef DEBUG_LOGGING
+	Serial << LOG0 << " FbaseLogLine(): Firebase returned not Error: " << endl;
+#endif
 	}	//if(push.error())else
   return;
 } //FbaseLogLine
