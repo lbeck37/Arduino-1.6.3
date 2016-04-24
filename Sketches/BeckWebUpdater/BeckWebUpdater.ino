@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckWebUpdater.ino";
-static const char acFileDate[]    = "Apr 23, 2016K";
+static const char acFileDate[]    = "Apr 24, 2016D";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
@@ -43,23 +43,31 @@ void setup(void){
   szLogLine=  LOG0 + " *setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
   LogToSerial(szLogLine);
 
-  SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
-
   //Create Firebase client.
   Serial << LOG0 << " Create Firebase client" << endl;
-  Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
-  Serial << LOG0 << "     .auth('" << acFirebaseSecret << "')" << endl;
-  Firebase oFBase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
 
-#if 1
+  Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
+  Firebase oFBase = Firebase(acDatabaseURL);
+  oFBase.PrintPrivates();
+
+  Serial << LOG0 << " Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
+  oFBase.auth(acFirebaseSecret);
+  oFBase.PrintPrivates();
+
+  //Firebase is up, start logging to both
+  szLogLine= LOG0 + " *setup(): Sketch " + acSketchName + ", version: " + acFileDate;
   LogToBoth(oFBase, acPushPath, szLogLine);
-#else
-  LogToSerial(szLogLine);
-  Serial << LOG0 << " DEBUGGING: Skip call to LogToBoth()" << endl;
-#endif
+
+  szLogLine=  LOG0 + " *setup(): Firebase client created to " + acDatabaseURL;
+  LogToBoth(oFBase, acPushPath, szLogLine);
+
+  SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
+
+  szLogLine= LOG0 + " Setup(): Open http://" + acHostname + ".local/update in browser to do OTA Update";
+  LogToBoth(oFBase, acPushPath, szLogLine);
 
   szLogLine= LOG0 + " Setup() done in " + acSketchName + ", version: " + acFileDate;
-  LogToSerial(szLogLine);
+  LogToBoth(oFBase, acPushPath, szLogLine);
   return;
 }	//setup
 

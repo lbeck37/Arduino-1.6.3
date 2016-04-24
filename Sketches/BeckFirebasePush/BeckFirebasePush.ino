@@ -1,6 +1,6 @@
 // 4/23/16 Was FirebasePush_ESP8266.ino example
 static const char acSketchName[]  = "BeckFirebasePush.ino";
-static const char acFileDate[]    = "Apr 23, 2016P";
+static const char acFileDate[]    = "Apr 24, 2016F";
 
 // FirebasePush_ESP8266 is a sample that push a new timestamp to firebase
 // on each reset.
@@ -41,6 +41,7 @@ void setup() {
   Serial << LOG0 << "   acDatabaseURL   = " << acDatabaseURL << endl;
   Serial << LOG0 << "   acFirebaseSecret= " << acFirebaseSecret << endl;
   Firebase fbase = Firebase(acDatabaseURL).auth(acFirebaseSecret);
+  fbase.PrintPrivates();
 
    // add a new entry.
   FirebasePush push = fbase.push("/logs", "{\".sv\": \"timestamp\"}");
@@ -54,7 +55,8 @@ void setup() {
   //Serial.println(push.name());
   Serial << LOG0 << " push.name()= " << push.name() << endl;
 
-  Serial << LOG0 << " Call fbase.get(\"/logs\")" << endl;
+  fbase.PrintPrivates();
+  Serial << LOG0 << " Setup(): Call fbase.get(\"/logs\")" << endl;
   // get all entries.
   FirebaseGet get = fbase.get("/logs");
   if (get.error()) {
