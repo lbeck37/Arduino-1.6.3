@@ -1,9 +1,10 @@
-//BeckLib.cpp, April 23, 2016
+//BeckLib.cpp, April 24, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 
 //Global variables
-long         lLineCount= 0;      //Serial Monitor uses for clarity.
+long		lLineCount= 0;      //Serial Monitor uses for clarity.
+String		szLogLine;
 
 void SetupHttpServer(char* acHostname,
 					ESP8266WebServer& oHttpServer,
@@ -78,10 +79,9 @@ void LogToSerial(String szLogString){
 } //LogToSerial
 
 
-//LogToBoth() and BlynkLogLine()have multiple versions
+//LogToBoth() and BlynkLogLine()need multiple versions
 //depending on there being a 2nd variable and its type.
 void LogToBoth(Firebase& oFBase, String acPushPath, String szLogString){
-  //Serial << szLogString << endl;
   LogToSerial(szLogString);
   FbaseLogLine(oFBase, acPushPath, szLogString);
   return;
@@ -89,12 +89,9 @@ void LogToBoth(Firebase& oFBase, String acPushPath, String szLogString){
 
 
 void FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString){
-#ifdef DEBUG_LOGGING
-	Serial << LOG0 << " FbaseLogLine(): Call szMakeJSONObject()" << endl;
-	//Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(" << acPushPath << ", " << szJSONPushString << ")" << endl;
-#endif
 	String szJSONPushString= szMakeJSONObject("Log", szLogString);
 #ifdef DEBUG_LOGGING
+	Serial << LOG0 << " FbaseLogLine(): Called szMakeJSONObject()" << endl;
 	Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(acPushPath, szJSONPushString)" << endl;
 	Serial << LOG0 << " FbaseLogLine(): acPushPath      = |" << acPushPath << "|" << endl;
 	Serial << LOG0 << " FbaseLogLine(): szJSONPushString= |" << szJSONPushString << "|" << endl;

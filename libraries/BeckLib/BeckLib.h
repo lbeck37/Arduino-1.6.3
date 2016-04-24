@@ -1,4 +1,4 @@
-//BeckLib.h, April 14B, 2016
+//BeckLib.h, April 24, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 //#include <Arduino.h>
@@ -12,7 +12,9 @@
 
 #define LOG0    		szLogLineHeader(++lLineCount)
 
+//Global variables
 extern long         lLineCount;      //Serial Monitor uses for clarity.
+extern String		szLogLine;
 
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
