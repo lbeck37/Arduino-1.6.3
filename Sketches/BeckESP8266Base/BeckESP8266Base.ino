@@ -9,7 +9,7 @@ static const char   acRouterPW[]          = "Trailhead2015";
 */
 static const char   		acRouterName[]        = "Aspot24";
 static const char   		acRouterPW[]          = "Qazqaz11";
-static char   				acHostname[]          = "esp39";
+static char   				acHostname[]          = "esp40";
 
 ESP8266WebServer    		oHttpServer(80);
 ESP8266HTTPUpdateServer 	oHttpUpdateServer(true);
