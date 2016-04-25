@@ -1,4 +1,4 @@
-//BeckLib.cpp, April 24, 2016
+//BeckLib.cpp, April 25, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 
@@ -117,4 +117,11 @@ String szMakeJSONObject(String szName, String szValue){
   szJSONObject += "\"}";
   return szJSONObject;
 } //szMakeJSONObject
+
+
+String szIPaddress(IPAddress oIP){
+  String szDot= ".";
+  String szOctetIP= oIP[0] + szDot +  oIP[1] + szDot  + oIP[2] + szDot +  oIP[3];
+  return szOctetIP;
+} //szIPaddress
 //Last line.
