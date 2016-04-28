@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckESP8266Base.ino";
-static const char acFileDate[]    = "Apr 25, 2016G";
+static const char acFileDate[]    = "Apr 25, 2016H";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
@@ -43,7 +43,6 @@ void setup(void){
   szLogLine=  LOG0 + " setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
   LogToSerial(szLogLine);
 
-  //IPAddress myIPaddress= WiFi.localIP();
   szLogLine=  LOG0 + " setup(): My WiFi IP address= " + szIPaddress(WiFi.localIP());
   LogToSerial(szLogLine);
 
@@ -51,14 +50,11 @@ void setup(void){
   Serial << LOG0 << " Create Firebase client" << endl;
 
   acPushPath= acPushPath + acMyName;
-  //Creation and call to auth() need to be separate, return value from auth() is not same Firebase object.
   Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
   Firebase oFBase = Firebase(acDatabaseURL);
-  oFBase.PrintPrivates();
 
   Serial << LOG0 << " Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
   oFBase.auth(acFirebaseSecret);
-  oFBase.PrintPrivates();
 
   //Firebase is up, start logging to both
   szLogLine= LOG0 + " *setup(): Sketch " + acSketchName + ", version: " + acFileDate;
@@ -72,8 +68,6 @@ void setup(void){
   szLogLine= LOG0 + " *setup(): Open http://" + acMyName + ".local/update in browser to do OTA Update";
   LogToBoth(oFBase, acPushPath, szLogLine);
 
-  //https://intense-fire-3958.firebaseio.com/Logs/ESP1101Dev
-  //static const String 		acDatabaseURL		= "intense-fire-3958.firebaseio.com";
   szLogLine= LOG0 + " *setup(): Firebase URL= https://" + acDatabaseURL + acPushPath;
   LogToBoth(oFBase, acPushPath, szLogLine);
 
