@@ -6,7 +6,7 @@ angular.module('notificationsApp', [])
       $scope.notification = '';
     };
 
-    $scope.getNotifications = function () {
+    $scope.getNotifications= function () {
       return notificationsService.getCurrent();
     };
 
