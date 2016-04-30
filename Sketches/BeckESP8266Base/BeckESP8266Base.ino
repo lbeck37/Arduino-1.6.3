@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckESP8266Base.ino";
-static const char acFileDate[]    = "Apr 24, 2016D";
+static const char acFileDate[]    = "Apr 25, 2016H";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
@@ -9,15 +9,18 @@ static const char   acRouterPW[]          = "Trailhead2015";
 */
 static const char   		acRouterName[]        = "Aspot24";
 static const char   		acRouterPW[]          = "Qazqaz11";
-static char   				acHostname[]          = "esp40";
 
 ESP8266WebServer    		oHttpServer(80);
 ESP8266HTTPUpdateServer 	oHttpUpdateServer(true);
 
 static const String 		acDatabaseURL		= "intense-fire-3958.firebaseio.com";
 static const String 		acFirebaseSecret	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static const String 		acPushPath			= "/logs";
-//String	szLogLine;
+static char   				acMyName[]          = "esp1101Dev";		//Beck, Dev sensor, #1
+//static const String 		acPushPath			= "/logs";
+//static String 				acPushPath			= "/Logs/" + acMyName;
+static String 				acPushPath			= "/Logs/";
+
+//static char   			acMyName[]          = "esp40";
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -37,20 +40,21 @@ void setup(void){
     WiFi.begin(acRouterName, acRouterPW);
    }
 
-  szLogLine=  LOG0 + " *setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
+  szLogLine=  LOG0 + " setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
+  LogToSerial(szLogLine);
+
+  szLogLine=  LOG0 + " setup(): My WiFi IP address= " + szIPaddress(WiFi.localIP());
   LogToSerial(szLogLine);
 
   //Create Firebase client.
   Serial << LOG0 << " Create Firebase client" << endl;
 
-  //Creation and call to auth() need to be separate, return value from auth() is not same Firebase object.
+  acPushPath= acPushPath + acMyName;
   Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
   Firebase oFBase = Firebase(acDatabaseURL);
-  oFBase.PrintPrivates();
 
   Serial << LOG0 << " Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
   oFBase.auth(acFirebaseSecret);
-  oFBase.PrintPrivates();
 
   //Firebase is up, start logging to both
   szLogLine= LOG0 + " *setup(): Sketch " + acSketchName + ", version: " + acFileDate;
@@ -59,9 +63,12 @@ void setup(void){
   szLogLine=  LOG0 + " *setup(): Firebase client created to " + acDatabaseURL;
   LogToBoth(oFBase, acPushPath, szLogLine);
 
-  SetupHttpServer(acHostname, oHttpServer, oHttpUpdateServer);
+  SetupHttpServer(acMyName, oHttpServer, oHttpUpdateServer);
 
-  szLogLine= LOG0 + " *setup(): Open http://" + acHostname + ".local/update in browser to do OTA Update";
+  szLogLine= LOG0 + " *setup(): Open http://" + acMyName + ".local/update in browser to do OTA Update";
+  LogToBoth(oFBase, acPushPath, szLogLine);
+
+  szLogLine= LOG0 + " *setup(): Firebase URL= https://" + acDatabaseURL + acPushPath;
   LogToBoth(oFBase, acPushPath, szLogLine);
 
   szLogLine= LOG0 + " *setup() Done in " + acSketchName + ", version: " + acFileDate;

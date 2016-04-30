@@ -1,4 +1,4 @@
-//BeckLib.h, April 24, 2016
+//BeckLib.h, April 25, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 //#include <Arduino.h>
@@ -32,6 +32,7 @@ void 		LogToSerial(String szLogString);
 void 		LogToBoth(Firebase& oFBase, String acPushPath, String szLogString);
 void 		FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString);
 String 		szMakeJSONObject(String szName, String szValue);
+String 		szIPaddress(IPAddress oIP);
 
 /*
 void		LogToBoth(String szLogString, String szLogValue);
