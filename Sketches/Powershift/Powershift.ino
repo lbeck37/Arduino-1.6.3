@@ -1,6 +1,6 @@
-/* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
- 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
-*/
+//ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
+// 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
+// 5/1/16 Change to 115200 baud for serial monitor
 #include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
 #include <SPI.h>
@@ -164,8 +164,10 @@ static char        sz10CharString[10];
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
-   Serial.begin(9600);
-   Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
+   //Serial.begin(9600);
+   Serial.begin(115200);
+   //Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
+   Serial << sLC++ <<"setup(): Begin May 1, 2016C"<< endl;
    Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
