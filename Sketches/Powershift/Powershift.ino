@@ -186,7 +186,7 @@ void setup() {
    //Serial.begin(9600);
    Serial.begin(115200);
    //Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
-   Serial << sLC++ <<"setup(): Begin May 1, 2016D"<< endl;
+   //Serial << sLC++ <<"setup(): Begin May 1, 2016D"<< endl;
    Serial << LOG0 << " Sketch: " << acSketchName << ", " << acFileDate << endl;
    Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
