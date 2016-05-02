@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckESP8266Base.ino";
-static const char acFileDate[]    = "May 1, 2016A";
+static const char acFileDate[]    = "Apr 25, 2016H1";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
@@ -7,20 +7,20 @@ static const char acFileDate[]    = "May 1, 2016A";
 static const char   acRouterName[]        = "TrailheadBoise";
 static const char   acRouterPW[]          = "Trailhead2015";
 */
-static const char   		acRouterName[]        = "Aspot24";
-static const char   		acRouterPW[]          = "Qazqaz11";
+static const char       acRouterName[]        = "Aspot24";
+static const char       acRouterPW[]          = "Qazqaz11";
 
-ESP8266WebServer    		oHttpServer(80);
-ESP8266HTTPUpdateServer 	oHttpUpdateServer(true);
+ESP8266WebServer        oHttpServer(80);
+ESP8266HTTPUpdateServer   oHttpUpdateServer(true);
 
-static const String 		acDatabaseURL		= "intense-fire-3958.firebaseio.com";
-static const String 		acFirebaseSecret	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static char   				acMyName[]          = "esp1101Dev";		//Beck, Dev sensor, #1
-//static const String 		acPushPath			= "/logs";
-//static String 				acPushPath			= "/Logs/" + acMyName;
-static String 				acPushPath			= "/Logs/";
+static const String     acDatabaseURL   = "intense-fire-3958.firebaseio.com";
+static const String     acFirebaseSecret  = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
+static char           acMyName[]          = "esp1101Dev";   //Beck, Dev sensor, #1
+//static const String     acPushPath      = "/logs";
+//static String         acPushPath      = "/Logs/" + acMyName;
+static String         acPushPath      = "/Logs/";
 
-//static char   			acMyName[]          = "esp40";
+//static char         acMyName[]          = "esp40";
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -35,8 +35,8 @@ void setup(void){
 
   Serial << LOG0 << " Call WiFi.waitForConnectResult()" << endl;
   while(WiFi.waitForConnectResult() != WL_CONNECTED){
-	Serial << LOG0 << " WiFi failed, retrying." << endl;
-	Serial << LOG0 << " Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
+  Serial << LOG0 << " WiFi failed, retrying." << endl;
+  Serial << LOG0 << " Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
     WiFi.begin(acRouterName, acRouterPW);
    }
 
@@ -74,10 +74,10 @@ void setup(void){
   szLogLine= LOG0 + " *setup() Done in " + acSketchName + ", version: " + acFileDate;
   LogToBoth(oFBase, acPushPath, szLogLine);
   return;
-}	//setup
+} //setup
 
 
 void loop(void){
   HandleHttpServer(oHttpServer);
-}	//loop
+} //loop
 //Last line.
