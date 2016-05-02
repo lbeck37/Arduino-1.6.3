@@ -46,7 +46,8 @@ private:
 public:
     EasyButton(int buttonPin, void (*function)() = NULL, FunctionCallOptions call_option = CALL_NONE, bool pullup = false);
 
-    void update(unsigned long millisec = NULL);
+    //void update(unsigned long millisec = NULL);
+    void update(unsigned long millisec = 0);	//LBeck 5/2/16
     bool IsPushed();
     bool InPush() { return m_current_state; }
     bool IsHold();

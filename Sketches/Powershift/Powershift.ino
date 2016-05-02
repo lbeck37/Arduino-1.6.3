@@ -1,7 +1,9 @@
-//ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
-// 04/10/15 Beck- Port from Arduino 0022 to 1.6.3
-// 5/1/16 Change to 115200 baud for serial monitor
-#include <Streaming.h>  //For some reason I can't include this from LBeck37.h
+//Arduino Sketch to run ShiftE derailleur
+static const char acSketchName[]  = "PowerShift.ino";
+static const char acFileDate[]    = "May 2, 2016_HP7A";
+
+#include <BeckLib.h>
+//#include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
 #include <SPI.h>
 #include <EasyButton.h>
@@ -10,13 +12,19 @@
 #include <U8glib.h>
 #include <stdarg.h>
 
+#if 1
+	#ifndef ESP8266
+		#define ESP8266
+	#endif	//ESP8266
+#endif
+
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
 //#include <microsmooth.h>
 
 //Defines
-#define UINT16             unsigned int
+//#define UINT16             unsigned int
 
 #define APPLY_SMOOTHING    false
 //#define FILTER_NAME        SMA
@@ -59,13 +67,24 @@ static const int       sLastButton           = sSelect;
 static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
-static const int       sSelectButton         = A3;
-static const int       sDownButton           = A2;
-static const int       sUpButton             = A1;
-static const int       sBacklightPin         =  6;
-static const int       sServoPin             =  7;
-static const byte      cSPICmdDataPin        =  9;
-static const byte      cSPIChipSelectPin     = 10;
+#ifdef ESP8266
+	//BlynkBeck uses pins 4, 5, 15, 16
+	static const int       sSelectButton         = 4;
+	static const int       sDownButton           = 5;
+	static const int       sUpButton             = 15;
+	static const int       sBacklightPin         =  6;
+	static const int       sServoPin             =  7;
+	static const byte      cSPICmdDataPin        =  9;
+	static const byte      cSPIChipSelectPin     = 10;
+#else
+	static const int       sSelectButton         = A3;
+	static const int       sDownButton           = A2;
+	static const int       sUpButton             = A1;
+	static const int       sBacklightPin         =  6;
+	static const int       sServoPin             =  7;
+	static const byte      cSPICmdDataPin        =  9;
+	static const byte      cSPIChipSelectPin     = 10;
+#endif	//ESP8266
 
 //Gyro defines
 static const int       sXAxis             = 0;
@@ -142,7 +161,7 @@ EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
 
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
-static int              sButtonCountLast[]   = { 0, 0, 0};
+//static int              sButtonCountLast[]   = { 0, 0, 0};
 static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
@@ -168,6 +187,7 @@ void setup() {
    Serial.begin(115200);
    //Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
    Serial << sLC++ <<"setup(): Begin May 1, 2016D"<< endl;
+   Serial << LOG0 << " Sketch: " << acSketchName << ", " << acFileDate << endl;
    Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
@@ -179,7 +199,7 @@ void setup() {
    sSetupGyro();
    sFillGearLocations();
    sSetupServo();
-   sSetupSmoothing();
+   //sSetupSmoothing();
    sDrawStartScreen();
    //sTestContrast();
 #endif   //DEBUG_1
@@ -259,13 +279,15 @@ int sSetupServo() {
 
 int sLoopI2C() {
    int      asGyroReading[sNumGyroTypes][sNumAxis];
-   boolean  bApplySmoothing= APPLY_SMOOTHING;
+   //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
    if (millis() > ulNextGyroTime) {
       Wire.beginTransmission(MPU);
       Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
       Wire.endTransmission(false);
-      Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
+      //Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
+      //bool	bTrue= true;
+      Wire.requestFrom((uint8_t)MPU, (size_t)14, (bool)true);  // request a total of 14 registers
 
       // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
       // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
@@ -382,7 +404,7 @@ int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
 int sDisplayGyro() {
    int sXPixel   = 40;
    int sStartLine= 3;
-   char szLocalBuffer[20];
+   //char szLocalBuffer[20];
    strcpy(szLineBuffer, szAccel);
    strcat(szLineBuffer, "  ");
    strcat(szLineBuffer, szGyro);
@@ -535,11 +557,13 @@ boolean bScreenChanged() {
 
 
 int sHandleButtons(void) {
+/*
    int          sButton;
    int          sGearChange;
    int          sNewGear;
    int          sTargetLocation;
    int          sTargetChange= 0;
+*/
 
   if (!bHandleBothHeld()) {
      if (millis() > ulModeReadyTime) {
@@ -728,8 +752,8 @@ int sCheckButtons(void) {
 
       //Check IsHold for up and down buttons.
       if (!bReturn &&
-      ((sButton == sUp)   && UpButton.IsHold  ()) ||
-      ((sButton == sDown) && DownButton.IsHold()) ) {
+      (((sButton == sUp)   && UpButton.IsHold  ()) ||
+       ((sButton == sDown) && DownButton.IsHold())) ) {
          Serial << sLC++ << " sCheckButtons(): Button " << sButton
                 << " being held." << endl;
          //Set state to indicate in hold.
@@ -785,6 +809,7 @@ int sServoSetPosition(int sServoPos) {
 }  //sServoSetPosition
 
 
+/*
 int sSetupSmoothing() {
    //Initialize memory for data smoothing and set data fields to zero.
    for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
@@ -797,6 +822,7 @@ int sSetupSmoothing() {
    }  //for sAxis
    return 1;
 }  //sSetupSmoothing
+*/
 
 
 //freeRam() returns the number of bytes currently free in RAM.

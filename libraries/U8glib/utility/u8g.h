@@ -112,7 +112,11 @@ typedef uint8_t u8g_fntpgm_uint8_t;
 #else
 
 #define U8G_PROGMEM
-#define PROGMEM
+
+#ifndef PROGMEM	//LBeck 5/2/16
+	#define PROGMEM
+#endif
+
 typedef uint8_t u8g_pgm_uint8_t;
 typedef uint8_t u8g_fntpgm_uint8_t;
 #define u8g_pgm_read(adr) (*(const u8g_pgm_uint8_t *)(adr)) 
