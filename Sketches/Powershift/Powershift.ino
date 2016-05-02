@@ -1,9 +1,8 @@
 //Arduino Sketch to run ShiftE derailleur
 static const char acSketchName[]  = "PowerShift.ino";
-static const char acFileDate[]    = "May 2, 2016_HP7A";
+static const char acFileDate[]    = "May 2, 2016_HP7B";
 
 #include <BeckLib.h>
-//#include <Streaming.h>  //For some reason I can't include this from LBeck37.h
 #include <LBeck37.h>
 #include <SPI.h>
 #include <EasyButton.h>
@@ -20,15 +19,6 @@ static const char acFileDate[]    = "May 2, 2016_HP7A";
 
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
-
-//#include <microsmooth.h>
-
-//Defines
-//#define UINT16             unsigned int
-
-#define APPLY_SMOOTHING    false
-//#define FILTER_NAME        SMA
-//#define FILTER_FUNC        sma_filter
 
 //Here come the const's
 static const uint8_t   ucContrast           = 100;
@@ -188,7 +178,6 @@ void setup() {
    //Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
    //Serial << sLC++ <<"setup(): Begin May 1, 2016D"<< endl;
    Serial << LOG0 << " Sketch: " << acSketchName << ", " << acFileDate << endl;
-   Serial << sLC++ << "Free Ram= " << freeRam() << endl;
 
    sSetupDisplay();
 #ifdef DEBUG_ON
@@ -807,36 +796,4 @@ int sServoSetPosition(int sServoPos) {
    delay(sServoMsecWait);
    return 1;
 }  //sServoSetPosition
-
-
-/*
-int sSetupSmoothing() {
-   //Initialize memory for data smoothing and set data fields to zero.
-   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
-      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-#if APPLY_SMOOTHING
-         pusSmoothingMemory[sDataType][sAxis]  = ms_init(FILTER_NAME);
-#endif
-         asGyro            [sDataType][sAxis]  = 0;
-      }  //for sDataType
-   }  //for sAxis
-   return 1;
-}  //sSetupSmoothing
-*/
-
-
-//freeRam() returns the number of bytes currently free in RAM.
-int freeRam(void)
-{
-  extern int  __bss_end;
-  extern int  *__brkval;
-  int free_memory;
-  if((int)__brkval == 0) {
-    free_memory = ((int)&free_memory) - ((int)&__bss_end);
-  }
-  else {
-    free_memory = ((int)&free_memory) - ((int)__brkval);
-  }
-  return free_memory;
-}  //freeRam
 //Last line.
