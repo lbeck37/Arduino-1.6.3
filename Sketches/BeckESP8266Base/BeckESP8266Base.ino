@@ -1,5 +1,5 @@
 static const char acSketchName[]  = "BeckESP8266Base.ino";
-static const char acFileDate[]    = "Apr 25, 2016H1";
+static const char acFileDate[]    = "May 1, 2016_V64C";
 // 1/5/16 Get running on V64 eclipseArduino
 
 #include <BeckLib.h>
@@ -15,7 +15,7 @@ ESP8266HTTPUpdateServer   oHttpUpdateServer(true);
 
 static const String     acDatabaseURL   = "intense-fire-3958.firebaseio.com";
 static const String     acFirebaseSecret  = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static char           acMyName[]          = "esp1101Dev";   //Beck, Dev sensor, #1
+static char           acMyName[]          = "esp1101Dev";   //Beck, Dev type sensor, #1
 //static const String     acPushPath      = "/logs";
 //static String         acPushPath      = "/Logs/" + acMyName;
 static String         acPushPath      = "/Logs/";
