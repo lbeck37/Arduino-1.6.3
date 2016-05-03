@@ -1,6 +1,6 @@
 //Arduino Sketch to run ShiftE derailleur
 static const char acSketchName[]  = "PowerShift.ino";
-static const char acFileDate[]    = "May 2, 2016_HP7E";
+static const char acFileDate[]    = "May 2, 2016_HP7F";
 
 #include <BeckLib.h>
 #include <LBeck37.h>
