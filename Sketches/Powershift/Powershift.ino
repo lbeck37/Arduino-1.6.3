@@ -1,6 +1,6 @@
 //Arduino Sketch to run ShiftE derailleur
 static const char acSketchName[]  = "PowerShift.ino";
-static const char acFileDate[]    = "May 2, 2016_HP7B";
+static const char acFileDate[]    = "May 2, 2016_HP7E";
 
 #include <BeckLib.h>
 #include <LBeck37.h>
@@ -59,15 +59,19 @@ static const boolean   bButtonPullUp         = true;
 //Digital Pins
 #ifdef ESP8266
 	//BlynkBeck uses pins 4, 5, 15, 16
-	static const int       sSelectButton         = 4;
-	static const int       sDownButton           = 5;
-	static const int       sUpButton             = 15;
-	static const int       sBacklightPin         =  6;
-	static const int       sServoPin             =  7;
-	static const byte      cSPICmdDataPin        =  9;
-	static const byte      cSPIChipSelectPin     = 10;
+  //static const int       sSelectButton;
+  //static const int       sBacklightPin;
+	static const int       sUpButtonPin         =  0;
+	static const int       sDownButtonPin       =  2;
+	static const byte      cI2C_SDAPin			=  4;
+	static const byte      cI2C_SCLPin			=  5;
+	static const byte      cSPIMISOPin			= 12;
+	static const byte      cSPIMOSIPin        	= 13;
+	static const byte      cSPICLKPin	    	= 14;
+	static const byte      cSPISelectPin	    = 15;
+	static const int       sServoPin            = 16;
 #else
-	static const int       sSelectButton         = A3;
+	//static const int       sSelectButton         = A3;
 	static const int       sDownButton           = A2;
 	static const int       sUpButton             = A1;
 	static const int       sBacklightPin         =  6;
@@ -142,12 +146,14 @@ static int sServoPosLast                  = 0;
 Servo myservo;
 
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
-U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+//U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+U8GLIB_DOGS102 u8g(cSPICLKPin, cSPIMOSIPin, cSPISelectPin, cSPIMISOPin);
+// SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 
 //Create EasyButton objects to handle button presses.
-EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
-EasyButton DownButton   (sDownButton,   NULL, CALL_NONE, bButtonPullUp);
-EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
+EasyButton UpButton     (sUpButtonPin,     NULL, CALL_NONE, bButtonPullUp);
+EasyButton DownButton   (sDownButtonPin,   NULL, CALL_NONE, bButtonPullUp);
+//EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
 
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
@@ -175,9 +181,7 @@ static char        sz10CharString[10];
 void setup() {
    //Serial.begin(9600);
    Serial.begin(115200);
-   //Serial << sLC++ <<"setup(): Begin July 28, 2015 B"<< endl;
-   //Serial << sLC++ <<"setup(): Begin May 1, 2016D"<< endl;
-   Serial << LOG0 << " Sketch: " << acSketchName << ", " << acFileDate << endl;
+   Serial << endl << LOG0 << " Sketch: " << acSketchName << ", " << acFileDate << endl;
 
    sSetupDisplay();
 #ifdef DEBUG_ON
@@ -222,8 +226,10 @@ int sSetupDisplay() {
 
    //Set backlight pin to be a PWM "analog" out pin.
    //Drive LED backlight through 15 ohm resistor.
+#ifndef ESP8266
    pinMode(sBacklightPin, OUTPUT);
    sDisplaySetBrightness(sDefaultBrightness);
+#endif
    return 1;
 }  //sSetupDisplay
 
@@ -515,7 +521,9 @@ int sSwitchFont(int sFont) {
 
 
 int sDisplaySetBrightness(int sBrightness){
-   analogWrite(sBacklightPin, sBrightness);
+#ifndef ESP8266
+	analogWrite(sBacklightPin, sBrightness);
+#endif
    return 1;
 }  //sDisplaySetBrightness
 
@@ -709,7 +717,7 @@ int sCheckButtons(void) {
 
   UpButton.update();
   DownButton.update();
-  SelectButton.update();
+  //SelectButton.update();
 
    //Run through the buttons, use short-circuiting to select
    for (sButton= sUp; sButton <= sDown; sButton++) {
