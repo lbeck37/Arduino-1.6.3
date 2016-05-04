@@ -6,6 +6,44 @@
 long		lLineCount= 0;      //Serial Monitor uses for clarity.
 String		szLogLine;
 
+void SetupWiFi(char* pcRouterName, char* pcRouterPW){
+	Serial << LOG0 << " SetupWiFi(): Setting WiFi mode to WIFI_AP_STA" << endl;
+	WiFi.mode(WIFI_AP_STA);
+
+	Serial << LOG0 << " SetupWiFi(): Call WiFi.begin(" << pcRouterName << ", " << pcRouterPW << ")" << endl;
+	WiFi.begin(pcRouterName, pcRouterPW);
+
+	Serial << LOG0 << " SetupWiFi(): Call WiFi.waitForConnectResult()" << endl;
+	while(WiFi.waitForConnectResult() != WL_CONNECTED){
+	Serial << LOG0 << " WiFi failed, retrying." << endl;
+	Serial << LOG0 << " SetupWiFi(): Call WiFi.begin(" << pcRouterName << ", " << pcRouterPW << ")" << endl;
+	  WiFi.begin(pcRouterName, pcRouterPW);
+	 }
+
+	szLogLine=  LOG0 + " SetupWiFi(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
+	LogToSerial(szLogLine);
+
+	szLogLine=  LOG0 + " SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP());
+	LogToSerial(szLogLine);
+} //SetupWiFi
+
+
+void SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName){
+  //Create Firebase client.
+  Serial << LOG0 << " Create Firebase client" << endl;
+
+  Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
+  Firebase oFBase = Firebase(acDatabaseURL);
+
+  Serial << LOG0 << " Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
+  oFBase.auth(acFirebaseSecret);
+
+  //Create path to write to by appending my name to the Log prefix.
+  acPushPath= acPushPath + acMyName;
+  return;
+}	//SetupFirebase
+
+
 void SetupHttpServer(char* acHostname,
 					ESP8266WebServer& oHttpServer,
 					ESP8266HTTPUpdateServer& oHttpUpdateServer){

@@ -1,51 +1,30 @@
-static const char acSketchName[]  = "BeckESP8266Base.ino";
-static const char acFileDate[]    = "May 1, 2016_V64C";
-// 1/5/16 Get running on V64 eclipseArduino
+String acSketchName  = "BeckESP8266Base.ino";
+String acFileDate    = "May 3, 2016_HP7D";
 
 #include <BeckLib.h>
 /*
 static const char   acRouterName[]        = "TrailheadBoise";
 static const char   acRouterPW[]          = "Trailhead2015";
 */
-static const char       acRouterName[]        = "Aspot24";
-static const char       acRouterPW[]          = "Qazqaz11";
+static char       acRouterName[]        = "Aspot24";
+static char       acRouterPW[]          = "Qazqaz11";
 
 ESP8266WebServer        oHttpServer(80);
 ESP8266HTTPUpdateServer   oHttpUpdateServer(true);
 
-static const String     acDatabaseURL   = "intense-fire-3958.firebaseio.com";
-static const String     acFirebaseSecret  = "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static char           acMyName[]          = "esp1101Dev";   //Beck, Dev type sensor, #1
-//static const String     acPushPath      = "/logs";
-//static String         acPushPath      = "/Logs/" + acMyName;
-static String         acPushPath      = "/Logs/";
-
-//static char         acMyName[]          = "esp40";
+static String     		acDatabaseURL   	= "intense-fire-3958.firebaseio.com";
+static String     		acFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
+static char           	acMyName[]          = "esp1101Dev";   //Beck, Dev type sensor, #1
+static String         	acPushPath      	= "/Logs/";
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << " Sketch: " << acSketchName << ", " << acFileDate << endl;
 
-  Serial << LOG0 << " Setting WiFi mode to WIFI_AP_STA" << endl;
-  WiFi.mode(WIFI_AP_STA);
+  SetupWiFi(acRouterName, acRouterPW);
 
-  Serial << LOG0 << " Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
-  WiFi.begin(acRouterName, acRouterPW);
-
-  Serial << LOG0 << " Call WiFi.waitForConnectResult()" << endl;
-  while(WiFi.waitForConnectResult() != WL_CONNECTED){
-  Serial << LOG0 << " WiFi failed, retrying." << endl;
-  Serial << LOG0 << " Call WiFi.begin(" << acRouterName << ", " << acRouterPW << ")" << endl;
-    WiFi.begin(acRouterName, acRouterPW);
-   }
-
-  szLogLine=  LOG0 + " setup(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
-  LogToSerial(szLogLine);
-
-  szLogLine=  LOG0 + " setup(): My WiFi IP address= " + szIPaddress(WiFi.localIP());
-  LogToSerial(szLogLine);
-
+/*
   //Create Firebase client.
   Serial << LOG0 << " Create Firebase client" << endl;
 
@@ -55,6 +34,7 @@ void setup(void){
 
   Serial << LOG0 << " Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
   oFBase.auth(acFirebaseSecret);
+*/
 
   //Firebase is up, start logging to both
   szLogLine= LOG0 + " *setup(): Sketch " + acSketchName + ", version: " + acFileDate;
