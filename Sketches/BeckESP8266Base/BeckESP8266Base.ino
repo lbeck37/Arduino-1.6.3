@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 3, 2016_HP7D";
+String acFileDate    = "May 4, 2016_HP7E";
 
 #include <BeckLib.h>
 /*
@@ -12,10 +12,14 @@ static char       acRouterPW[]          = "Qazqaz11";
 ESP8266WebServer        oHttpServer(80);
 ESP8266HTTPUpdateServer   oHttpUpdateServer(true);
 
-static String     		acDatabaseURL   	= "intense-fire-3958.firebaseio.com";
-static String     		acFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
+static String     		strDatabaseURL   	= "intense-fire-3958.firebaseio.com";
+static String     		strFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
 static char           	acMyName[]          = "esp1101Dev";   //Beck, Dev type sensor, #1
 static String         	acPushPath      	= "/Logs/";
+
+//extern Firebase oFBase;
+//BeckFirebase	oBeckFirebase(strDatabaseURL, strFirebaseSecret);
+
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -24,31 +28,15 @@ void setup(void){
 
   SetupWiFi(acRouterName, acRouterPW);
 
-/*
-  //Create Firebase client.
-  Serial << LOG0 << " Create Firebase client" << endl;
-
-  acPushPath= acPushPath + acMyName;
-  Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
-  Firebase oFBase = Firebase(acDatabaseURL);
-
-  Serial << LOG0 << " Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
-  oFBase.auth(acFirebaseSecret);
-*/
-
-  //Firebase is up, start logging to both
-  szLogLine= LOG0 + " *setup(): Sketch " + acSketchName + ", version: " + acFileDate;
-  LogToBoth(oFBase, acPushPath, szLogLine);
-
-  szLogLine=  LOG0 + " *setup(): Firebase client created to " + acDatabaseURL;
-  LogToBoth(oFBase, acPushPath, szLogLine);
+  Firebase oFBase = SetupFirebase(strDatabaseURL, strFirebaseSecret, acPushPath, acMyName);
+  //oFBase = SetupFirebase(acDatabaseURL, acFirebaseSecret, acPushPath, acMyName);
 
   SetupHttpServer(acMyName, oHttpServer, oHttpUpdateServer);
 
   szLogLine= LOG0 + " *setup(): Open http://" + acMyName + ".local/update in browser to do OTA Update";
   LogToBoth(oFBase, acPushPath, szLogLine);
 
-  szLogLine= LOG0 + " *setup(): Firebase URL= https://" + acDatabaseURL + acPushPath;
+  szLogLine= LOG0 + " *setup(): Firebase URL= https://" + strDatabaseURL + acPushPath;
   LogToBoth(oFBase, acPushPath, szLogLine);
 
   szLogLine= LOG0 + " *setup() Done in " + acSketchName + ", version: " + acFileDate;

@@ -1,10 +1,48 @@
-//BeckLib.cpp, April 25, 2016
+//BeckLib.cpp, May 5, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 
 //Global variables
 long		lLineCount= 0;      //Serial Monitor uses for clarity.
 String		szLogLine;
+
+BeckFirebase::BeckFirebase(String strDatabaseURL,String strFirebaseSecret) {
+	strDatabaseURL_= strDatabaseURL;
+	strFirebaseSecret_= strFirebaseSecret;
+
+	Setup();
+}
+
+
+BeckFirebase::BeckFirebase(){
+	return;
+}
+
+
+int BeckFirebase::Setup(void){
+	//oFBase_= Firebase(strDatabaseURL_);
+	return 1;
+}	//Setup
+
+
+Firebase SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName){
+  //Create Firebase client.
+  Serial << LOG0 << " SetupFirebase(): Create Firebase client" << endl;
+
+  Serial << LOG0 << " SetupFirebase(): Call Firebase('" << acDatabaseURL << "')" << endl;
+  Firebase oFBase = Firebase(acDatabaseURL);
+
+  Serial << LOG0 << " SetupFirebase(): Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
+  oFBase.auth(acFirebaseSecret);
+
+  //Create path to write to by appending my name to the Log prefix.
+  acPushPath= acPushPath + acMyName;
+
+  szLogLine=  LOG0 + " SetupFirebase(): Firebase client created to " + acDatabaseURL;
+  LogToBoth(oFBase, acPushPath, szLogLine);
+  return(oFBase);
+}	//SetupFirebase
+
 
 void SetupWiFi(char* pcRouterName, char* pcRouterPW){
 	Serial << LOG0 << " SetupWiFi(): Setting WiFi mode to WIFI_AP_STA" << endl;
@@ -26,22 +64,6 @@ void SetupWiFi(char* pcRouterName, char* pcRouterPW){
 	szLogLine=  LOG0 + " SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP());
 	LogToSerial(szLogLine);
 } //SetupWiFi
-
-
-void SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName){
-  //Create Firebase client.
-  Serial << LOG0 << " Create Firebase client" << endl;
-
-  Serial << LOG0 << " Call Firebase('" << acDatabaseURL << "')" << endl;
-  Firebase oFBase = Firebase(acDatabaseURL);
-
-  Serial << LOG0 << " Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
-  oFBase.auth(acFirebaseSecret);
-
-  //Create path to write to by appending my name to the Log prefix.
-  acPushPath= acPushPath + acMyName;
-  return;
-}	//SetupFirebase
 
 
 void SetupHttpServer(char* acHostname,

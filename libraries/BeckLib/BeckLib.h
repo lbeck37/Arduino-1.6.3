@@ -1,4 +1,4 @@
-//BeckLib.h, April 25, 2016
+//BeckLib.h, May 5, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 //#include <Arduino.h>
@@ -23,6 +23,7 @@ static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
 void 		SetupWiFi(char* pcRouterName, char* pcRouterPW);
+Firebase 	SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName);
 void 		SetupHttpServer(char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
 void 		HandleHttpServer(ESP8266WebServer& oHttpServer);
 String 		szLogLineHeader(long lLineCount);
@@ -31,9 +32,22 @@ String 		szAddZeros(int sValue, int sNumDigits);
 
 void 		LogToSerial(String szLogString);
 void 		LogToBoth(Firebase& oFBase, String acPushPath, String szLogString);
+//void 		LogToBoth(String acPushPath, String szLogString);
 void 		FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString);
 String 		szMakeJSONObject(String szName, String szValue);
 String 		szIPaddress(IPAddress oIP);
+
+class BeckFirebase {
+public:
+	BeckFirebase();
+	BeckFirebase(String strDatabaseURL,String strFirebaseSecret);
+private:
+	String		strDatabaseURL_;
+	String		strFirebaseSecret_;
+	//Firebase 	oFBase_;
+
+	int 		Setup(void);
+};	//BeckFirebase
 
 /*
 void		LogToBoth(String szLogString, String szLogValue);
