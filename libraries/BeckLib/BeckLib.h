@@ -1,4 +1,4 @@
-//BeckLib.h, May 5, 2016
+//BeckLib.h, May 5A, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 //#include <Arduino.h>
@@ -11,10 +11,6 @@
 #include <ESP8266HTTPUpdateServer.h>
 
 #define LOG0    		szLogLineHeader(++lLineCount)
-
-//Global variables
-extern long         lLineCount;      //Serial Monitor uses for clarity.
-extern String		szLogLine;
 
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
@@ -39,10 +35,10 @@ String 		szIPaddress(IPAddress oIP);
 
 class BeckFirebase {
 public:
-	BeckFirebase();
+	//BeckFirebase();
 	BeckFirebase(String strDatabaseURL,String strFirebaseSecret);
 	void 		LogToFirebase(String sLogline);
-private:
+protected:
 	String		strDatabaseURL_;
 	String		strFirebaseSecret_;
 	//Firebase 	oFBase_;
@@ -55,5 +51,10 @@ void		LogToBoth(String szLogString, String szLogValue);
 void		LogToBoth(String szLogString, int sLogValue);
 void		LogToBoth(String szLogString, float fLogValue);
 */
+
+//Global variables
+extern long         	lLineCount;      //Serial Monitor uses for clarity.
+extern String			szLogLine;
+extern BeckFirebase*	pBeckFirebase;
 
 #endif   //BECKLIB_H
