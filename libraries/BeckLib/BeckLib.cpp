@@ -19,6 +19,12 @@ BeckFirebase::BeckFirebase(){
 }
 
 
+void BeckFirebase::LogToFirebase(String sLogline){
+	Serial << LOG0 << " BeckFirebase::LogToFirebase: '" << sLogline << "'" << endl;
+	return;
+}	//LogToFirebase
+
+
 int BeckFirebase::Setup(void){
 	//oFBase_= Firebase(strDatabaseURL_);
 	return 1;

@@ -41,6 +41,7 @@ class BeckFirebase {
 public:
 	BeckFirebase();
 	BeckFirebase(String strDatabaseURL,String strFirebaseSecret);
+	void 		LogToFirebase(String sLogline);
 private:
 	String		strDatabaseURL_;
 	String		strFirebaseSecret_;

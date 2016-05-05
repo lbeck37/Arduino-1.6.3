@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 4, 2016_HP7E";
+String acFileDate    = "May 4, 2016_HP7G";
 
 #include <BeckLib.h>
 /*
@@ -19,7 +19,7 @@ static String         	acPushPath      	= "/Logs/";
 
 //extern Firebase oFBase;
 //BeckFirebase	oBeckFirebase(strDatabaseURL, strFirebaseSecret);
-
+BeckFirebase*	pBeckFirebase;
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -30,6 +30,14 @@ void setup(void){
 
   Firebase oFBase = SetupFirebase(strDatabaseURL, strFirebaseSecret, acPushPath, acMyName);
   //oFBase = SetupFirebase(acDatabaseURL, acFirebaseSecret, acPushPath, acMyName);
+
+  BeckFirebase oBeckFirebase= BeckFirebase(strDatabaseURL, strFirebaseSecret);
+  pBeckFirebase= &oBeckFirebase;
+
+  szLogLine= "Hello";
+  (*pBeckFirebase).LogToFirebase(szLogLine);
+  szLogLine= LOG0;
+  pBeckFirebase->LogToFirebase(szLogLine);
 
   SetupHttpServer(acMyName, oHttpServer, oHttpUpdateServer);
 
