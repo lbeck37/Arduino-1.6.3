@@ -5,11 +5,11 @@
 //Global variables
 long			lLineCount= 0;      //Serial Monitor uses for clarity.
 String			szLogLine;
-BeckFirebase*	pBeckFirebase;
+BeckFirebase*	pBeckFBase;
 
-BeckFirebase::BeckFirebase(String strDatabaseURL,String strFirebaseSecret) {
-	strDatabaseURL_= strDatabaseURL;
-	strFirebaseSecret_= strFirebaseSecret;
+BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret, String& acPushPath, String sMyName) {
+	strDatabaseURL_= sDatabaseURL;
+	strFirebaseSecret_= sFirebaseSecret;
 
 	Setup();
 }
@@ -32,6 +32,13 @@ int BeckFirebase::Setup(void){
 	//oFBase_= Firebase(strDatabaseURL_);
 	return 1;
 }	//Setup
+
+
+BeckFirebase* StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String& sPushPath, String sMyName){
+	BeckFirebase* pBeckFirebase= new BeckFirebase(sDatabaseURL, sFirebaseSecret, sPushPath, sMyName);
+	pBeckFBase= pBeckFirebase;
+return(pBeckFBase);
+}	//StartBeckFirebase
 
 
 Firebase SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName){

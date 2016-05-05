@@ -18,25 +18,10 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
-void 		SetupWiFi(char* pcRouterName, char* pcRouterPW);
-Firebase 	SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName);
-void 		SetupHttpServer(char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
-void 		HandleHttpServer(ESP8266WebServer& oHttpServer);
-String 		szLogLineHeader(long lLineCount);
-String 		szGetTime(long lMsec);
-String 		szAddZeros(int sValue, int sNumDigits);
-
-void 		LogToSerial(String szLogString);
-void 		LogToBoth(Firebase& oFBase, String acPushPath, String szLogString);
-//void 		LogToBoth(String acPushPath, String szLogString);
-void 		FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString);
-String 		szMakeJSONObject(String szName, String szValue);
-String 		szIPaddress(IPAddress oIP);
-
 class BeckFirebase {
 public:
 	//BeckFirebase();
-	BeckFirebase(String strDatabaseURL,String strFirebaseSecret);
+	BeckFirebase(String sDatabaseURL,String sFirebaseSecret, String& sPushPath, String sMyName);
 	void 		LogToFirebase(String sLogline);
 protected:
 	String		strDatabaseURL_;
@@ -45,6 +30,23 @@ protected:
 
 	int 		Setup(void);
 };	//BeckFirebase
+
+
+BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String& sPushPath, String sMyName);
+void 			SetupWiFi(char* pcRouterName, char* pcRouterPW);
+Firebase 		SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName);
+void 			SetupHttpServer(char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
+void 			HandleHttpServer(ESP8266WebServer& oHttpServer);
+String 			szLogLineHeader(long lLineCount);
+String 			szGetTime(long lMsec);
+String 			szAddZeros(int sValue, int sNumDigits);
+
+void 			LogToSerial(String szLogString);
+void 			LogToBoth(Firebase& oFBase, String acPushPath, String szLogString);
+//void 			LogToBoth(String acPushPath, String szLogString);
+void 			FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString);
+String 			szMakeJSONObject(String szName, String szValue);
+String 			szIPaddress(IPAddress oIP);
 
 /*
 void		LogToBoth(String szLogString, String szLogValue);
@@ -55,6 +57,6 @@ void		LogToBoth(String szLogString, float fLogValue);
 //Global variables
 extern long         	lLineCount;      //Serial Monitor uses for clarity.
 extern String			szLogLine;
-extern BeckFirebase*	pBeckFirebase;
+extern BeckFirebase*	pBeckFBase;
 
 #endif   //BECKLIB_H
