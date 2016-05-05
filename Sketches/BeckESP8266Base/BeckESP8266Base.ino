@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 5, 2016_HP7G";
+String acFileDate    = "May 5, 2016_HP7H";
 
 #include <BeckLib.h>
 /*
@@ -20,6 +20,8 @@ static String         	sPushPath      		= "/Logs/";
 
 //extern Firebase oFBase;
 //BeckFirebase	oBeckFirebase(strDatabaseURL, strFirebaseSecret);
+
+//extern BeckFirebase*	pBeckFirebase;
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
