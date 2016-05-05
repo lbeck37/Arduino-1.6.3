@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 4, 2016_HP7G";
+String acFileDate    = "May 5, 2016_HP7C";
 
 #include <BeckLib.h>
 /*
@@ -14,12 +14,13 @@ ESP8266HTTPUpdateServer   oHttpUpdateServer(true);
 
 static String     		strDatabaseURL   	= "intense-fire-3958.firebaseio.com";
 static String     		strFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static char           	acMyName[]          = "esp1101Dev";   //Beck, Dev type sensor, #1
+static char           	acMyURL[]           = "esp1101Dev";   //Beck, Dev type sensor, #1
+static char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
 static String         	acPushPath      	= "/Logs/";
 
 //extern Firebase oFBase;
 //BeckFirebase	oBeckFirebase(strDatabaseURL, strFirebaseSecret);
-BeckFirebase*	pBeckFirebase;
+//extern BeckFirebase*	pBeckFirebase;
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -28,7 +29,8 @@ void setup(void){
 
   SetupWiFi(acRouterName, acRouterPW);
 
-  Firebase oFBase = SetupFirebase(strDatabaseURL, strFirebaseSecret, acPushPath, acMyName);
+  //Firebase oFBase = SetupFirebase(strDatabaseURL, strFirebaseSecret, acPushPath, acMyURL);
+  Firebase oFBase = SetupFirebase(strDatabaseURL, strFirebaseSecret, acPushPath, acMyFbaseName);
   //oFBase = SetupFirebase(acDatabaseURL, acFirebaseSecret, acPushPath, acMyName);
 
   BeckFirebase oBeckFirebase= BeckFirebase(strDatabaseURL, strFirebaseSecret);
@@ -39,9 +41,9 @@ void setup(void){
   szLogLine= LOG0;
   pBeckFirebase->LogToFirebase(szLogLine);
 
-  SetupHttpServer(acMyName, oHttpServer, oHttpUpdateServer);
+  SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
-  szLogLine= LOG0 + " *setup(): Open http://" + acMyName + ".local/update in browser to do OTA Update";
+  szLogLine= LOG0 + " *setup(): Open http://" + acMyURL + ".local/update in browser to do OTA Update";
   LogToBoth(oFBase, acPushPath, szLogLine);
 
   szLogLine= LOG0 + " *setup(): Firebase URL= https://" + strDatabaseURL + acPushPath;

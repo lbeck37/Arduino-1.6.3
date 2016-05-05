@@ -1,10 +1,11 @@
-//BeckLib.cpp, May 5, 2016
+//BeckLib.cpp, May 5A, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 
 //Global variables
-long		lLineCount= 0;      //Serial Monitor uses for clarity.
-String		szLogLine;
+long			lLineCount= 0;      //Serial Monitor uses for clarity.
+String			szLogLine;
+BeckFirebase*	pBeckFirebase;
 
 BeckFirebase::BeckFirebase(String strDatabaseURL,String strFirebaseSecret) {
 	strDatabaseURL_= strDatabaseURL;
@@ -14,9 +15,11 @@ BeckFirebase::BeckFirebase(String strDatabaseURL,String strFirebaseSecret) {
 }
 
 
+/*
 BeckFirebase::BeckFirebase(){
 	return;
 }
+*/
 
 
 void BeckFirebase::LogToFirebase(String sLogline){
