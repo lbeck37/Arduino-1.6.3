@@ -1,4 +1,4 @@
-//BeckLib.cpp, May 5A, 2016
+//BeckLib.cpp, May 6, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 
@@ -7,19 +7,24 @@ long			lLineCount= 0;      //Serial Monitor uses for clarity.
 String			szLogLine;
 BeckFirebase*	pBeckFBase;
 
-BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret, String& acPushPath, String sMyName) {
-	strDatabaseURL_= sDatabaseURL;
+BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
+		                   String sLogPath, String sMyName) : oFBase_(sDatabaseURL){
+	//oFBase_= Firebase(sDatabaseURL);
+	sDatabaseURL_= sDatabaseURL;
 	strFirebaseSecret_= sFirebaseSecret;
+	sLogPath_= sLogPath;
+	sMyName_= sMyName;
 
-	Setup();
-}
+	//Create path to write to by appending my name to the Log prefix.
+	sPushPath_= sLogPath_ + sMyName_;
 
+	Serial << LOG0 << " BeckFirebase() cstor: Call Firebase.auth('" << strFirebaseSecret_ << "')" << endl;
+	oFBase_.auth(strFirebaseSecret_);
 
-/*
-BeckFirebase::BeckFirebase(){
+	szLogLine=  LOG0 + " BeckFirebase() cstor: Firebase client created to " + sDatabaseURL_;
+	LogToFirebase(szLogLine);
 	return;
-}
-*/
+}	//BeckFirebase cstor
 
 
 void BeckFirebase::LogToFirebase(String sLogline){
@@ -28,14 +33,8 @@ void BeckFirebase::LogToFirebase(String sLogline){
 }	//LogToFirebase
 
 
-int BeckFirebase::Setup(void){
-	//oFBase_= Firebase(strDatabaseURL_);
-	return 1;
-}	//Setup
-
-
-BeckFirebase* StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String& sPushPath, String sMyName){
-	BeckFirebase* pBeckFirebase= new BeckFirebase(sDatabaseURL, sFirebaseSecret, sPushPath, sMyName);
+BeckFirebase* StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName){
+	BeckFirebase* pBeckFirebase= new BeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, sMyName);
 	pBeckFBase= pBeckFirebase;
 return(pBeckFBase);
 }	//StartBeckFirebase

@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 5, 2016_HP7H";
+String acFileDate    = "May 6, 2016_HP7A";
 
 #include <BeckLib.h>
 /*
@@ -16,7 +16,7 @@ static String     		sDatabaseURL   		= "intense-fire-3958.firebaseio.com";
 static String     		sFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
 static char           	acMyURL[]           = "esp1101Dev";   //Beck, Dev type sensor, #1
 static char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
-static String         	sPushPath      		= "/Logs/";
+static String         	sLogPath      		= "/Logs/";
 
 //extern Firebase oFBase;
 //BeckFirebase	oBeckFirebase(strDatabaseURL, strFirebaseSecret);
@@ -30,16 +30,9 @@ void setup(void){
 
   SetupWiFi(acRouterName, acRouterPW);
 
-  //Firebase oFBase = SetupFirebase(strDatabaseURL, strFirebaseSecret, acPushPath, acMyURL);
-  Firebase oFBase = SetupFirebase(sDatabaseURL, sFirebaseSecret, sPushPath, acMyFbaseName);
-  //oFBase = SetupFirebase(acDatabaseURL, acFirebaseSecret, acPushPath, acMyName);
+  Firebase oFBase = SetupFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
 
-/*
-  BeckFirebase oBeckFirebase= BeckFirebase(sDatabaseURL, sFirebaseSecret, sPushPath, acMyFbaseName);
-  pBeckFBase= &oBeckFirebase;
-*/
-  //pBeckFirebase= StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sPushPath, acMyFbaseName);
-  StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sPushPath, acMyFbaseName);
+  StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
 
   szLogLine= "Hello";
   (*pBeckFBase).LogToFirebase(szLogLine);
@@ -53,11 +46,11 @@ void setup(void){
   LogToBoth(oFBase, sPushPath, szLogLine);
 */
 
-  szLogLine= LOG0 + " *setup(): Firebase URL= https://" + sDatabaseURL + sPushPath;
-  LogToBoth(oFBase, sPushPath, szLogLine);
+  szLogLine= LOG0 + " *setup(): Firebase URL= https://" + sDatabaseURL + sLogPath;
+  LogToBoth(oFBase, sLogPath, szLogLine);
 
   szLogLine= LOG0 + " *setup() Done in " + acSketchName + ", version: " + acFileDate;
-  LogToBoth(oFBase, sPushPath, szLogLine);
+  LogToBoth(oFBase, sLogPath, szLogLine);
   return;
 } //setup
 

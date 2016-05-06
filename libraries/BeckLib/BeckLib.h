@@ -1,4 +1,4 @@
-//BeckLib.h, May 5A, 2016
+//BeckLib.h, May 6, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 //#include <Arduino.h>
@@ -20,19 +20,23 @@ static const long   lMsecPerSec           =     1000;
 
 class BeckFirebase {
 public:
-	//BeckFirebase();
-	BeckFirebase(String sDatabaseURL,String sFirebaseSecret, String& sPushPath, String sMyName);
+	BeckFirebase(String sDatabaseURL,String sFirebaseSecret, String sPushPath, String sMyName);
+/*
+	BeckFirebase() {};
+	~BeckFirebase() {};
+*/
 	void 		LogToFirebase(String sLogline);
 protected:
-	String		strDatabaseURL_;
+	String		sDatabaseURL_;
 	String		strFirebaseSecret_;
-	//Firebase 	oFBase_;
-
-	int 		Setup(void);
+	Firebase 	oFBase_;
+	String		sLogPath_;
+	String 		sMyName_;
+	String		sPushPath_;
 };	//BeckFirebase
 
 
-BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String& sPushPath, String sMyName);
+BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName);
 void 			SetupWiFi(char* pcRouterName, char* pcRouterPW);
 Firebase 		SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName);
 void 			SetupHttpServer(char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
