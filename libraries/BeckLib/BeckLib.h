@@ -25,7 +25,9 @@ public:
 	BeckFirebase() {};
 	~BeckFirebase() {};
 */
-	void 		LogToFirebase(String sLogline);
+	void 		LogToSerial(String sLogline);
+	void		LogToFirebase(String sLogline);
+	void		LogToBoth(String sLogline);
 protected:
 	String		sDatabaseURL_;
 	String		strFirebaseSecret_;
@@ -33,6 +35,8 @@ protected:
 	String		sLogPath_;
 	String 		sMyName_;
 	String		sPushPath_;
+
+	String		sMakeJSONObject(String sName, String sValue);
 };	//BeckFirebase
 
 

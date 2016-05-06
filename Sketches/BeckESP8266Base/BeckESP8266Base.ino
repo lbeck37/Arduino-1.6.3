@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 6, 2016_HP7A";
+String acFileDate    = "May 6, 2016_HP7C";
 
 #include <BeckLib.h>
 /*
@@ -35,9 +35,9 @@ void setup(void){
   StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
 
   szLogLine= "Hello";
-  (*pBeckFBase).LogToFirebase(szLogLine);
+  (*pBeckFBase).LogToSerial(szLogLine);
   szLogLine= LOG0;
-  pBeckFBase->LogToFirebase(szLogLine);
+  pBeckFBase->LogToSerial(szLogLine);
 
   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
