@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 6, 2016_HP7C";
+String acFileDate    = "May 6, 2016_HP7Q";
 
 #include <BeckLib.h>
 /*
@@ -18,11 +18,6 @@ static char           	acMyURL[]           = "esp1101Dev";   //Beck, Dev type se
 static char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
 static String         	sLogPath      		= "/Logs/";
 
-//extern Firebase oFBase;
-//BeckFirebase	oBeckFirebase(strDatabaseURL, strFirebaseSecret);
-
-//extern BeckFirebase*	pBeckFirebase;
-
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
@@ -34,23 +29,11 @@ void setup(void){
 
   StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
 
-  szLogLine= "Hello";
-  (*pBeckFBase).LogToSerial(szLogLine);
-  szLogLine= LOG0;
-  pBeckFBase->LogToSerial(szLogLine);
-
   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
-/*
-  szLogLine= LOG0 + " *setup(): Open http://" + acMyURL + ".local/update in browser to do OTA Update";
-  LogToBoth(oFBase, sPushPath, szLogLine);
-*/
-
-  szLogLine= LOG0 + " *setup(): Firebase URL= https://" + sDatabaseURL + sLogPath;
-  LogToBoth(oFBase, sLogPath, szLogLine);
-
-  szLogLine= LOG0 + " *setup() Done in " + acSketchName + ", version: " + acFileDate;
-  LogToBoth(oFBase, sLogPath, szLogLine);
+  pBeckFBase->LogToBoth("setup(): BeckFirebase.GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
+  pBeckFBase->LogToBoth("setup(): BeckFirebase.GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
+  pBeckFBase->LogToBoth("setup() Done in " + acSketchName + ", version: " + acFileDate);
   return;
 } //setup
 

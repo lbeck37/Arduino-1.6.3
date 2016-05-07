@@ -28,6 +28,8 @@ public:
 	void 		LogToSerial(String sLogline);
 	void		LogToFirebase(String sLogline);
 	void		LogToBoth(String sLogline);
+	String		GetDatabaseURL(void);
+	String		GetLogPath(void);
 protected:
 	String		sDatabaseURL_;
 	String		strFirebaseSecret_;

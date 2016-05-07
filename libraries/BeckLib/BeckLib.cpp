@@ -9,7 +9,6 @@ BeckFirebase*	pBeckFBase;
 
 BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 		                   String sLogPath, String sMyName) : oFBase_(sDatabaseURL){
-	//oFBase_= Firebase(sDatabaseURL);
 	sDatabaseURL_= sDatabaseURL;
 	strFirebaseSecret_= sFirebaseSecret;
 	sLogPath_= sLogPath;
@@ -21,14 +20,13 @@ BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 	Serial << LOG0 << " BeckFirebase() cstor: Call Firebase.auth('" << strFirebaseSecret_ << "')" << endl;
 	oFBase_.auth(strFirebaseSecret_);
 
-	szLogLine=  LOG0 + " BeckFirebase() cstor: Firebase client created to " + sDatabaseURL_;
-	LogToBoth(szLogLine);
+	LogToBoth("BeckFirebase() cstor: Firebase client created to " + sDatabaseURL_);
 	return;
 }	//BeckFirebase cstor
 
 
 void BeckFirebase::LogToSerial(String sLogline){
-	Serial << LOG0 << " BeckFirebase::LogToSerial: '" << sLogline << "'" << endl;
+	Serial << sLogline << endl;
 	return;
 }	//LogToSerial
 
@@ -46,10 +44,21 @@ void BeckFirebase::LogToFirebase(String sLogline){
 
 
 void BeckFirebase::LogToBoth(String sLogline){
-	LogToSerial  (sLogline);
-	//LogToFirebase(sLogline);
+	String sFullLogline=LOG0 + " " + sLogline;
+	LogToSerial  (sFullLogline);
+	//LogToFirebase(sFullLogline);
 	return;
 }	//LogToBoth
+
+
+String BeckFirebase::GetDatabaseURL(void){
+	return sDatabaseURL_;
+}	//GetDatabaseURL
+
+
+String BeckFirebase::GetLogPath(void){
+	return sLogPath_;
+}	//GetLogPath
 
 
 String BeckFirebase::sMakeJSONObject(String sName, String sValue){
@@ -141,9 +150,7 @@ String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
   szHeader += " ";
-  //szTermString += szTime;
   szHeader += szGetTime(millis());
-  //szHeader += " ";
   return szHeader;
 } //szLogLineHeader
 
