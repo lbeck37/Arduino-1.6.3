@@ -1,4 +1,4 @@
-//BeckLib.h, May 6, 2016
+//BeckLib.h, May 7, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 //#include <Arduino.h>
@@ -30,6 +30,7 @@ public:
 	void		LogToBoth(String sLogline);
 	String		GetDatabaseURL(void);
 	String		GetLogPath(void);
+	String		GetPushPath(void);
 protected:
 	String		sDatabaseURL_;
 	String		strFirebaseSecret_;
@@ -43,9 +44,9 @@ protected:
 
 
 BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName);
-void 			SetupWiFi(char* pcRouterName, char* pcRouterPW);
-Firebase 		SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName);
-void 			SetupHttpServer(char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
+void 			SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
+Firebase 		SetupFirebase(String acDatabaseURL, String acFirebaseSecret);
+void 			SetupHttpServer(const char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
 void 			HandleHttpServer(ESP8266WebServer& oHttpServer);
 String 			szLogLineHeader(long lLineCount);
 String 			szGetTime(long lMsec);

@@ -1,4 +1,4 @@
-//BeckLib.cpp, May 6, 2016
+//BeckLib.cpp, May 7, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 
@@ -61,6 +61,11 @@ String BeckFirebase::GetLogPath(void){
 }	//GetLogPath
 
 
+String BeckFirebase::GetPushPath(void){
+	return sPushPath_;
+}	//GetPushPath
+
+
 String BeckFirebase::sMakeJSONObject(String sName, String sValue){
   String szJSONObject= "{\"";
   szJSONObject += sName;
@@ -79,7 +84,7 @@ return(pBeckFBase);
 }	//StartBeckFirebase
 
 
-Firebase SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& acPushPath, String acMyName){
+Firebase SetupFirebase(String acDatabaseURL, String acFirebaseSecret){
   //Create Firebase client.
   Serial << LOG0 << " SetupFirebase(): Create Firebase client" << endl;
 
@@ -89,16 +94,12 @@ Firebase SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& ac
   Serial << LOG0 << " SetupFirebase(): Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
   oFBase.auth(acFirebaseSecret);
 
-  //Create path to write to by appending my name to the Log prefix.
-  acPushPath= acPushPath + acMyName;
-
-  szLogLine=  LOG0 + " SetupFirebase(): Firebase client created to " + acDatabaseURL;
-  LogToBoth(oFBase, acPushPath, szLogLine);
+  LogJustToSerial("SetupFirebase(): Firebase client created to " + acDatabaseURL);
   return(oFBase);
 }	//SetupFirebase
 
 
-void SetupWiFi(char* pcRouterName, char* pcRouterPW){
+void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
 	LogJustToSerial("SetupWiFi(): Setting WiFi mode to WIFI_AP_STA");
 	WiFi.mode(WIFI_AP_STA);
 
@@ -118,7 +119,7 @@ void SetupWiFi(char* pcRouterName, char* pcRouterPW){
 } //SetupWiFi
 
 
-void SetupHttpServer(char* acHostname,
+void SetupHttpServer(const char* acHostname,
 					ESP8266WebServer& oHttpServer,
 					ESP8266HTTPUpdateServer& oHttpUpdateServer){
   LogJustToSerial("SetupHttpServer(): Call MDNS.begin(" + String(acHostname) + ")");
