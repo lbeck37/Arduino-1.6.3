@@ -99,44 +99,42 @@ Firebase SetupFirebase(String acDatabaseURL, String acFirebaseSecret, String& ac
 
 
 void SetupWiFi(char* pcRouterName, char* pcRouterPW){
-	Serial << LOG0 << " SetupWiFi(): Setting WiFi mode to WIFI_AP_STA" << endl;
+	LogJustToSerial("SetupWiFi(): Setting WiFi mode to WIFI_AP_STA");
 	WiFi.mode(WIFI_AP_STA);
 
-	Serial << LOG0 << " SetupWiFi(): Call WiFi.begin(" << pcRouterName << ", " << pcRouterPW << ")" << endl;
+	LogJustToSerial("SetupWiFi(): Call WiFi.begin(" + String(pcRouterName) + ", " + String(pcRouterPW) + ")");
 	WiFi.begin(pcRouterName, pcRouterPW);
 
-	Serial << LOG0 << " SetupWiFi(): Call WiFi.waitForConnectResult()" << endl;
+	LogJustToSerial("SetupWiFi(): Call WiFi.waitForConnectResult()");
 	while(WiFi.waitForConnectResult() != WL_CONNECTED){
-	Serial << LOG0 << " WiFi failed, retrying." << endl;
-	Serial << LOG0 << " SetupWiFi(): Call WiFi.begin(" << pcRouterName << ", " << pcRouterPW << ")" << endl;
-	  WiFi.begin(pcRouterName, pcRouterPW);
+		LogJustToSerial("WiFi failed, retrying.");
+		LogJustToSerial("SetupWiFi(): Call WiFi.begin(" + String(pcRouterName) + ", " + String(pcRouterPW) + ")");
+		WiFi.begin(pcRouterName, pcRouterPW);
 	 }
 
-	szLogLine=  LOG0 + " SetupWiFi(): WifFi Connected, WiFi.status() returned WL_CONNECTED";
-	LogToSerial(szLogLine);
+	LogJustToSerial("SetupWiFi(): WifFi Connected, WiFi.status() returned WL_CONNECTED");
 
-	szLogLine=  LOG0 + " SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP());
-	LogToSerial(szLogLine);
+	LogJustToSerial("SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP()));
 } //SetupWiFi
 
 
 void SetupHttpServer(char* acHostname,
 					ESP8266WebServer& oHttpServer,
 					ESP8266HTTPUpdateServer& oHttpUpdateServer){
-  Serial << LOG0 << " SetupHttpServer(): Call MDNS.begin(" << acHostname << ")" << endl;
+  LogJustToSerial("SetupHttpServer(): Call MDNS.begin(" + String(acHostname) + ")");
   MDNS.begin(acHostname);
 
-  Serial << LOG0 << " SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)" << endl;
+  LogJustToSerial("SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)");
   oHttpUpdateServer.setup(&oHttpServer);
 
-  Serial << LOG0 << " SetupHttpServer(): Call oHttpServer.begin())" << endl;
+  LogJustToSerial("SetupHttpServer(): Call oHttpServer.begin())");
   oHttpServer.begin();
 
-  Serial << LOG0 << " SetupHttpServer(): Call MDNS.addService(http, tcp, 80)" << endl;
+  LogJustToSerial("SetupHttpServer(): Call MDNS.addService(http, tcp, 80)");
   MDNS.addService("http", "tcp", 80);
 
-  Serial << LOG0 << " SetupHttpServer(): HTTPUpdateServer ready!" << endl;
-  Serial << LOG0 << " SetupHttpServer(): Open http://" << acHostname << ".local/update to do OTA Update" << endl;
+  LogJustToSerial("SetupHttpServer(): HTTPUpdateServer ready!");
+  LogJustToSerial("SetupHttpServer(): Open http://" + String(acHostname) + ".local/update to do OTA Update");
 }	//SetupHttpServer
 
 
@@ -183,6 +181,13 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
+
+
+void LogJustToSerial(String sLogline){
+	String sFullLogline=LOG0 + " " + sLogline;
+	Serial << sFullLogline << endl;
+	return;
+}	//LogJustToSerial
 
 
 void LogToSerial(String szLogString){

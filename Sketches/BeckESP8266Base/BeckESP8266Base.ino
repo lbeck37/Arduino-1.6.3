@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 6, 2016_HP7Q";
+String acFileDate    = "May 6, 2016_HP7U";
 
 #include <BeckLib.h>
 /*
@@ -20,8 +20,9 @@ static String         	sLogPath      		= "/Logs/";
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
-  Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  Serial << LOG0 << " Sketch: " << acSketchName << ", " << acFileDate << endl;
+  Serial << endl;
+  LogJustToSerial("setup(): Initialized serial to " + String(lSerialMonitorBaud) + " baud");
+  LogJustToSerial("Sketch: " + acSketchName + ", " + acFileDate);
 
   SetupWiFi(acRouterName, acRouterPW);
 

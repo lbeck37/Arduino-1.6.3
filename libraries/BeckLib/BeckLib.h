@@ -51,6 +51,7 @@ String 			szLogLineHeader(long lLineCount);
 String 			szGetTime(long lMsec);
 String 			szAddZeros(int sValue, int sNumDigits);
 
+void 			LogJustToSerial(String sLogline);
 void 			LogToSerial(String szLogString);
 void 			LogToBoth(Firebase& oFBase, String acPushPath, String szLogString);
 //void 			LogToBoth(String acPushPath, String szLogString);
