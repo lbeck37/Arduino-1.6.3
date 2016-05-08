@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 8, 2016_HP7C";
+String acFileDate    = "May 8, 2016_HP7E";
 
 #include <BeckLib.h>
 /*
@@ -35,7 +35,7 @@ void setup(void){
 
   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
-  pBeckFBase->LogToBoth("setup(): Done, Sketch: " + acSketchName + ", version: " + acFileDate);
+  pBeckFBase->LogToBoth("setup(): " + acFileDate + ", Done, Sketch: " + acSketchName );
   return;
 } //setup
 
