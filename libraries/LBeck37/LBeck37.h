@@ -13,7 +13,7 @@
 #define INT32         int32_t
 #define UINT32       uint32_t
 
-static INT16 sLC    = 0;  //Serial Monitor Line Count, for clarity.
+//static INT16 sLC    = 0;  //Serial Monitor Line Count, for clarity.
 /*
 //Protos
 INT16    sSetupSerialStreaming   (void);

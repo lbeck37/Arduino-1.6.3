@@ -44,19 +44,23 @@ protected:
 
 //Non-class function protos.
 BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName);
+void			SendInfoToLog(void);
 void 			SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
 void 			SetupHttpServer(const char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
 void 			HandleHttpServer(ESP8266WebServer& oHttpServer);
+void 			Log(String sLogline);
+void 			LogJustToSerial(String sLogline);
 String 			szLogLineHeader(long lLineCount);
 String 			szGetTime(long lMsec);
 String 			szAddZeros(int sValue, int sNumDigits);
-void 			LogJustToSerial(String sLogline);
 String 			szIPaddress(IPAddress oIP);
 
 
 //Global variables
-extern long         	lLineCount;      //Serial Monitor uses for clarity.
-extern String			szLogLine;
-extern BeckFirebase*	pBeckFBase;
+extern long         			lLineCount;      //Serial Monitor uses for clarity.
+extern String					szLogLine;
+extern BeckFirebase*			pBeckFBase;
+extern ESP8266WebServer			oHttpServer;
+extern ESP8266HTTPUpdateServer	oHttpUpdateServer;
 
 #endif   //BECKLIB_H

@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 8, 2016_HP7E";
+String acFileDate    = "May 8, 2016_HP7G";
 
 #include <BeckLib.h>
 /*
@@ -11,13 +11,16 @@ static const char       		acRouterPW[]        = "Qazqaz11";
 static const String     		sDatabaseURL   		= "intense-fire-3958.firebaseio.com";
 static const String     		sFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
 static const char           	acMyURL[]           = "esp1101Dev";   //Beck, Dev type sensor, #1
+static const String         	sLogPath      		= "/Logs/";
 //static const char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
 //static const char           	acMyFbaseName[]     = "BeckESP8266Base_2dotESP";//Has WiFi problem.
-//static const char           	acMyFbaseName[]     = "BeckESP8266Base_3dotESP";
-static const char           	acMyFbaseName[]     = "BeckESP8266Base_CloneNodeMCU";
-static const String         	sLogPath      		= "/Logs/";
+static const char           	acMyFbaseName[]     = "Powershift_3dotESP";
+//static const char           	acMyFbaseName[]     = "BeckESP8266Base_CloneNodeMCU";
+
+/*
 ESP8266WebServer        		oHttpServer(80);
 ESP8266HTTPUpdateServer   		oHttpUpdateServer(true);
+*/
 
 //Function proto
 void SendInfoToLog(void);
@@ -35,7 +38,7 @@ void setup(void){
 
   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
-  pBeckFBase->LogToBoth("setup(): " + acFileDate + ", Done, Sketch: " + acSketchName );
+  Log(acSketchName + ", " + acFileDate + ", setup() Done");
   return;
 } //setup
 
@@ -45,9 +48,11 @@ void loop(void){
 } //loop
 
 
+/*
 void SendInfoToLog(void){
 	  pBeckFBase->LogToBoth("SendInfoToLog(): GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
 	  pBeckFBase->LogToBoth("SendInfoToLog(): GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
 	  pBeckFBase->LogToBoth("SendInfoToLog(): GetPushPath()= |" + pBeckFBase->GetPushPath() + "|");
-} //loop
+} //SendInfoToLog
+*/
 //Last line.

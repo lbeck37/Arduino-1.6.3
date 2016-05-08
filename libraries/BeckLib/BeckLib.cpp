@@ -4,9 +4,11 @@
 //#define NO_FIREBASE
 
 //Global variables
-long			lLineCount= 0;      //Serial Monitor uses for clarity.
-String			szLogLine;
-BeckFirebase*	pBeckFBase;
+long					lLineCount= 0;      //Serial Monitor uses for clarity.
+String					szLogLine;
+BeckFirebase*			pBeckFBase;
+ESP8266WebServer		oHttpServer(80);
+ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
 
 BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 		                   String sLogPath, String sMyName){
@@ -80,14 +82,22 @@ String BeckFirebase::sMakeJSONObject(String sName, String sValue){
   szJSONObject += "\"}";
   return szJSONObject;
 } //sMakeJSONObject
-
-
 //***End of BeckFirebase class methods***
+
+
 BeckFirebase* StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName){
 	BeckFirebase* pBeckFirebase= new BeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, sMyName);
 	pBeckFBase= pBeckFirebase;
 return(pBeckFBase);
 }	//StartBeckFirebase
+
+
+void SendInfoToLog(void){
+	pBeckFBase->LogToBoth("SendInfoToLog(): GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
+	pBeckFBase->LogToBoth("SendInfoToLog(): GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
+	pBeckFBase->LogToBoth("SendInfoToLog(): GetPushPath()= |" + pBeckFBase->GetPushPath() + "|");
+	  return;
+} //SendInfoToLog
 
 
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
@@ -136,6 +146,19 @@ void HandleHttpServer(ESP8266WebServer& oHttpServer){
 } //HandleHttpServer
 
 
+void Log(String sLogline){
+	pBeckFBase->LogToBoth(sLogline);
+	return;
+}	//Log
+
+
+void LogJustToSerial(String sLogline){
+	String sFullLogline=LOG0 + " " + sLogline;
+	Serial << sFullLogline << endl;
+	return;
+}	//LogJustToSerial
+
+
 String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
@@ -173,13 +196,6 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
-
-
-void LogJustToSerial(String sLogline){
-	String sFullLogline=LOG0 + " " + sLogline;
-	Serial << sFullLogline << endl;
-	return;
-}	//LogJustToSerial
 
 
 String szIPaddress(IPAddress oIP){
