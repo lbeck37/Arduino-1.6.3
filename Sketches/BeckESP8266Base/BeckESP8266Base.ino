@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 7, 2016_HP7J";
+String acFileDate    = "May 7, 2016_HP7AF";
 
 #include <BeckLib.h>
 /*
@@ -16,6 +16,7 @@ static const String         	sLogPath      		= "/Logs/";
 static const String         	sPushPath      		= "/Logs/BeckESP8266Base_1dotESP";
 ESP8266WebServer        		oHttpServer(80);
 ESP8266HTTPUpdateServer   		oHttpUpdateServer(true);
+Firebase*						pFBaseOriginal;
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -27,21 +28,29 @@ void setup(void){
 
   Firebase oFBase = SetupFirebase(sDatabaseURL, sFirebaseSecret);
 
+  pFBaseOriginal= &oFBase;
+
   LogJustToSerial("setup(): After SetupFirebase(), sLogPath= " + sLogPath);
-  szLogLine=  LOG0 + " setup(): Sketch: " + acSketchName + ", version: " + acFileDate;
-  LogToBoth(oFBase, sPushPath, szLogLine);
 
   StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
-
-  SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
-
-  pBeckFBase->LogToBoth("setup(): Back from SetupHttpServer()");
-  //pBeckFBase->LogToFirebase("setup(): Test " + acFileDate);
 
   pBeckFBase->LogToBoth("setup(): GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
   pBeckFBase->LogToBoth("setup(): GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
   pBeckFBase->LogToBoth("setup(): GetPushPath()= |" + pBeckFBase->GetPushPath() + "|");
   pBeckFBase->LogToBoth("setup() Done in " + acSketchName + ", version: " + acFileDate);
+
+  SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
+
+  pBeckFBase->LogToBoth("setup(): Back from SetupHttpServer()");
+
+  String sTestLog= LOG0 + "setup(): Test " + acFileDate;
+  LogJustToSerial(sTestLog);
+  //pBeckFBase->LogToFirebase(sTestLog);		//This is only one going to Firebase.
+
+  pBeckFBase->LogToBoth("setup(): Back from LogToFirebase()");
+
+  szLogLine=  LOG0 + " setup(): Sketch: " + acSketchName + ", version: " + acFileDate;
+  LogToBoth(oFBase, sPushPath, szLogLine);
   return;
 } //setup
 

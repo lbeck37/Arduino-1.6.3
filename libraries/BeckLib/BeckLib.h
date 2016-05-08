@@ -34,7 +34,8 @@ public:
 protected:
 	String		sDatabaseURL_;
 	String		strFirebaseSecret_;
-	Firebase 	oFBase_;
+	//Firebase 	oFBase_;
+	Firebase* 	pFBase_;
 	String		sLogPath_;
 	String 		sMyName_;
 	String		sPushPath_;
