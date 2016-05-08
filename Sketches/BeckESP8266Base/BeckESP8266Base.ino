@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 8, 2016_HP7G";
+String acFileDate    = "May 8, 2016_HP7L";
 
 #include <BeckLib.h>
 /*
@@ -14,7 +14,8 @@ static const char           	acMyURL[]           = "esp1101Dev";   //Beck, Dev t
 static const String         	sLogPath      		= "/Logs/";
 //static const char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
 //static const char           	acMyFbaseName[]     = "BeckESP8266Base_2dotESP";//Has WiFi problem.
-static const char           	acMyFbaseName[]     = "Powershift_3dotESP";
+//static const char           	acMyFbaseName[]     = "Powershift_3dotESP";
+static const char           	acMyFbaseName[]     = "BeckESP8266Base_3dotESP";
 //static const char           	acMyFbaseName[]     = "BeckESP8266Base_CloneNodeMCU";
 
 /*
@@ -38,7 +39,7 @@ void setup(void){
 
   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
-  Log(acSketchName + ", " + acFileDate + ", setup() Done");
+  Log(acFileDate + ", " + acSketchName + ", setup() Done");
   return;
 } //setup
 
