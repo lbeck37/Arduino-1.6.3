@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 7, 2016_HP7AF";
+String acFileDate    = "May 7, 2016_HP7AJ";
 
 #include <BeckLib.h>
 /*
@@ -16,7 +16,7 @@ static const String         	sLogPath      		= "/Logs/";
 static const String         	sPushPath      		= "/Logs/BeckESP8266Base_1dotESP";
 ESP8266WebServer        		oHttpServer(80);
 ESP8266HTTPUpdateServer   		oHttpUpdateServer(true);
-Firebase*						pFBaseOriginal;
+//Firebase*						pFBaseOriginal;
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -26,11 +26,11 @@ void setup(void){
 
   SetupWiFi(acRouterName, acRouterPW);
 
+/*
   Firebase oFBase = SetupFirebase(sDatabaseURL, sFirebaseSecret);
-
   pFBaseOriginal= &oFBase;
-
   LogJustToSerial("setup(): After SetupFirebase(), sLogPath= " + sLogPath);
+*/
 
   StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
 
@@ -49,8 +49,11 @@ void setup(void){
 
   pBeckFBase->LogToBoth("setup(): Back from LogToFirebase()");
 
+/*
   szLogLine=  LOG0 + " setup(): Sketch: " + acSketchName + ", version: " + acFileDate;
   LogToBoth(oFBase, sPushPath, szLogLine);
+*/
+  pBeckFBase->LogToBoth("setup(): Done, Sketch: " + acSketchName + ", version: " + acFileDate);
   return;
 } //setup
 

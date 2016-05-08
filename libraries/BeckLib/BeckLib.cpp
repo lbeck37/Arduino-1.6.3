@@ -1,7 +1,7 @@
 //BeckLib.cpp, May 7, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
-#define NO_FIREBASE
+//#define NO_FIREBASE
 
 //Global variables
 long			lLineCount= 0;      //Serial Monitor uses for clarity.
