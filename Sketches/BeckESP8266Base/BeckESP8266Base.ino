@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 7, 2016_HP7AJ";
+String acFileDate    = "May 7, 2016_HP7AN";
 
 #include <BeckLib.h>
 /*
@@ -13,10 +13,11 @@ static const String     		sFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfd
 static const char           	acMyURL[]           = "esp1101Dev";   //Beck, Dev type sensor, #1
 static const char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
 static const String         	sLogPath      		= "/Logs/";
-static const String         	sPushPath      		= "/Logs/BeckESP8266Base_1dotESP";
 ESP8266WebServer        		oHttpServer(80);
 ESP8266HTTPUpdateServer   		oHttpUpdateServer(true);
-//Firebase*						pFBaseOriginal;
+
+//Function proto
+void SendInfoToLog(void);
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -26,33 +27,11 @@ void setup(void){
 
   SetupWiFi(acRouterName, acRouterPW);
 
-/*
-  Firebase oFBase = SetupFirebase(sDatabaseURL, sFirebaseSecret);
-  pFBaseOriginal= &oFBase;
-  LogJustToSerial("setup(): After SetupFirebase(), sLogPath= " + sLogPath);
-*/
-
   StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
-
-  pBeckFBase->LogToBoth("setup(): GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
-  pBeckFBase->LogToBoth("setup(): GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
-  pBeckFBase->LogToBoth("setup(): GetPushPath()= |" + pBeckFBase->GetPushPath() + "|");
-  pBeckFBase->LogToBoth("setup() Done in " + acSketchName + ", version: " + acFileDate);
+  SendInfoToLog();
 
   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
-  pBeckFBase->LogToBoth("setup(): Back from SetupHttpServer()");
-
-  String sTestLog= LOG0 + "setup(): Test " + acFileDate;
-  LogJustToSerial(sTestLog);
-  //pBeckFBase->LogToFirebase(sTestLog);		//This is only one going to Firebase.
-
-  pBeckFBase->LogToBoth("setup(): Back from LogToFirebase()");
-
-/*
-  szLogLine=  LOG0 + " setup(): Sketch: " + acSketchName + ", version: " + acFileDate;
-  LogToBoth(oFBase, sPushPath, szLogLine);
-*/
   pBeckFBase->LogToBoth("setup(): Done, Sketch: " + acSketchName + ", version: " + acFileDate);
   return;
 } //setup
@@ -60,5 +39,12 @@ void setup(void){
 
 void loop(void){
   HandleHttpServer(oHttpServer);
+} //loop
+
+
+void SendInfoToLog(void){
+	  pBeckFBase->LogToBoth("SendInfoToLog(): GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
+	  pBeckFBase->LogToBoth("SendInfoToLog(): GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
+	  pBeckFBase->LogToBoth("SendInfoToLog(): GetPushPath()= |" + pBeckFBase->GetPushPath() + "|");
 } //loop
 //Last line.

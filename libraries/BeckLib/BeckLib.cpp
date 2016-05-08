@@ -8,12 +8,6 @@ long			lLineCount= 0;      //Serial Monitor uses for clarity.
 String			szLogLine;
 BeckFirebase*	pBeckFBase;
 
-extern Firebase *pFBaseOriginal;
-
-/*
-BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
-		                   String sLogPath, String sMyName) : oFBase_(sDatabaseURL){
-*/
 BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 		                   String sLogPath, String sMyName){
 	sDatabaseURL_		= sDatabaseURL;
@@ -24,10 +18,6 @@ BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 
 	pFBase_= new Firebase(sDatabaseURL);
 
-/*
-	Serial << LOG0 << " BeckFirebase() cstor: Call Firebase.auth('" << strFirebaseSecret_ << "')" << endl;
-	oFBase_.auth(strFirebaseSecret_);
-*/
 	Serial << LOG0 << " BeckFirebase() cstor: Call Firebase.auth('" << strFirebaseSecret_ << "')" << endl;
 	pFBase_->auth(strFirebaseSecret_);
 
@@ -45,25 +35,7 @@ void BeckFirebase::LogToSerial(String sLogline){
 void BeckFirebase::LogToFirebase(String sLogline){
 	String sJSONPushString= sMakeJSONObject("Log", sLogline);
 
-/*
-	LogJustToSerial("LogToFirebase(): sPushPath_= |" + sPushPath_ + "|");
-	LogJustToSerial("LogToFirebase(): sJSONPushString= |" + sJSONPushString + "|");
-*/
-
-/*
-	LogJustToSerial("LogToFirebase(): Call  oFBase_.push()");
-	FirebasePush push = oFBase_.push(sPushPath_, sJSONPushString);
-*/
-
-/*
-	LogJustToSerial("LogToFirebase(): Call  pFBaseOriginal->push()");
-	FirebasePush push = pFBaseOriginal->push(sPushPath_, sJSONPushString);
-*/
-
-	//LogJustToSerial("LogToFirebase(): Call  pFBaseOriginal->push()");
 	FirebasePush push = pFBase_->push(sPushPath_, sJSONPushString);
-
-	//LogJustToSerial("LogToFirebase(): Back from oFBase_.push()");
 
 	if (push.error()) {
 		Serial << LOG0 << " LogToFirebase(): Firebase push failed, Error: " << push.error().message() << endl;
@@ -76,6 +48,7 @@ void BeckFirebase::LogToFirebase(String sLogline){
 
 void BeckFirebase::LogToBoth(String sLogline){
 	String sFullLogline=LOG0 + " " + sLogline;
+
 	LogToSerial  (sFullLogline);
 #ifndef NO_FIREBASE
 	LogToFirebase(sFullLogline);
@@ -117,21 +90,6 @@ return(pBeckFBase);
 }	//StartBeckFirebase
 
 
-Firebase SetupFirebase(String acDatabaseURL, String acFirebaseSecret){
-  //Create Firebase client.
-  Serial << LOG0 << " SetupFirebase(): Create Firebase client" << endl;
-
-  Serial << LOG0 << " SetupFirebase(): Call Firebase('" << acDatabaseURL << "')" << endl;
-  Firebase oFBase = Firebase(acDatabaseURL);
-
-  Serial << LOG0 << " SetupFirebase(): Call Firebase.auth('" << acFirebaseSecret << "')" << endl;
-  oFBase.auth(acFirebaseSecret);
-
-  LogJustToSerial("SetupFirebase(): Firebase client created to " + acDatabaseURL);
-  return(oFBase);
-}	//SetupFirebase
-
-
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
 	LogJustToSerial("SetupWiFi(): Setting WiFi mode to WIFI_AP_STA");
 	WiFi.mode(WIFI_AP_STA);
@@ -155,24 +113,18 @@ void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
 void SetupHttpServer(const char* acHostname,
 					ESP8266WebServer& oHttpServer,
 					ESP8266HTTPUpdateServer& oHttpUpdateServer){
-  //LogJustToSerial("SetupHttpServer(): Call MDNS.begin(" + String(acHostname) + ")");
   pBeckFBase->LogToBoth("SetupHttpServer(): Call MDNS.begin(" + String(acHostname) + ")");
   MDNS.begin(acHostname);
 
-  //LogJustToSerial("SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)");
   pBeckFBase->LogToBoth("SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)");
   oHttpUpdateServer.setup(&oHttpServer);
 
-  //LogJustToSerial("SetupHttpServer(): Call oHttpServer.begin())");
   pBeckFBase->LogToBoth("SetupHttpServer(): Call oHttpServer.begin())");
   oHttpServer.begin();
 
-  //LogJustToSerial("SetupHttpServer(): Call MDNS.addService(http, tcp, 80)");
   pBeckFBase->LogToBoth("SetupHttpServer(): Call MDNS.addService(http, tcp, 80)");
   MDNS.addService("http", "tcp", 80);
 
-  //LogJustToSerial("SetupHttpServer(): HTTPUpdateServer ready!");
-  //LogJustToSerial("SetupHttpServer(): Open http://" + String(acHostname) + ".local/update to do OTA Update");
   pBeckFBase->LogToBoth("SetupHttpServer(): HTTPUpdateServer ready!");
   pBeckFBase->LogToBoth("SetupHttpServer(): Open http://" + String(acHostname) + ".local/update to do OTA Update");
 }	//SetupHttpServer
@@ -228,52 +180,6 @@ void LogJustToSerial(String sLogline){
 	Serial << sFullLogline << endl;
 	return;
 }	//LogJustToSerial
-
-
-void LogToSerial(String szLogString){
-  Serial << szLogString << endl;
-  return;
-} //LogToSerial
-
-
-//LogToBoth() and BlynkLogLine()need multiple versions
-//depending on there being a 2nd variable and its type.
-void LogToBoth(Firebase& oFBase, String acPushPath, String szLogString){
-  LogToSerial(szLogString);
-  FbaseLogLine(oFBase, acPushPath, szLogString);
-  return;
-} //LogToBoth
-
-
-void FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString){
-	String szJSONPushString= szMakeJSONObject("Log", szLogString);
-#ifdef DEBUG_LOGGING
-	Serial << LOG0 << " FbaseLogLine(): Called szMakeJSONObject()" << endl;
-	Serial << LOG0 << " FbaseLogLine(): Call oFBase.push(acPushPath, szJSONPushString)" << endl;
-	Serial << LOG0 << " FbaseLogLine(): acPushPath      = |" << acPushPath << "|" << endl;
-	Serial << LOG0 << " FbaseLogLine(): szJSONPushString= |" << szJSONPushString << "|" << endl;
-#endif
-	FirebasePush push = oFBase.push(acPushPath, szJSONPushString);
-	if (push.error()) {
-		Serial << LOG0 << " FbaseLogLine(): Firebase push failed, Error: " << push.error().message() << endl;
-	}	//if(push.error())
-	else {
-#ifdef DEBUG_LOGGING
-	Serial << LOG0 << " FbaseLogLine(): Firebase returned not Error: " << endl;
-#endif
-	}	//if(push.error())else
-  return;
-} //FbaseLogLine
-
-
-String szMakeJSONObject(String szName, String szValue){
-  String szJSONObject= "{\"";
-  szJSONObject += szName;
-  szJSONObject += "\": \"";
-  szJSONObject += szValue;
-  szJSONObject += "\"}";
-  return szJSONObject;
-} //szMakeJSONObject
 
 
 String szIPaddress(IPAddress oIP){

@@ -1,7 +1,6 @@
 //BeckLib.h, May 7, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
-//#include <Arduino.h>
 #include <Streaming.h>
 #include <Firebase.h>
 #include <ESP8266WiFi.h>
@@ -43,29 +42,17 @@ protected:
 	String		sMakeJSONObject(String sName, String sValue);
 };	//BeckFirebase
 
-
+//Non-class function protos.
 BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName);
 void 			SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
-Firebase 		SetupFirebase(String acDatabaseURL, String acFirebaseSecret);
 void 			SetupHttpServer(const char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
 void 			HandleHttpServer(ESP8266WebServer& oHttpServer);
 String 			szLogLineHeader(long lLineCount);
 String 			szGetTime(long lMsec);
 String 			szAddZeros(int sValue, int sNumDigits);
-
 void 			LogJustToSerial(String sLogline);
-void 			LogToSerial(String szLogString);
-void 			LogToBoth(Firebase& oFBase, String acPushPath, String szLogString);
-//void 			LogToBoth(String acPushPath, String szLogString);
-void 			FbaseLogLine(Firebase& oFBase, String acPushPath, String szLogString);
-String 			szMakeJSONObject(String szName, String szValue);
 String 			szIPaddress(IPAddress oIP);
 
-/*
-void		LogToBoth(String szLogString, String szLogValue);
-void		LogToBoth(String szLogString, int sLogValue);
-void		LogToBoth(String szLogString, float fLogValue);
-*/
 
 //Global variables
 extern long         	lLineCount;      //Serial Monitor uses for clarity.
