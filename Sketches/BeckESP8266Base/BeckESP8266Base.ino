@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 7, 2016_HP7AN";
+String acFileDate    = "May 7, 2016_HP7AS";
 
 #include <BeckLib.h>
 /*
@@ -11,7 +11,9 @@ static const char       		acRouterPW[]        = "Qazqaz11";
 static const String     		sDatabaseURL   		= "intense-fire-3958.firebaseio.com";
 static const String     		sFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
 static const char           	acMyURL[]           = "esp1101Dev";   //Beck, Dev type sensor, #1
-static const char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
+//static const char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
+//static const char           	acMyFbaseName[]     = "BeckESP8266Base_2dotESP";//Has WiFi problem.
+static const char           	acMyFbaseName[]     = "BeckESP8266Base_3dotESP";
 static const String         	sLogPath      		= "/Logs/";
 ESP8266WebServer        		oHttpServer(80);
 ESP8266HTTPUpdateServer   		oHttpUpdateServer(true);
