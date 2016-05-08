@@ -1,5 +1,5 @@
 String acSketchName  = "PowerShift.ino";
-String acFileDate    = "May 8, 2016_HP7F";
+String acFileDate    = "May 8, 2016_HP7L";
 
 #include <BeckLib.h>
 #include <LBeck37.h>
@@ -215,7 +215,7 @@ void setup() {
    //Dither the servo once so it's position shows on the LCD.
    sServoDither(1, 1); // +/- 1 degree, once
 
-   Log(acSketchName + ", " + acFileDate + ", setup() Done");
+   Log(acFileDate + ", " + acSketchName + ", setup() Done");
    return;
 }  //setup
 
@@ -825,8 +825,7 @@ int sCheckButtons(void) {
 int sServoMove(int sServoPos) {
   if (sServoPos != sServoPosLast) {
       sServoPos= constrain(sServoPos, sServoMin, sServoMax);
-      //Serial << "sServoMove(): Move to " << sServoPos << endl;
-      Log("sServoMove(): Move to " + sServoPos);
+      Log("sServoMove(): Move to " + String(sServoPos));
       sServoPosLast= sServoPos;
       sServoSetPosition(sServoPos);
       bServoChanged= true;
