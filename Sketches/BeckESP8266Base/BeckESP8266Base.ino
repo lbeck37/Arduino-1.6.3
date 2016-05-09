@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 8, 2016_HP7L";
+String acFileDate    = "May 9, 2016_HP7B";
 
 #include <BeckLib.h>
 /*
