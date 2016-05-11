@@ -1,5 +1,5 @@
 String acSketchName  = "PowerShift.ino";
-String acFileDate    = "May 9, 2016_HP7B";
+String acFileDate    = "May 9, 2016_HP7C";
 
 #include <BeckLib.h>
 #include <LBeck37.h>
