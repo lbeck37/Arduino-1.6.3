@@ -175,7 +175,7 @@ static boolean     bGyroChanged             = false;
 static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char        sz10CharString[10];
 
-//Brought in fro BeckESP8266Base.ino
+//Brought in from BeckESP8266Base.ino
 static const char       		acRouterName[]      = "Aspot24";
 static const char       		acRouterPW[]        = "Qazqaz11";
 static const String     		sDatabaseURL   		= "intense-fire-3958.firebaseio.com";
