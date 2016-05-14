@@ -9,7 +9,8 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPUpdateServer.h>
 
-#define LOG0    		szLogLineHeader(++lLineCount)
+#define LOG0    	szLogLineHeader(++lLineCount)
+#define BLog		pBeckFBase->LogToBoth
 
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
@@ -48,8 +49,9 @@ void			SendInfoToLog(void);
 void 			SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
 void 			SetupHttpServer(const char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
 void 			HandleHttpServer(ESP8266WebServer& oHttpServer);
-void 			Log(String sLogline);
+//void 			Log(String sLogline);
 void 			LogJustToSerial(String sLogline);
+void			LogESPValues();
 String 			szLogLineHeader(long lLineCount);
 String 			szGetTime(long lMsec);
 String 			szAddZeros(int sValue, int sNumDigits);
@@ -57,7 +59,8 @@ String 			szIPaddress(IPAddress oIP);
 
 
 //Global variables
-extern long         			lLineCount;      //Serial Monitor uses for clarity.
+extern long         			lLineCount;      	//Serial Monitor uses for clarity.
+extern int32_t					wHttpServerCount;	//To allow logging every nth call at UPLOAD_FILE_WRITE
 extern String					szLogLine;
 extern BeckFirebase*			pBeckFBase;
 extern ESP8266WebServer			oHttpServer;

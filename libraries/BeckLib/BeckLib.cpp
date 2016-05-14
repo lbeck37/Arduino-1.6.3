@@ -4,7 +4,8 @@
 //#define NO_FIREBASE
 
 //Global variables
-long					lLineCount= 0;      //Serial Monitor uses for clarity.
+long					lLineCount			= 0;    //Serial Monitor uses for clarity.
+int32_t					wHttpServerCount	= 0;	//To allow logging every nth call at UPLOAD_FILE_WRITE
 String					szLogLine;
 BeckFirebase*			pBeckFBase;
 ESP8266WebServer		oHttpServer(80);
@@ -23,7 +24,7 @@ BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 	Serial << LOG0 << " BeckFirebase() cstor: Call Firebase.auth('" << strFirebaseSecret_ << "')" << endl;
 	pFBase_->auth(strFirebaseSecret_);
 
-	LogToBoth("BeckFirebase() cstor: Firebase client created to " + sDatabaseURL_);
+	LogToBoth("cstor: Firebase client created to " + sDatabaseURL_);
 	return;
 }	//BeckFirebase cstor
 
@@ -49,7 +50,8 @@ void BeckFirebase::LogToFirebase(String sLogline){
 
 
 void BeckFirebase::LogToBoth(String sLogline){
-	String sFullLogline=LOG0 + " " + sLogline;
+	//String sFullLogline=LOG0 + " " + sLogline;
+	String sFullLogline=LOG0 + sLogline;
 
 	LogToSerial  (sFullLogline);
 #ifndef NO_FIREBASE
@@ -93,10 +95,12 @@ return(pBeckFBase);
 
 
 void SendInfoToLog(void){
-	pBeckFBase->LogToBoth("SendInfoToLog(): GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
-	pBeckFBase->LogToBoth("SendInfoToLog(): GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
-	pBeckFBase->LogToBoth("SendInfoToLog(): GetPushPath()= |" + pBeckFBase->GetPushPath() + "|");
-	  return;
+	BLog("SendInfoToLog(): GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
+	BLog("SendInfoToLog(): GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
+	BLog("SendInfoToLog(): GetPushPath()= |" + pBeckFBase->GetPushPath() + "|");
+
+	LogESPValues();
+	return;
 } //SendInfoToLog
 
 
@@ -123,20 +127,20 @@ void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
 void SetupHttpServer(const char* acHostname,
 					ESP8266WebServer& oHttpServer,
 					ESP8266HTTPUpdateServer& oHttpUpdateServer){
-  pBeckFBase->LogToBoth("SetupHttpServer(): Call MDNS.begin(" + String(acHostname) + ")");
+  BLog("SetupHttpServer(): Call MDNS.begin(" + String(acHostname) + ")");
   MDNS.begin(acHostname);
 
-  pBeckFBase->LogToBoth("SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)");
+  BLog("SetupHttpServer(): Call oHttpUpdateServer.setup(&oHttpServer)");
   oHttpUpdateServer.setup(&oHttpServer);
 
-  pBeckFBase->LogToBoth("SetupHttpServer(): Call oHttpServer.begin())");
+  BLog("SetupHttpServer(): Call oHttpServer.begin())");
   oHttpServer.begin();
 
-  pBeckFBase->LogToBoth("SetupHttpServer(): Call MDNS.addService(http, tcp, 80)");
+  BLog("SetupHttpServer(): Call MDNS.addService(http, tcp, 80)");
   MDNS.addService("http", "tcp", 80);
 
-  pBeckFBase->LogToBoth("SetupHttpServer(): HTTPUpdateServer ready!");
-  pBeckFBase->LogToBoth("SetupHttpServer(): Open http://" + String(acHostname) + ".local/update to do OTA Update");
+  BLog("SetupHttpServer(): HTTPUpdateServer ready!");
+  BLog("SetupHttpServer(): Open http://" + String(acHostname) + ".local/update to do OTA Update");
 }	//SetupHttpServer
 
 
@@ -146,14 +150,8 @@ void HandleHttpServer(ESP8266WebServer& oHttpServer){
 } //HandleHttpServer
 
 
-void Log(String sLogline){
-	pBeckFBase->LogToBoth(sLogline);
-	return;
-}	//Log
-
-
 void LogJustToSerial(String sLogline){
-	String sFullLogline=LOG0 + " " + sLogline;
+	String sFullLogline=LOG0 + sLogline;
 	Serial << sFullLogline << endl;
 	return;
 }	//LogJustToSerial
@@ -166,6 +164,25 @@ String szLogLineHeader(long lLineCount){
   szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
+
+
+void LogESPValues() {
+    BLog("getVcc= " + (String)ESP.getVcc());
+    BLog("getFreeHeap= " + (String)ESP.getFreeHeap());
+    BLog("getChipId= " + (String)ESP.getChipId());
+    BLog("getSdkVersion= " + (String)ESP.getSdkVersion());
+    BLog("getBootVersion= " + (String)ESP.getBootVersion());
+    BLog("getCpuFreqMHz= " + (String)ESP.getCpuFreqMHz());
+    BLog("getFlashChipId= " + (String)ESP.getFlashChipId());
+    BLog("getChipId= " + (String)ESP.getChipId());
+    BLog("getFlashChipRealSize= " + (String)ESP.getFlashChipRealSize());
+    BLog("getFlashChipSize= " + (String)ESP.getFlashChipSize());
+    BLog("getFlashChipSpeed= " + (String)ESP.getFlashChipSpeed());
+    BLog("getFlashChipSizeByChipId= " + (String)ESP.getFlashChipSizeByChipId());
+    BLog("getFreeSketchSpace= " + (String)ESP.getFreeSketchSpace());
+    BLog("getSketchSize= " + (String)ESP.getSketchSize());
+    return;
+}	//LogESPValues
 
 
 String szGetTime(long lMsec){

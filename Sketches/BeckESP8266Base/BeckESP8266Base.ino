@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "May 12, 2016_HP7E";
+String acFileDate    = "May 13, 2016_HP7X";
 
 #include <BeckLib.h>
 /*
@@ -18,13 +18,6 @@ static const String         	sLogPath      		= "/Logs/";
 static const char           	acMyFbaseName[]     = "BeckESP8266Base_3dotESP";
 //static const char           	acMyFbaseName[]     = "BeckESP8266Base_CloneNodeMCU";
 
-/*
-ESP8266WebServer        		oHttpServer(80);
-ESP8266HTTPUpdateServer   		oHttpUpdateServer(true);
-*/
-
-//Function proto
-void SendInfoToLog(void);
 
 void setup(void){
   Serial.begin(lSerialMonitorBaud);
@@ -39,7 +32,7 @@ void setup(void){
 
   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
-  Log(acFileDate + ", " + acSketchName + ", setup() Done");
+  BLog(acFileDate + ", " + acSketchName + ", setup() Done");
   return;
 } //setup
 
@@ -47,13 +40,4 @@ void setup(void){
 void loop(void){
   HandleHttpServer(oHttpServer);
 } //loop
-
-
-/*
-void SendInfoToLog(void){
-	  pBeckFBase->LogToBoth("SendInfoToLog(): GetDatabaseURL()= |" + pBeckFBase->GetDatabaseURL() + "|");
-	  pBeckFBase->LogToBoth("SendInfoToLog(): GetLogPath()= |" + pBeckFBase->GetLogPath() + "|");
-	  pBeckFBase->LogToBoth("SendInfoToLog(): GetPushPath()= |" + pBeckFBase->GetPushPath() + "|");
-} //SendInfoToLog
-*/
 //Last line.
