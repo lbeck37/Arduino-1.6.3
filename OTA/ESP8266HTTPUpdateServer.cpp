@@ -5,7 +5,7 @@
 #include <WiFiUdp.h>
 #include "ESP8266HTTPUpdateServer.h"
 
-#include <BeckLib.h>
+#include <BeckLib.h>	//Beck 5/12/16
 
 const char* ESP8266HTTPUpdateServer::_serverIndex =
 R"(<html><body><form method='POST' action='/update' enctype='multipart/form-data'>
@@ -26,25 +26,25 @@ void ESP8266HTTPUpdateServer::setup(ESP8266WebServer *server)
 
     // handler for the /update form page
     _server->on("/update", HTTP_GET, [&](){
-      pBeckFBase->LogToBoth("ESP8266HTTPUpdateServer::setup(): HTTP_GET");	//Beck 5/12/16
       _server->sendHeader("Connection", "close");
       _server->sendHeader("Access-Control-Allow-Origin", "*");
       _server->send(200, "text/html", _serverIndex);
+      BLog("ESP8266HTTPUpdateServer::setup(): HTTP_GET");
     });
 
     // handler for the /update form POST (once file upload finishes)
     _server->on("/update", HTTP_POST, [&](){
-        pBeckFBase->LogToBoth("ESP8266HTTPUpdateServer::setup(): HTTP_POST");	//Beck 5/12/16
       _server->sendHeader("Connection", "close");
       _server->sendHeader("Access-Control-Allow-Origin", "*");
       _server->send(200, "text/html", (Update.hasError())?"FAIL":"<META http-equiv=\"refresh\" content=\"15;URL=/update\">OK");
+      BLog("ESP8266HTTPUpdateServer::setup(): HTTP_POST, calling ESP.restart()");
       ESP.restart();
     },[&](){
       // handler for the file upload, get's the sketch bytes, and writes
       // them through the Update object
       HTTPUpload& upload = _server->upload();
       if(upload.status == UPLOAD_FILE_START){
-        pBeckFBase->LogToBoth("ESP8266HTTPUpdateServer::setup(): UPLOAD_FILE_START");	//Beck 5/12/16
+        BLog("ESP8266HTTPUpdateServer::setup(): UPLOAD_FILE_START");
         if (_serial_output) {
         	Serial.setDebugOutput(true);
         }	//if(_serial_output)
@@ -54,10 +54,10 @@ void ESP8266HTTPUpdateServer::setup(ESP8266WebServer *server)
             //Serial.printf("Update: %s\n", upload.filename.c_str());
         }	//if(_serial_output)
         String sFilename= upload.filename.c_str();
-        pBeckFBase->LogToBoth("ESP8266HTTPUpdateServer::setup(): Update: " + sFilename); //Beck 5/12/16
+        BLog("setup(): Update filename: " + sFilename);
 
         uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-        pBeckFBase->LogToBoth("ESP8266HTTPUpdateServer::setup(): maxSketchSpace= " + (String)maxSketchSpace); //Beck 5/12/16
+        BLog("setup(): maxSketchSpace= " + (String)maxSketchSpace);
 
         if(!Update.begin(maxSketchSpace)) {      //start with max available size
           if (_serial_output) {
@@ -68,18 +68,27 @@ void ESP8266HTTPUpdateServer::setup(ESP8266WebServer *server)
       else if(upload.status == UPLOAD_FILE_WRITE) {
         if (_serial_output) {
         	Serial.printf(".");
+        	if((++wHttpServerCount % 50) == 1) {
+            	Serial.printf("\n");
+        		LogJustToSerial("setup(): UPLOAD_FILE_WRITE, wHttpServerCount= " + String(wHttpServerCount));
+        		LogJustToSerial("setup(): upload.totalSize  = " + String(upload.totalSize));
+        		LogJustToSerial("setup(): upload.currentSize= " + String(upload.currentSize));
+        	}	//if((++wHttpServerCount%10)==1)
         }	//if (_serial_output)
 
         if(Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
           if (_serial_output) {
         	  Update.printError(Serial);
           }	//if(_serial_output)
+          LogJustToSerial("setup(): Update.write() ERROR, upload.currentSize= " + String(upload.currentSize));
         } //if(Update.write(upload.buf,...
       } //else if(upload.status==UPLOAD_FILE_WRITE)
       else if(upload.status == UPLOAD_FILE_END) {
         if(Update.end(true)) { //true to set the size to the current progress
+          Serial.printf("\n");
+          LogJustToSerial("setup(): UPLOAD_FILE_END, upload.totalSize= " + String(upload.totalSize));
           if (_serial_output) {
-        	  Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+        	  Serial.printf("Update Success: upload.totalSize= %u\nRebooting\n", upload.totalSize);
           }	//if(_serial_output)
         } 	//if(Update.end(true))
         else {
@@ -98,6 +107,7 @@ void ESP8266HTTPUpdateServer::setup(ESP8266WebServer *server)
         if (_serial_output) {
         	Serial.println("Update was aborted");
         }	//if(_serial_output)
+        BLog("ESP8266HTTPUpdateServer::setup(): UPLOAD_FILE_END, upload.totalSize= " + String(upload.totalSize));
       }	//else if(upload.status==UPLOAD_FILE_ABORTED)
       delay(0);
     });
