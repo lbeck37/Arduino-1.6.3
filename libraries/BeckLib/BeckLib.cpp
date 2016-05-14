@@ -1,4 +1,4 @@
-//BeckLib.cpp, May 7, 2016
+//BeckLib.cpp, May 13, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
@@ -148,6 +148,12 @@ void HandleHttpServer(ESP8266WebServer& oHttpServer){
   oHttpServer.handleClient();
   delay(1);
 } //HandleHttpServer
+
+
+void Log(String sLogline){
+	BLog(sLogline);
+	return;
+}	//Log
 
 
 void LogJustToSerial(String sLogline){

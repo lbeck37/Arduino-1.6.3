@@ -1,4 +1,4 @@
-//BeckLib.h, May 7, 2016
+//BeckLib.h, May 13, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>
@@ -49,7 +49,7 @@ void			SendInfoToLog(void);
 void 			SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
 void 			SetupHttpServer(const char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
 void 			HandleHttpServer(ESP8266WebServer& oHttpServer);
-//void 			Log(String sLogline);
+void 			Log(String sLogline);
 void 			LogJustToSerial(String sLogline);
 void			LogESPValues();
 String 			szLogLineHeader(long lLineCount);
