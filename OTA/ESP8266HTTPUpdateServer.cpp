@@ -5,7 +5,7 @@
 #include <WiFiUdp.h>
 #include "ESP8266HTTPUpdateServer.h"
 
-#include <BeckLib.h>	//Beck 5/12/16
+#include <BeckLib.h>	//Beck 5/13/16
 
 const char* ESP8266HTTPUpdateServer::_serverIndex =
 R"(<html><body><form method='POST' action='/update' enctype='multipart/form-data'>
@@ -69,10 +69,10 @@ void ESP8266HTTPUpdateServer::setup(ESP8266WebServer *server)
         if (_serial_output) {
         	Serial.printf(".");
         	if((++wHttpServerCount % 50) == 1) {
-            	Serial.printf("\n");
-        		LogJustToSerial("setup(): UPLOAD_FILE_WRITE, wHttpServerCount= " + String(wHttpServerCount));
-        		LogJustToSerial("setup(): upload.totalSize  = " + String(upload.totalSize));
-        		LogJustToSerial("setup(): upload.currentSize= " + String(upload.currentSize));
+            Serial.printf("\n");
+        		BLogS("setup(): UPLOAD_FILE_WRITE, wHttpServerCount= " + String(wHttpServerCount));
+        		BLogS("setup(): upload.totalSize  = " + String(upload.totalSize));
+        		BLogS("setup(): upload.currentSize= " + String(upload.currentSize));
         	}	//if((++wHttpServerCount%10)==1)
         }	//if (_serial_output)
 

@@ -1,4 +1,4 @@
-//BeckLib.h, May 13, 2016
+//BeckLib.h, May 15, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>
@@ -53,7 +53,10 @@ BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, Str
 bool 			TestFirebase(void);
 void			SendInfoToLog(void);
 void 			SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
-void 			SetupHttpServer(const char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);
+String    szWiFiStatus(wl_status_t status);
+void 			SetupHttpServer(const char* acHostname,
+                          ESP8266WebServer&        oHttpServer,
+                          ESP8266HTTPUpdateServer& oHttpUpdateServer);
 void 			HandleHttpServer(ESP8266WebServer& oHttpServer);
 void 			Log(String sLogline);
 void 			LogJustToSerial(String sLogline);
@@ -65,11 +68,13 @@ String 			szIPaddress(IPAddress oIP);
 
 
 //Global variables
-extern long         			lLineCount;      	//Serial Monitor uses for clarity.
-extern int32_t					wHttpServerCount;	//To allow logging every nth call at UPLOAD_FILE_WRITE
-extern String					szLogLine;
-extern BeckFirebase*			pBeckFBase;
-extern ESP8266WebServer			oHttpServer;
+extern long         			      lLineCount;      	//Serial Monitor uses for clarity.
+extern int32_t					        wHttpServerCount;	//To allow logging every nth call at UPLOAD_FILE_WRITE
+extern String					          szLogLine;
+extern BeckFirebase*			      pBeckFBase;
+extern bool                     bWiFiOn;
+extern bool                     bFirebaseOn;
+extern ESP8266WebServer			    oHttpServer;
 extern ESP8266HTTPUpdateServer	oHttpUpdateServer;
 
 #endif   //BECKLIB_H

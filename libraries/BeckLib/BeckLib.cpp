@@ -1,14 +1,16 @@
-//BeckLib.cpp, May 13, 2016
+//BeckLib.cpp, May 15, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
 
 //Global variables
-long					lLineCount			= 0;    //Serial Monitor uses for clarity.
-int32_t					wHttpServerCount	= 0;	//To allow logging every nth call at UPLOAD_FILE_WRITE
-String					szLogLine;
-BeckFirebase*			pBeckFBase;
-ESP8266WebServer		oHttpServer(80);
+long					          lLineCount			  = 0;  //Serial Monitor uses for clarity.
+int32_t					        wHttpServerCount	= 0;	//Log every nth call at UPLOAD_FILE_WRITE
+String					        szLogLine;
+BeckFirebase*			      pBeckFBase;
+bool                    bWiFiOn           = false;
+bool                    bFirebaseOn       = false;
+ESP8266WebServer		    oHttpServer(80);
 ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
 
 BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
@@ -98,7 +100,12 @@ BeckFirebase* StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, Str
 	BLogS("BeckFirebase() cstor: Call new Firebase(" + sDatabaseURL + ")");
 	BeckFirebase* pBeckFirebase= new BeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, sMyName);
 	pBeckFBase= pBeckFirebase;
-	TestFirebase();
+	if (bWiFiOn) {
+	  TestFirebase();
+	} //if(bWiFiOn)
+	else {
+    pBeckFBase->bFirebaseOk_= false;
+  } //if(bWiFiOn)else
 	return(pBeckFBase);
 }	//StartBeckFirebase
 
@@ -126,23 +133,64 @@ void SendInfoToLog(void){
 
 
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
+  wl_status_t eStatus;
 	BLogS("SetupWiFi(): Setting WiFi mode to WIFI_AP_STA");
 	WiFi.mode(WIFI_AP_STA);
 
 	BLogS("SetupWiFi(): Call WiFi.begin(" + String(pcRouterName) + ", " + String(pcRouterPW) + ")");
-	WiFi.begin(pcRouterName, pcRouterPW);
+	eStatus= WiFi.begin(pcRouterName, pcRouterPW);
+	BLogS("SetupWiFi(): WiFi.begin() returned " + szWiFiStatus(eStatus) );
 
 	BLogS("SetupWiFi(): Call WiFi.waitForConnectResult()");
-	while(WiFi.waitForConnectResult() != WL_CONNECTED){
-		LogJustToSerial("WiFi failed, retrying.");
-		LogJustToSerial("SetupWiFi(): Call WiFi.begin(" + String(pcRouterName) + ", " + String(pcRouterPW) + ")");
-		WiFi.begin(pcRouterName, pcRouterPW);
+	int wCount= 0;
+  int wMaxTries= 3;
+	while((WiFi.waitForConnectResult() != WL_CONNECTED) && (++wCount <= wMaxTries)){
+	  eStatus= WiFi.status();
+	  BLogS("SetupWiFi():W After waitForConnectResult(), WiFi.status= " + szWiFiStatus(WiFi.status()) );
+	  BLogS("SetupWiFi():W WiFi failed, retrying.");
+	  BLogS("SetupWiFi():W Call WiFi.begin(" + String(pcRouterName) + ", " + String(pcRouterPW) + ") for #" +
+	      (String)(wCount + 1) + " time");
+	  eStatus= WiFi.begin(pcRouterName, pcRouterPW);
+	  BLogS("SetupWiFi():W WiFi.begin() returned " + szWiFiStatus(eStatus) );
 	 }
+  //BLogS("SetupWiFi(): After WiFi.waitForConnectResult(): " + szWiFiStatus(WiFi.status()));
 
-	BLogS("SetupWiFi(): WifFi Connected, WiFi.status() returned WL_CONNECTED");
+  eStatus= WiFi.status();
+  BLogS("SetupWiFi(): After WiFi.waitForConnectResult(): WiFi status= " + szWiFiStatus(eStatus));
+  if (eStatus == WL_CONNECTED) {
+    bWiFiOn= true;
+  } //if(eStatus==WL_CONNECTED)
+  else {
+    bWiFiOn= false;
+  } //if(eStatus==WL_CONNECTED)else
 
 	BLogS("SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP()));
 } //SetupWiFi
+
+
+String szWiFiStatus(wl_status_t status) {
+  //wl_status_t defined in wl_definitions.h
+  switch(status) {
+  case WL_IDLE_STATUS:
+    return "WL_IDLE_STATUS";
+  case WL_NO_SSID_AVAIL:
+    return "WL_NO_SSID_AVAIL";
+  case WL_SCAN_COMPLETED:
+    return "WL_SCAN_COMPLETED";
+  case WL_CONNECTED:
+    return "WL_CONNECTED";
+  case WL_CONNECT_FAILED:
+    return "WL_CONNECT_FAILED";
+  case WL_CONNECTION_LOST:
+    return "WL_CONNECTION_LOST";
+  case WL_DISCONNECTED:
+    return "WL_DISCONNECTED";
+  case WL_NO_SHIELD:
+    return "WL_NO_SHIELD";
+  default:
+    return "BAD switch value";
+  } //switch
+} //GetWiFiStatusString
 
 
 void SetupHttpServer(const char* acHostname,
@@ -161,7 +209,12 @@ void SetupHttpServer(const char* acHostname,
   MDNS.addService("http", "tcp", 80);
 
   BLog("SetupHttpServer(): HTTPUpdateServer ready!");
-  BLog("SetupHttpServer(): Open http://" + String(acHostname) + ".local/update to do OTA Update");
+  if (bWiFiOn) {
+    BLog("SetupHttpServer(): Open http://" + String(acHostname) + ".local/update to perform OTA Update.");
+  }
+  else {
+    BLogS("SetupHttpServer(): WiFi is not on, unable to perform OTA Update.");
+  }
 }	//SetupHttpServer
 
 
