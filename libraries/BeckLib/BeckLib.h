@@ -9,8 +9,10 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPUpdateServer.h>
 
-#define LOG0    	szLogLineHeader(++lLineCount)
-#define BLog		pBeckFBase->LogToBoth
+#define LOG0    	  szLogLineHeader(++lLineCount)
+#define BLog		    pBeckFBase->LogToBoth
+#define BLogF		    pBeckFBase->LogToFirebase
+#define BLogS		    LogJustToSerial
 
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
@@ -25,26 +27,30 @@ public:
 	BeckFirebase() {};
 	~BeckFirebase() {};
 */
-	void 		LogToSerial(String sLogline);
-	void		LogToFirebase(String sLogline);
-	void		LogToBoth(String sLogline);
-	String		GetDatabaseURL(void);
-	String		GetLogPath(void);
-	String		GetPushPath(void);
+	void 		    LogToSerial(String sLogline);
+	bool		    LogToFirebase(String sLogline);
+	void		    LogToBoth(String sLogline);
+	String		  GetDatabaseURL(void);
+	String		  GetLogPath(void);
+	String		  GetPushPath(void);
+
+	bool		    bFirebaseOk_= true;
+
 protected:
-	String		sDatabaseURL_;
-	String		strFirebaseSecret_;
+	String		  sDatabaseURL_;
+	String		  sFirebaseSecret_;
 	//Firebase 	oFBase_;
 	Firebase* 	pFBase_;
-	String		sLogPath_;
-	String 		sMyName_;
-	String		sPushPath_;
+	String		  sLogPath_;
+	String 		  sMyName_;
+	String		  sPushPath_;
 
 	String		sMakeJSONObject(String sName, String sValue);
 };	//BeckFirebase
 
 //Non-class function protos.
 BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName);
+bool 			TestFirebase(void);
 void			SendInfoToLog(void);
 void 			SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
 void 			SetupHttpServer(const char* acHostname, ESP8266WebServer& oHttpServer, ESP8266HTTPUpdateServer& oHttpUpdateServer);

@@ -14,17 +14,18 @@ ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
 BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 		                   String sLogPath, String sMyName){
 	sDatabaseURL_		= sDatabaseURL;
-	strFirebaseSecret_	= sFirebaseSecret;
+	sFirebaseSecret_	= sFirebaseSecret;
 	sLogPath_			= sLogPath;
 	sMyName_			= sMyName;
 	sPushPath_			= sLogPath_ + sMyName_;
 
-	pFBase_= new Firebase(sDatabaseURL);
+	BLogS("BeckFirebase() cstor: Call new Firebase(" + sDatabaseURL_ + ")");
+	pFBase_= new Firebase(sDatabaseURL_);
 
-	Serial << LOG0 << " BeckFirebase() cstor: Call Firebase.auth('" << strFirebaseSecret_ << "')" << endl;
-	pFBase_->auth(strFirebaseSecret_);
+	BLogS("BeckFirebase() cstor: Call Firebase.auth(" + sFirebaseSecret_ + ")");
+	pFBase_->auth(sFirebaseSecret_);
 
-	LogToBoth("cstor: Firebase client created to " + sDatabaseURL_);
+	BLogS("BeckFirebase() cstor: Firebase client created to " + sDatabaseURL_);
 	return;
 }	//BeckFirebase cstor
 
@@ -35,24 +36,30 @@ void BeckFirebase::LogToSerial(String sLogline){
 }	//LogToSerial
 
 
-void BeckFirebase::LogToFirebase(String sLogline){
-	String sJSONPushString= sMakeJSONObject("Log", sLogline);
-
-	FirebasePush push = pFBase_->push(sPushPath_, sJSONPushString);
-
-	if (push.error()) {
-		Serial << LOG0 << " LogToFirebase(): Firebase push failed, Error: " << push.error().message() << endl;
-	}	//if(push.error())
-	else {
-	}	//if(push.error())else
-	return;
+bool BeckFirebase::LogToFirebase(String sLogline){
+	if (bFirebaseOk_) {
+		String sJSONPushString= sMakeJSONObject("Log", sLogline);
+		FirebasePush push = pFBase_->push(sPushPath_, sJSONPushString);
+		if (push.error()) {
+			bFirebaseOk_= false;
+			BLogS("LogToFirebase(): Firebase push failed, Error: " + String(push.error().message()));
+		}	//if(push.error())
+	}	//if(bFirebaseOk_)
+	else
+	{
+		//BLogS("LogToFirebase(): bFirebaseOk_ is false, skipped write to Firebase");
+	}	//if(bFirebaseOk_)else
+	return bFirebaseOk_;
 }	//LogToFirebase
 
 
 void BeckFirebase::LogToBoth(String sLogline){
-	//String sFullLogline=LOG0 + " " + sLogline;
-	String sFullLogline=LOG0 + sLogline;
+  //Put a "*" in front of log line if not logging to Firebase
+  if (!bFirebaseOk_) {
+    sLogline= "*" + sLogline;
+  } //if(bFirebaseOk_)else
 
+  String sFullLogline=LOG0 + sLogline;
 	LogToSerial  (sFullLogline);
 #ifndef NO_FIREBASE
 	LogToFirebase(sFullLogline);
@@ -88,10 +95,24 @@ String BeckFirebase::sMakeJSONObject(String sName, String sValue){
 
 
 BeckFirebase* StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName){
+	BLogS("BeckFirebase() cstor: Call new Firebase(" + sDatabaseURL + ")");
 	BeckFirebase* pBeckFirebase= new BeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, sMyName);
 	pBeckFBase= pBeckFirebase;
-return(pBeckFBase);
+	TestFirebase();
+	return(pBeckFBase);
 }	//StartBeckFirebase
+
+
+bool TestFirebase(void){
+	BLogS("TestFirebase(): Make test call to Firebase.");
+	pBeckFBase->bFirebaseOk_= true;
+	if (!BLogF("BeckFirebase() Test")) {
+		BLogS("BeckFirebase(): Test to Firebase failed, setting bFirebaseOk_ to false");
+		pBeckFBase->bFirebaseOk_= false;
+	}	//if(!BLogF("BeckFirebase()Test"))
+
+	return pBeckFBase->bFirebaseOk_;
+}	//TestFirebase
 
 
 void SendInfoToLog(void){
@@ -105,22 +126,22 @@ void SendInfoToLog(void){
 
 
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
-	LogJustToSerial("SetupWiFi(): Setting WiFi mode to WIFI_AP_STA");
+	BLogS("SetupWiFi(): Setting WiFi mode to WIFI_AP_STA");
 	WiFi.mode(WIFI_AP_STA);
 
-	LogJustToSerial("SetupWiFi(): Call WiFi.begin(" + String(pcRouterName) + ", " + String(pcRouterPW) + ")");
+	BLogS("SetupWiFi(): Call WiFi.begin(" + String(pcRouterName) + ", " + String(pcRouterPW) + ")");
 	WiFi.begin(pcRouterName, pcRouterPW);
 
-	LogJustToSerial("SetupWiFi(): Call WiFi.waitForConnectResult()");
+	BLogS("SetupWiFi(): Call WiFi.waitForConnectResult()");
 	while(WiFi.waitForConnectResult() != WL_CONNECTED){
 		LogJustToSerial("WiFi failed, retrying.");
 		LogJustToSerial("SetupWiFi(): Call WiFi.begin(" + String(pcRouterName) + ", " + String(pcRouterPW) + ")");
 		WiFi.begin(pcRouterName, pcRouterPW);
 	 }
 
-	LogJustToSerial("SetupWiFi(): WifFi Connected, WiFi.status() returned WL_CONNECTED");
+	BLogS("SetupWiFi(): WifFi Connected, WiFi.status() returned WL_CONNECTED");
 
-	LogJustToSerial("SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP()));
+	BLogS("SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP()));
 } //SetupWiFi
 
 
@@ -151,7 +172,7 @@ void HandleHttpServer(ESP8266WebServer& oHttpServer){
 
 
 void Log(String sLogline){
-	BLog(sLogline);
+	BLogS(sLogline);
 	return;
 }	//Log
 
