@@ -1,5 +1,5 @@
 String acSketchName  = "PowerShift.ino";
-String acFileDate    = "May 15, 2016_HP7G";
+String acFileDate    = "May 16, 2016_HP7D";
 
 #include <BeckLib.h>
 #include <LBeck37.h>
@@ -7,16 +7,16 @@ String acFileDate    = "May 15, 2016_HP7G";
 #include <EasyButton.h>
 #include <Servo.h>
 #include <Wire.h>
-#include <U8glib.h>
+//#include <U8glib.h>
 #include <stdarg.h>
 
-#define NO_DISPLAY
-
+/*
 #if 1
 	#ifndef ESP8266
 		#define ESP8266
 	#endif	//ESP8266
 #endif
+*/
 
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
@@ -56,30 +56,6 @@ static const int       sFirstButton          = sUp;
 static const int       sLastButton           = sSelect;
 
 static const boolean   bButtonPullUp         = true;
-
-//Digital Pins
-#ifdef ESP8266
-	//BlynkBeck uses pins 4, 5, 15, 16
-  //static const int       sSelectButton;
-  //static const int       sBacklightPin;
-	static const int       sUpButtonPin     =  0;
-	static const int       sDownButtonPin   =  2;
-	static const byte      cI2C_SDAPin			=  4;
-	static const byte      cI2C_SCLPin			=  5;
-	static const byte      cSPIMISOPin			= 12;
-	static const byte      cSPIMOSIPin      = 13;
-	static const byte      cSPICLKPin	    	= 14;
-	static const byte      cSPISelectPin	  = 15;
-	static const int       sServoPin        = 16;
-#else
-	//static const int       sSelectButton         = A3;
-	static const int       sDownButton           = A2;
-	static const int       sUpButton             = A1;
-	static const int       sBacklightPin         =  6;
-	static const int       sServoPin             =  7;
-	static const byte      cSPICmdDataPin        =  9;
-	static const byte      cSPIChipSelectPin     = 10;
-#endif	//ESP8266
 
 //Gyro defines
 static const int       sXAxis             = 0;
@@ -146,12 +122,13 @@ static int sServoPosLast                  = 0;
 //Create servo object to control the servo
 Servo myservo;
 
+/*
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
 //U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 #ifndef NO_DISPLAY
   U8GLIB_DOGS102 u8g(cSPICLKPin, cSPIMOSIPin, cSPISelectPin, cSPIMISOPin);
 #endif
-// SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+*/
 
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButtonPin,     NULL, CALL_NONE, bButtonPullUp);

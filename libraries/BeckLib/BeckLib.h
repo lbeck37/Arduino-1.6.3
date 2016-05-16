@@ -1,4 +1,4 @@
-//BeckLib.h, May 15, 2016
+//BeckLib.h, May 16, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>
@@ -8,6 +8,15 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPUpdateServer.h>
+#include <U8glib.h>
+
+#define NO_DISPLAY
+
+#if 1
+  #ifndef ESP8266
+    #define ESP8266
+  #endif  //ESP8266
+#endif
 
 #define LOG0    	  szLogLineHeader(++lLineCount)
 #define BLog		    pBeckFBase->LogToBoth
@@ -75,5 +84,15 @@ extern bool                     bWiFiOn;
 extern bool                     bFirebaseOn;
 extern ESP8266WebServer			    oHttpServer;
 extern ESP8266HTTPUpdateServer	oHttpUpdateServer;
+
+extern const int       sUpButtonPin;
+extern const int       sDownButtonPin;
+extern const byte      cI2C_SDAPin;
+extern const byte      cI2C_SCLPin;
+extern const byte      cSPIMISOPin;
+extern const byte      cSPIMOSIPin;
+extern const byte      cSPICLKPin;
+extern const byte      cSPISelectPin;
+extern const int       sServoPin;
 
 #endif   //BECKLIB_H

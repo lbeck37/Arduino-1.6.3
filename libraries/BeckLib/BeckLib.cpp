@@ -1,4 +1,4 @@
-//BeckLib.cpp, May 15, 2016
+//BeckLib.cpp, May 16, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
@@ -12,6 +12,37 @@ bool                    bWiFiOn           = false;
 bool                    bFirebaseOn       = false;
 ESP8266WebServer		    oHttpServer(80);
 ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
+
+//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
+//U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+//#ifndef NO_DISPLAY
+#if 1
+  U8GLIB_DOGS102 u8g(cSPICLKPin, cSPIMOSIPin, cSPISelectPin, cSPIMISOPin);
+#endif
+
+//Digital Pins
+#ifdef ESP8266
+  //BlynkBeck uses pins 4, 5, 15, 16
+  //static const int       sSelectButton;
+  //static const int       sBacklightPin;
+  const int       sUpButtonPin     =  0;
+  const int       sDownButtonPin   =  2;
+  const byte      cI2C_SDAPin      =  4;
+  const byte      cI2C_SCLPin      =  5;
+  const byte      cSPIMISOPin      = 12;
+  const byte      cSPIMOSIPin      = 13;
+  const byte      cSPICLKPin       = 14;
+  const byte      cSPISelectPin    = 15;
+  const int       sServoPin        = 16;
+#else
+  //const int       sSelectButton         = A3;
+  const int       sDownButton           = A2;
+  const int       sUpButton             = A1;
+  const int       sBacklightPin         =  6;
+  const int       sServoPin             =  7;
+  const byte      cSPICmdDataPin        =  9;
+  const byte      cSPIChipSelectPin     = 10;
+#endif  //ESP8266
 
 BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 		                   String sLogPath, String sMyName){
