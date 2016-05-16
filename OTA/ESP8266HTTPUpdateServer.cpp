@@ -80,13 +80,13 @@ void ESP8266HTTPUpdateServer::setup(ESP8266WebServer *server)
           if (_serial_output) {
         	  Update.printError(Serial);
           }	//if(_serial_output)
-          LogJustToSerial("setup(): Update.write() ERROR, upload.currentSize= " + String(upload.currentSize));
+          BLogS("setup(): Update.write() ERROR, upload.currentSize= " + String(upload.currentSize));
         } //if(Update.write(upload.buf,...
       } //else if(upload.status==UPLOAD_FILE_WRITE)
       else if(upload.status == UPLOAD_FILE_END) {
         if(Update.end(true)) { //true to set the size to the current progress
           Serial.printf("\n");
-          LogJustToSerial("setup(): UPLOAD_FILE_END, upload.totalSize= " + String(upload.totalSize));
+          BLogS("setup(): UPLOAD_FILE_END, upload.totalSize= " + String(upload.totalSize));
           if (_serial_output) {
         	  Serial.printf("Update Success: upload.totalSize= %u\nRebooting\n", upload.totalSize);
           }	//if(_serial_output)
