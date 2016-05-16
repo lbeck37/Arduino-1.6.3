@@ -1,5 +1,5 @@
 String acSketchName  = "PowerShift.ino";
-String acFileDate    = "May 13, 2016_HP7B";
+String acFileDate    = "May 15, 2016_HP7G";
 
 #include <BeckLib.h>
 #include <LBeck37.h>
@@ -9,6 +9,8 @@ String acFileDate    = "May 13, 2016_HP7B";
 #include <Wire.h>
 #include <U8glib.h>
 #include <stdarg.h>
+
+#define NO_DISPLAY
 
 #if 1
 	#ifndef ESP8266
@@ -60,15 +62,15 @@ static const boolean   bButtonPullUp         = true;
 	//BlynkBeck uses pins 4, 5, 15, 16
   //static const int       sSelectButton;
   //static const int       sBacklightPin;
-	static const int       sUpButtonPin         =  0;
-	static const int       sDownButtonPin       =  2;
+	static const int       sUpButtonPin     =  0;
+	static const int       sDownButtonPin   =  2;
 	static const byte      cI2C_SDAPin			=  4;
 	static const byte      cI2C_SCLPin			=  5;
 	static const byte      cSPIMISOPin			= 12;
-	static const byte      cSPIMOSIPin        	= 13;
+	static const byte      cSPIMOSIPin      = 13;
 	static const byte      cSPICLKPin	    	= 14;
-	static const byte      cSPISelectPin	    = 15;
-	static const int       sServoPin            = 16;
+	static const byte      cSPISelectPin	  = 15;
+	static const int       sServoPin        = 16;
 #else
 	//static const int       sSelectButton         = A3;
 	static const int       sDownButton           = A2;
@@ -146,7 +148,9 @@ Servo myservo;
 
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
 //U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
-U8GLIB_DOGS102 u8g(cSPICLKPin, cSPIMOSIPin, cSPISelectPin, cSPIMISOPin);
+#ifndef NO_DISPLAY
+  U8GLIB_DOGS102 u8g(cSPICLKPin, cSPIMOSIPin, cSPISelectPin, cSPIMISOPin);
+#endif
 // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 
 //Create EasyButton objects to handle button presses.
@@ -188,8 +192,8 @@ static const char           	acMyFbaseName[]     = "Powershift_3dotESP";
 void setup() {
    Serial.begin(lSerialMonitorBaud);
    Serial << endl;
-   LogJustToSerial("setup(): Initialized serial to " + String(lSerialMonitorBaud) + " baud");
-   LogJustToSerial("Sketch: " + acSketchName + ", " + acFileDate);
+   BLogS("setup(): Initialized serial to " + String(lSerialMonitorBaud) + " baud");
+   BLogS("Sketch: " + acSketchName + ", " + acFileDate);
 
    SetupWiFi(acRouterName, acRouterPW);
 
@@ -198,7 +202,10 @@ void setup() {
 
    SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
+#ifndef NO_DISPLAY
    sSetupDisplay();
+#endif
+
 #ifdef DEBUG_ON
    sDrawStartScreen();
    sDrawMainScreen();
@@ -208,14 +215,16 @@ void setup() {
    sFillGearLocations();
    sSetupServo();
    //sSetupSmoothing();
+#ifndef NO_DISPLAY
    sDrawStartScreen();
+#endif
    //sTestContrast();
 #endif   //DEBUG_1
 
    //Dither the servo once so it's position shows on the LCD.
    sServoDither(1, 1); // +/- 1 degree, once
 
-   Log(acFileDate + ", " + acSketchName + ", setup() Done");
+   BLog(acFileDate + ", " + acSketchName + ", setup() Done");
    return;
 }  //setup
 
@@ -225,52 +234,18 @@ void loop() {
    HandleHttpServer(oHttpServer);
    sCheckButtons();
    sLoopI2C();
+#ifndef NO_DISPLAY
    sDrawMainScreen();
+#endif
    //sTestContrast();
    sHandleButtons();
    return;
 }  //loop()
 
 
-int sSetupDisplay() {
-/*
-   Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
-   Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
-*/
-	Log("sSetupDisplay(): Begin");
-	Log("sSetupDisplay(): Set Contrast to " + String(ucContrast));
-
-	u8g.setContrast(ucContrast);
-	sSwitchFont(sFontNormal);
-	u8g.setColorIndex(1);
-	if (bFlipDisplay) {
-	  u8g.setRot180();
-	}  //if(bFlipDisplay)
-
-   //Set backlight pin to be a PWM "analog" out pin.
-   //Drive LED backlight through 15 ohm resistor.
-#ifndef ESP8266
-   pinMode(sBacklightPin, OUTPUT);
-   sDisplaySetBrightness(sDefaultBrightness);
-#endif
-   return 1;
-}  //sSetupDisplay
-
-
-int sTestContrast() {
-   for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
-      //Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
-	  Log("sTestContrast(): Contrast= " + sContrast);
-      u8g.setContrast(sContrast);
-      delay(1000);
-   }  //for(int sContrast=0...
-   return 1;
-}  //sTestContrast
-
-
 int sSetupGyro() {
    //Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
-	Log("sSetupGyro(): Begin");
+   BLog("sSetupGyro(): Begin");
    //Set up the I2C bus.
    Wire.begin();
    Wire.beginTransmission(MPU);
@@ -289,7 +264,7 @@ int sSetupGyro() {
 
 int sSetupServo() {
    //Serial << sLC++ <<"sSetupServo(): Begin"<< endl;
-	Log("sSetupServo(): Begin");
+  BLog("sSetupServo(): Begin");
    if (bServoOn) {
       myservo.attach(sServoPin);
       sServoMove(asGearLocation[sCurrentGear]);
@@ -350,6 +325,53 @@ int sLoopI2C() {
 }  //sLoopI2C
 
 
+int sFormatLine(const char *format, ...)
+   {
+   va_list ap;
+   va_start(ap, format);
+   vsnprintf(szLineBuffer, sizeof(szLineBuffer), format, ap);
+   va_end(ap);
+   return 1;
+   }  //sFormatLine
+
+
+#ifndef NO_DISPLAY
+int sSetupDisplay() {
+/*
+   Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
+   Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
+*/
+  BLog("sSetupDisplay(): Begin");
+  BLog("sSetupDisplay(): Set Contrast to " + String(ucContrast));
+
+  u8g.setContrast(ucContrast);
+  sSwitchFont(sFontNormal);
+  u8g.setColorIndex(1);
+  if (bFlipDisplay) {
+    u8g.setRot180();
+  }  //if(bFlipDisplay)
+
+   //Set backlight pin to be a PWM "analog" out pin.
+   //Drive LED backlight through 15 ohm resistor.
+#ifndef ESP8266
+   pinMode(sBacklightPin, OUTPUT);
+   sDisplaySetBrightness(sDefaultBrightness);
+#endif
+   return 1;
+}  //sSetupDisplay
+
+
+int sTestContrast() {
+   for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
+      //Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
+     BLog("sTestContrast(): Contrast= " + sContrast);
+      u8g.setContrast(sContrast);
+      delay(1000);
+   }  //for(int sContrast=0...
+   return 1;
+}  //sTestContrast
+
+
 int sDrawStartScreen(void) {
    //u8g.undoRotation();
    //u8g.setRot180();
@@ -372,16 +394,6 @@ int sDrawMainScreen(void) {
    } while(u8g.nextPage());
    return 1;
 }  //sDrawMainScreen
-
-
-int sFormatLine(const char *format, ...)
-   {
-   va_list ap;
-   va_start(ap, format);
-   vsnprintf(szLineBuffer, sizeof(szLineBuffer), format, ap);
-   va_end(ap);
-   return 1;
-   }  //sFormatLine
 
 
 int sDisplayMainObjects(void) {
@@ -536,7 +548,7 @@ int sSwitchFont(int sFont) {
             break;
          default:
             //Serial << "sSwitchFont(): Bad case in switch()= " << sFont << endl;
-        	Log("sSwitchFont(): Bad case in switch()= " + sFont);
+           BLog("sSwitchFont(): Bad case in switch()= " + sFont);
             break;
       }  //switch
       //Set the reference position for the font.
@@ -563,14 +575,6 @@ int sLPixel(int sLineNumber) {
 }  //sLPixel
 
 
-int sFillGearLocations(void) {
-   for (int sGear=0; sGear <= sNumGears; sGear++) {
-      asGearLocation[sGear]= asDefaultGearLocation[sGear];
-   }  //for
-   return 1;
-}  //sFillGearLocations
-
-
 boolean bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
    boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged ||
@@ -578,6 +582,15 @@ boolean bScreenChanged() {
    bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= bGyroChanged= false;
    return bChanged;
 }  //bScreenChanged
+#endif
+
+
+int sFillGearLocations(void) {
+   for (int sGear=0; sGear <= sNumGears; sGear++) {
+      asGearLocation[sGear]= asDefaultGearLocation[sGear];
+   }  //for
+   return 1;
+}  //sFillGearLocations
 
 
 int sHandleButtons(void) {
@@ -600,7 +613,7 @@ int sHandleButtons(void) {
             break;   //sCalibMode
          default:
             //Serial << "sHandleButtons(): Unexpected switch value." << endl;
-        	Log("sHandleButtons(): Unexpected switch value.");
+        	BLog("sHandleButtons(): Unexpected switch value.");
             break;
         } //switch
      }   //if(millis()...
@@ -613,7 +626,7 @@ boolean bHandleBothHeld(void) {
    if (abButtonBeingHeld[sUp] &&  abButtonBeingHeld[sDown]) {
       if (millis() > ulNextModeTime) {
          //Serial << sLC++ << " bHandleBothHeld(): Both buttons are being held." << endl;
-    	 Log("bHandleBothHeld(): Both buttons are being held.");
+    	 BLog("bHandleBothHeld(): Both buttons are being held.");
          //Clear the button counts;
          sButtonCount[sUp]  = 0;
          sButtonCount[sDown]= 0;
@@ -622,17 +635,17 @@ boolean bHandleBothHeld(void) {
                sCurrentMode= sCalibMode;
                bModeChanged= true;
                //Serial << sLC++ << " bHandleBothHeld(): Switch from Normal to Calib mode." << endl;
-               Log("bHandleBothHeld(): Switch from Normal to Calib mode.");
+               BLog("bHandleBothHeld(): Switch from Normal to Calib mode.");
                break;
             case sCalibMode:
                sCurrentMode= sNormalMode;
                bModeChanged= true;
                //Serial << sLC++ << " bHandleBothHeld(): Switch from Calib to Normal mode." << endl;
-               Log("bHandleBothHeld(): Switch from Calib to Normal mode.");
+               BLog("bHandleBothHeld(): Switch from Calib to Normal mode.");
                break;
             default:
                //Serial << sLC++ << " bHandleBothHeld(): Bad switch :" << sCurrentMode << endl;
-            	Log("bHandleBothHeld(): Bad switch :" + sCurrentMode);
+            	BLog("bHandleBothHeld(): Bad switch :" + sCurrentMode);
                break;
          }  //switch
          //Create the guard times between mode switches or button handling
@@ -669,7 +682,7 @@ int sHandleNormalMode(void) {
       Serial << sLC++ << " sHandleNormalMode(): Button" << sButton << ", Count= "
              << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
 */
-      Log(" sHandleNormalMode(): Button" + String(sButton) + ", Count= " +
+      BLog(" sHandleNormalMode(): Button" + String(sButton) + ", Count= " +
     		  String(sButtonCount[sButton]) + ", sTargetChange= " + String(sTargetChange));
       sButtonCount[sButton]--;
       bButtonsChanged= true;
@@ -682,7 +695,7 @@ int sHandleNormalMode(void) {
       Serial <<sLC++<<" sHandleNormalMode(): Current gear= "<< sCurrentGear
              <<", New= "<< sNewGear<< endl;
 */
-	  Log("sHandleNormalMode(): Current gear= " + String(sCurrentGear) + ", New= " + String(sNewGear));
+	  BLog("sHandleNormalMode(): Current gear= " + String(sCurrentGear) + ", New= " + String(sNewGear));
       sCurrentGear= sNewGear;
       sTargetLocation= asGearLocation[sCurrentGear];
 
@@ -713,7 +726,7 @@ int sHandleCalibMode(void) {
          Serial << sLC++ << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
 */
-         Log("sHandleCalibMode(): Button" + String(sButton)
+         BLog("sHandleCalibMode(): Button" + String(sButton)
                  + ", Count= " + String(sButtonCount[sButton]) + ", Target= " + String(sTarget));
          sServoMove(sTarget);
          bServoChanged= true;
@@ -726,7 +739,7 @@ int sHandleCalibMode(void) {
          Serial << sLC++ << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
 */
-         Log("sHandleCalibMode(): Button" + String(sButton)
+         BLog("sHandleCalibMode(): Button" + String(sButton)
                  + ", Count= " + String(sButtonCount[sButton]) + ", Target= " + String(sTarget));
          sServoMove(sTarget);
          bServoChanged= true;
@@ -772,7 +785,7 @@ int sCheckButtons(void) {
          Serial << sLC++ << " sCheckButtons(): Button " << sButton
                 << " was released." << endl;
 */
-    	 Log(" sCheckButtons(): Button " + String(sButton) + " was released.");
+    	 BLog(" sCheckButtons(): Button " + String(sButton) + " was released.");
          //Check to see if button is being held
          //if (sLocalButtonState[sButton] != sButtonHeld) {
          if ( !abButtonBeingHeld[sButton]) {
@@ -782,7 +795,7 @@ int sCheckButtons(void) {
                Serial << sLC++ << " sCheckButtons(): Button " << sButton
                       << " count incremented." << endl;
 */
-               Log(" sCheckButtons(): Button " + String(sButton) + " count incremented.");
+               BLog(" sCheckButtons(): Button " + String(sButton) + " count incremented.");
                sButtonCount[sButton]++;
                bButtonsChanged= true;
             } //if(sLocalUpButtonState!=sButtonHeld)
@@ -793,7 +806,7 @@ int sCheckButtons(void) {
             Serial << sLC++ << " sCheckButtons(): Button " << sButton
                    << " done being held." << endl;
 */
-        	Log("sCheckButtons(): Button " + String(sButton) + " done being held.");
+        	BLog("sCheckButtons(): Button " + String(sButton) + " done being held.");
             //sLocalButtonState[sButton]= sButtonOpen;
             abButtonBeingHeld[sButton]= false;
          } //if(sLocalUpButtonState!=sButtonHeld)else
@@ -808,7 +821,7 @@ int sCheckButtons(void) {
          Serial << sLC++ << " sCheckButtons(): Button " << sButton
                 << " being held." << endl;
 */
-    	 Log("sCheckButtons(): Button " + String(sButton) + " being held.");
+    	 BLog("sCheckButtons(): Button " + String(sButton) + " being held.");
          //Set state to indicate in hold.
          //sLocalButtonState[sButton]= sButtonHeld;
          //sButtonCount[sButton]= sHoldCode;
@@ -825,7 +838,7 @@ int sCheckButtons(void) {
 int sServoMove(int sServoPos) {
   if (sServoPos != sServoPosLast) {
       sServoPos= constrain(sServoPos, sServoMin, sServoMax);
-      Log("sServoMove(): Move to " + String(sServoPos));
+      BLog("sServoMove(): Move to " + String(sServoPos));
       sServoPosLast= sServoPos;
       sServoSetPosition(sServoPos);
       bServoChanged= true;

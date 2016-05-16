@@ -224,12 +224,6 @@ void HandleHttpServer(ESP8266WebServer& oHttpServer){
 } //HandleHttpServer
 
 
-void Log(String sLogline){
-	BLogS(sLogline);
-	return;
-}	//Log
-
-
 void LogJustToSerial(String sLogline){
 	String sFullLogline=LOG0 + sLogline;
 	Serial << sFullLogline << endl;

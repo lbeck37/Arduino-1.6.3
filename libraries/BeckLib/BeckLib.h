@@ -58,13 +58,12 @@ void 			SetupHttpServer(const char* acHostname,
                           ESP8266WebServer&        oHttpServer,
                           ESP8266HTTPUpdateServer& oHttpUpdateServer);
 void 			HandleHttpServer(ESP8266WebServer& oHttpServer);
-void 			Log(String sLogline);
 void 			LogJustToSerial(String sLogline);
 void			LogESPValues();
-String 			szLogLineHeader(long lLineCount);
-String 			szGetTime(long lMsec);
-String 			szAddZeros(int sValue, int sNumDigits);
-String 			szIPaddress(IPAddress oIP);
+String 		szLogLineHeader(long lLineCount);
+String 		szGetTime(long lMsec);
+String 		szAddZeros(int sValue, int sNumDigits);
+String 		szIPaddress(IPAddress oIP);
 
 
 //Global variables
