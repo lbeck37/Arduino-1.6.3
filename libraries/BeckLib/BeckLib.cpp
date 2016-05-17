@@ -10,6 +10,7 @@ String					        szLogLine;
 BeckFirebase*			      pBeckFBase;
 bool                    bWiFiOn           = false;
 bool                    bFirebaseOn       = false;
+bool                    bStartedOTA       = false;
 ESP8266WebServer		    oHttpServer(80);
 ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
 

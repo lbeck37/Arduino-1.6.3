@@ -1,5 +1,5 @@
 String acSketchName  = "PowerShift.ino";
-String acFileDate    = "May 16, 2016_HP7D";
+String acFileDate    = "May 16, 2016_HP7AA";
 
 #include <BeckLib.h>
 #include <LBeck37.h>
@@ -122,14 +122,6 @@ static int sServoPosLast                  = 0;
 //Create servo object to control the servo
 Servo myservo;
 
-/*
-//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
-//U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
-#ifndef NO_DISPLAY
-  U8GLIB_DOGS102 u8g(cSPICLKPin, cSPIMOSIPin, cSPISelectPin, cSPIMISOPin);
-#endif
-*/
-
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButtonPin,     NULL, CALL_NONE, bButtonPullUp);
 EasyButton DownButton   (sDownButtonPin,   NULL, CALL_NONE, bButtonPullUp);
@@ -177,29 +169,32 @@ void setup() {
    StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
    SendInfoToLog();
 
-   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
 #ifndef NO_DISPLAY
    sSetupDisplay();
 #endif
 
+/*
 #ifdef DEBUG_ON
    sDrawStartScreen();
    sDrawMainScreen();
    delay(sMainDelay);
-#else
+#endif   //DEBUG_1
+*/
    sSetupGyro();
    sFillGearLocations();
    sSetupServo();
    //sSetupSmoothing();
-#ifndef NO_DISPLAY
+//#ifndef NO_DISPLAY
+#if 1
    sDrawStartScreen();
 #endif
    //sTestContrast();
-#endif   //DEBUG_1
 
    //Dither the servo once so it's position shows on the LCD.
    sServoDither(1, 1); // +/- 1 degree, once
+
+   SetupHttpServer(acMyURL, oHttpServer, oHttpUpdateServer);
 
    BLog(acFileDate + ", " + acSketchName + ", setup() Done");
    return;
@@ -209,13 +204,18 @@ void setup() {
 // The Arduino loop() method gets called over and over.
 void loop() {
    HandleHttpServer(oHttpServer);
-   sCheckButtons();
-   sLoopI2C();
+   if (!bStartedOTA) {
+     sCheckButtons();
+     sLoopI2C();
 #ifndef NO_DISPLAY
-   sDrawMainScreen();
+     sDrawMainScreen();
 #endif
-   //sTestContrast();
-   sHandleButtons();
+     //sTestContrast();
+     sHandleButtons();
+   }  //if(!bStartedOTA)
+   else {
+     BLog("loop(): Skipping remainder of loop, bStartedOTA set to " + (String)bStartedOTA);
+   }
    return;
 }  //loop()
 
@@ -310,256 +310,6 @@ int sFormatLine(const char *format, ...)
    va_end(ap);
    return 1;
    }  //sFormatLine
-
-
-#ifndef NO_DISPLAY
-int sSetupDisplay() {
-/*
-   Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
-   Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
-*/
-  BLog("sSetupDisplay(): Begin");
-  BLog("sSetupDisplay(): Set Contrast to " + String(ucContrast));
-
-  u8g.setContrast(ucContrast);
-  sSwitchFont(sFontNormal);
-  u8g.setColorIndex(1);
-  if (bFlipDisplay) {
-    u8g.setRot180();
-  }  //if(bFlipDisplay)
-
-   //Set backlight pin to be a PWM "analog" out pin.
-   //Drive LED backlight through 15 ohm resistor.
-#ifndef ESP8266
-   pinMode(sBacklightPin, OUTPUT);
-   sDisplaySetBrightness(sDefaultBrightness);
-#endif
-   return 1;
-}  //sSetupDisplay
-
-
-int sTestContrast() {
-   for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
-      //Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
-     BLog("sTestContrast(): Contrast= " + sContrast);
-      u8g.setContrast(sContrast);
-      delay(1000);
-   }  //for(int sContrast=0...
-   return 1;
-}  //sTestContrast
-
-
-int sDrawStartScreen(void) {
-   //u8g.undoRotation();
-   //u8g.setRot180();
-   u8g.firstPage();
-   do {
-      sDisplaySplash();
-   } while(u8g.nextPage());
-
-   delay(sSplashDelay);
-   return 1;
-}  //sDrawStartScreen
-
-
-int sDrawMainScreen(void) {
-   //u8g.undoRotation();
-   //u8g.setRot180();
-   u8g.firstPage();
-   do {
-      sDisplayMainObjects();
-   } while(u8g.nextPage());
-   return 1;
-}  //sDrawMainScreen
-
-
-int sDisplayMainObjects(void) {
-   if (true || bScreenChanged()) {
-      //sDisplayButtons();
-      sDisplayCurrentGear();
-      sDisplayServoPos();
-      sDisplayGyro();
-      sDisplayOdometer();
-   }  //if(bScreenChanged())
-   return 1;
-}  //sDisplayMainObjects
-
-
-int sDisplaySplash(void) {
-#if 0
-   sDisplayText(0, sLPixel(1), sFontNormal, "PowerShift");
-   sDisplayText(0, sLPixel(2), sFontNormal, "  by ShiftE");
-   //Lines in normal font
-   sDisplayText(20, sLPixel(5), sFontNormal, szSplashLine1);
-   sDisplayText(0, sLPixel(6), sFontNormal, szSplashLine2);
-   sDisplayText(0, sLPixel(7), sFontNormal, szSplashLine3);
-#endif
-   sDisplayText(10, 5, sFontBig, szSplashLine4);
-   sDisplayText(10, 20, sFontBig, szSplashLine5);
-
-   sDisplayText(8, 37, sFontNormal, szSplashLine1);
-   sDisplayText(6, 46, sFontNormal, szSplashLine2);
-   sDisplayText(6, 55, sFontNormal, szSplashLine3);
-   return 1;
-}  //sDisplaySplash
-
-
-int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
-   sSwitchFont(sFont);
-   u8g.drawStr( sXpixel, sYpixel, pcText);
-   return 1;
-}  //sDisplayText
-
-
-int sDisplayGyro() {
-   int sXPixel   = 40;
-   int sStartLine= 3;
-   //char szLocalBuffer[20];
-   strcpy(szLineBuffer, szAccel);
-   strcat(szLineBuffer, "  ");
-   strcat(szLineBuffer, szGyro);
-   sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
-   for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      sFormatLine("%5d %5d", sScaleGyro(asGyro[sAccel][sAxis]),
-                             sScaleGyro(asGyro[sRotation][sAxis]));
-      sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
-   }  //for sAxis
-   return 1;
-}  //sDisplayGyro
-
-
-int sScaleGyro(int sNumber) {
-   long wNumber= sNumber;
-   wNumber= (wNumber * 2000) / 32767;
-   int sScaleNumber= wNumber;
-   return sScaleNumber;
-}  //sScaleGyro
-
-
-int sDisplayCurrentGear() {
-   int sGearFont  = sFontGearNum;
-   int sLeftPixel = 4;
-   int sTopPixel  = 6;
-   if (sCurrentMode == sNormalMode) {
-      itoa(sCurrentGear, sz10CharString, 10);
-      sDisplayText(sLeftPixel, sTopPixel, sGearFont, sz10CharString);
-   }  //if (sCurrentMode..
-   else {
-      //We're in Calib mode so let's put a zero for the gear.
-      sDisplayText(sLeftPixel, sTopPixel, sGearFont, "0");
-   }  //if (sCurrentMode..else
-
-   return 1;
-}  //sDisplayCurrentGear
-
-
-int sDisplayServoPos() {
-   strcpy(szLineBuffer, szServo);
-   itoa(sServoPosLast, sz10CharString, 10);
-   strcat(szLineBuffer, sz10CharString);
-   //sDisplayText(50, sLPixel(1), sFontNormal, szLineBuffer);
-   //sDisplayText(35, sLPixel(1), sFontBig, szLineBuffer);
-   sDisplayText(35, 4, sFontBig, szLineBuffer);
-   return 1;
-}  //sDisplayServoPos
-
-
-int sDisplayOdometer() {
-#if 0
-   strcpy(szLineBuffer, "21.50");
-   //sFormatLine("%f", 21.50);
-   sDisplayText(6, 50, sFontBig, szLineBuffer);
-#endif
-   //sFormatLine("%3d\xB0", sScaleGyro(asGyro[sTemperature][sXAxis]));
-   int sGyroF= sDegF( asGyro[sTemperature][sXAxis]);
-   //sFormatLine("%3d\xB0", abs(sScaleGyro(asGyro[sTemperature][sXAxis])));
-   sFormatLine("%3d\xB0", sGyroF);
-   sDisplayText(6, 50, sFontBig, szLineBuffer);
-   return 1;
-}  //sDisplayOdometer
-
-
-int sDegF(int sGyroReading) {
-   float fGyroF= ((1.8 * sGyroReading) / 340.0) + 103.13;
-   int sGyroF= fGyroF;
-   return sGyroF;
-}  //sDegF
-
-
-int sDisplayButtons() {
-   //Show 3 lines at right bottom for U d, D d, S d
-   //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
-   strcpy(szLineBuffer, "U ");
-   itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   //sDisplayText(5, 82, sFontNormal, szLineBuffer);
-   sDisplayText(82, sLPixel(5), sFontNormal, szLineBuffer);
-
-   strcpy(szLineBuffer, "D ");
-   itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   sDisplayText(82, sLPixel(6), sFontNormal, szLineBuffer);
-
-   strcpy(szLineBuffer, "S ");
-   itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   sDisplayText(82, sLPixel(7), sFontNormal, szLineBuffer);
-   return 1;
-}  //sDisplayButtons
-
-
-int sSwitchFont(int sFont) {
-   if (sFont != sCurrentFont) {
-      switch (sFont) {
-         case sFontNormal:
-            u8g.setFont(u8g_font_5x7);
-            break;
-         case sFontBig:
-            //u8g.setFont(u8g_font_fub11n);
-            u8g.setFont(u8g_font_7x13B);
-            break;
-         case sFontGearNum:
-            u8g.setFont(u8g_font_fub35n);
-            break;
-         case sFontSquare:
-            break;
-         default:
-            //Serial << "sSwitchFont(): Bad case in switch()= " << sFont << endl;
-           BLog("sSwitchFont(): Bad case in switch()= " + sFont);
-            break;
-      }  //switch
-      //Set the reference position for the font.
-      u8g.setFontRefHeightExtendedText();
-      u8g.setFontPosTop();
-   }  //if(sFont!=sCurrentFont)
-   return 1;
-}  //sSwitchFont
-
-
-int sDisplaySetBrightness(int sBrightness){
-#ifndef ESP8266
-	analogWrite(sBacklightPin, sBrightness);
-#endif
-   return 1;
-}  //sDisplaySetBrightness
-
-
-int sLPixel(int sLineNumber) {
-   //Converts line number to pixels at top
-   int sPixel= constrain((((sLineNumber - 1) * sLineSpace) - 1), 0, 64);
-   //Serial << sLC++ << " sLPixel(): Convert " << sLineNumber << " to " << sPixel << endl;
-   return sPixel;
-}  //sLPixel
-
-
-boolean bScreenChanged() {
-   //Determine if something being displayed has changed & clear the flags.
-   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged ||
-                     bModeChanged || bGyroChanged;
-   bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= bGyroChanged= false;
-   return bChanged;
-}  //bScreenChanged
-#endif
 
 
 int sFillGearLocations(void) {
@@ -850,4 +600,256 @@ int sServoSetPosition(int sServoPos) {
    delay(sServoMsecWait);
    return 1;
 }  //sServoSetPosition
+
+
+//#ifndef NO_DISPLAY
+int sSetupDisplay() {
+/*
+   Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
+   Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
+*/
+  BLog("sSetupDisplay(): Begin");
+  BLog("sSetupDisplay(): Set Contrast to " + String(ucContrast));
+
+  u8g.setContrast(ucContrast);
+  sSwitchFont(sFontNormal);
+  u8g.setColorIndex(1);
+  if (bFlipDisplay) {
+    u8g.setRot180();
+  }  //if(bFlipDisplay)
+
+   //Set backlight pin to be a PWM "analog" out pin.
+   //Drive LED backlight through 15 ohm resistor.
+#ifndef ESP8266
+   pinMode(sBacklightPin, OUTPUT);
+   sDisplaySetBrightness(sDefaultBrightness);
+#endif
+   return 1;
+}  //sSetupDisplay
+
+
+int sTestContrast() {
+   for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
+      //Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
+     BLog("sTestContrast(): Contrast= " + sContrast);
+      u8g.setContrast(sContrast);
+      delay(1000);
+   }  //for(int sContrast=0...
+   return 1;
+}  //sTestContrast
+
+
+int sDrawStartScreen(void) {
+   //u8g.undoRotation();
+   //u8g.setRot180();
+   u8g.firstPage();
+   do {
+#ifndef NO_DISPLAY
+      sDisplaySplash();
+#endif
+   } while(u8g.nextPage());
+
+   delay(sSplashDelay);
+   return 1;
+}  //sDrawStartScreen
+
+
+int sDrawMainScreen(void) {
+   //u8g.undoRotation();
+   //u8g.setRot180();
+   u8g.firstPage();
+   do {
+      sDisplayMainObjects();
+   } while(u8g.nextPage());
+   return 1;
+}  //sDrawMainScreen
+
+
+int sDisplayMainObjects(void) {
+   if (true || bScreenChanged()) {
+      //sDisplayButtons();
+      sDisplayCurrentGear();
+      sDisplayServoPos();
+      sDisplayGyro();
+      sDisplayOdometer();
+   }  //if(bScreenChanged())
+   return 1;
+}  //sDisplayMainObjects
+
+
+int sDisplaySplash(void) {
+#if 0
+   sDisplayText(0, sLPixel(1), sFontNormal, "PowerShift");
+   sDisplayText(0, sLPixel(2), sFontNormal, "  by ShiftE");
+   //Lines in normal font
+   sDisplayText(20, sLPixel(5), sFontNormal, szSplashLine1);
+   sDisplayText(0, sLPixel(6), sFontNormal, szSplashLine2);
+   sDisplayText(0, sLPixel(7), sFontNormal, szSplashLine3);
+#endif
+   sDisplayText(10, 5, sFontBig, szSplashLine4);
+   sDisplayText(10, 20, sFontBig, szSplashLine5);
+
+   sDisplayText(8, 37, sFontNormal, szSplashLine1);
+   sDisplayText(6, 46, sFontNormal, szSplashLine2);
+   sDisplayText(6, 55, sFontNormal, szSplashLine3);
+   return 1;
+}  //sDisplaySplash
+
+
+int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
+   sSwitchFont(sFont);
+   u8g.drawStr( sXpixel, sYpixel, pcText);
+   return 1;
+}  //sDisplayText
+
+
+int sDisplayGyro() {
+   int sXPixel   = 40;
+   int sStartLine= 3;
+   //char szLocalBuffer[20];
+   strcpy(szLineBuffer, szAccel);
+   strcat(szLineBuffer, "  ");
+   strcat(szLineBuffer, szGyro);
+   sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
+   for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+      sFormatLine("%5d %5d", sScaleGyro(asGyro[sAccel][sAxis]),
+                             sScaleGyro(asGyro[sRotation][sAxis]));
+      sDisplayText(sXPixel, sLPixel(sStartLine++), sFontNormal, szLineBuffer);
+   }  //for sAxis
+   return 1;
+}  //sDisplayGyro
+
+
+int sScaleGyro(int sNumber) {
+   long wNumber= sNumber;
+   wNumber= (wNumber * 2000) / 32767;
+   int sScaleNumber= wNumber;
+   return sScaleNumber;
+}  //sScaleGyro
+
+
+int sDisplayCurrentGear() {
+   int sGearFont  = sFontGearNum;
+   int sLeftPixel = 4;
+   int sTopPixel  = 6;
+   if (sCurrentMode == sNormalMode) {
+      itoa(sCurrentGear, sz10CharString, 10);
+      sDisplayText(sLeftPixel, sTopPixel, sGearFont, sz10CharString);
+   }  //if (sCurrentMode..
+   else {
+      //We're in Calib mode so let's put a zero for the gear.
+      sDisplayText(sLeftPixel, sTopPixel, sGearFont, "0");
+   }  //if (sCurrentMode..else
+
+   return 1;
+}  //sDisplayCurrentGear
+
+
+int sDisplayServoPos() {
+   strcpy(szLineBuffer, szServo);
+   itoa(sServoPosLast, sz10CharString, 10);
+   strcat(szLineBuffer, sz10CharString);
+   //sDisplayText(50, sLPixel(1), sFontNormal, szLineBuffer);
+   //sDisplayText(35, sLPixel(1), sFontBig, szLineBuffer);
+   sDisplayText(35, 4, sFontBig, szLineBuffer);
+   return 1;
+}  //sDisplayServoPos
+
+
+int sDisplayOdometer() {
+#if 0
+   strcpy(szLineBuffer, "21.50");
+   //sFormatLine("%f", 21.50);
+   sDisplayText(6, 50, sFontBig, szLineBuffer);
+#endif
+   //sFormatLine("%3d\xB0", sScaleGyro(asGyro[sTemperature][sXAxis]));
+   int sGyroF= sDegF( asGyro[sTemperature][sXAxis]);
+   //sFormatLine("%3d\xB0", abs(sScaleGyro(asGyro[sTemperature][sXAxis])));
+   sFormatLine("%3d\xB0", sGyroF);
+   sDisplayText(6, 50, sFontBig, szLineBuffer);
+   return 1;
+}  //sDisplayOdometer
+
+
+int sDegF(int sGyroReading) {
+   float fGyroF= ((1.8 * sGyroReading) / 340.0) + 103.13;
+   int sGyroF= fGyroF;
+   return sGyroF;
+}  //sDegF
+
+
+int sDisplayButtons() {
+   //Show 3 lines at right bottom for U d, D d, S d
+   //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
+   strcpy(szLineBuffer, "U ");
+   itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   //sDisplayText(5, 82, sFontNormal, szLineBuffer);
+   sDisplayText(82, sLPixel(5), sFontNormal, szLineBuffer);
+
+   strcpy(szLineBuffer, "D ");
+   itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   sDisplayText(82, sLPixel(6), sFontNormal, szLineBuffer);
+
+   strcpy(szLineBuffer, "S ");
+   itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
+   strcat(szLineBuffer, sz10CharString);
+   sDisplayText(82, sLPixel(7), sFontNormal, szLineBuffer);
+   return 1;
+}  //sDisplayButtons
+
+
+int sSwitchFont(int sFont) {
+   if (sFont != sCurrentFont) {
+      switch (sFont) {
+         case sFontNormal:
+            u8g.setFont(u8g_font_5x7);
+            break;
+         case sFontBig:
+            //u8g.setFont(u8g_font_fub11n);
+            u8g.setFont(u8g_font_7x13B);
+            break;
+         case sFontGearNum:
+            u8g.setFont(u8g_font_fub35n);
+            break;
+         case sFontSquare:
+            break;
+         default:
+            //Serial << "sSwitchFont(): Bad case in switch()= " << sFont << endl;
+           BLog("sSwitchFont(): Bad case in switch()= " + sFont);
+            break;
+      }  //switch
+      //Set the reference position for the font.
+      u8g.setFontRefHeightExtendedText();
+      u8g.setFontPosTop();
+   }  //if(sFont!=sCurrentFont)
+   return 1;
+}  //sSwitchFont
+
+
+int sDisplaySetBrightness(int sBrightness){
+#ifndef ESP8266
+  analogWrite(sBacklightPin, sBrightness);
+#endif
+   return 1;
+}  //sDisplaySetBrightness
+
+
+int sLPixel(int sLineNumber) {
+   //Converts line number to pixels at top
+   int sPixel= constrain((((sLineNumber - 1) * sLineSpace) - 1), 0, 64);
+   //Serial << sLC++ << " sLPixel(): Convert " << sLineNumber << " to " << sPixel << endl;
+   return sPixel;
+}  //sLPixel
+
+
+boolean bScreenChanged() {
+   //Determine if something being displayed has changed & clear the flags.
+   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged ||
+                     bModeChanged || bGyroChanged;
+   bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= bGyroChanged= false;
+   return bChanged;
+}  //bScreenChanged
+//#endif  //NO_DISPLAY
 //Last line.

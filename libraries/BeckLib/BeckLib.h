@@ -82,8 +82,10 @@ extern String					          szLogLine;
 extern BeckFirebase*			      pBeckFBase;
 extern bool                     bWiFiOn;
 extern bool                     bFirebaseOn;
+extern bool                     bStartedOTA;
 extern ESP8266WebServer			    oHttpServer;
 extern ESP8266HTTPUpdateServer	oHttpUpdateServer;
+extern U8GLIB_DOGS102           u8g;
 
 extern const int       sUpButtonPin;
 extern const int       sDownButtonPin;
