@@ -23,8 +23,8 @@ static const int    sLastPumpRelay      = 2;
 static const int    sFillValveRelay     = 3;
 static const int    sStatusSecs             = 2;
 static const int    sTimeoutSecs            = 7 * 60;
-static const int    s5BlackFluashOnSecs     = 45;
-static const int    sFinalFillSecs  = s5BlackFluashOnSecs / 2;
+static const int    sBlackFlushOnSecs     = 45;
+static const int    sFinalFillSecs  = sBlackFlushOnSecs / 2;
 static const long   lMsec           = 1000;
 static const long   lStatusMsec     = sStatusSecs  * lMsec;
 static const long   lTimeoutMsec    = sTimeoutSecs  * lMsec;
@@ -41,7 +41,7 @@ static const boolean  bFlowSwitchIsNO  = true;
 
 //Values changed when debug is on.
 static int    sNumBlackFills  = 8;
-static long   lBlackFlushOnMsec     = s5BlackFluashOnSecs * lMsec;
+static long   lBlackFlushOnMsec     = sBlackFlushOnSecs * lMsec;
 static long   lFinalFillOnMsec= sFinalFillSecs * lMsec;
 
 static boolean    bDebug          = false;
