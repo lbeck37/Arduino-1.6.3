@@ -21,10 +21,10 @@ static const int    asRelay[]           = {0, 7, 6, 5, 4};
 static const int    sFirstPumpRelay     = 1;
 static const int    sLastPumpRelay      = 2;
 static const int    sFillValveRelay     = 3;
-static const int    sStatusSecs     = 2;
-static const int    sTimeoutSecs    = 7 * 60;
-static const int    s5GalOnSecs     = 60;
-static const int    sFinalFillSecs  = s5GalOnSecs / 2;
+static const int    sStatusSecs             = 2;
+static const int    sTimeoutSecs            = 7 * 60;
+static const int    s5BlackFluashOnSecs     = 45;
+static const int    sFinalFillSecs  = s5BlackFluashOnSecs / 2;
 static const long   lMsec           = 1000;
 static const long   lStatusMsec     = sStatusSecs  * lMsec;
 static const long   lTimeoutMsec    = sTimeoutSecs  * lMsec;
@@ -41,7 +41,7 @@ static const boolean  bFlowSwitchIsNO  = true;
 
 //Values changed when debug is on.
 static int    sNumBlackFills  = 8;
-static long   l5GalOnMsec     = s5GalOnSecs * lMsec;
+static long   lBlackFlushOnMsec     = s5BlackFluashOnSecs * lMsec;
 static long   lFinalFillOnMsec= sFinalFillSecs * lMsec;
 
 static boolean    bDebug          = false;
@@ -293,7 +293,7 @@ int sSwitchBlackToFilling() {
     Serial << LOG0 <<" sSwitchBlackToFilling(): Perform fill "<< sBlackFillCount
            <<" of "<< sNumBlackFills << endl;
     sBlackDrainState= sBlackIsFilling;
-    lStopBlackFillMsec= lCurrentMsec + l5GalOnMsec;
+    lStopBlackFillMsec= lCurrentMsec + lBlackFlushOnMsec;
     sOpenBlackFillValve(true);
   } //if(sBlackFillCount++<sNumBlackFills)
   else {
@@ -446,16 +446,16 @@ int sToggleDebug() {
   if (bDebug) {
     Serial << LOG0 <<" sToggleDebug(): Turning Debug OFF"<< endl;
     sNumBlackFills= sNumBlackFills * sDebugRatio;
-    l5GalOnMsec= l5GalOnMsec * sDebugRatio;
+    lBlackFlushOnMsec= lBlackFlushOnMsec * sDebugRatio;
     lFinalFillOnMsec= lFinalFillOnMsec * sDebugRatio;
   } //if(bDebug)
   else {
     Serial << LOG0 <<" sToggleDebug(): Turning Debug ON"<< endl;
     sNumBlackFills= sNumBlackFills / sDebugRatio;
-    l5GalOnMsec= l5GalOnMsec / sDebugRatio;
+    lBlackFlushOnMsec= lBlackFlushOnMsec / sDebugRatio;
     lFinalFillOnMsec= lFinalFillOnMsec / sDebugRatio;
   } //if(bDebug)else
-  Serial << LOG0 <<" sToggleDebug(): Set l5GalOn Sec= "<< (l5GalOnMsec/1000)
+  Serial << LOG0 <<" sToggleDebug(): Set l5GalOn Sec= "<< (lBlackFlushOnMsec/1000)
          <<", Final Fill Sec= "<< (lFinalFillOnMsec/1000)
          <<", sNumBlackFills= "<< sNumBlackFills << endl;
   bDebug= !bDebug;
