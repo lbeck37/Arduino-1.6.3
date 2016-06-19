@@ -84,7 +84,7 @@ and when that time is exceeded the pump is shut off and we change to the Idle Cy
 */
 
 void setup()  {
-  Serial.begin(9600);
+  Serial.begin(115200);
   sWaitForSerialMonitor();
   Serial << LOG0 << " setup(): Begin" << endl;
   sSetupArduinoPins();
