@@ -1,3 +1,5 @@
+String acSketchName  = "Flojet.ino";
+String acFileDate    = "June 20, 2016_LBT_A";
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
 // 8/31/15 Change pressure switch from a normally closed to a normally open switch.
 // 8/29/15 Increase delay from 500 to 2000 msec after pump on to let pressure come up
@@ -9,18 +11,35 @@
 #include <Arduino.h>
 #include <Streaming.h>
 
+#define USING_ESP8266
+
 #define LOG0      lLineCount++ << " " << millis()
 static long       lLineCount= 0;      //Serial Monitor uses for clarity.
 
 #define MIN_SEC(Sec)    (Sec / 60) << ":" << (Sec % 60)
 //#define CYCLE_SEC       Serial << ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
 
-static const int    sPressurePin        = 3;
+#ifdef USING_ESP8266
+//Arduino GPIO pin numbers
+static const int    sPumpPin		= 0;
+static const int    sFillValvePin	= 4;
+static const int    sPressSwitchPin	= 5;
+static const int 	sFlowMeterPin  	= 16;      // Flow Meter Pin number, must support interrupt.
+#else
+static const int    sFillValvePin	= 3;
+static const int    sPressSwitchPin	= 3;
+static const int 	sFlowMeterPin  	= 2;      // Flow Meter Pin number, must support interrupt.
+#endif
+
+
+//Leonardo has INT0 on pin 3, Uno is on pin 2.
+//Not sure if pinMode() or digitalWrite() needs to be performed as I got Leonardo
+//going with pin 2 getting set up but sensor plugged into pin 3 for INT0
+
 //Relay pin can be 1 to 4,no zero relay, pin 4 not available, conflicts with SD card.
-static const int    asRelay[]           = {0, 7, 6, 5, 4};
-static const int    sFirstPumpRelay     = 1;
-static const int    sLastPumpRelay      = 2;
-static const int    sFillValveRelay     = 3;
+static const int    asShieldRelay[]         = {0, 7, 6, 5, 4};
+static const int    sFirstShieldPumpRelay	= 1;
+static const int    sLastShieldPumpRelay	= 2;
 static const int    sStatusSecs             = 2;
 static const int    sTimeoutSecs            = 7 * 60;
 static const int    sBlackFlushOnSecs     = 45;
@@ -56,10 +75,6 @@ static int        sBlackFillCount;
 
 
 volatile int  sFlowCount;
-//Leonardo has INT0 on pin 3, Uno is on pin 2.
-//Not sure if pinMode() or digitalWrite() needs to be performed as I got Leonardo
-//going with pin 2 getting set up but sensor plugged into pin 3 for INT0
-unsigned char ucFlowMeterPin  = 3;      // Flow Meter Pin number, must support interrupt.
 
 boolean           bPumpIsOn;                //Indicates current state of relays.
 
@@ -70,7 +85,7 @@ N keys may be pushed: G(rey), B(lack), F(ill), S(top), X(Debug)
 G starts the Grey Drain Cycle.
   The pump ia turned on and when the pump runs dry it goes back to the Idle Cycle.
 B starts the Black Drain Cycle.
-  The pump ia turned on and when the pump runs dry the water fill valve is turned on for
+  The pump is turned on and when the pump runs dry the water fill valve is turned on for
   one minute (~5 gal) and then off and the pump is run until again until dry. This is repeated
   N (7?) times.
 S stops any cycle and goes into the Idle Cycle.
@@ -87,6 +102,7 @@ void setup()  {
   Serial.begin(115200);
   sWaitForSerialMonitor();
   Serial << LOG0 << " setup(): Begin" << endl;
+  Serial << LOG0 << "Sketch: " << acSketchName << ", " << acFileDate << endl;
   sSetupArduinoPins();
   sStopCycle();
   return;
@@ -147,37 +163,41 @@ boolean bWaterIsFlowing() {
 
 
 int sSetupFlowMeter() {
-  pinMode(ucFlowMeterPin, INPUT);
-  digitalWrite(ucFlowMeterPin, HIGH);              //Turn on internal pullup.
+  pinMode(sFlowMeterPin, INPUT);
+  digitalWrite(sFlowMeterPin, HIGH);              //Turn on internal pullup.
   attachInterrupt(0, vIncrementFlowCount, RISING); // Setup Interrupt
   return 1;
 }  //sSetupFlowMeter
 
 
 int sSetupPressureSwitch() {
-  pinMode(sPressurePin, INPUT);
+  pinMode(sPressSwitchPin, INPUT);
   //Connect internal pull-up reistor.
-  digitalWrite(sPressurePin, HIGH);
+  digitalWrite(sPressSwitchPin, HIGH);
   return 1;
 }  //sSetupPressureSwitch
 
 
 int sSetupPumpRelays() {
   Serial << LOG0 <<" sSetupPumpRelays(): Begin"<< endl;
-  for (int sRelay= sFirstPumpRelay; sRelay <= sLastPumpRelay; sRelay++) {
-    int sRelayDigitalPin= asRelay[sRelay];
+#ifndef USING_ESP8266
+  for (int sRelay= sFirstShieldPumpRelay; sRelay <= sLastShieldPumpRelay; sRelay++) {
+    int sRelayDigitalPin= asShieldRelay[sRelay];
     Serial << LOG0 <<" sSetupPumpRelays(): Set relay #" << sRelay
            << " to pin " << sRelayDigitalPin << endl;
     pinMode(sRelayDigitalPin, OUTPUT);
   } //for
+#else
+  pinMode(sPumpPin, OUTPUT);
+#endif
   return 1;
 }  //sSetupPumpRelays
 
 
 int sSetupBlackFillValve() {
   Serial << LOG0 <<" sSetupBlackFillValve(): Set Black Fill Valve to pin "
-         << asRelay[sFillValveRelay] << endl;
-  pinMode(asRelay[sFillValveRelay], OUTPUT);
+         << asShieldRelay[sFillValvePin] << endl;
+  pinMode(asShieldRelay[sFillValvePin], OUTPUT);
   return 1;
 }  //sSetupBlackFillValve
 
@@ -204,6 +224,56 @@ int sSetCycleStartMsec() {
   Serial << LOG0 <<" sSetCycleStartMsec(): sCycleSec() returns "<< sCycleSecReturns << endl;
   return 1;
 }  //sSetCycleStartMsec
+
+
+int sTurnPumpOn(boolean bOn){
+  int sValue;
+  if (bOn) {
+    bPumpIsOn= true;
+    sValue= HIGH;
+    lNextTimeoutMsec= lCurrentMsec + lTimeoutMsec;
+    Serial << LOG0 <<" sTurnPumpOn(): Turning pump ON" << endl;
+  }
+  else {
+    bPumpIsOn= false;
+    sValue= LOW;
+    Serial << LOG0 <<" sTurnPumpOn(): Turning pump OFF" << endl;
+  }
+#ifndef USING_ESP8266
+  int sDigitalPin;
+  for (int sRelay= sFirstShieldPumpRelay; sRelay <= sLastShieldPumpRelay; sRelay++) {
+    sDigitalPin= asShieldRelay[sRelay];
+    Serial << LOG0 <<" sTurnPumpOn(): Set pin "
+           << sDigitalPin << " to " << sValue << endl;
+    digitalWrite(sDigitalPin, sValue);    // NO3 and COM3 Connected
+  } //for
+#else
+  digitalWrite(sPumpPin, sValue);
+#endif
+
+  //Give pressure time to come up.
+  if (bPumpIsOn) {
+    delay(lPumpOnDelayMsec);
+  } //if(bPumpIsOn())
+  return 1;
+}  //sTurnPumpOn
+
+
+int sOpenBlackFillValve(boolean bOn){
+  //int sDigitalPin;
+  int sValue;
+  if (bOn) {
+    sValue= HIGH;
+    Serial << LOG0 <<" sOpenBlackFillValve(): Open valve" << endl;
+  }
+  else {
+    sValue= LOW;
+    Serial << LOG0 <<" sOpenBlackFillValve(): Close valve" << endl;
+  }
+  Serial << LOG0 <<" sOpenBlackFillValve(): Set pin "<< asShieldRelay[sFillValvePin] <<" to "<< sValue << endl;
+  digitalWrite(asShieldRelay[sFillValvePin], sValue);
+  return 1;
+}  //sOpenBlackFillValve
 
 
 int sCheckForDryPump() {
@@ -340,7 +410,7 @@ boolean bPressureSwitchIsOK() {
   //Either verify the NC automotive oil pressure switch is connected and closed, or
   //verify the NO hot tub switch is not closed.
   boolean bReturn= true;
-  int sSwitch= digitalRead(sPressurePin);
+  int sSwitch= digitalRead(sPressSwitchPin);
   if (!bFlowSwitchIsNO && (sSwitch != LOW)) {
     Serial << LOG0 <<" bPressureSwitchIsOK(): ERROR: Switch is either not connected or open."<< endl;
     bReturn= false;
@@ -356,7 +426,7 @@ boolean bPressureSwitchIsOK() {
 
 boolean bPumpIsDry() {
   boolean bReturn= false;
-  int sSwitch= digitalRead(sPressurePin);
+  int sSwitch= digitalRead(sPressSwitchPin);
   /*if (sSwitch == LOW) {
     Serial << LOG0 <<" bPumpIsDry(): Pressure is low"<< endl;
     bReturn= true;
@@ -485,8 +555,8 @@ boolean bTimeToStopFillingBlack() {
 
 
 int sPrintStatus() {
-  int sSecSinceStart;
-  static long lLastPrintedMsec= 0;
+  //int sSecSinceStart;
+  //static long lLastPrintedMsec= 0;
   if (lCurrentMsec >= lNextStatusMsec) {
     lNextStatusMsec= lCurrentMsec + lStatusMsec;
     if (bPumpIsOn) {
@@ -497,7 +567,7 @@ int sPrintStatus() {
     }
     switch (sCurrentCycle) {
       case sIdleCycle:
-        sSecSinceStart= lCurrentMsec/1000;
+        //sSecSinceStart= lCurrentMsec/1000;
         Serial <<"Cycle seconds= "<< ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
                <<", Cycle= IDLE" << endl;
         break;
@@ -528,49 +598,4 @@ int sPrintStatus() {
   } //if(lCurrentMsec>=lNextStatusMsec)
   return 1;
 }  //sPrintStatus
-
-
-int sTurnPumpOn(boolean bOn){
-  int sDigitalPin;
-  int sValue;
-  if (bOn) {
-    bPumpIsOn= true;
-    sValue= HIGH;
-    lNextTimeoutMsec= lCurrentMsec + lTimeoutMsec;
-    Serial << LOG0 <<" sTurnPumpOn(): Turning pump ON" << endl;
-  }
-  else {
-    bPumpIsOn= false;
-    sValue= LOW;
-    Serial << LOG0 <<" sTurnPumpOn(): Turning pump OFF" << endl;
-  }
-  for (int sRelay= sFirstPumpRelay; sRelay <= sLastPumpRelay; sRelay++) {
-    sDigitalPin= asRelay[sRelay];
-    Serial << LOG0 <<" sTurnPumpOn(): Set pin "
-           << sDigitalPin << " to " << sValue << endl;
-    digitalWrite(sDigitalPin, sValue);    // NO3 and COM3 Connected
-  } //for
-  //Give pressure time to come up.
-  if (bPumpIsOn) {
-    delay(lPumpOnDelayMsec);
-  } //if(bPumpIsOn())
-  return 1;
-}  //sTurnPumpOn
-
-
-int sOpenBlackFillValve(boolean bOn){
-  //int sDigitalPin;
-  int sValue;
-  if (bOn) {
-    sValue= HIGH;
-    Serial << LOG0 <<" sOpenBlackFillValve(): Open valve" << endl;
-  }
-  else {
-    sValue= LOW;
-    Serial << LOG0 <<" sOpenBlackFillValve(): Close valve" << endl;
-  }
-  Serial << LOG0 <<" sOpenBlackFillValve(): Set pin "<< asRelay[sFillValveRelay] <<" to "<< sValue << endl;
-  digitalWrite(asRelay[sFillValveRelay], sValue);
-  return 1;
-}  //sOpenBlackFillValve
 // Last line.
