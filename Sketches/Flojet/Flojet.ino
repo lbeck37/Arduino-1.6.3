@@ -1,6 +1,6 @@
 String acSketchName  = "Flojet.ino";
 //String acFileDate    = "June 20, 2016_LBT_A";
-String acFileDate    = "June 29, 2016_LBT_A";
+String acFileDate    = "June 29, 2016_HP7_B";
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
 // 8/31/15 Change pressure switch from a normally closed to a normally open switch.
 // 8/29/15 Increase delay from 500 to 2000 msec after pump on to let pressure come up
@@ -13,6 +13,7 @@ String acFileDate    = "June 29, 2016_LBT_A";
 #include <Streaming.h>
 
 //#define USING_ESP8266
+//#define USING_FLOWMETER
 
 #define LOG0      lLineCount++ << " " << millis()
 static long       lLineCount= 0;      //Serial Monitor uses for clarity.
@@ -25,11 +26,15 @@ static long       lLineCount= 0;      //Serial Monitor uses for clarity.
 static const int    sPumpPin		= 0;
 static const int    sFillValvePin	= 4;
 static const int    sPressSwitchPin	= 5;
-static const int 	sFlowMeterPin  	= 16;      // Flow Meter Pin number, must support interrupt.
+#ifdef USING_FLOWMETER
+  static const int 	sFlowMeterPin  	= 16;      // Flow Meter Pin number, must support interrupt.
+#endif  //USING_FLOWMETER
 #else
 static const int    sFillValvePin	= 3;
 static const int    sPressSwitchPin	= 3;
-static const int 	sFlowMeterPin  	= 2;      // Flow Meter Pin number, must support interrupt.
+#ifdef USING_FLOWMETER
+  static const int  sFlowMeterPin   = 2;      // Flow Meter Pin number, must support interrupt.
+#endif  //USING_FLOWMETER
 #endif
 
 
@@ -135,11 +140,14 @@ int sSetupArduinoPins() {
   sSetupPressureSwitch();
   sSetupPumpRelays();
   sSetupBlackFillValve();
+#ifdef USING_FLOWMETER
   sSetupFlowMeter();
+#endif  //USING_FLOWMETER
   return 1;
 }  //sSetupArduinoPins
 
 
+#ifdef USING_FLOWMETER
 void vIncrementFlowCount()                  // Interruot function
 {
    sFlowCount++;
@@ -169,6 +177,7 @@ int sSetupFlowMeter() {
   attachInterrupt(0, vIncrementFlowCount, RISING); // Setup Interrupt
   return 1;
 }  //sSetupFlowMeter
+#endif  //USING_FLOWMETER
 
 
 int sSetupPressureSwitch() {
@@ -217,12 +226,15 @@ int sBlackFillCycleSecLeft() {
 
 int sSetCycleStartMsec() {
   lCycleStartMsec= lCurrentMsec;
+/*
   Serial << LOG0 <<" sSetCycleStartMsec(): Set  Cycle start to "
          << ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60) << endl;
   Serial << LOG0 <<" sSetCycleStartMsec(): lCurrentMsec= "<< lCurrentMsec
          << ", lCycleStartMsec= " << lCycleStartMsec << endl;
   int sCycleSecReturns= sCycleSec();
   Serial << LOG0 <<" sSetCycleStartMsec(): sCycleSec() returns "<< sCycleSecReturns << endl;
+*/
+  Serial << LOG0 <<" sSetCycleStartMsec(): lCycleStartMsec= " << lCycleStartMsec << endl;
   return 1;
 }  //sSetCycleStartMsec
 
@@ -303,14 +315,15 @@ int sCheckCurrentCycle() {
       }
       break;
     case sBlackFillCycle:
+#ifdef USING_FLOWMETER
       if (!bWaterIsFlowing()) {
         sStopCycle();
       } //if(!bWaterIsFlowing())
-      else {
-        if (bTimeToStopFillingBlack()) {
-          sStopCycle();
-        } //if(bTimeToStopFillingBlack())
-      } //if(!bWaterIsFlowing())else
+#endif //USING_FLOWMETER
+      if (bTimeToStopFillingBlack()) {
+        sStopCycle();
+      } //if(bTimeToStopFillingBlack())
+
       break;
     case sIdleCycle:
       break;
@@ -449,10 +462,17 @@ int sHandleDryPump() {
       break;
     case sBlackDrainCycle:
       if (sBlackDrainState == sBlackIsDraining) {
-        //sSwitchBlackToFilling() returns 0 when desired fills have happened.
-        if (sSwitchBlackToFilling() == 0) {
+        //Make sure pump was on for at least 3 seconds.
+        //This is necessary for testing w/o pressure switch.
+        if (sCycleSec() <= 3) {
           sStopCycle();
-        } //if (sSwitchBlackToFilling() == 0)
+        } //if(sCycleSec()<=3)
+        else {
+          //sSwitchBlackToFilling() returns 0 when desired fills have happened.
+          if (sSwitchBlackToFilling() == 0) {
+            sStopCycle();
+          } //if (sSwitchBlackToFilling() == 0)
+        } //if(sCycleSec()<=3)else
       } //if(sBlackDrainState==sBlackIsDraining)
       break;
     case sIdleCycle:
