@@ -1,5 +1,6 @@
 String acSketchName  = "Flojet.ino";
-String acFileDate    = "June 20, 2016_LBT_A";
+//String acFileDate    = "June 20, 2016_LBT_A";
+String acFileDate    = "June 29, 2016_LBT_A";
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
 // 8/31/15 Change pressure switch from a normally closed to a normally open switch.
 // 8/29/15 Increase delay from 500 to 2000 msec after pump on to let pressure come up
@@ -11,7 +12,7 @@ String acFileDate    = "June 20, 2016_LBT_A";
 #include <Arduino.h>
 #include <Streaming.h>
 
-#define USING_ESP8266
+//#define USING_ESP8266
 
 #define LOG0      lLineCount++ << " " << millis()
 static long       lLineCount= 0;      //Serial Monitor uses for clarity.
