@@ -2,7 +2,7 @@ String acSketchName  = "Flojet.ino";
 //String acFileDate    = "June 20, 2016_LBT_A";
 //String acFileDate    = "June 29, 2016_HP7_B";
 //String acFileDate    = "July 4, 2016_HP7_A";
-String acFileDate    = "July 5, 2016_HP7_C";
+String acFileDate    = "July 5, 2016_HP7_D";
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
 // 7/5/16 Use Maxim/Dallas 1-wire DS18B20 Temp sensor in in 1-wire configuration
 // 7/4/16 Add (2) TMP36 temp sensors for motor case and outlet air.
@@ -50,7 +50,7 @@ static const int    sPressSwitchPin	= 3;
 //going with pin 2 getting set up but sensor plugged into pin 3 for INT0
 
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
-
+static const String szTempSensors[]       = {"Housing", "Exit Air"};
 //Relay pin can be 1 to 4,no zero relay, pin 4 not available, conflicts with SD card.
 static const int    asShieldRelay[]         = {0, 7, 6, 5, 4};
 static const int    sFirstShieldPumpRelay	= 1;
@@ -167,8 +167,8 @@ void vReadTempSensors() {
   for (int sSensor= 0; sSensor < 2; sSensor++) {
     fDegrees[sSensor]= fGetDegF(sSensor);
   } //for(int sSensor= 0;...
-  Serial << LOG0 << " vReadTempSensors(): Sensor 1 = " << fDegrees[0]
-         << ", Sensor 2 = " << fDegrees[1] << endl;
+  Serial << LOG0 << " vReadTempSensors(): " << szTempSensors[0] << "= " << fDegrees[0]
+         << ", " << szTempSensors[1] << "= " << fDegrees[1] << endl;
 } //vReadTempSensors
 
 
