@@ -163,14 +163,19 @@ int sSetupArduinoPins() {
 
 
 void vReadTempSensors() {
-  float fDegrees= fGetDegF();
-  Serial << LOG0 << " vReadTempSensors(): fDegrees= " << fDegrees << endl;
-}
+  float fDegrees[2];
+  for (int sSensor= 0; sSensor < 2; sSensor++) {
+    fDegrees[sSensor]= fGetDegF(sSensor);
+  } //for(int sSensor= 0;...
+  Serial << LOG0 << " vReadTempSensors(): Sensor 1 = " << fDegrees[0]
+         << ", Sensor 2 = " << fDegrees[1] << endl;
+} //vReadTempSensors
 
-float fGetDegF(){
+
+float fGetDegF(int sSensor){
   float fDegFReturn;
   oSensors.requestTemperatures(); // Send the command to get temperatures
-  fDegFReturn= oSensors.getTempFByIndex(0);
+  fDegFReturn= oSensors.getTempFByIndex(sSensor);
   return fDegFReturn;
 }  //fGetDegF
 
@@ -614,7 +619,6 @@ int sPrintStatus() {
     else {
       Serial << LOG0 << " sPrintStatus(): Pump is OFF, ";
     }
-    vReadTempSensors();
     switch (sCurrentCycle) {
       case sIdleCycle:
         //sSecSinceStart= lCurrentMsec/1000;
@@ -645,6 +649,7 @@ int sPrintStatus() {
         Serial << LOG0 << "loop(): Bad case in switch()= "<< sCurrentCycle << endl;
         break;
     } //switch
+    vReadTempSensors();
   } //if(lCurrentMsec>=lNextStatusMsec)
   return 1;
 }  //sPrintStatus
