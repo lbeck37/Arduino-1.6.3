@@ -1,7 +1,11 @@
 String acSketchName  = "Flojet.ino";
 //String acFileDate    = "June 20, 2016_LBT_A";
-String acFileDate    = "June 29, 2016_HP7_B";
+//String acFileDate    = "June 29, 2016_HP7_B";
+//String acFileDate    = "July 4, 2016_HP7_A";
+String acFileDate    = "July 5, 2016_HP7_A";
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
+// 7/5/16 Use Maxim/Dallas 1-wire DS18B20 Temp sensor in in 1-wire configuration
+// 7/4/16 Add (2) TMP36 temp sensors for motor case and outlet air.
 // 8/31/15 Change pressure switch from a normally closed to a normally open switch.
 // 8/29/15 Increase delay from 500 to 2000 msec after pump on to let pressure come up
 // 7/26 Work on completing with fill valve on pin relay 3.
@@ -11,6 +15,9 @@ String acFileDate    = "June 29, 2016_HP7_B";
 // 7/14/15 Remove check on motor voltage and add check on pressure switch.Ifdef SD card out.
 #include <Arduino.h>
 #include <Streaming.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define ONEWIRE_PIN    2
 
 //#define USING_ESP8266
 //#define USING_FLOWMETER
@@ -41,6 +48,8 @@ static const int    sPressSwitchPin	= 3;
 //Leonardo has INT0 on pin 3, Uno is on pin 2.
 //Not sure if pinMode() or digitalWrite() needs to be performed as I got Leonardo
 //going with pin 2 getting set up but sensor plugged into pin 3 for INT0
+
+static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 
 //Relay pin can be 1 to 4,no zero relay, pin 4 not available, conflicts with SD card.
 static const int    asShieldRelay[]         = {0, 7, 6, 5, 4};
@@ -79,6 +88,12 @@ static int        sCurrentCycle;            //sIdleCycle, sGreyDrainCycle, sBlac
 static int        sBlackDrainState;
 static int        sBlackFillCount;
 
+//Maxim/Dallas OneWire sensors
+/* Set up a oneWire instance to communicate with any OneWire device*/
+OneWire         oOneWire(sOneWirePin);
+
+/* Tell Dallas Temperature Library to use oneWire Library */
+DallasTemperature oSensors(&oOneWire);
 
 volatile int  sFlowCount;
 
@@ -129,7 +144,6 @@ void loop()  {
   sCheckForDryPump();
   sCheckForTimeout();
   sCheckCurrentCycle();
-
   sPrintStatus();
   sCheckKeyboard();
   return;
@@ -137,6 +151,7 @@ void loop()  {
 
 
 int sSetupArduinoPins() {
+  oSensors.begin();   //1-wire setup.
   sSetupPressureSwitch();
   sSetupPumpRelays();
   sSetupBlackFillValve();
@@ -145,6 +160,19 @@ int sSetupArduinoPins() {
 #endif  //USING_FLOWMETER
   return 1;
 }  //sSetupArduinoPins
+
+
+void vReadTempSensors() {
+  float fDegrees= fGetDegF();
+  Serial << LOG0 << " vReadTempSensors(): fDegrees= " << fDegrees << endl;
+}
+
+float fGetDegF(){
+  float fDegFReturn;
+  oSensors.requestTemperatures(); // Send the command to get temperatures
+  fDegFReturn= oSensors.getTempFByIndex(0);
+  return fDegFReturn;
+}  //fGetDegF
 
 
 #ifdef USING_FLOWMETER
@@ -586,6 +614,7 @@ int sPrintStatus() {
     else {
       Serial << LOG0 << " sPrintStatus(): Pump is OFF, ";
     }
+    vReadTempSensors();
     switch (sCurrentCycle) {
       case sIdleCycle:
         //sSecSinceStart= lCurrentMsec/1000;
