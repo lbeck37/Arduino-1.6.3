@@ -1,8 +1,5 @@
 String acSketchName  = "Flojet.ino";
-//String acFileDate    = "June 20, 2016_LBT_A";
-//String acFileDate    = "June 29, 2016_HP7_B";
-//String acFileDate    = "July 4, 2016_HP7_A";
-String acFileDate    = "July 5, 2016_HP7_D";
+String acFileDate    = "July 6, 2016_HP7_B";
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
 // 7/5/16 Use Maxim/Dallas 1-wire DS18B20 Temp sensor in in 1-wire configuration
 // 7/4/16 Add (2) TMP36 temp sensors for motor case and outlet air.
@@ -17,7 +14,7 @@ String acFileDate    = "July 5, 2016_HP7_D";
 #include <Streaming.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#define ONEWIRE_PIN    2
+//#define ONEWIRE_PIN    2
 
 //#define USING_ESP8266
 //#define USING_FLOWMETER
@@ -28,17 +25,21 @@ static long       lLineCount= 0;      //Serial Monitor uses for clarity.
 #define MIN_SEC(Sec)    (Sec / 60) << ":" << (Sec % 60)
 //#define CYCLE_SEC       Serial << ((sCycleSec()/60)) <<":"<< (sCycleSec() % 60)
 
+//Pin refers to an Arduino GPIO pin number
+//Relay can be 1,2,3,4 corresponding to Arduino pins 7,6,5,4 (pin 4 is also used by SD card shield)
 #ifdef USING_ESP8266
-//Arduino GPIO pin numbers
-static const int    sPumpPin		= 0;
-static const int    sFillValvePin	= 4;
+static const int    sPumpPin		    = 0;
+static const int    sOneWirePin     = 2;  //Dallas DS18B20 Temperature Sensor
+static const int    sFillValveRelay	= 4;
 static const int    sPressSwitchPin	= 5;
 #ifdef USING_FLOWMETER
   static const int 	sFlowMeterPin  	= 16;      // Flow Meter Pin number, must support interrupt.
 #endif  //USING_FLOWMETER
+
 #else
-static const int    sFillValvePin	= 3;
+static const int    sOneWirePin     = 2;  //Dallas DS18B20 Temperature Sensor
 static const int    sPressSwitchPin	= 3;
+static const int    sFillValveRelay = 3;
 #ifdef USING_FLOWMETER
   static const int  sFlowMeterPin   = 2;      // Flow Meter Pin number, must support interrupt.
 #endif  //USING_FLOWMETER
@@ -49,36 +50,36 @@ static const int    sPressSwitchPin	= 3;
 //Not sure if pinMode() or digitalWrite() needs to be performed as I got Leonardo
 //going with pin 2 getting set up but sensor plugged into pin 3 for INT0
 
-static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 static const String szTempSensors[]       = {"Housing", "Exit Air"};
 //Relay pin can be 1 to 4,no zero relay, pin 4 not available, conflicts with SD card.
-static const int    asShieldRelay[]         = {0, 7, 6, 5, 4};
+static const int    asShieldRelay[]       = {0, 7, 6, 5, 4};
 static const int    sFirstShieldPumpRelay	= 1;
 static const int    sLastShieldPumpRelay	= 2;
-static const int    sStatusSecs             = 2;
-static const int    sTimeoutSecs            = 7 * 60;
+static const int    sStatusSecs           = 2;
+static const int    sTimeoutSecs          = 7 * 60;
 static const int    sBlackFlushOnSecs     = 45;
-static const int    sFinalFillSecs  = sBlackFlushOnSecs / 2;
-static const long   lMsec           = 1000;
-static const long   lStatusMsec     = sStatusSecs  * lMsec;
-static const long   lTimeoutMsec    = sTimeoutSecs  * lMsec;
-static const long   lPumpOnDelayMsec= 1000;
-static const int    sIdleCycle      = 0;
-static const int    sGreyDrainCycle = 1;
-static const int    sBlackDrainCycle= 2;
-static const int    sBlackFillCycle = 3;
-static const int    sBlackIsDraining= 1;
-static const int    sBlackIsFilling = 2;
-static const float  fPulsesPerGal   = 1700.0;
-static const float  fGpmLowerLimit  = 3.0;
-static const boolean  bFlowSwitchIsNO  = true;
+static const int    sFinalFillSecs        = sBlackFlushOnSecs / 2;
+static const long   lMsec                 = 1000;
+static const long   lStatusMsec           = sStatusSecs  * lMsec;
+static const long   lTimeoutMsec          = sTimeoutSecs * lMsec;
+static const long   lPumpOnDelayMsec      = 1000;
+static const int    sIdleCycle            = 0;
+static const int    sGreyDrainCycle       = 1;
+static const int    sBlackDrainCycle      = 2;
+static const int    sBlackFillCycle       = 3;
+static const int    sBlackIsDraining      = 1;
+static const int    sBlackIsFilling       = 2;
+static const float  fPulsesPerGal         = 1700.0;
+static const float  fGpmLowerLimit        = 3.0;
+static const boolean  bFlowSwitchIsNO     = true;
+//End of const's
 
 //Values changed when debug is on.
-static int    sNumBlackFills  = 8;
-static long   lBlackFlushOnMsec     = sBlackFlushOnSecs * lMsec;
-static long   lFinalFillOnMsec= sFinalFillSecs * lMsec;
+static int    sNumBlackFills              = 8;
+static long   lBlackFlushOnMsec           = sBlackFlushOnSecs * lMsec;
+static long   lFinalFillOnMsec            = sFinalFillSecs * lMsec;
 
-static boolean    bDebug          = false;
+static boolean    bDebug                  = false;
 static long       lNextTimeoutMsec;          //Next time to toggle pump relay.
 static long       lNextStatusMsec;          //Next time to print status on Serial Monitor.
 static long       lStopBlackFillMsec;       //Time to stop filling black tank
@@ -90,14 +91,14 @@ static int        sBlackFillCount;
 
 //Maxim/Dallas OneWire sensors
 /* Set up a oneWire instance to communicate with any OneWire device*/
-OneWire         oOneWire(sOneWirePin);
+OneWire           oOneWire(sOneWirePin);
 
 /* Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature oSensors(&oOneWire);
 
 volatile int  sFlowCount;
 
-boolean           bPumpIsOn;                //Indicates current state of relays.
+boolean           bPumpIsOn;                //Indicates current state of pump relays.
 
 /*
 When board powers up pump is tuned off and pump loop is not running.
@@ -151,7 +152,7 @@ void loop()  {
 
 
 int sSetupArduinoPins() {
-  oSensors.begin();   //1-wire setup.
+  oSensors.begin();   //OneWire setup.
   sSetupPressureSwitch();
   sSetupPumpRelays();
   sSetupBlackFillValve();
@@ -239,8 +240,8 @@ int sSetupPumpRelays() {
 
 int sSetupBlackFillValve() {
   Serial << LOG0 <<" sSetupBlackFillValve(): Set Black Fill Valve to pin "
-         << asShieldRelay[sFillValvePin] << endl;
-  pinMode(asShieldRelay[sFillValvePin], OUTPUT);
+         << asShieldRelay[sFillValveRelay] << endl;
+  pinMode(asShieldRelay[sFillValveRelay], OUTPUT);
   return 1;
 }  //sSetupBlackFillValve
 
@@ -316,8 +317,8 @@ int sOpenBlackFillValve(boolean bOn){
     sValue= LOW;
     Serial << LOG0 <<" sOpenBlackFillValve(): Close valve" << endl;
   }
-  Serial << LOG0 <<" sOpenBlackFillValve(): Set pin "<< asShieldRelay[sFillValvePin] <<" to "<< sValue << endl;
-  digitalWrite(asShieldRelay[sFillValvePin], sValue);
+  Serial << LOG0 <<" sOpenBlackFillValve(): Set pin "<< asShieldRelay[sFillValveRelay] <<" to "<< sValue << endl;
+  digitalWrite(asShieldRelay[sFillValveRelay], sValue);
   return 1;
 }  //sOpenBlackFillValve
 
