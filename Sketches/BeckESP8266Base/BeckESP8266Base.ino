@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "June 19, 2016_LBT_D";		//Was May 15, 2016_HP7N
+String acFileDate    = "Sept 16, 2016_V64_A";		//Was May 15, 2016_HP7N, June 19, 2016_LBT_D
 
 //#define TEST_WIFI
 
@@ -7,14 +7,12 @@ String acFileDate    = "June 19, 2016_LBT_D";		//Was May 15, 2016_HP7N
 /*
 static const char   acRouterName[]        = "TrailheadBoise";
 static const char   acRouterPW[]          = "Trailhead2015";
-*/
 static const char           acRouterName[]      = "LBTspot";
 static const char           acRouterPW[]        = "Qazqaz11";
-
-/*
+*/
 static const char           acRouterName[]      = "Aspot24";
 static const char           acRouterPW[]        = "Qazqaz11";
-*/
+
 static const String     		sDatabaseURL   		= "intense-fire-3958.firebaseio.com";
 //static const String     		sDatabaseURL   		= "intense-fire-37.firebaseio.com";
 static const String     		sFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";

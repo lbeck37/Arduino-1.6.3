@@ -1,5 +1,6 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "April 18, 2016C";
+static const char szFileDate[]    = "September 16, 2016";
+// 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
 // 12/27/15 Add DEV_REMOTE.
@@ -21,15 +22,17 @@ static const char szFileDate[]    = "April 18, 2016C";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGE
+#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-#define DEV_REMOTE
+//#define DEV_REMOTE
 
-#define SKIP_BLYNK    	true
-#define DEBUG     		true
-#define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
+#if 0
+	#define SKIP_BLYNK    	true
+	#define DEBUG     		true
+	#define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
+#endif
 
 #include <Streaming.h>
 #include <Time.h>
@@ -89,7 +92,11 @@ static const char szFileDate[]    = "April 18, 2016C";
 
 #define LOG0    szLogLineHeader(++lLineCount)
 
-static const bool bSkipBlynk        	= SKIP_BLYNK;
+#ifdef SKIP_BLYNK
+	static const bool bSkipBlynk        	= true;
+#else
+	static const bool bSkipBlynk        	= false;
+#endif
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
