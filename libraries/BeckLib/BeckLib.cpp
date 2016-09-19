@@ -1,4 +1,4 @@
-//BeckLib.cpp, May 16, 2016
+//BeckLib.cpp, September 18, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
@@ -7,7 +7,7 @@
 long					          lLineCount			  = 0;  //Serial Monitor uses for clarity.
 int32_t					        wHttpServerCount	= 0;	//Log every nth call at UPLOAD_FILE_WRITE
 String					        szLogLine;
-BeckFirebase*			      pBeckFBase;
+
 bool                    bWiFiOn           = false;
 bool                    bFirebaseOn       = false;
 bool                    bStartedOTA       = false;
@@ -16,8 +16,7 @@ ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
 
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
 //U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
-//#ifndef NO_DISPLAY
-#if 1
+#ifndef NO_DISPLAY
   U8GLIB_DOGS102 u8g(cSPICLKPin, cSPIMOSIPin, cSPISelectPin, cSPIMISOPin);
 #endif
 
@@ -45,6 +44,7 @@ ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
   const byte      cSPIChipSelectPin     = 10;
 #endif  //ESP8266
 
+/*
 BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
 		                   String sLogPath, String sMyName){
 	sDatabaseURL_		= sDatabaseURL;
@@ -162,6 +162,7 @@ void SendInfoToLog(void){
 	LogESPValues();
 	return;
 } //SendInfoToLog
+*/
 
 
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
