@@ -1,8 +1,8 @@
-//BeckLib.h, September 18, 2016
+//BeckLib.h, September 19, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>
-#include <Firebase.h>
+//#include <Firebase.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>

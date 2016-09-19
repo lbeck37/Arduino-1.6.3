@@ -1,5 +1,5 @@
 String acSketchName  = "BeckESP8266Base.ino";
-String acFileDate    = "Sept 18, 2016_LBT_K";		//Was May 15, 2016_HP7N, June 19, 2016_LBT_D
+String acFileDate    = "Sept 19, 2016_HP7_A";		//Was May 15, 2016_HP7N, June 19, 2016_LBT_D
 
 //#define TEST_WIFI
 
