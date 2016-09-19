@@ -32,43 +32,6 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
-/*
-#define BLogF		    pBeckFBase->LogToFirebase
-
-class BeckFirebase {
-public:
-	BeckFirebase(String sDatabaseURL,String sFirebaseSecret, String sPushPath, String sMyName);
-
-	BeckFirebase() {};
-	~BeckFirebase() {};
-
-	void 		    LogToSerial(String sLogline);
-	bool		    LogToFirebase(String sLogline);
-	void		    LogToBoth(String sLogline);
-	String		  GetDatabaseURL(void);
-	String		  GetLogPath(void);
-	String		  GetPushPath(void);
-
-	bool		    bFirebaseOk_= true;
-
-protected:
-	String		  sDatabaseURL_;
-	String		  sFirebaseSecret_;
-	//Firebase 	oFBase_;
-	Firebase* 	pFBase_;
-	String		  sLogPath_;
-	String 		  sMyName_;
-	String		  sPushPath_;
-
-	String		sMakeJSONObject(String sName, String sValue);
-};	//BeckFirebase
-
-//Non-class function protos.
-BeckFirebase*	StartBeckFirebase(String sDatabaseURL, String sFirebaseSecret, String sLogPath, String sMyName);
-bool 			TestFirebase(void);
-void			SendInfoToLog(void);
-*/
-
 void 			SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
 String    szWiFiStatus(wl_status_t status);
 void 			SetupHttpServer(const char* acHostname,

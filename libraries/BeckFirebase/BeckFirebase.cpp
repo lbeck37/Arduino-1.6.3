@@ -1,6 +1,17 @@
 //BeckFirebase.cpp, September 18, 2016
 #include <BeckFirebase.h>
 
+static const String     		sDatabaseURL   		= "intense-fire-3958.firebaseio.com";
+//static const String     		sDatabaseURL   		= "intense-fire-37.firebaseio.com";
+static const String     		sFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
+static const String         	sLogPath      		= "/Logs/";
+static const char           	acMyFbaseName[]     = "BeckESP8266Base_3dotESP";
+
+//static const char           	acMyFbaseName[]     = "BeckESP8266Base_1dotESP";
+//static const char           	acMyFbaseName[]     = "BeckESP8266Base_2dotESP";//Has WiFi problem.
+//static const char           	acMyFbaseName[]     = "Powershift_3dotESP";
+//static const char           	acMyFbaseName[]     = "BeckESP8266Base_CloneNodeMCU";
+
 BeckFirebase*			      pBeckFBase;
 
 BeckFirebase::BeckFirebase(String sDatabaseURL,String sFirebaseSecret,
