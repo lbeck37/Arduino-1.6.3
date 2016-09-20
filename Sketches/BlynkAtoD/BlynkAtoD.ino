@@ -1,45 +1,24 @@
-static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "September 19, 2016";
-// 9/16/16 Work on getting Garage to build and run.
-// 1/06/16 Building from eclipseArduino
-// 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
-// 12/27/15 Add DEV_REMOTE.
-// 12/26/15 Switch to C1200spot from dlinky.
-// 12/24/15 Switch Garage to be local server, switch IPof local server.
-// 12/21/15 Added Auth Token for HEATER project for testing.
-// 12/18/15 Added Auth Token for DEV_LOCAL project for testing.
-// 12/17/15 Add HandleSystem() to take care of relays also in loop().
-// 12/16/15 Implement thermostat for GARAGE version.
-// 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
-// 12/14/15 Rearrange virtual pins, build GARAGE version.
-// 12/13/15 Merge in support for Fireplace.
-// 12/12/15 Created from Blynk_LightTimer.ino
+static const char szSketchName[]  = "BlynkAtoD.ino";
+static const char szFileDate[]    = "September 19, 2016 D";
+// 9/19/16 Copied from BeckBlynk and stripped down to FRONT_LIGHT prior to bringing in ADS1115
 //Open issues:
 //  - Switches 3 and 4 LEDs are not working.
 //  - Add virtual pin and LED for turning on DEBUG.
 //  - Get LEDs off at beginning.
 
 //Uncomment out desired implementation.
-//#define FRONT_LIGHTS
+#define FRONT_LIGHTS
 //#define FIREPLACE
-#define GARAGE
+//#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
 //#define DEV_REMOTE
 
-#if 0
-	#define SKIP_BLYNK    	true
-	#define DEBUG     		true
-	#define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
-#endif
-
 #include <Streaming.h>
 #include <Time.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 #include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -92,11 +71,7 @@ static const char szFileDate[]    = "September 19, 2016";
 
 #define LOG0    szLogLineHeader(++lLineCount)
 
-#ifdef SKIP_BLYNK
-	static const bool bSkipBlynk        	= true;
-#else
-	static const bool bSkipBlynk        	= false;
-#endif
+static const bool bSkipBlynk        	= false;
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
@@ -193,7 +168,7 @@ OneWire         oOneWire(sOneWirePin);
 /* Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature	oSensors(&oOneWire);
 
-ESP8266WebServer  	oESP8266WebServer(80);
+//ESP8266WebServer  	oESP8266WebServer(80);
 
 //UpdaterClass 		Update;	//Declaration at the end of cores\esp8266\Updater.h from BSP
 
@@ -206,11 +181,8 @@ static long         lLineCount            = 0;      //Serial Monitor uses for cl
 //static long         lNumLoops             = 1;
 static float          fLastDegF             = 37.37;  //Last temperature reading.
 static int            sSetpointF            = 37;
-static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
 static unsigned long  ulUpdateTimeoutMsec   = 0;
-static bool           bThermoOn             = true;   //Whether thermostat is running.
-static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool         bDebugLog             = true;   //Used to limit number of printouts.
@@ -232,7 +204,7 @@ void setup()
 
 
 void loop() {
-	HandleHttpServer();
+	//HandleHttpServer();
 	if (!bSkipBlynk) {
 		if (!bUpdating) {
 			Blynk.run();
@@ -251,7 +223,7 @@ void loop() {
 
 
 void SetupWiFi(){
-  SetupServer();
+  //SetupServer();
   switch (sProjectType){
     case sGarageLocal:
     case sDevLocal:
@@ -266,109 +238,6 @@ void SetupWiFi(){
   Serial << LOG0 << " SetupWiFi(): Blynk.config() returned" << endl;
   return;
 } //SetupWiFi
-
-
-void SetupServer(void) {
-  WiFi.mode(WIFI_AP_STA);
-  Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
-  if(WiFi.waitForConnectResult() == WL_CONNECTED) {
-    MDNS.begin(acHostname);
-    oESP8266WebServer.on("/", HTTP_GET, [](){
-      oESP8266WebServer.sendHeader("Connection", "close");
-      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-      oESP8266WebServer.send(200, "text/html", acServerIndex);
-    });
-    oESP8266WebServer.on("/update", HTTP_POST, []() {
-      oESP8266WebServer.sendHeader("Connection", "close");
-      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-      oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
-      ESP.restart();
-    },[](){
-      HandleUpdate();
-    });
-    oESP8266WebServer.begin();
-    MDNS.addService("http", "tcp", 80);
-    Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
-  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)
-  else {
-    Serial.println("WiFi Failed");
-  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)else
-  return;
-} //SetupServer
-
-
-void HandleUpdate() {
-	//upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
-	HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
-	if (stHTTPUpload.status == UPLOAD_FILE_START) {
-		PauseBlynk();
-		Serial.setDebugOutput(true);
-		WiFiUDP::stopAll();
-		uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-		Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_START" << endl;
-		Serial << LOG0 << " HandleUpdate(): ulMaxSketchSpace  = " << ulMaxSketchSpace << endl;
-		Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
-		Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
-		Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
-		Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
-		Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
-		if (!Update.begin(ulMaxSketchSpace)) { //start with max available size
-			Update.printError(Serial);
-		} //if(!Update.begin(maxSketchSpace))
-	} //if(WiFi.waitForConnectResult()==WL_CONNECTED)
-	else if (stHTTPUpload.status == UPLOAD_FILE_WRITE) {
-		//Serial << LOG0 << " Handle /update HTTP_POST: UPLOAD_FILE_WRITE, upload.currentSize= " << stHTTPUpload.currentSize << endl;
-		if (Update.write(stHTTPUpload.buf, stHTTPUpload.currentSize)
-				!= stHTTPUpload.currentSize) {
-			Update.printError(Serial);
-		} //if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
-	} //else if(upload.status==UPLOAD_FILE_WRITE)
-	else if (stHTTPUpload.status == UPLOAD_FILE_END) {
-		Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_END" << endl;
-		Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
-		Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
-		Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
-		Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
-		Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
-		HandleFileEnd(stHTTPUpload);
-#if false
-		if (Update.end(true)) { //true to set the size to the current progress
-			//Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-			Serial << LOG0
-					<< " HandleUpdate(): UPLOAD_FILE_END (rebooting?), upload.totalSize= "
-					<< stHTTPUpload.totalSize << endl;
-		} //if(Update.end(true))
-		else {
-			Update.printError(Serial);
-		} //if(Update.end(true))else
-		Serial.setDebugOutput(false);
-#endif
-	} //else if(upload.status==UPLOAD_FILE_END)
-	yield();
-	return;
-} //HandleUpdate
-
-
-void HandleFileEnd(HTTPUpload& stHTTPUploadLocal) {
-	if (Update.end(true)) { //true to set the size to the current progress
-		Serial << LOG0 << " HandleFileEnd(): UPLOAD_FILE_END (rebooting?), upload.totalSize= " << stHTTPUploadLocal.totalSize << endl;
-	} //if(Update.end(true))
-	else {
-		Update.printError(Serial);
-	} //if(Update.end(true))else
-	Serial.setDebugOutput(false);
-	return;
-}	//HandleFileEnd
-
-
-void PauseBlynk() {
-    bUpdating= true;
-    Serial << LOG0 << " PauseBlynk(): Set bUpdating to " << bUpdating << endl;
-    ulUpdateTimeoutMsec= millis() + 20000;
-  return;
-} //PauseBlynk
-
 
 
 int sSetupTime(){
@@ -405,13 +274,6 @@ void SetupSwitches(){
 } //SetupSwitches
 
 
-void HandleHttpServer(void){
-  oESP8266WebServer.handleClient();
-  delay(1);
-  return;
-} //HandleHttpServer
-
-
 void HandleSystem(){
   if (millis() >= ulNextHandlerMsec){
     String szLogString = "HandleSystem()";
@@ -420,22 +282,6 @@ void HandleSystem(){
     switch (sProjectType){
       case sFrontLights:
         HandleFrontLights();
-        break;
-      case sFireplace:
-        HandleFireplace();
-        break;
-      case sGarage:
-      case sGarageLocal:
-        HandleThermostat();
-        //HandleBlynkLEDs();
-        HandleFurnaceSwitch();
-        break;
-      case sHeater:
-        HandleHeater();
-        break;
-      case sDevLocal:
-      case sDevRemote:
-        HandleDevelopment();
         break;
       default:
         String szLogString= "HandleSystem:Bad switch";
@@ -467,70 +313,6 @@ void HandleFrontLights(){
   LogToBoth(szLogString);
   return;
 } //HandleFrontLights
-
-
-void HandleFireplace(){
-  String szLogString = "HandleFireplace()";
-  LogToBoth(szLogString);
-  return;
-} //HandleFireplace
-
-
-void HandleThermostat(){
-  String szLogString = "HandleThermostat()";
-  LogToBoth(szLogString);
-  //Only do anything if the thermostat is turned on.
-  if (bThermoOn){
-    float fDegF= fGetDegF(true);
-    float fRoundDegF= fRound(fDegF);
-    DebugHandleThermostat(fDegF);
-    if (bFurnaceOn){
-      if (fRoundDegF >= fThermoOffDegF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnFurnaceOn(false);
-        } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fRoundDegF>=fThermoOffDegF)
-      else{
-        sThermoTimesCount= 0;
-      } //if(fRoundDegF>=fThermoOffDegF)else
-    } //if(bFurnaceOn)
-    else{
-      if (fRoundDegF <= sSetpointF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnFurnaceOn(true);
-        } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fRoundDegF<sSetpointF)
-      else{
-        sThermoTimesCount= 0;
-      } //if(fRoundDegF<sSetpointF)else
-    } //if(bFurnaceOn)else
-  } //if(bThermoOn)
-  else{
-    LogToBoth(szLogString);
-    szLogString= " bThermoOn is false";
-    LogToBoth(szLogString);
-  }
-  //} //if(millis()>=ulNextHandlerMsec)
-  return;
-} //HandleThermostat
-
-
-void DebugHandleThermostat(float fDegF){
-  //String szLogString2= " ";
-  String szLogString = "HandleThermostat";
-  LogToBoth(szLogString);
-  szLogString= " DegF=";
-  LogToBoth(szLogString, fDegF);
-  szLogString= " SetpointF=";
-  LogToBoth(szLogString, sSetpointF);
-  szLogString= " OffDegF=";
-  LogToBoth(szLogString, fThermoOffDegF);
-  szLogString= " bFurnaceOn=";
-  LogToBoth(szLogString, bFurnaceOn);
-  szLogString= " OnCount=";
-  LogToBoth(szLogString, sThermoTimesCount);
-  return;
-} //DebugHandleThermostat
 
 
 void DebugHandleBlynkLEDs(){
@@ -621,64 +403,6 @@ void HandleBlynkLEDs(){
   bDebugLog= true;
   return;
 } //HandleBlynkLEDs
-
-
-void HandleFurnaceSwitch(){
-  String szLogString = "HandleFurnaceSwitch(): bFurnaceOn";
-  LogToBoth(szLogString, bFurnaceOn);
-  //Serial << LOG0 << "HandleFurnaceSwitch(): bThermoOn, bFurnaceOn " << bThermoOn << ", " << bFurnaceOn << endl;
-  //Make sure  switch state represents bHeatOn correctly.
-  if (bFurnaceOn){
-    //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOn" << endl;
-    asSwitchState[sFurnaceSwitchNum]= sOn;
-  } //if(bFurnaceOn)
-  else{
-    //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOff" << endl;
-    asSwitchState[sFurnaceSwitchNum]= sOff;
-  } //if(bFurnaceOn)else
-  SetSwitch(sFurnaceSwitchNum, asSwitchState[sFurnaceSwitchNum]);
-  return;
-} //HandleFurnaceSwitch
-
-
-void TurnFurnaceOn(bool bTurnOn){
-  if (bTurnOn){
-    String szLogString= "TurnFurnaceOn(): Furnace turned ON";
-    LogToBoth(szLogString);
-    bFurnaceOn= true;
-    SetFurnaceSwitch(sSwitchClosed);
-    sThermoTimesCount= 0;
-  } //if(bTurnOn)
-  else{
-    String szLogString= "TurnFurnaceOn(): Furnace turned OFF";
-    LogToBoth(szLogString);
-    bFurnaceOn= false;
-    SetFurnaceSwitch(sSwitchOpen);
-    sThermoTimesCount= 0;
-  } //if(bTurnOn)else
-  return;
-} //TurnFurnaceOn
-
-
-void SetThermoState(int sSwitchState){
-  asSwitchState[sThermoDummySwitch]= sSwitchState;
-  if (sSwitchState == sOn){
-    bThermoOn= true;
-  } //if(sState==sOn)
-  else{
-    bThermoOn= false;
-    bFurnaceOn= false;
-    sThermoTimesCount= 0;
-    SetFurnaceSwitch(sSwitchOpen);
-  } //if(sState==sOn)else
-  return;
-} //SetThermoState
-
-
-void SetFurnaceSwitch(int sSwitchState){
-  SetSwitch(sFurnaceSwitchNum, sSwitchState);
-  return;
-} //SetFurnaceSwitch
 
 
 void SetSwitch(int sSwitch, int sSwitchState){
@@ -938,8 +662,10 @@ BLYNK_WRITE(ThermoSwitch_V4){
   int sParam= param.asInt();
   String szLogString= "ThermoSwitch_V4 ";
   LogToBoth(szLogString, sParam);
+/*
   SetThermoState(sParam);
   HandleFurnaceSwitch();
+*/
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
   SendIntToBlynk(GetSetpointF_V3, sSetpointF);
@@ -1192,29 +918,4 @@ BLYNK_WRITE(TimerB_4V27){
   SetSwitch(sSwitchNumber, sSwitchSetting);
   return;
 } //BLYNK_WRITE(TimerB_4V27)
-
-
-//WidgetLED oLED1(LED_4V28) is constructed earlier
-
-/*
-BLYNK_WRITE(Terminal_V7)
-{
-  Serial << LOG0 << " BLYNK_WRITE(Terminal_V7): Received Parameter= " <<  param.asStr() << endl;
-  // if you type "Marco" into Terminal Widget - it will respond: "Polo:"
-  if (String("Marco") == param.asStr()) {
-      oTerminal.println("You said: 'Marco'") ;
-      oTerminal.println("I said: 'Polo'") ;
-  } else {
-
-  // Send it back
-  oTerminal.print("You said:");
-  oTerminal.write(param.getBuffer(), param.getLength());
-  oTerminal.println();
-  }
-
-  // Ensure everything is sent
-  oTerminal.flush();
-  return;
-} //BLYNK_WRITE(Terminal_V7)
-*/
 //Last line.
