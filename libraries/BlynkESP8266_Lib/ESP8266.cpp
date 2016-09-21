@@ -19,7 +19,10 @@
  * THE SOFTWARE.
  */
 #include "ESP8266_Lib.h"
-#include <avr/pgmspace.h>
+//#include <avr/pgmspace.h>
+#ifdef ESP8266
+	#undef ESP8266
+#endif
 
 ESP8266::ESP8266(Stream *uart)
     : m_puart(uart)
