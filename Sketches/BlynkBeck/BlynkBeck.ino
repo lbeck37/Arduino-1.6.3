@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "September 19, 2016";
+static const char szFileDate[]    = "September 21, 2016C";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
@@ -28,6 +28,7 @@ static const char szFileDate[]    = "September 19, 2016";
 //#define DEV_LOCAL
 //#define DEV_REMOTE
 
+#define SKIP_SERVER     //Skip running OTA server
 #if 0
 	#define SKIP_BLYNK    	true
 	#define DEBUG     		true
@@ -232,7 +233,9 @@ void setup()
 
 
 void loop() {
+#ifndef SKIP_SERVER
 	HandleHttpServer();
+#endif
 	if (!bSkipBlynk) {
 		if (!bUpdating) {
 			Blynk.run();
@@ -273,6 +276,7 @@ void SetupServer(void) {
   Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
   WiFi.begin(szRouterName, szRouterPW);
   if(WiFi.waitForConnectResult() == WL_CONNECTED) {
+#ifndef SKIP_SERVER
     MDNS.begin(acHostname);
     oESP8266WebServer.on("/", HTTP_GET, [](){
       oESP8266WebServer.sendHeader("Connection", "close");
@@ -290,6 +294,7 @@ void SetupServer(void) {
     oESP8266WebServer.begin();
     MDNS.addService("http", "tcp", 80);
     Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
+#endif
   } //if(WiFi.waitForConnectResult()==WL_CONNECTED)
   else {
     Serial.println("WiFi Failed");
@@ -298,6 +303,7 @@ void SetupServer(void) {
 } //SetupServer
 
 
+#ifndef SKIP_SERVER
 void HandleUpdate() {
 	//upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
 	HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
@@ -368,7 +374,7 @@ void PauseBlynk() {
     ulUpdateTimeoutMsec= millis() + 20000;
   return;
 } //PauseBlynk
-
+#endif
 
 
 int sSetupTime(){
@@ -405,12 +411,13 @@ void SetupSwitches(){
 } //SetupSwitches
 
 
+#ifndef SKIP_SERVER
 void HandleHttpServer(void){
   oESP8266WebServer.handleClient();
   delay(1);
   return;
 } //HandleHttpServer
-
+#endif
 
 void HandleSystem(){
   if (millis() >= ulNextHandlerMsec){

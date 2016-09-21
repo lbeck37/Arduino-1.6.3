@@ -1,3 +1,4 @@
+// Beck 9/21/16
 /**************************************************************
  * Blynk is a platform with iOS and Android apps to control
  * Arduino, Raspberry Pi and the likes over the Internet.
@@ -28,11 +29,13 @@
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char auth[] = "YourAuthToken";
+//char auth[] = "YourAuthToken";
+char auth[] = "3c398dc9bf8643618ab3a5a091544453";
 
 void setup()
 {
-  Serial.begin(9600);
+  //Serial.begin(9600);
+  Serial.begin(115200);
   Blynk.begin(auth);
 }
 
