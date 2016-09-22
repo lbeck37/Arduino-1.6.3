@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "September 22, 2016A";
+static const char szFileDate[]    = "September 22, 2016C HP7";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
@@ -39,8 +39,10 @@ static const char szFileDate[]    = "September 22, 2016A";
 #include <Time.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
+#if OTA_SERVER
+  #include <ESP8266WebServer.h>
+  #include <ESP8266mDNS.h>
+#endif
 #include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -194,7 +196,9 @@ OneWire         oOneWire(sOneWirePin);
 /* Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature	oSensors(&oOneWire);
 
-ESP8266WebServer  	oESP8266WebServer(80);
+#if OTA_SERVER
+  ESP8266WebServer    oESP8266WebServer(80);
+#endif
 
 //UpdaterClass 		Update;	//Declaration at the end of cores\esp8266\Updater.h from BSP
 
@@ -255,7 +259,20 @@ void loop() {
 
 
 void SetupWiFi(){
-  SetupServer();
+  WiFi.mode(WIFI_AP_STA);
+  Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
+  WiFi.begin(szRouterName, szRouterPW);
+  uint8_t ucWiFiStatus= WiFi.waitForConnectResult();
+  if(ucWiFiStatus == WL_CONNECTED) {
+    Serial << LOG0 << " SetupServer(): WiFi.waitForConnectResult() returned WL_CONNECTED" << endl;
+ #if OTA_SERVER
+    SetupServer();
+#endif
+  } //if(ucWiFiStatus==WL_CONNECTED)
+  else {
+    Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
+  } //if(ucWiFiStatus==WL_CONNECTED)else
+
   switch (sProjectType){
     case sGarageLocal:
     case sDevLocal:
@@ -272,13 +289,43 @@ void SetupWiFi(){
 } //SetupWiFi
 
 
-void SetupServer(void) {
-  WiFi.mode(WIFI_AP_STA);
-  Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
-  if(WiFi.waitForConnectResult() == WL_CONNECTED) {
-//#ifndef SKIP_SERVER
+String szWiFiStatus(wl_status_t eWiFiStatus){
+  String szStatus;
+  switch (eWiFiStatus){
+  case WL_IDLE_STATUS:
+    szStatus= "WL_IDLE_STATUS";
+    break;
+  case WL_NO_SSID_AVAIL:
+    szStatus= "WL_NO_SSID_AVAIL";
+    break;
+  case WL_SCAN_COMPLETED:
+    szStatus= "WL_SCAN_COMPLETED";
+    break;
+  case WL_CONNECTED:
+    szStatus= "WL_CONNECTED";
+    break;
+  case WL_CONNECT_FAILED:
+    szStatus= "WL_CONNECT_FAILED";
+    break;
+  case WL_CONNECTION_LOST:
+    szStatus= "WL_CONNECTION_LOST";
+    break;
+  case WL_DISCONNECTED:
+    szStatus= "WL_DISCONNECTED";
+    break;
+  case WL_NO_SHIELD:
+    szStatus= "WL_NO_SHIELD";
+    break;
+  default:
+    szStatus= "default";
+    break;
+  } //switch
+  return szStatus;
+} //szWiFiStatus
+
+
 #if OTA_SERVER
+void SetupServer(void) {
     MDNS.begin(acHostname);
     oESP8266WebServer.on("/", HTTP_GET, [](){
       oESP8266WebServer.sendHeader("Connection", "close");
@@ -296,17 +343,11 @@ void SetupServer(void) {
     oESP8266WebServer.begin();
     MDNS.addService("http", "tcp", 80);
     Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
-#endif
-  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)
-  else {
-    Serial.println("WiFi Failed");
-  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)else
+//#endif
   return;
 } //SetupServer
 
 
-//#ifndef SKIP_SERVER
-#if OTA_SERVER
 void HandleUpdate() {
 	//upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
 	HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
