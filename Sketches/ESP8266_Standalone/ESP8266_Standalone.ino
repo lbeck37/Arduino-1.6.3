@@ -5,16 +5,43 @@
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char auth[] = "55bce1afbf894b3bb67b7ea34f29d45a";
+char szAuth[] = "55bce1afbf894b3bb67b7ea34f29d45a";
 
 void setup()
 {
   Serial.begin(115200);
-  Blynk.begin(auth, "Aspot24", "Qazqaz11");
+  Serial.println("\nBegin ESP8266_Standalone.ino 9/21/16, Vista64");
+  Serial.println("setup(): Call SetupWiFi()");
+  SetupWiFi();
+  //char szLogline[]= "setup(): Call Blynk.config(" + szAuth + ")";
+  Serial.print("setup(): Call Blynk.config(");
+  Serial.println(szAuth);
+  Blynk.config(szAuth);
+  //Blynk.begin(auth, "C1200spot", "Qazqaz11");
+  Serial.println("Back from Blynk.begin()");
 }
 
 void loop()
 {
   Blynk.run();
 }
+
+void SetupWiFi(void) {
+  WiFi.mode(WIFI_AP_STA);
+  //Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
+  char szRouterName[]= "Aspot24";
+  char szRouterPW[]  = "Qazqaz11";
+  //char szLogline[]   = " SetupWiFi(): Call WiFi.begin(" + szRouterName + ", " + szRouterPW +")";
+  Serial.print(" SetupWiFi(): Call WiFi.begin(");
+  Serial.print(szRouterName);
+  Serial.print(",");
+  Serial.println(szRouterPW);
+  WiFi.begin(szRouterName, szRouterPW);
+  if(WiFi.waitForConnectResult() == WL_CONNECTED) {
+  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)
+  else {
+    Serial.println("WiFi Failed");
+  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)else
+  return;
+} //SetupWiFi
 
