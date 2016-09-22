@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "September 22, 2016C HP7";
+static const char szFileDate[]    = "September 22, 2016F HP7";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
@@ -262,16 +262,18 @@ void SetupWiFi(){
   WiFi.mode(WIFI_AP_STA);
   Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
   WiFi.begin(szRouterName, szRouterPW);
-  uint8_t ucWiFiStatus= WiFi.waitForConnectResult();
-  if(ucWiFiStatus == WL_CONNECTED) {
-    Serial << LOG0 << " SetupServer(): WiFi.waitForConnectResult() returned WL_CONNECTED" << endl;
- #if OTA_SERVER
-    SetupServer();
-#endif
-  } //if(ucWiFiStatus==WL_CONNECTED)
+  //wl_status_t eWiFiStatus= WiFi.waitForConnectResult();
+  wl_status_t eWiFiStatus= (wl_status_t)WiFi.waitForConnectResult();
+  if(eWiFiStatus == WL_CONNECTED) {
+    Serial << LOG0 << " SetupServer(): WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
+ 		#if OTA_SERVER
+    	SetupServer();
+		#endif
+  } //if(eWiFiStatus==WL_CONNECTED)
   else {
-    Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
-  } //if(ucWiFiStatus==WL_CONNECTED)else
+    //Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
+    Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
+  } //if(eWiFiStatus==WL_CONNECTED)else
 
   switch (sProjectType){
     case sGarageLocal:
