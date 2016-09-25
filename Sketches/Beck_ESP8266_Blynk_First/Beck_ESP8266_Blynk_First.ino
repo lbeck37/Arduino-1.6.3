@@ -13,7 +13,7 @@ char szAuth[] = "b5f15bf27c1a4c929e0fa256ec283293";
 void setup()
 {
   Serial.begin(115200);
-  Serial.println("\nBegin Beck_ESP8266_Blynk_First.ino 9/25/16C, HP7");
+  Serial.println("\nBegin Beck_ESP8266_Blynk_First.ino 9/25/16D, LBT");
   pinMode(LED, OUTPUT);   // LED ESP G16 pin as output.
   Serial.print("LED Pin D0=c");
   Serial.println(LED);
