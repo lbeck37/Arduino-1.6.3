@@ -6,13 +6,14 @@
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
-char szAuth[] = "55bce1afbf894b3bb67b7ea34f29d45a";
+//char szAuth[] = "55bce1afbf894b3bb67b7ea34f29d45a";
+char szAuth[] = "b5f15bf27c1a4c929e0fa256ec283293";
 //#define LED     D0        // Led in NodeMCU at pin GPIO16 (D0).
 #define LED     5         // Blue LED on SparkFun Thing Dev board is at GP5
 void setup()
 {
   Serial.begin(115200);
-  Serial.println("\nBegin Beck_ESP8266_Blynk_First.ino 9/25/16, HP7");
+  Serial.println("\nBegin Beck_ESP8266_Blynk_First.ino 9/25/16C, HP7");
   pinMode(LED, OUTPUT);   // LED ESP G16 pin as output.
   Serial.print("LED Pin D0=c");
   Serial.println(LED);
@@ -48,7 +49,8 @@ void FlashLED(int sNumber){
 void SetupWiFi(void) {
   WiFi.mode(WIFI_AP_STA);
   //Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  char szRouterName[]= "Aspot24";
+  //char szRouterName[]= "Aspot24";
+  char szRouterName[]= "C1200spot";
   char szRouterPW[]  = "Qazqaz11";
   //char szLogline[]   = " SetupWiFi(): Call WiFi.begin(" + szRouterName + ", " + szRouterPW +")";
   Serial.print(" SetupWiFi(): Call WiFi.begin ");
