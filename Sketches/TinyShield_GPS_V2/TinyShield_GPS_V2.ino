@@ -43,7 +43,7 @@ void setup()
   Gps_serial.begin(GPSBaud);
   Serial.begin(115200);
   //Serial.begin(4800);
-  Serial.println("TinyShield_GPS_V2.ino, HP7 10/7/16C 115200");
+  Serial.println("setup()TinyShield_GPS_V2.ino, HP7 10/7/16H 115200");
   // Init the GPS Module to wake mode
   pinMode(GPS_SYSONPin, INPUT);
   digitalWrite(GPS_ONOFFPin, LOW);
@@ -59,7 +59,7 @@ void setup()
     delay(100);
   }
   Serial.println("done.");
-  delay(100);
+  //delay(100);
 
   char command[] = "$PSRF103,00,00,00,01*xx\r\n";
   for (int i = 0; i < 8; i++) {
@@ -71,7 +71,10 @@ void setup()
       checksum ^= command[c++];
     command[c + 1] = (checksum >> 4) + (((checksum >> 4) < 10) ? '0' : ('A' - 10));
     command[c + 2] = (checksum & 0xF) + (((checksum & 0xF) < 10) ? '0' : ('A' - 10));
-    Gps_serial.print(command);
+  	Serial.print("Send GPS command |");
+  	Serial.print(command);
+    Serial.println("|");
+     Gps_serial.print(command);
     delay(20);
   }
 
@@ -87,14 +90,22 @@ void setup()
   } else {
     Serial.println("Card failed, or not present- continuing with serial output");
   }
-}
+  Serial.println("setup(): Done.");
+  return;
+} //setup
+
 
 void loop() {
+  Serial.println("loop(): Begin.");
   while (Gps_serial.read() != '$') {
     //do other stuff here
-  }
+  } //while
   while (Gps_serial.available() < 5);
-  Gps_serial.read(); Gps_serial.read(); //skip two characters
+  Serial.println("loop(): 5 or more GPS characters available");
+  //skip two characters
+  Gps_serial.read();
+  Gps_serial.read();
+
   char c = Gps_serial.read();
   //determine senetence type
   if (c == 'R' || c == 'G') {
@@ -103,12 +114,16 @@ void loop() {
       logNMEA(1);
     } else if (c == 'G') {
       logNMEA(2);
-    }
-  }
-}
+    } //elseif(c=='G')
+  } //if(c=='R'||c=='G')
+  return;
+} //loop
+
 
 void logNMEA(int type) {
   uint8_t buffer[100];
+  //char buffer[100];
+  Serial.println("logNMEA(): Begin.");
   buffer[0] = '$';
   buffer[1] = 'G';
   buffer[2] = 'P';
@@ -139,7 +154,6 @@ void logNMEA(int type) {
   buffer[counter++] = 0x0A;
   buffer[counter] = '\0';
 
-
   c = 1;
   byte checksum = buffer[c++];
   while (buffer[c] != '*')
@@ -147,18 +161,24 @@ void logNMEA(int type) {
   buffer[c + 1] = (checksum >> 4) + (((checksum >> 4) < 10) ? '0' : ('A' - 10));
   buffer[c + 2] = (checksum & 0xF) + (((checksum & 0xF) < 10) ? '0' : ('A' - 10));
 
-
   if (cardPresent) {
     File dataFile = SD.open("gps.txt", FILE_WRITE);
     // if the file is available, write to it:
     if (dataFile) {
+      Serial.print("SD card write |");
+      Serial.print((char *)buffer);
+      Serial.println("|");
       dataFile.write(buffer, counter);
       dataFile.close();
-    } else {
+    } //if(dataFile)
+    else {
       Serial.println("error opening gps.txt");
       cardPresent=false;
-    }
-  } else {
+    } //if(dataFile)else
+  }	//if(cardPresent)
+  else {
     Serial.print((char *)buffer);
-  }
-}
+  }	//if(cardPresent)else
+  return;
+} //logNMEA
+//Last line

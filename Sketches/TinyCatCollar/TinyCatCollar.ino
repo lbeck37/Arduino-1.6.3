@@ -54,9 +54,11 @@ static int 				sBufferIndex             = 0;
 static int 				sLastBufferIndex         = 0;
 
 void setup()  {
-  Serial.begin(9600);
+  //Serial.begin(9600);
+  Serial.begin(115200);
   //sWaitForSerialMonitor();
-  Serial << LOG0 << " setup(): Begin July 28, 2015" << endl;
+  //Serial << LOG0 << " setup(): Begin July 28, 2015" << endl;
+  Serial << LOG0 << "TinyCatCollar.ino setup(): Begin HP7 10/7/16A 115200" << endl;
   sSetupSD();
   sSetupGPS();
   sClearGPSLoop();
