@@ -140,8 +140,12 @@ static char        sz10CharString[10];
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
-  Serial.begin(9600);
-  Serial << LOG0 << " setup(): Powershift_TinyDogs.ino 07/30/15B" << endl;
+  //Serial.begin(9600);
+  Serial.begin(115200);
+  //Serial.begin(230400);
+  //Serial.begin(4800);
+  //Serial << LOG0 << " setup(): Powershift_TinyDogs.ino 07/30/15B" << endl;
+  Serial << LOG0 << " setup(): Powershift_TinyDogs.ino HP7 10/7/16F 115200" << endl;
   Serial << LOG0 << " Free Ram= " << freeRam() << endl;
 
   sFillGearLocations();
