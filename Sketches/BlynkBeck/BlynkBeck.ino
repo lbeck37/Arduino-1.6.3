@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "September 22, 2016H HP7";
+static const char szFileDate[]    = "October 12, 2016A HP7";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
@@ -22,11 +22,11 @@ static const char szFileDate[]    = "September 22, 2016H HP7";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGE
+#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-#define DEV_REMOTE
+//#define DEV_REMOTE
 
 #define OTA_SERVER   false     //Skip running OTA server
 #if 0
@@ -131,7 +131,8 @@ static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that 
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
-static const char   szRouterName[]        = "Aspot24";
+//static const char   szRouterName[]        = "Aspot24";
+static const char   szRouterName[]        = "P291spot";
 static const char   szRouterPW[]          = "Qazqaz11";
 static const char   acHostname[]          = "esp37";
 
