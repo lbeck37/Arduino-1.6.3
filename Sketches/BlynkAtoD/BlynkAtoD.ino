@@ -1,5 +1,7 @@
 static const char szSketchName[]  = "BlynkAtoD.ino";
 static const char szFileDate[]    = "September 19, 2016 D";
+//10/14/16 I think this is a copy of BlynkBeck.ino that was incorrectly modified
+//         Note that the switch in HandleSystem() only handles one case.
 // 9/19/16 Copied from BeckBlynk and stripped down to FRONT_LIGHT prior to bringing in ADS1115
 //Open issues:
 //  - Switches 3 and 4 LEDs are not working.
