@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "October 19, 2016A V64";
+static const char szFileDate[]    = "October 19, 2016B HP7";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
@@ -22,9 +22,9 @@ static const char szFileDate[]    = "October 19, 2016A V64";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-#define GARAGE
+//#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
-//#define HEATER
+#define HEATER
 //#define DEV_LOCAL
 //#define DEV_REMOTE
 
