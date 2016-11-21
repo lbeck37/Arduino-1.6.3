@@ -10,7 +10,7 @@ void setup(void)
 {
   //Serial.begin(9600);
   Serial.begin(115200);
-  Serial.println("BeckAtoD.ino 10/11/16 HP7");
+  Serial.println("\nBeckAtoD.ino 11/20/16 LBT");
   ads.begin();
 } //setup
 
