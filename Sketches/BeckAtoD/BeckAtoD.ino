@@ -1,4 +1,4 @@
-//Beck 9/19/16
+//Beck 11/22/16
 //#include <Wire.h>
 #include <Adafruit_ADS1015.h>
 
@@ -10,7 +10,7 @@ void setup(void)
 {
   //Serial.begin(9600);
   Serial.begin(115200);
-  Serial.println("\nBeckAtoD.ino 11/20/16 LBT");
+  Serial.println("\nBeckAtoD.ino 11/22/16 Lenny");
   ads.begin();
 } //setup
 
