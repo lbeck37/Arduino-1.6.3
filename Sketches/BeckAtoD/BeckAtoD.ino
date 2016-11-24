@@ -5,12 +5,11 @@
 Adafruit_ADS1115 ads(0x48);
 float Voltage = 0.0;
 
-
 void setup(void)
 {
   //Serial.begin(9600);
   Serial.begin(115200);
-  Serial.println("\nBeckAtoD.ino 11/22/16C Lenny");
+  Serial.println("\nBeckAtoD.ino 11/23/16F eA Lenny");
   ads.begin();
 } //setup
 
@@ -32,6 +31,6 @@ void loop(void)
      Serial.println();
   } //for(int sChannel=0;
 
-  delay(1000);
+  delay(5000);
 } //loop
 //Last line.
