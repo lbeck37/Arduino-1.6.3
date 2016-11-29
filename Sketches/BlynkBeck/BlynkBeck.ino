@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "November 28, 2016A eA IDE Lenny";
+static const char szFileDate[]    = "November 28, 2016B Lenny";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
@@ -57,7 +57,7 @@ static const char szFileDate[]    = "November 28, 2016A eA IDE Lenny";
 #define ThermoSwitch_V4   V4
 #define ThermoLED_V5      V5
 
-#define Unassigned_V6     V6
+#define AtoD_1V6      V6
 
 #define Terminal_V7       V7
 #define LCD_Line0_V8      V8
@@ -69,21 +69,24 @@ static const char szFileDate[]    = "November 28, 2016A eA IDE Lenny";
 #define TimerB_1V12       V12
 #define LED_1V13          V13
 
-#define Unassigned_V14    V14
+#define AtoD_2V14     V14
+
 //Relay #2
 #define Switch_2V15       V15
 #define TimerA_2V16       V16
 #define TimerB_2V17       V17
 #define LED_2V18          V18
 
-#define Unassigned_V19    V19
+#define AtoD_3V19     V19
+
 //Relay #3
 #define Switch_3V20       V20
 #define TimerA_3V21       V21
 #define TimerB_3V22       V22
 #define LED_3V23          V23
 
-#define Unassigned_V24    V24
+#define AtoD_4V24     V24
+
 //Relay #4
 #define Switch_4V25       V25
 #define TimerA_4V26       V26
@@ -1007,6 +1010,15 @@ BLYNK_WRITE(ThermoSwitch_V4){
 
 //WidgetLED oLED0(ThermoLED_V5) is constructed earlier
 
+BLYNK_READ(AtoD_1V6){
+  static float fVolts= 1.0;
+  fVolts= fVolts + 0.001;
+  String szLogString= "Read AtoD_1V6 ";
+  LogToBoth(szLogString, fVolts);
+  Blynk.virtualWrite(AtoD_1V6, fVolts);
+} //BLYNK_READ(AtoD_1V6)
+
+
 //Handler callback function called when Button set as a Switch is pressed.
 //Light around button is lit when 1 is passed as parameter, unlit when 0 is passed.
 //Opto-isolated relay is inverse logic, pulling input pin low cn relay.
@@ -1080,6 +1092,15 @@ BLYNK_WRITE(TimerB_1V12){
 //WidgetLED oLED1(LED_1V13) is constructed earlier
 
 
+BLYNK_READ(AtoD_2V14){
+  static float fVolts= 2.0;
+  fVolts= fVolts + 0.001;
+  String szLogString= "Read AtoD_2V14 ";
+  LogToBoth(szLogString, fVolts);
+  Blynk.virtualWrite(AtoD_2V14, fVolts);
+} //BLYNK_READ(AtoD_2V14)
+
+
 BLYNK_WRITE(Switch_2V15){
   int sSwitchNumber= 2;
   int sSwitchSetting;
@@ -1139,6 +1160,15 @@ BLYNK_WRITE(TimerB_2V17){
 //WidgetLED oLED1(LED_2V18) is constructed earlier
 
 
+BLYNK_READ(AtoD_3V19){
+  static float fVolts= 3.0;
+  fVolts= fVolts + 0.001;
+  String szLogString= "Read AtoD_3V19 ";
+  LogToBoth(szLogString, fVolts);
+  Blynk.virtualWrite(AtoD_3V19, fVolts);
+} //BLYNK_READ(AtoD_3V19)
+
+
 BLYNK_WRITE(Switch_3V20){
   int sSwitchNumber= 3;
   int sSwitchSetting;
@@ -1195,6 +1225,15 @@ BLYNK_WRITE(TimerB_3V22){
 
 
 //WidgetLED oLED1(LED_3V23) is constructed earlier
+
+
+BLYNK_READ(AtoD_4V24){
+  static float fVolts= 4.0;
+  fVolts= fVolts + 0.001;
+  String szLogString= "Read AtoD_4V24 ";
+  LogToBoth(szLogString, fVolts);
+  Blynk.virtualWrite(AtoD_4V24, fVolts);
+} //BLYNK_READ(AtoD_4V24)
 
 
 BLYNK_WRITE(Switch_4V25){
