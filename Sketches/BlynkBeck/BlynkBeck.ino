@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BlynkBeck.ino";
-static const char szFileDate[]    = "November 26, 2016B eA Lenny";
+static const char szFileDate[]    = "November 28, 2016A eA IDE Lenny";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
@@ -30,9 +30,9 @@ static const char szFileDate[]    = "November 26, 2016B eA Lenny";
 
 #define OTA_SERVER   false     //Skip running OTA server
 #if 0
-	#define SKIP_BLYNK    	true
-	#define DEBUG     		true
-	#define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
+  #define SKIP_BLYNK      true
+  #define DEBUG         true
+  #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
 #include <Streaming.h>
@@ -97,9 +97,9 @@ static const char szFileDate[]    = "November 26, 2016B eA Lenny";
 #define LOG0    szLogLineHeader(++lLineCount)
 
 #ifdef SKIP_BLYNK
-	static const bool bSkipBlynk        	= true;
+  static const bool bSkipBlynk          = true;
 #else
-	static const bool bSkipBlynk        	= false;
+  static const bool bSkipBlynk          = false;
 #endif
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
@@ -133,7 +133,8 @@ static const long   sThermoTimesInRow     = 3;      //Max times temp is outside 
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
 //static const char   szRouterName[]        = "Aspot24";
-static const char   szRouterName[]        = "HP7spot";
+//static const char   szRouterName[]        = "HP7spot";
+static const char   szRouterName[]        = "LenSpot";
 //static const char   szRouterName[]        = "P291spot";
 static const char   szRouterPW[]          = "Qazqaz11";
 static const char   acHostname[]          = "esp37";
@@ -197,13 +198,13 @@ WidgetLED           oLED4(LED_4V28);
 OneWire         oOneWire(sOneWirePin);
 
 /* Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature	oSensors(&oOneWire);
+DallasTemperature oSensors(&oOneWire);
 
 #if OTA_SERVER
   ESP8266WebServer    oESP8266WebServer(80);
 #endif
 
-//UpdaterClass 		Update;	//Declaration at the end of cores\esp8266\Updater.h from BSP
+//UpdaterClass    Update; //Declaration at the end of cores\esp8266\Updater.h from BSP
 
 const char*     acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
@@ -242,22 +243,22 @@ void setup()
 void loop() {
 //#ifndef SKIP_SERVER
 #if OTA_SERVER
-	HandleHttpServer();
+  HandleHttpServer();
 #endif
-	if (!bSkipBlynk) {
-		if (!bUpdating) {
-			Blynk.run();
-			HandleSystem();
-		} //if(!bUpdating)
-		else {
-			Serial << LOG0 << " loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
-			if (millis() > ulUpdateTimeoutMsec) {
-				bUpdating = false;
-				Serial << LOG0 << " loop(): Set bUpdating to " << bUpdating
-						<< endl;
-			} //if(millis()>ulUpdateTimeoutMsec)
-		} //if(!bUpdating)else
-	} //if(!bSkipBlynk)
+  if (!bSkipBlynk) {
+    if (!bUpdating) {
+      Blynk.run();
+      HandleSystem();
+    } //if(!bUpdating)
+    else {
+      Serial << LOG0 << " loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
+      if (millis() > ulUpdateTimeoutMsec) {
+        bUpdating = false;
+        Serial << LOG0 << " loop(): Set bUpdating to " << bUpdating
+            << endl;
+      } //if(millis()>ulUpdateTimeoutMsec)
+    } //if(!bUpdating)else
+  } //if(!bSkipBlynk)
 } //loop
 
 
@@ -269,9 +270,9 @@ void SetupWiFi(){
   wl_status_t eWiFiStatus= (wl_status_t)WiFi.waitForConnectResult();
   if(eWiFiStatus == WL_CONNECTED) {
     Serial << LOG0 << " SetupServer(): WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
- 		#if OTA_SERVER
-    	SetupServer();
-		#endif
+    #if OTA_SERVER
+      SetupServer();
+    #endif
   } //if(eWiFiStatus==WL_CONNECTED)
   else {
     //Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
@@ -354,67 +355,67 @@ void SetupServer(void) {
 
 
 void HandleUpdate() {
-	//upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
-	HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
-	if (stHTTPUpload.status == UPLOAD_FILE_START) {
-		PauseBlynk();
-		Serial.setDebugOutput(true);
-		WiFiUDP::stopAll();
-		uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-		Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_START" << endl;
-		Serial << LOG0 << " HandleUpdate(): ulMaxSketchSpace  = " << ulMaxSketchSpace << endl;
-		Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
-		Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
-		Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
-		Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
-		Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
-		if (!Update.begin(ulMaxSketchSpace)) { //start with max available size
-			Update.printError(Serial);
-		} //if(!Update.begin(maxSketchSpace))
-	} //if(WiFi.waitForConnectResult()==WL_CONNECTED)
-	else if (stHTTPUpload.status == UPLOAD_FILE_WRITE) {
-		//Serial << LOG0 << " Handle /update HTTP_POST: UPLOAD_FILE_WRITE, upload.currentSize= " << stHTTPUpload.currentSize << endl;
-		if (Update.write(stHTTPUpload.buf, stHTTPUpload.currentSize)
-				!= stHTTPUpload.currentSize) {
-			Update.printError(Serial);
-		} //if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
-	} //else if(upload.status==UPLOAD_FILE_WRITE)
-	else if (stHTTPUpload.status == UPLOAD_FILE_END) {
-		Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_END" << endl;
-		Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
-		Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
-		Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
-		Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
-		Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
-		HandleFileEnd(stHTTPUpload);
+  //upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
+  HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
+  if (stHTTPUpload.status == UPLOAD_FILE_START) {
+    PauseBlynk();
+    Serial.setDebugOutput(true);
+    WiFiUDP::stopAll();
+    uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+    Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_START" << endl;
+    Serial << LOG0 << " HandleUpdate(): ulMaxSketchSpace  = " << ulMaxSketchSpace << endl;
+    Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
+    Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
+    Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
+    Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
+    Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
+    if (!Update.begin(ulMaxSketchSpace)) { //start with max available size
+      Update.printError(Serial);
+    } //if(!Update.begin(maxSketchSpace))
+  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)
+  else if (stHTTPUpload.status == UPLOAD_FILE_WRITE) {
+    //Serial << LOG0 << " Handle /update HTTP_POST: UPLOAD_FILE_WRITE, upload.currentSize= " << stHTTPUpload.currentSize << endl;
+    if (Update.write(stHTTPUpload.buf, stHTTPUpload.currentSize)
+        != stHTTPUpload.currentSize) {
+      Update.printError(Serial);
+    } //if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+  } //else if(upload.status==UPLOAD_FILE_WRITE)
+  else if (stHTTPUpload.status == UPLOAD_FILE_END) {
+    Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_END" << endl;
+    Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
+    Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
+    Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
+    Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
+    Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
+    HandleFileEnd(stHTTPUpload);
 #if false
-		if (Update.end(true)) { //true to set the size to the current progress
-			//Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-			Serial << LOG0
-					<< " HandleUpdate(): UPLOAD_FILE_END (rebooting?), upload.totalSize= "
-					<< stHTTPUpload.totalSize << endl;
-		} //if(Update.end(true))
-		else {
-			Update.printError(Serial);
-		} //if(Update.end(true))else
-		Serial.setDebugOutput(false);
+    if (Update.end(true)) { //true to set the size to the current progress
+      //Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+      Serial << LOG0
+          << " HandleUpdate(): UPLOAD_FILE_END (rebooting?), upload.totalSize= "
+          << stHTTPUpload.totalSize << endl;
+    } //if(Update.end(true))
+    else {
+      Update.printError(Serial);
+    } //if(Update.end(true))else
+    Serial.setDebugOutput(false);
 #endif
-	} //else if(upload.status==UPLOAD_FILE_END)
-	yield();
-	return;
+  } //else if(upload.status==UPLOAD_FILE_END)
+  yield();
+  return;
 } //HandleUpdate
 
 
 void HandleFileEnd(HTTPUpload& stHTTPUploadLocal) {
-	if (Update.end(true)) { //true to set the size to the current progress
-		Serial << LOG0 << " HandleFileEnd(): UPLOAD_FILE_END (rebooting?), upload.totalSize= " << stHTTPUploadLocal.totalSize << endl;
-	} //if(Update.end(true))
-	else {
-		Update.printError(Serial);
-	} //if(Update.end(true))else
-	Serial.setDebugOutput(false);
-	return;
-}	//HandleFileEnd
+  if (Update.end(true)) { //true to set the size to the current progress
+    Serial << LOG0 << " HandleFileEnd(): UPLOAD_FILE_END (rebooting?), upload.totalSize= " << stHTTPUploadLocal.totalSize << endl;
+  } //if(Update.end(true))
+  else {
+    Update.printError(Serial);
+  } //if(Update.end(true))else
+  Serial.setDebugOutput(false);
+  return;
+} //HandleFileEnd
 
 
 void PauseBlynk() {
