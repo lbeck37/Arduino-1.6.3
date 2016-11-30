@@ -1,4 +1,4 @@
-static const char szSketchName[]  = "BlynkBeck.ino";
+static const char szSketchName[]  = "BeckBlynkESP.ino";
 static const char szFileDate[]    = "November 28, 2016B Lenny";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
@@ -35,13 +35,14 @@ static const char szFileDate[]    = "November 28, 2016B Lenny";
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
-#include <Streaming.h>
+#include <BeckLib.h>
+//#include <Streaming.h>
 #include <Time.h>
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
+//#include <ESP8266WiFi.h>
+//#include <WiFiClient.h>
 #if OTA_SERVER
-  #include <ESP8266WebServer.h>
-  #include <ESP8266mDNS.h>
+  //#include <ESP8266WebServer.h>
+  //#include <ESP8266mDNS.h>
 #endif
 #include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
@@ -125,19 +126,21 @@ static const int    sDevRemote            = 7;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 //static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
+/*
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
+*/
 
 static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
 //static const char   szRouterName[]        = "Aspot24";
-//static const char   szRouterName[]        = "HP7spot";
-static const char   szRouterName[]        = "LenSpot";
+static const char   szRouterName[]        = "HP7spot";
+//static const char   szRouterName[]        = "LenSpot";
 //static const char   szRouterName[]        = "P291spot";
 static const char   szRouterPW[]          = "Qazqaz11";
 static const char   acHostname[]          = "esp37";
@@ -213,7 +216,7 @@ const char*     acServerIndex = "<form method='POST' action='/update' enctype='m
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
+//static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
 //static long         lLineCount2           = 0;      //For Blynk terminal window.
 //static long         lNumLoops             = 1;
 static float          fLastDegF             = 37.37;  //Last temperature reading.
@@ -298,6 +301,7 @@ void SetupWiFi(){
 } //SetupWiFi
 
 
+/*
 String szWiFiStatus(wl_status_t eWiFiStatus){
   String szStatus;
   switch (eWiFiStatus){
@@ -331,6 +335,7 @@ String szWiFiStatus(wl_status_t eWiFiStatus){
   } //switch
   return szStatus;
 } //szWiFiStatus
+*/
 
 
 #if OTA_SERVER
@@ -776,6 +781,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
 } //SetSwitch
 
 
+/*
 String szGetTime(long lMsec){
   String  szString;
 
@@ -791,9 +797,11 @@ String szGetTime(long lMsec){
   szString+= String(szAddZeros(sMsec, 3)) + " ";     //Send with trailing blank to seperate from next field.
   return szString;
 } //szGetTime
+*/
 
 
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
+/*
 String szAddZeros(int sValue, int sNumDigits){
   String szReturn;
   if ((sNumDigits == 3) && (sValue < 100)){
@@ -805,6 +813,7 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
+*/
 
 /*
 int sTerminalPrintVersion(){
@@ -840,6 +849,7 @@ void WriteTerminalString(String szString){
 } //WriteTerminalString
 
 
+/*
 String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
@@ -849,6 +859,7 @@ String szLogLineHeader(long lLineCount){
   //szHeader += " ";
   return szHeader;
 } //szLogLineHeader
+*/
 
 
 //LogToBoth() and BlynkLogLine()have multiple versions
