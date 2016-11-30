@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "November 28, 2016B Lenny";
+static const char szFileDate[]    = "November 28, 2016D Lenny";
 // 9/16/16 Work on getting Garage to build and run.
 // 1/06/16 Building from eclipseArduino
 // 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
@@ -126,14 +126,6 @@ static const int    sDevRemote            = 7;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 //static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
-/*
-static const long   lSerialMonitorBaud    = 115200;
-static const long   lMsecPerDay           = 86400000;
-static const long   lMsecPerHour          =  3600000;
-static const long   lMsecPerMin           =    60000;
-static const long   lMsecPerSec           =     1000;
-*/
-
 static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
@@ -216,9 +208,6 @@ const char*     acServerIndex = "<form method='POST' action='/update' enctype='m
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-//static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
-//static long         lLineCount2           = 0;      //For Blynk terminal window.
-//static long         lNumLoops             = 1;
 static float          fLastDegF             = 37.37;  //Last temperature reading.
 static int            sSetpointF            = 37;
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
@@ -299,43 +288,6 @@ void SetupWiFi(){
   Serial << LOG0 << " SetupWiFi(): Blynk.config() returned" << endl;
   return;
 } //SetupWiFi
-
-
-/*
-String szWiFiStatus(wl_status_t eWiFiStatus){
-  String szStatus;
-  switch (eWiFiStatus){
-  case WL_IDLE_STATUS:
-    szStatus= "WL_IDLE_STATUS";
-    break;
-  case WL_NO_SSID_AVAIL:
-    szStatus= "WL_NO_SSID_AVAIL";
-    break;
-  case WL_SCAN_COMPLETED:
-    szStatus= "WL_SCAN_COMPLETED";
-    break;
-  case WL_CONNECTED:
-    szStatus= "WL_CONNECTED";
-    break;
-  case WL_CONNECT_FAILED:
-    szStatus= "WL_CONNECT_FAILED";
-    break;
-  case WL_CONNECTION_LOST:
-    szStatus= "WL_CONNECTION_LOST";
-    break;
-  case WL_DISCONNECTED:
-    szStatus= "WL_DISCONNECTED";
-    break;
-  case WL_NO_SHIELD:
-    szStatus= "WL_NO_SHIELD";
-    break;
-  default:
-    szStatus= "default";
-    break;
-  } //switch
-  return szStatus;
-} //szWiFiStatus
-*/
 
 
 #if OTA_SERVER
@@ -782,40 +734,6 @@ void SetSwitch(int sSwitch, int sSwitchState){
 
 
 /*
-String szGetTime(long lMsec){
-  String  szString;
-
-  int sDays    =    lMsec                                               / lMsecPerDay ;
-  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
-  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
-  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
-  int sMsec    =    lMsec % lMsecPerSec;
-  szString = String(sDays) + ":";
-  szString+= String(szAddZeros(sHours, 2)) + ":";
-  szString+= String(szAddZeros(sMinutes, 2)) + ":";
-  szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";     //Send with trailing blank to seperate from next field.
-  return szString;
-} //szGetTime
-*/
-
-
-//szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
-/*
-String szAddZeros(int sValue, int sNumDigits){
-  String szReturn;
-  if ((sNumDigits == 3) && (sValue < 100)){
-    szReturn= "0";
-  } //if((sNumDigits==3)&&(sValue<100)
-  if (sValue < 10){
-    szReturn += "0";
-  } //if(lValue<10)
-  szReturn += String(sValue);
-  return szReturn;
-} //szAddZeros
-*/
-
-/*
 int sTerminalPrintVersion(){
   Serial << LOG0 << " sTerminalPrintVersion: Begin" << endl;
   oTerminal.println(F("Blynk v" BLYNK_VERSION ": Device started"));
@@ -847,19 +765,6 @@ void WriteTerminalString(String szString){
   } //if(bDebugLog)
   return;
 } //WriteTerminalString
-
-
-/*
-String szLogLineHeader(long lLineCount){
-  String szHeader= "";
-  szHeader += lLineCount;
-  szHeader += " ";
-  //szTermString += szTime;
-  szHeader += szGetTime(millis());
-  //szHeader += " ";
-  return szHeader;
-} //szLogLineHeader
-*/
 
 
 //LogToBoth() and BlynkLogLine()have multiple versions
