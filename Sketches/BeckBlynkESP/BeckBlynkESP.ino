@@ -1,23 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 static const char szFileDate[]    = "November 28, 2016D Lenny";
-// 9/16/16 Work on getting Garage to build and run.
-// 1/06/16 Building from eclipseArduino
-// 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
-// 12/27/15 Add DEV_REMOTE.
-// 12/26/15 Switch to C1200spot from dlinky.
-// 12/24/15 Switch Garage to be local server, switch IPof local server.
-// 12/21/15 Added Auth Token for HEATER project for testing.
-// 12/18/15 Added Auth Token for DEV_LOCAL project for testing.
-// 12/17/15 Add HandleSystem() to take care of relays also in loop().
-// 12/16/15 Implement thermostat for GARAGE version.
-// 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
-// 12/14/15 Rearrange virtual pins, build GARAGE version.
-// 12/13/15 Merge in support for Fireplace.
-// 12/12/15 Created from Blynk_LightTimer.ino
-//Open issues:
-//  - Switches 3 and 4 LEDs are not working.
-//  - Add virtual pin and LED for turning on DEBUG.
-//  - Get LEDs off at beginning.
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -36,10 +18,7 @@ static const char szFileDate[]    = "November 28, 2016D Lenny";
 #endif
 
 #include <BeckLib.h>
-//#include <Streaming.h>
 #include <Time.h>
-//#include <ESP8266WiFi.h>
-//#include <WiFiClient.h>
 #if OTA_SERVER
   //#include <ESP8266WebServer.h>
   //#include <ESP8266mDNS.h>

@@ -11,8 +11,11 @@ String					        szLogLine;
 bool                    bWiFiOn           = false;
 bool                    bFirebaseOn       = false;
 bool                    bStartedOTA       = false;
-ESP8266WebServer		    oHttpServer(80);
-ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
+
+#if OTA_SERVER
+	ESP8266WebServer		    oHttpServer(80);
+	ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
+#endif	//OTA_SERVER
 
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
 //U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
@@ -106,6 +109,7 @@ String szWiFiStatus(wl_status_t status) {
 } //GetWiFiStatusString
 
 
+#if OTA_SERVER
 void SetupHttpServer(const char* acHostname,
 					ESP8266WebServer& oHttpServer,
 					ESP8266HTTPUpdateServer& oHttpUpdateServer){
@@ -135,6 +139,7 @@ void HandleHttpServer(ESP8266WebServer& oHttpServer){
   oHttpServer.handleClient();
   delay(1);
 } //HandleHttpServer
+#endif	//OTA_SERVER
 
 
 void LogJustToSerial(String sLogline){
