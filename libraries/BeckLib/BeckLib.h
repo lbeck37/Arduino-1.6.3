@@ -1,4 +1,4 @@
-//BeckLib.h, September 19, 2016
+//BeckLib.h, Nov 29, 2016
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>
@@ -59,6 +59,7 @@ extern bool                     bStartedOTA;
   extern ESP8266WebServer         oHttpServer;
   extern ESP8266HTTPUpdateServer  oHttpUpdateServer;
 #endif  //OTA_SERVER
+
 #ifndef NO_DISPLAY
   extern U8GLIB_DOGS102           u8g;
 #endif

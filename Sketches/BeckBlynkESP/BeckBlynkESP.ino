@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "November 28, 2016D Lenny";
+static const char szFileDate[]    = "November 28, 2016E Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -19,10 +19,6 @@ static const char szFileDate[]    = "November 28, 2016D Lenny";
 
 #include <BeckLib.h>
 #include <Time.h>
-#if OTA_SERVER
-  //#include <ESP8266WebServer.h>
-  //#include <ESP8266mDNS.h>
-#endif
 #include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -37,7 +33,7 @@ static const char szFileDate[]    = "November 28, 2016D Lenny";
 #define ThermoSwitch_V4   V4
 #define ThermoLED_V5      V5
 
-#define AtoD_1V6      V6
+#define AtoD_1V6      	  V6
 
 #define Terminal_V7       V7
 #define LCD_Line0_V8      V8
@@ -49,7 +45,7 @@ static const char szFileDate[]    = "November 28, 2016D Lenny";
 #define TimerB_1V12       V12
 #define LED_1V13          V13
 
-#define AtoD_2V14     V14
+#define AtoD_2V14         V14
 
 //Relay #2
 #define Switch_2V15       V15
@@ -57,7 +53,7 @@ static const char szFileDate[]    = "November 28, 2016D Lenny";
 #define TimerB_2V17       V17
 #define LED_2V18          V18
 
-#define AtoD_3V19     V19
+#define AtoD_3V19         V19
 
 //Relay #3
 #define Switch_3V20       V20

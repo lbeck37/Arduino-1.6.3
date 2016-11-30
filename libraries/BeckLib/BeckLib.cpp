@@ -1,10 +1,10 @@
-//BeckLib.cpp, September 18, 2016
+//BeckLib.cpp, Nov 29, 2016
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
 
 //Global variables
-long					          lLineCount			  = 0;  //Serial Monitor uses for clarity.
+long					        lLineCount			= 0;  //Serial Monitor uses for clarity.
 int32_t					        wHttpServerCount	= 0;	//Log every nth call at UPLOAD_FILE_WRITE
 String					        szLogLine;
 
@@ -14,7 +14,7 @@ bool                    bStartedOTA       = false;
 
 #if OTA_SERVER
 	ESP8266WebServer		    oHttpServer(80);
-	ESP8266HTTPUpdateServer	oHttpUpdateServer(true);
+	ESP8266HTTPUpdateServer		oHttpUpdateServer(true);
 #endif	//OTA_SERVER
 
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
@@ -59,7 +59,7 @@ void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
 
 	BLogS("SetupWiFi(): Call WiFi.waitForConnectResult()");
 	int wCount= 0;
-  int wMaxTries= 3;
+	int wMaxTries= 3;
 	while((WiFi.waitForConnectResult() != WL_CONNECTED) && (++wCount <= wMaxTries)){
 	  eStatus= WiFi.status();
 	  BLogS("SetupWiFi():W After waitForConnectResult(), WiFi.status= " + szWiFiStatus(WiFi.status()) );
@@ -68,7 +68,7 @@ void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
 	      (String)(wCount + 1) + " time");
 	  eStatus= WiFi.begin(pcRouterName, pcRouterPW);
 	  BLogS("SetupWiFi():W WiFi.begin() returned " + szWiFiStatus(eStatus) );
-	 }
+	 }	//while
   //BLogS("SetupWiFi(): After WiFi.waitForConnectResult(): " + szWiFiStatus(WiFi.status()));
 
   eStatus= WiFi.status();
@@ -80,7 +80,7 @@ void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
     bWiFiOn= false;
   } //if(eStatus==WL_CONNECTED)else
 
-	BLogS("SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP()));
+  BLogS("SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP()));
 } //SetupWiFi
 
 
