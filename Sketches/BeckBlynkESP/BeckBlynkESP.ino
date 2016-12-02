@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "December 1, 2016A Lenny";
+static const char szFileDate[]    = "December 1, 2016B Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -22,6 +22,7 @@ static const char szFileDate[]    = "December 1, 2016A Lenny";
 #include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <Adafruit_ADS1015.h>
 
 #define ONEWIRE_PIN       12
 
@@ -61,7 +62,7 @@ static const char szFileDate[]    = "December 1, 2016A Lenny";
 #define TimerB_3V22       V22
 #define LED_3V23          V23
 
-#define AtoD_4V24     V24
+#define AtoD_4V24     	  V24
 
 //Relay #4
 #define Switch_4V25       V25
@@ -173,7 +174,10 @@ WidgetLED           oLED4(LED_4V28);
 OneWire         oOneWire(sOneWirePin);
 
 /* Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature oSensors(&oOneWire);
+DallasTemperature 	oSensors(&oOneWire);
+
+Adafruit_ADS1115 	AtoD(0x48);
+float 				Voltage[5];
 
 #if OTA_SERVER
   ESP8266WebServer    oESP8266WebServer(80);
@@ -206,6 +210,7 @@ void setup()
 
   //Wire.begin();
   SetupWiFi();
+  SetupAtoD();
   SetupSwitches();
   SetupSystem();
   return;
@@ -217,6 +222,7 @@ void loop() {
 #if OTA_SERVER
   HandleHttpServer();
 #endif
+  ReadAtoD();
   if (!bSkipBlynk) {
     if (!bUpdating) {
       Blynk.run();
@@ -265,6 +271,24 @@ void SetupWiFi(){
   Serial << LOG0 << " SetupWiFi(): Blynk.config() returned" << endl;
   return;
 } //SetupWiFi
+
+
+void SetupAtoD(){
+	Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
+	AtoD.begin();
+	return;
+}	//SetupAtoD
+
+
+void ReadAtoD(){
+	int16_t adc0;  // we read from the ADC, we have a sixteen bit integer as a result
+
+	for (int sChannel= 0; sChannel < 4; sChannel++) {
+	   adc0 = AtoD.readADC_SingleEnded(sChannel);
+	   Voltage[sChannel] = (adc0 * 0.1875)/1000;
+	}	//for
+	return;
+}	//ReadAtoD
 
 
 #if OTA_SERVER
@@ -904,8 +928,11 @@ BLYNK_WRITE(ThermoSwitch_V4){
 //WidgetLED oLED0(ThermoLED_V5) is constructed earlier
 
 BLYNK_READ(AtoD_1V6){
+/*
   static float fVolts= 1.0;
   fVolts= fVolts + 0.001;
+*/
+  float fVolts= Voltage[0];
   String szLogString= "Read AtoD_1V6 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_1V6, fVolts);
@@ -986,8 +1013,7 @@ BLYNK_WRITE(TimerB_1V12){
 
 
 BLYNK_READ(AtoD_2V14){
-  static float fVolts= 2.0;
-  fVolts= fVolts + 0.001;
+  float fVolts= Voltage[1];
   String szLogString= "Read AtoD_2V14 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_2V14, fVolts);
@@ -1054,8 +1080,7 @@ BLYNK_WRITE(TimerB_2V17){
 
 
 BLYNK_READ(AtoD_3V19){
-  static float fVolts= 3.0;
-  fVolts= fVolts + 0.001;
+  float fVolts= Voltage[2];
   String szLogString= "Read AtoD_3V19 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_3V19, fVolts);
@@ -1121,8 +1146,7 @@ BLYNK_WRITE(TimerB_3V22){
 
 
 BLYNK_READ(AtoD_4V24){
-  static float fVolts= 4.0;
-  fVolts= fVolts + 0.001;
+  float fVolts= Voltage[3];
   String szLogString= "Read AtoD_4V24 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_4V24, fVolts);
