@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "December 1, 2016B Lenny";
+static const char szFileDate[]    = "December 1, 2016C Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -209,7 +209,8 @@ void setup()
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
 
   //Wire.begin();
-  SetupWiFi();
+  SetupWiFi(szRouterName, szRouterPW);
+  SetupBlynk();
   SetupAtoD();
   SetupSwitches();
   SetupSystem();
@@ -240,7 +241,8 @@ void loop() {
 } //loop
 
 
-void SetupWiFi(){
+void SetupBlynk(){
+/*
   WiFi.mode(WIFI_AP_STA);
   Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
   WiFi.begin(szRouterName, szRouterPW);
@@ -256,21 +258,22 @@ void SetupWiFi(){
     //Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
     Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
   } //if(eWiFiStatus==WL_CONNECTED)else
+*/
 
   switch (sProjectType){
     case sGarageLocal:
     case sDevLocal:
-      Serial << LOG0 << " setup(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
+      Serial << LOG0 << " SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
       Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
       break;
     default:
-      Serial << LOG0 << " SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
+      Serial << LOG0 << " SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
       Blynk.config(acBlynkAuthToken);
       break;
   } //switch
-  Serial << LOG0 << " SetupWiFi(): Blynk.config() returned" << endl;
+  Serial << LOG0 << " SetupBlynk(): Blynk.config() returned" << endl;
   return;
-} //SetupWiFi
+} //SetupBlynk
 
 
 void SetupAtoD(){
