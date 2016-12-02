@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "November 28, 2016E Lenny";
+static const char szFileDate[]    = "December 1, 2016A Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -106,9 +106,11 @@ static const long   sThermoTimesInRow     = 3;      //Max times temp is outside 
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
 //static const char   szRouterName[]        = "Aspot24";
-static const char   szRouterName[]        = "HP7spot";
+static const char   szRouterName[]        	= "Dspot";
+//static const char   szRouterName[]        = "HP7spot";
 //static const char   szRouterName[]        = "LenSpot";
 //static const char   szRouterName[]        = "P291spot";
+
 static const char   szRouterPW[]          = "Qazqaz11";
 static const char   acHostname[]          = "esp37";
 
