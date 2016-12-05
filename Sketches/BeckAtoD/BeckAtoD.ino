@@ -9,7 +9,7 @@ void setup(void)
 {
   //Serial.begin(9600);
   Serial.begin(115200);
-  Serial.println("\nBeckAtoD.ino 11/23/16F eA Lenny");
+  Serial.println("\nBeckAtoD.ino 12/5/16A eA Delly");
   ads.begin();
 } //setup
 
