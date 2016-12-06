@@ -29,7 +29,7 @@
 #ifndef ADS1015_h
 #define ADS1015_h
 
-#include <Wire.h>
+//#include <Wire.h>
 
 /*=========================================================================
     I2C ADDRESS/BITS
