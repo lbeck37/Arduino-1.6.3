@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "December 1, 2016C Lenny";
+static const char szFileDate[]    = "January 15, 2017A Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -17,12 +17,17 @@ static const char szFileDate[]    = "December 1, 2016C Lenny";
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
+#ifndef ESP32
+  #define ESP32
+#endif
+
 #include <BeckLib.h>
 #include <Time.h>
-#include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <Adafruit_ADS1015.h>
+#ifndef ESP32
+  #include <Adafruit_ADS1015.h>
+#endif
 
 #define ONEWIRE_PIN       12
 
@@ -34,7 +39,7 @@ static const char szFileDate[]    = "December 1, 2016C Lenny";
 #define ThermoSwitch_V4   V4
 #define ThermoLED_V5      V5
 
-#define AtoD_1V6      	  V6
+#define AtoD_1V6          V6
 
 #define Terminal_V7       V7
 #define LCD_Line0_V8      V8
@@ -62,7 +67,7 @@ static const char szFileDate[]    = "December 1, 2016C Lenny";
 #define TimerB_3V22       V22
 #define LED_3V23          V23
 
-#define AtoD_4V24     	  V24
+#define AtoD_4V24         V24
 
 //Relay #4
 #define Switch_4V25       V25
@@ -107,7 +112,7 @@ static const long   sThermoTimesInRow     = 3;      //Max times temp is outside 
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
 //static const char   szRouterName[]        = "Aspot24";
-static const char   szRouterName[]        	= "Dspot";
+static const char   szRouterName[]          = "Dspot";
 //static const char   szRouterName[]        = "HP7spot";
 //static const char   szRouterName[]        = "LenSpot";
 //static const char   szRouterName[]        = "P291spot";
@@ -174,10 +179,13 @@ WidgetLED           oLED4(LED_4V28);
 OneWire         oOneWire(sOneWirePin);
 
 /* Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature 	oSensors(&oOneWire);
+DallasTemperature   oSensors(&oOneWire);
 
-Adafruit_ADS1115 	AtoD(0x48);
-float 				Voltage[5];
+#ifdef ESP8266
+  Adafruit_ADS1115  AtoD(0x48);
+#endif
+
+float         Voltage[5];
 
 #if OTA_SERVER
   ESP8266WebServer    oESP8266WebServer(80);
@@ -277,21 +285,25 @@ void SetupBlynk(){
 
 
 void SetupAtoD(){
-	Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
-	AtoD.begin();
-	return;
-}	//SetupAtoD
+  Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
+  #ifdef ESP8266
+    AtoD.begin();
+  #endif
+  return;
+} //SetupAtoD
 
 
 void ReadAtoD(){
-	int16_t adc0;  // we read from the ADC, we have a sixteen bit integer as a result
+  int16_t adc0;  // we read from the ADC, we have a sixteen bit integer as a result
 
-	for (int sChannel= 0; sChannel < 4; sChannel++) {
-	   adc0 = AtoD.readADC_SingleEnded(sChannel);
-	   Voltage[sChannel] = (adc0 * 0.1875)/1000;
-	}	//for
-	return;
-}	//ReadAtoD
+  for (int sChannel= 0; sChannel < 4; sChannel++) {
+    #ifdef ESP8266
+      adc0 = AtoD.readADC_SingleEnded(sChannel);
+    #endif
+     Voltage[sChannel] = (adc0 * 0.1875)/1000;
+  } //for
+  return;
+} //ReadAtoD
 
 
 #if OTA_SERVER

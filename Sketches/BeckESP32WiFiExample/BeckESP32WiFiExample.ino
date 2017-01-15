@@ -1,3 +1,5 @@
+// Beck 1/15/17 A
+
 /**************************************************************
  * Blynk is a platform with iOS and Android apps to control
  * Arduino, Raspberry Pi and the likes over the Internet.
@@ -37,8 +39,9 @@ char auth[] = "b5f15bf27c1a4c929e0fa256ec283293";
 // Your WiFi credentials.
 // Set password to "" for open networks.
 //char ssid[] = "LennySpot";
+//char pass[] = "Qazqaz11";
 char ssid[] = "P291spot";
-char pass[] = "Qazqaz11";
+char pass[] = "Wsxwsx22";
 
 void setup()
 {
