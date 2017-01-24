@@ -1,4 +1,4 @@
-static const char szSketchName[]  = "BeckBlynkESP.ino";
+static const char szSketchName[]  = "BeckBlynkESP32.ino";
 static const char szFileDate[]    = "January 23, 2017A Lenny";
 
 //Uncomment out desired implementation.
@@ -17,10 +17,8 @@ static const char szFileDate[]    = "January 23, 2017A Lenny";
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
-#if 0
-	#ifndef ESP32
-	  #define ESP32
-	#endif
+#ifndef ESP32
+  #define ESP32
 #endif
 
 #include <BeckLib.h>
