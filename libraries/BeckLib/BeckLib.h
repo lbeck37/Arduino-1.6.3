@@ -1,4 +1,4 @@
-//BeckLib.h, Nov 29, 2016
+//BeckLib.h, Jan 27, 2017
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>

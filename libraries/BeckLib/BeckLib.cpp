@@ -1,4 +1,4 @@
-//BeckLib.cpp, Nov 29, 2016
+//BeckLib.cpp, Jan 27, 2017
 #include <BeckLib.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
