@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 27, 2017A HP7";
+static const char szFileDate[]    = "January 27, 2017C HP7";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -24,6 +24,7 @@ static const char szFileDate[]    = "January 27, 2017A HP7";
 #endif
 
 #include <BeckLib.h>
+#include <BlynkSimpleEsp8266.h>
 #include <Time.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -114,10 +115,11 @@ static const long   sThermoTimesInRow     = 3;      //Max times temp is outside 
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
 //static const char   szRouterName[]        = "Aspot24";
-static const char   szRouterName[]          = "Dspot";
+//static const char   szRouterName[]          = "Dspot";
 //static const char   szRouterName[]        = "HP7spot";
 //static const char   szRouterName[]        = "LenSpot";
 //static const char   szRouterName[]        = "P291spot";
+static const char   szRouterName[]        = "TPspot";
 
 static const char   szRouterPW[]          = "Qazqaz11";
 static const char   acHostname[]          = "esp37";

@@ -7,11 +7,11 @@
   #define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
   #include <WiFi.h>
   #include <WiFiClient.h>
-  #include <BlynkSimpleEsp32.h>
+  //#include <BlynkSimpleEsp32.h>
 #else //ESP32
   #include <ESP8266WiFi.h>
   #include <WiFiClient.h>
-  #include <BlynkSimpleEsp8266.h>
+  //#include <BlynkSimpleEsp8266.h>
   #if OTA_SERVER
     #include <ESP8266WebServer.h>
     #include <ESP8266mDNS.h>
