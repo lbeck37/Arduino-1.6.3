@@ -1,5 +1,6 @@
 //BeckLib.cpp, Jan 27, 2017B
 #include <BeckLib.h>
+#include <BeckBlynkLib.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
 

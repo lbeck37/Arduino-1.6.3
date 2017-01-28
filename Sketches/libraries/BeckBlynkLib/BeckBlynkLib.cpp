@@ -1,6 +1,8 @@
 //BeckBlynkLib.cpp
 
 #include <BeckLib.h>
+#include <BeckControlLib.h>
+#include <BeckBlynkLib.h>
 #ifdef ESP8266
   #include <BlynkSimpleEsp8266.h>
 #endif  //ESP8266
