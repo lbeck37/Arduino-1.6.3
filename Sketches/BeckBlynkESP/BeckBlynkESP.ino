@@ -20,15 +20,9 @@ static const char szFileDate[]    = "January 28, 2017A Lenny";
   #include <ESP8266HTTPUpdateServer.h>
 #endif  //OTA_SERVER
 
-//#include <BlynkSimpleEsp8266.h>
-#include <Time.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
 #ifndef ESP32
   #include <Adafruit_ADS1015.h>
 #endif
-
-#define ONEWIRE_PIN       12
 
 #define LOG0    szLogLineHeader(++lLineCount)
 String szLogString;
@@ -38,17 +32,7 @@ String szLogString;
 #else
   static const bool bSkipBlynk          = false;
 #endif
-static const int    sSwitchOpen           = 0;
-static const int    sSwitchClosed         = 1;
-static const int    sOff                  = 0;
-static const int    sOn                   = 1;
-static const int    sNotInit              = -3737;
-static const int    sNumSwitches          = 4;
-//static const int    sMaxNumSwitches       = 4;
-static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
-static const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
-static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
-//(3) types of sketches are supported: front lights, fireplace and garage
+
 static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
 static const int    sGarage               = 3;
@@ -56,17 +40,9 @@ static const int    sGarageLocal          = 4;
 static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sDevRemote            = 7;
-static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 //static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
-static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
-static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
-static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
-
 //static const char   szRouterName[]        = "Aspot24";
-//static const char   szRouterName[]          = "Dspot";
-//static const char   szRouterName[]        = "HP7spot";
-//static const char   szRouterName[]        = "LenSpot";
 //static const char   szRouterName[]        = "P291spot";
 static const char   szRouterName[]        = "TPspot";
 
@@ -116,13 +92,6 @@ static const char   acHostname[]          = "esp37";
   static const char szProjectType[]     = "DEV_REMOTE";
   static const int  sProjectType        = sDevRemote;
 #endif
-
-//Maxim/Dallas OneWire sensors
-/* Set up a oneWire instance to communicate with any OneWire device*/
-OneWire         oOneWire(sOneWirePin);
-
-/* Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature   oSensors(&oOneWire);
 
 #ifdef ESP8266
   Adafruit_ADS1115  AtoD(0x48);

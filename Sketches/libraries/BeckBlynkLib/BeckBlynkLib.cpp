@@ -137,7 +137,7 @@ void HandleBlynkLEDs(){
   //DebugHandleBlynkLEDs();
   //Only send data back to Blynk if state of LED has changed.
   //static int asSwitchLastState[]= {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-  bDebugLog= bDebug;  //If bDebug is OfF then we turn logging off for this routine, resetting at end.
+  //bDebugLog= bDebug;  //If bDebug is OfF then we turn logging off for this routine, resetting at end.
   for (int sSwitch= 0; sSwitch <= sNumSwitches; sSwitch++){
     if (true || (asSwitchState[sSwitch] != asSwitchLastState[sSwitch])){
       asSwitchLastState[sSwitch]= asSwitchState[sSwitch];

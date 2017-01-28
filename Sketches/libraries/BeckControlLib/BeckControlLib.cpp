@@ -1,5 +1,24 @@
 //BeckControlLib.cpp
 
+#include <BeckLib.h>
+#include <BeckControlLib.h>
+
+#include <Time.h>
+#include <OneWire.h>
+
+#define ONEWIRE_PIN       12
+
+const int    sSwitchOpen           = 0;
+const int    sSwitchClosed         = 1;
+const int    sOff                  = 0;
+const int    sOn                   = 1;
+const int    sNotInit              = -3737;
+
+const int    sNumSwitches          = 4;
+const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
+const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
+const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
+
 int          asSwitchState[]       = {0, 0, 0, 0, 0};
 int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
 float        fLastDegF             = 37.37;  //Last temperature reading.
@@ -9,6 +28,17 @@ bool         bThermoOn             = true;   //Whether thermostat is running.
 bool         bFurnaceOn            = false;  //If switch is on to turn on furnace.
 float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 
+const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
+const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
+const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
+const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
+
+//Maxim/Dallas OneWire sensors
+/*Set up a oneWire instance to communicate with any OneWire device*/
+OneWire         oOneWire(sOneWirePin);
+
+/*Tell Dallas Temperature Library to use oneWire Library */
+DallasTemperature   oSensors(&oOneWire);
 
 void HandleFurnaceSwitch(){
   String szLogString = "HandleFurnaceSwitch(): bFurnaceOn";
@@ -72,7 +102,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
   int sSwitchPin= asSwitchPin[sSwitch];
   bool bPinSetting;
   asSwitchState[sSwitch]= sSwitchState;
-  bDebugLog= bDebug;
+  //bDebugLog= bDebug;
   if (abSwitchInverted[sSwitch]){
     bPinSetting= !sSwitchState;
   } //if(abSwitchInverted[sSwitch])
@@ -96,7 +126,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
     digitalWrite(sSwitchPin, bPinSetting);
     asSwitchState[sSwitch]= sSwitchState;
   } //if(sSwitchPin>=0)
-  bDebugLog= true;
+  //bDebugLog= true;
   //HandleBlynkLEDs();
   return;
 } //SetSwitch
