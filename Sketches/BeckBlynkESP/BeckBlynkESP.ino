@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 23, 2017A Lenny";
+static const char szFileDate[]    = "January 27, 2017M HP7";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -24,6 +24,7 @@ static const char szFileDate[]    = "January 23, 2017A Lenny";
 #endif
 
 #include <BeckLib.h>
+#include <BlynkSimpleEsp8266.h>
 #include <Time.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -82,6 +83,7 @@ static const char szFileDate[]    = "January 23, 2017A Lenny";
 #define Unassigned_V31    V31
 
 #define LOG0    szLogLineHeader(++lLineCount)
+String szLogString;
 
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk          = true;
@@ -114,10 +116,11 @@ static const long   sThermoTimesInRow     = 3;      //Max times temp is outside 
 static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
 //static const char   szRouterName[]        = "Aspot24";
-static const char   szRouterName[]          = "Dspot";
+//static const char   szRouterName[]          = "Dspot";
 //static const char   szRouterName[]        = "HP7spot";
 //static const char   szRouterName[]        = "LenSpot";
 //static const char   szRouterName[]        = "P291spot";
+static const char   szRouterName[]        = "TPspot";
 
 static const char   szRouterPW[]          = "Qazqaz11";
 static const char   acHostname[]          = "esp37";
@@ -187,7 +190,7 @@ DallasTemperature   oSensors(&oOneWire);
   Adafruit_ADS1115  AtoD(0x48);
 #endif
 
-float         Voltage[5];
+//float         Voltage[5];
 
 #if OTA_SERVER
   ESP8266WebServer    oESP8266WebServer(80);
@@ -233,7 +236,7 @@ void loop() {
 #if OTA_SERVER
   HandleHttpServer();
 #endif
-  ReadAtoD();
+  //ReadAtoD();
   if (!bSkipBlynk) {
     if (!bUpdating) {
       Blynk.run();
@@ -287,25 +290,29 @@ void SetupBlynk(){
 
 
 void SetupAtoD(){
-  Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
-  #ifdef ESP8266
-    AtoD.begin();
-  #endif
+#ifdef ESP8266
+  szLogString="SetupAtoD(): Call AtoD.begin()";
+  LogToBoth(szLogString);
+  //Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
+  AtoD.begin();
+#endif
   return;
 } //SetupAtoD
 
 
-void ReadAtoD(){
-  int16_t adc0;  // we read from the ADC, we have a sixteen bit integer as a result
-
-  for (int sChannel= 0; sChannel < 4; sChannel++) {
-    #ifdef ESP8266
-      adc0 = AtoD.readADC_SingleEnded(sChannel);
-    #endif
-     Voltage[sChannel] = (adc0 * 0.1875)/1000;
-  } //for
-  return;
-} //ReadAtoD
+float fReadAtoD(int sChannel){
+  float fVoltage= 0.0;
+#ifdef ESP8266
+  szLogString="fReadAtoD(): Ch=";
+  LogToBoth(szLogString, sChannel);
+	int sAtoDReading = AtoD.readADC_SingleEnded(sChannel);
+  szLogString="fReadAtoD():";
+  LogToBoth(szLogString, sAtoDReading);
+	//Convert 16bit value from the AtoD into volts
+	fVoltage = (sAtoDReading * 0.1875)/1000;
+#endif
+  return  fVoltage;
+} //fReadAtoD
 
 
 #if OTA_SERVER
@@ -412,7 +419,7 @@ int sSetupTime(){
 
 
 void SetupSystem(){
-  String szLogString = "SetupSystem()";
+  szLogString = "SetupSystem()";
   LogToBoth(szLogString);
   switch (sProjectType){
   case sDevRemote:
@@ -945,11 +952,7 @@ BLYNK_WRITE(ThermoSwitch_V4){
 //WidgetLED oLED0(ThermoLED_V5) is constructed earlier
 
 BLYNK_READ(AtoD_1V6){
-/*
-  static float fVolts= 1.0;
-  fVolts= fVolts + 0.001;
-*/
-  float fVolts= Voltage[0];
+  float fVolts= fReadAtoD(0);
   String szLogString= "Read AtoD_1V6 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_1V6, fVolts);
@@ -1030,7 +1033,7 @@ BLYNK_WRITE(TimerB_1V12){
 
 
 BLYNK_READ(AtoD_2V14){
-  float fVolts= Voltage[1];
+  float fVolts= fReadAtoD(1);
   String szLogString= "Read AtoD_2V14 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_2V14, fVolts);
@@ -1097,7 +1100,7 @@ BLYNK_WRITE(TimerB_2V17){
 
 
 BLYNK_READ(AtoD_3V19){
-  float fVolts= Voltage[2];
+  float fVolts= fReadAtoD(2);
   String szLogString= "Read AtoD_3V19 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_3V19, fVolts);
@@ -1163,7 +1166,7 @@ BLYNK_WRITE(TimerB_3V22){
 
 
 BLYNK_READ(AtoD_4V24){
-  float fVolts= Voltage[3];
+  float fVolts= fReadAtoD(3);
   String szLogString= "Read AtoD_4V24 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_4V24, fVolts);
