@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 27, 2017K HP7";
+static const char szFileDate[]    = "January 27, 2017M HP7";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -83,6 +83,7 @@ static const char szFileDate[]    = "January 27, 2017K HP7";
 #define Unassigned_V31    V31
 
 #define LOG0    szLogLineHeader(++lLineCount)
+String szLogString;
 
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk          = true;
@@ -290,7 +291,7 @@ void SetupBlynk(){
 
 void SetupAtoD(){
 #ifdef ESP8266
-  String szLogString="SetupAtoD(): Call AtoD.begin()";
+  szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
   //Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
   AtoD.begin();
@@ -300,12 +301,13 @@ void SetupAtoD(){
 
 
 float fReadAtoD(int sChannel){
-  float fVoltage;
+  float fVoltage= 0.0;
 #ifdef ESP8266
-	int32_t sAtoDReading = AtoD.readADC_SingleEnded(sChannel);
-  String szLogString="fReadAtoD():";
+  szLogString="fReadAtoD(): Ch=";
+  LogToBoth(szLogString, sChannel);
+	int sAtoDReading = AtoD.readADC_SingleEnded(sChannel);
+  szLogString="fReadAtoD():";
   LogToBoth(szLogString, sAtoDReading);
-  //Serial << LOG0 << " fReadAtoD(): readADC_SingleEnded(" << sChannel << ")" <<" returned " << sAtoDReading << endl;
 	//Convert 16bit value from the AtoD into volts
 	fVoltage = (sAtoDReading * 0.1875)/1000;
 #endif
@@ -417,7 +419,7 @@ int sSetupTime(){
 
 
 void SetupSystem(){
-  String szLogString = "SetupSystem()";
+  szLogString = "SetupSystem()";
   LogToBoth(szLogString);
   switch (sProjectType){
   case sDevRemote:
