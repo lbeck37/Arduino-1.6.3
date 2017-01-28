@@ -5,9 +5,6 @@
 //#include <Firebase.h>
 //#include <BeckFirebase.h>
 
-//#include <BlynkWidgets.h>
-#include "WidgetTerminal.h""
-
 #ifdef ESP8266
   #include <ESP8266WiFi.h>
   #include <WiFiClient.h>
@@ -90,7 +87,7 @@ static const long   lMsecPerSec           =     1000;
 #define Unassigned_V31    V31
 
 
-extern WidgetTerminal   oTerminal;		//Blynk Terminal
+//extern WidgetTerminal   oTerminal;		//Blynk Terminal
 extern bool         	bDebugLog;   	//Used to limit number of printouts.
 
 void      SetupWiFi(const char* pcRouterName, const char* pcRouterPW);

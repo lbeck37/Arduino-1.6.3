@@ -11,6 +11,7 @@ static const char szFileDate[]    = "January 28, 2017A Lenny";
 #define DEV_REMOTE
 #define OTA_SERVER   false     //Skip running OTA server
 #include <BeckLib.h>
+#include <BeckBlynkLib.h>
 
 #if OTA_SERVER
   #include <ESP8266WebServer.h>
@@ -165,6 +166,7 @@ static const char   acHostname[]          = "esp37";
   static const int  sProjectType        = sDevRemote;
 #endif
 
+/*
 //WidgetTerminal      oTerminal(Terminal_V7);
 WidgetLCD           LCDWidget(1);
 
@@ -174,6 +176,7 @@ WidgetLED           oLED1(LED_1V13);
 WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
+*/
 
 //Maxim/Dallas OneWire sensors
 /* Set up a oneWire instance to communicate with any OneWire device*/
@@ -235,7 +238,8 @@ void loop() {
   //ReadAtoD();
   if (!bSkipBlynk) {
     if (!bUpdating) {
-      Blynk.run();
+      //Blynk.run();
+      RunBlynk();
       HandleSystem();
     } //if(!bUpdating)
     else {
@@ -273,11 +277,13 @@ void SetupBlynk(){
     case sGarageLocal:
     case sDevLocal:
       Serial << LOG0 << " SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
-      Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
+//      Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
+      ConfigBlynk(acBlynkAuthToken, IPAddress(192,168,15,191));
       break;
     default:
       Serial << LOG0 << " SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
-      Blynk.config(acBlynkAuthToken);
+//      Blynk.config(acBlynkAuthToken);
+      ConfigBlynk(acBlynkAuthToken);
       break;
   } //switch
   Serial << LOG0 << " SetupBlynk(): Blynk.config() returned" << endl;
@@ -869,6 +875,7 @@ float fRound(float fNum){
 }  //fRound
 
 
+/*
 void SendIntToBlynk(int sVirtualPin, int sValue){
   String szString= " SendIntToBlynk: ";
   BlynkLogLine(szString, sValue);
@@ -962,13 +969,13 @@ BLYNK_WRITE(Switch_1V10){
   String szLogString= "Set Switch_1V10 ";
   szLogString += sSetting;
   LogToBoth(szLogString);
-/*
+
   //Test writing to LCD
   LCDWidget.clear();
   int sCharPos= 0;   //Position 0-15
   int sLineNum= 0;   //Line 0-1
   LCDWidget.print(0, 0, "Relay #0 set to: ");
-*/
+
   if (sSetting == 1){
     sSwitchSetting= sSwitchClosed;
   }
@@ -1219,7 +1226,7 @@ BLYNK_WRITE(TimerB_4V27){
 
 //WidgetLED oLED1(LED_4V28) is constructed earlier
 
-/*
+
 BLYNK_WRITE(Terminal_V7)
 {
   Serial << LOG0 << " BLYNK_WRITE(Terminal_V7): Received Parameter= " <<  param.asStr() << endl;
@@ -1239,5 +1246,6 @@ BLYNK_WRITE(Terminal_V7)
   oTerminal.flush();
   return;
 } //BLYNK_WRITE(Terminal_V7)
+
 */
 //Last line.

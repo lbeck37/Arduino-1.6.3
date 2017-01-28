@@ -59,12 +59,39 @@
 //Blynk Terminal
 WidgetTerminal      oTerminal(Terminal_V7);
 
+WidgetLCD           LCDWidget(1);
+
+//LED for thermostat state has no actual switch but it will live as unused switch #0.
+WidgetLED           oLED0(ThermoLED_V5);
+WidgetLED           oLED1(LED_1V13);
+WidgetLED           oLED2(LED_2V18);
+WidgetLED           oLED3(LED_3V23);
+WidgetLED           oLED4(LED_4V28);
+
 //Local function protos.
 void WriteTerminalLine(String szString);
 void WriteTerminalString(String szString);
 
 
 //Functions
+void RunBlynk() {
+   Blynk.run();
+return;
+}	//RunBlynk
+
+
+void ConfigBlynk(const char acBlynkAuthToken[]) {
+   Blynk.config(acBlynkAuthToken);
+return;
+}	//ConfigBlynk
+
+
+void ConfigBlynk(const char acBlynkAuthToken[], IPAddress oIPAddress) {
+	   Blynk.config(acBlynkAuthToken, oIPAddress);
+return;
+}	//ConfigBlynk
+
+
 void BlynkLogLine(String szString){
   String szTermString= szLogLineHeader(lLineCount);
   szTermString += szString;
@@ -194,4 +221,352 @@ void WriteTerminalString(String szString){
   } //if(bDebugLog)
   return;
 } //WriteTerminalString
+
+void SendIntToBlynk(int sVirtualPin, int sValue){
+  String szString= " SendIntToBlynk: ";
+  BlynkLogLine(szString, sValue);
+  Blynk.virtualWrite(sVirtualPin, sValue);
+  return;
+} //SendIntToBlynk
+
+
+//BLYNK_READ() functions are called by the Blynk app on the phone (at a 1 second interval)
+//and returns the value or state of some variable.
+//BLYNK_WRITE() functions are called by the Blynk app on the phone
+//and pass a variable in the "param" object.
+BLYNK_READ(ReadF_V0){
+  bool bTakeReading= true;
+  float fDegF= fGetDegF(bTakeReading);
+  String szLogString= "Read ReadF_V0 ";
+  LogToBoth(szLogString, fDegF);
+
+  //Blynk.virtualWrite(ReadF_V0, fRound(fDegF));
+  Blynk.virtualWrite(ReadF_V0, fDegF);
+} //BLYNK_READ(ReadF_V0)
+
+
+BLYNK_READ(ReadF_V1){
+  bool bTakeReading= false;
+  float fDegF= fGetDegF(bTakeReading);
+  String szLogString= "Read ReadF_V1 ";
+  LogToBoth(szLogString, fDegF);
+
+  Blynk.virtualWrite(ReadF_V1, fDegF);
+} //BLYNK_READ(ReadF_V1)
+
+
+BLYNK_WRITE(SetSetpointF_V2){
+  int sSetpointParam= param.asInt();
+  sSetpointF= sSetpointParam;
+  fThermoOffDegF= sSetpointF + fMaxHeatRangeF;
+  String szLogString= "SetSetpointF_V2 ";
+  LogToBoth(szLogString, sSetpointF);
+
+  //Send set point back to Value box set with PUSH from GetSetpointF_V3.
+  SendIntToBlynk(GetSetpointF_V3, sSetpointF);
+  return;
+} //BLYNK_WRITE(Switch_2V15)
+
+
+BLYNK_READ(GetSetpointF_V3){
+  int sReturnF= sSetpointF;
+  String szLogString= "GetSetpointF_V3 ";
+  LogToBoth(szLogString, sSetpointF);
+
+  Blynk.virtualWrite(GetSetpointF_V3, sReturnF);
+} //BLYNK_READ(GetSetpointF_V3)
+
+
+BLYNK_WRITE(ThermoSwitch_V4){
+  //Turn thermostat on and off.
+  int sParam= param.asInt();
+  String szLogString= "ThermoSwitch_V4 ";
+  LogToBoth(szLogString, sParam);
+  SetThermoState(sParam);
+  HandleFurnaceSwitch();
+
+  //Send set point back to Value box set with PUSH from GetSetpointF_V3.
+  SendIntToBlynk(GetSetpointF_V3, sSetpointF);
+  //HandleBlynkLEDs();
+  return;
+} //BLYNK_WRITE(ThermoSwitch_V4)
+
+//WidgetLED oLED0(ThermoLED_V5) is constructed earlier
+
+BLYNK_READ(AtoD_1V6){
+  float fVolts= fReadAtoD(0);
+  String szLogString= "Read AtoD_1V6 ";
+  LogToBoth(szLogString, fVolts);
+  Blynk.virtualWrite(AtoD_1V6, fVolts);
+} //BLYNK_READ(AtoD_1V6)
+
+
+//Handler callback function called when Button set as a Switch is pressed.
+//Light around button is lit when 1 is passed as parameter, unlit when 0 is passed.
+//Opto-isolated relay is inverse logic, pulling input pin low cn relay.
+//Relay #0 is connected to Blynk virtual pins 10, 11, 12
+//Relay #1 is connected to Blynk virtual pins 20, 21, 22
+BLYNK_WRITE(Switch_1V10){
+  //Virtual pin 10, 15, 20 and 25 control Switches 1, 2, 3 and 4.
+  int sSwitchNumber= 1;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+
+  String szLogString= "Set Switch_1V10 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+
+  //Test writing to LCD
+  LCDWidget.clear();
+  int sCharPos= 0;   //Position 0-15
+  int sLineNum= 0;   //Line 0-1
+  LCDWidget.print(0, 0, "Relay #0 set to: ");
+
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(Switch_1V10)
+
+
+BLYNK_WRITE(TimerA_1V11){
+  int sSwitchNumber= 1;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set TimerA_1V11 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+    }
+  else{
+    sSwitchSetting= sSwitchOpen;
+    }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+  } //BLYNK_WRITE(TimerA_1V11)
+
+
+BLYNK_WRITE(TimerB_1V12){
+  int sSwitchNumber= 1;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set TimerB_1V12 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+    }
+  else{
+    sSwitchSetting= sSwitchOpen;
+    }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+  } //BLYNK_WRITE(TimerB_1V12)
+
+
+//WidgetLED oLED1(LED_1V13) is constructed earlier
+
+
+BLYNK_READ(AtoD_2V14){
+  float fVolts= fReadAtoD(1);
+  String szLogString= "Read AtoD_2V14 ";
+  LogToBoth(szLogString, fVolts);
+  Blynk.virtualWrite(AtoD_2V14, fVolts);
+} //BLYNK_READ(AtoD_2V14)
+
+
+BLYNK_WRITE(Switch_2V15){
+  int sSwitchNumber= 2;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set Switch2V15 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(Switch_2V15)
+
+
+BLYNK_WRITE(TimerA_2V16){
+  int sSwitchNumber= 2;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set TimerA_2V16 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(TimerA_2V16)
+
+
+BLYNK_WRITE(TimerB_2V17){
+  int sSwitchNumber= 2;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set TimerB_2V17 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(TimerB_2V17)
+
+
+//WidgetLED oLED1(LED_2V18) is constructed earlier
+
+
+BLYNK_READ(AtoD_3V19){
+  float fVolts= fReadAtoD(2);
+  String szLogString= "Read AtoD_3V19 ";
+  LogToBoth(szLogString, fVolts);
+  Blynk.virtualWrite(AtoD_3V19, fVolts);
+} //BLYNK_READ(AtoD_3V19)
+
+
+BLYNK_WRITE(Switch_3V20){
+  int sSwitchNumber= 3;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set Switch_3V20 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(Switch_3V20)
+
+
+BLYNK_WRITE(TimerA_3V21){
+  int sSwitchNumber= 3;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set TimerA_3V21 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(TimerA_3V21)
+
+
+BLYNK_WRITE(TimerB_3V22){
+  int sSwitchNumber= 3;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set TimerB_3V22 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(TimerB_3V22)
+
+
+//WidgetLED oLED1(LED_3V23) is constructed earlier
+
+
+BLYNK_READ(AtoD_4V24){
+  float fVolts= fReadAtoD(3);
+  String szLogString= "Read AtoD_4V24 ";
+  LogToBoth(szLogString, fVolts);
+  Blynk.virtualWrite(AtoD_4V24, fVolts);
+} //BLYNK_READ(AtoD_4V24)
+
+
+BLYNK_WRITE(Switch_4V25){
+  int sSwitchNumber= 4;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set Switch_4V25 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(Switch_4V25)
+
+
+BLYNK_WRITE(TimerA_4V26){
+  int sSwitchNumber= 4;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set TimerA_4V26 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(TimerA_4V26)
+
+
+BLYNK_WRITE(TimerB_4V27){
+  int sSwitchNumber= 4;
+  int sSwitchSetting;
+  int sSetting= param.asInt();
+  String szLogString= "Set TimerB_4V27 ";
+  szLogString += sSetting;
+  LogToBoth(szLogString);
+
+  if (sSetting == 1){
+    sSwitchSetting= sSwitchClosed;
+  }
+  else{
+    sSwitchSetting= sSwitchOpen;
+  }
+  SetSwitch(sSwitchNumber, sSwitchSetting);
+  return;
+} //BLYNK_WRITE(TimerB_4V27)
+
 //Last line.
