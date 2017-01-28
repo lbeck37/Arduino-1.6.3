@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 27, 2017C HP7";
+static const char szFileDate[]    = "January 27, 2017K HP7";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -189,7 +189,7 @@ DallasTemperature   oSensors(&oOneWire);
   Adafruit_ADS1115  AtoD(0x48);
 #endif
 
-float         Voltage[5];
+//float         Voltage[5];
 
 #if OTA_SERVER
   ESP8266WebServer    oESP8266WebServer(80);
@@ -235,7 +235,7 @@ void loop() {
 #if OTA_SERVER
   HandleHttpServer();
 #endif
-  ReadAtoD();
+  //ReadAtoD();
   if (!bSkipBlynk) {
     if (!bUpdating) {
       Blynk.run();
@@ -289,25 +289,28 @@ void SetupBlynk(){
 
 
 void SetupAtoD(){
-  Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
-  #ifdef ESP8266
-    AtoD.begin();
-  #endif
+#ifdef ESP8266
+  String szLogString="SetupAtoD(): Call AtoD.begin()";
+  LogToBoth(szLogString);
+  //Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
+  AtoD.begin();
+#endif
   return;
 } //SetupAtoD
 
 
-void ReadAtoD(){
-  int16_t adc0;  // we read from the ADC, we have a sixteen bit integer as a result
-
-  for (int sChannel= 0; sChannel < 4; sChannel++) {
-    #ifdef ESP8266
-      adc0 = AtoD.readADC_SingleEnded(sChannel);
-    #endif
-     Voltage[sChannel] = (adc0 * 0.1875)/1000;
-  } //for
-  return;
-} //ReadAtoD
+float fReadAtoD(int sChannel){
+  float fVoltage;
+#ifdef ESP8266
+	int32_t sAtoDReading = AtoD.readADC_SingleEnded(sChannel);
+  String szLogString="fReadAtoD():";
+  LogToBoth(szLogString, sAtoDReading);
+  //Serial << LOG0 << " fReadAtoD(): readADC_SingleEnded(" << sChannel << ")" <<" returned " << sAtoDReading << endl;
+	//Convert 16bit value from the AtoD into volts
+	fVoltage = (sAtoDReading * 0.1875)/1000;
+#endif
+  return  fVoltage;
+} //fReadAtoD
 
 
 #if OTA_SERVER
@@ -947,11 +950,7 @@ BLYNK_WRITE(ThermoSwitch_V4){
 //WidgetLED oLED0(ThermoLED_V5) is constructed earlier
 
 BLYNK_READ(AtoD_1V6){
-/*
-  static float fVolts= 1.0;
-  fVolts= fVolts + 0.001;
-*/
-  float fVolts= Voltage[0];
+  float fVolts= fReadAtoD(0);
   String szLogString= "Read AtoD_1V6 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_1V6, fVolts);
@@ -1032,7 +1031,7 @@ BLYNK_WRITE(TimerB_1V12){
 
 
 BLYNK_READ(AtoD_2V14){
-  float fVolts= Voltage[1];
+  float fVolts= fReadAtoD(1);
   String szLogString= "Read AtoD_2V14 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_2V14, fVolts);
@@ -1099,7 +1098,7 @@ BLYNK_WRITE(TimerB_2V17){
 
 
 BLYNK_READ(AtoD_3V19){
-  float fVolts= Voltage[2];
+  float fVolts= fReadAtoD(2);
   String szLogString= "Read AtoD_3V19 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_3V19, fVolts);
@@ -1165,7 +1164,7 @@ BLYNK_WRITE(TimerB_3V22){
 
 
 BLYNK_READ(AtoD_4V24){
-  float fVolts= Voltage[3];
+  float fVolts= fReadAtoD(3);
   String szLogString= "Read AtoD_4V24 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_4V24, fVolts);
