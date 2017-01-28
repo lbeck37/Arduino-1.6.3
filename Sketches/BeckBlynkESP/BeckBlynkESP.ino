@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 27, 2017N Lenny";
+static const char szFileDate[]    = "January 28, 2017A Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -9,22 +9,16 @@ static const char szFileDate[]    = "January 27, 2017N Lenny";
 //#define HEATER
 //#define DEV_LOCAL
 #define DEV_REMOTE
-
 #define OTA_SERVER   false     //Skip running OTA server
-#if 0
-  #define SKIP_BLYNK      true
-  #define DEBUG         true
-  #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
-#endif
-
-#if 0
-	#ifndef ESP32
-	  #define ESP32
-	#endif
-#endif
-
 #include <BeckLib.h>
-#include <BlynkSimpleEsp8266.h>
+
+#if OTA_SERVER
+  #include <ESP8266WebServer.h>
+  #include <ESP8266mDNS.h>
+  #include <ESP8266HTTPUpdateServer.h>
+#endif  //OTA_SERVER
+
+//#include <BlynkSimpleEsp8266.h>
 #include <Time.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -34,6 +28,7 @@ static const char szFileDate[]    = "January 27, 2017N Lenny";
 
 #define ONEWIRE_PIN       12
 
+/*
 //Define Virtual Pin names
 #define ReadF_V0          V0
 #define ReadF_V1          V1
@@ -81,6 +76,7 @@ static const char szFileDate[]    = "January 27, 2017N Lenny";
 #define Unassigned_V29    V29
 #define Unassigned_V30    V30
 #define Unassigned_V31    V31
+*/
 
 #define LOG0    szLogLineHeader(++lLineCount)
 String szLogString;
@@ -169,7 +165,7 @@ static const char   acHostname[]          = "esp37";
   static const int  sProjectType        = sDevRemote;
 #endif
 
-WidgetTerminal      oTerminal(Terminal_V7);
+//WidgetTerminal      oTerminal(Terminal_V7);
 WidgetLCD           LCDWidget(1);
 
 //LED for thermostat state has no actual switch but it will live as unused switch #0.
@@ -211,7 +207,7 @@ static bool           bThermoOn             = true;   //Whether thermostat is ru
 static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
-static bool         bDebugLog             = true;   //Used to limit number of printouts.
+//static bool         bDebugLog             = true;   //Used to limit number of printouts.
 static bool         bUpdating             = false;   //Turns off Blynk.
 
 void setup()
@@ -293,8 +289,9 @@ void SetupAtoD(){
 #ifdef ESP8266
   szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
-  //Serial << LOG0 << " SetupAtoD(): Call AtoD.begin()" << endl;
   AtoD.begin();
+  szLogString="SetupAtoD(): Call AtoD.begin()";
+  LogToBoth(szLogString);
 #endif
   return;
 } //SetupAtoD
@@ -594,6 +591,7 @@ void DebugHandleBlynkLEDs(){
 } //DebugHandleBlynkLEDs
 
 
+/*
 void HandleBlynkLEDs(){
   String szLogString = "HandleBlynkLEDs()";
   LogToBoth(szLogString);
@@ -664,6 +662,7 @@ void HandleBlynkLEDs(){
   bDebugLog= true;
   return;
 } //HandleBlynkLEDs
+*/
 
 
 void HandleFurnaceSwitch(){
@@ -759,17 +758,6 @@ void SetSwitch(int sSwitch, int sSwitchState){
 
 
 /*
-int sTerminalPrintVersion(){
-  Serial << LOG0 << " sTerminalPrintVersion: Begin" << endl;
-  oTerminal.println(F("Blynk v" BLYNK_VERSION ": Device started"));
-  oTerminal.println("-------------");
-  oTerminal.println("Type 'Marco' and get a reply, or type");
-  oTerminal.println("anything else and get it printed back.");
-  oTerminal.flush();
-  return 1;
-} //sTerminalPrintVersion
-*/
-
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
 //int WriteTerminalLine(char *szString){
@@ -857,6 +845,7 @@ void BlynkLogLine(String szString, float fValue){
   WriteTerminalLine(szTermString);
   return;
 } //BlynkLogLine:float
+*/
 
 
 float fGetDegF(bool bTakeReading){

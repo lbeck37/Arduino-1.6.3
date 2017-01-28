@@ -62,6 +62,7 @@ bool                    bStartedOTA       = false;
   #endif  //ESP8266
 #endif  //ESP32
 
+bool         		bDebugLog= true;   //Used to limit number of printouts.
 
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
   wl_status_t eStatus;
@@ -226,4 +227,34 @@ String szIPaddress(IPAddress oIP){
   String szOctetIP= oIP[0] + szDot +  oIP[1] + szDot  + oIP[2] + szDot +  oIP[3];
   return szOctetIP;
 } //szIPaddress
+
+
+//LogToBoth() and BlynkLogLine()have multiple versions
+//depending on there being a 2nd variable and its type.
+void LogToBoth(String szLogString){
+  Serial << LOG0 << szLogString << endl;
+  BlynkLogLine(szLogString);
+  return;
+} //LogToBoth:empty
+
+
+void LogToBoth(String szLogString, String szLogValue){
+  Serial << LOG0 << szLogString << " " << szLogValue << endl;
+  BlynkLogLine(szLogString, szLogValue);
+  return;
+} //LogToBoth:String
+
+
+void LogToBoth(String szLogString, int sLogValue){
+  Serial << LOG0 << szLogString << " " << sLogValue << endl;
+  BlynkLogLine(szLogString, sLogValue);
+  return;
+} //LogToBoth:int
+
+
+void LogToBoth(String szLogString, float fLogValue){
+  Serial << LOG0 << szLogString << " " << fLogValue << endl;
+  BlynkLogLine(szLogString, fLogValue);
+  return;
+} //LogToBoth:float
 //Last line.
