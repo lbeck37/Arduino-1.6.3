@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 28, 2017A Lenny";
+static const char szFileDate[]    = "January 28, 2017B Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -102,6 +102,7 @@ static unsigned long  ulUpdateTimeoutMsec   = 0;
 static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
 //static bool         bDebugLog             = true;   //Used to limit number of printouts.
 static bool         bUpdating             = false;   //Turns off Blynk.
+const uint8_t		ucVoltPin= 27;
 
 void setup()
 {
@@ -116,6 +117,15 @@ void setup()
   SetupAtoD();
   SetupSwitches();
   SetupSystem();
+#if ESP32
+  //Try out analogRead() on ESP32
+  pinMode(ucVoltPin, INPUT);
+  String szLogString = "setup(): analogRead(ucVoltPin)";
+  LogToBoth(szLogString);
+  int sValue= analogRead(ucVoltPin);
+  szLogString = "setup(): sValue= ";
+  LogToBoth(szLogString, sValue);
+#endif
   return;
 } //setup
 
