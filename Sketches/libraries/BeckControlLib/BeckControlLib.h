@@ -23,6 +23,8 @@ extern const int    asSwitchPin[];    //0 is not a switch, switches are at 1,2,3
 
 extern DallasTemperature   oSensors;
 
+extern void SetupAtoD();
+extern float fReadAtoD(int sChannel);
 extern void HandleFurnaceSwitch();
 extern void TurnFurnaceOn(bool bTurnOn);
 extern void SetThermoState(int sSwitchState);

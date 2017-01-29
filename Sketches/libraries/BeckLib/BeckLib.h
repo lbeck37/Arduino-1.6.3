@@ -2,6 +2,7 @@
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>
+#include <Time.h>
 //#include <Firebase.h>
 //#include <BeckFirebase.h>
 

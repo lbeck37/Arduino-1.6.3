@@ -3,8 +3,11 @@
 #include <BeckLib.h>
 #include <BeckControlLib.h>
 
-#include <Time.h>
 #include <OneWire.h>
+
+#ifndef ESP32
+  #include <Adafruit_ADS1015.h>
+#endif
 
 #define ONEWIRE_PIN       12
 
@@ -39,6 +42,38 @@ OneWire         oOneWire(sOneWirePin);
 
 /*Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature   oSensors(&oOneWire);
+
+#ifdef ESP8266
+  Adafruit_ADS1115  AtoD(0x48);
+#endif
+
+/****************************************************************/
+void SetupAtoD(){
+#ifdef ESP8266
+  String szLogString="SetupAtoD(): Call AtoD.begin()";
+  LogToBoth(szLogString);
+  AtoD.begin();
+  szLogString="SetupAtoD(): Call AtoD.begin()";
+  LogToBoth(szLogString);
+#endif
+  return;
+} //SetupAtoD
+
+
+float fReadAtoD(int sChannel){
+  float fVoltage= 0.0;
+#ifdef ESP8266
+  String szLogString="fReadAtoD(): Ch=";
+  LogToBoth(szLogString, sChannel);
+	int sAtoDReading = AtoD.readADC_SingleEnded(sChannel);
+  szLogString="fReadAtoD():";
+  LogToBoth(szLogString, sAtoDReading);
+	//Convert 16bit value from the AtoD into volts
+	fVoltage = (sAtoDReading * 0.1875)/1000;
+#endif
+  return  fVoltage;
+} //fReadAtoD
+
 
 void HandleFurnaceSwitch(){
   String szLogString = "HandleFurnaceSwitch(): bFurnaceOn";

@@ -20,10 +20,6 @@ static const char szFileDate[]    = "January 28, 2017A Lenny";
   #include <ESP8266HTTPUpdateServer.h>
 #endif  //OTA_SERVER
 
-#ifndef ESP32
-  #include <Adafruit_ADS1015.h>
-#endif
-
 #define LOG0    szLogLineHeader(++lLineCount)
 String szLogString;
 
@@ -91,10 +87,6 @@ static const char   acHostname[]          = "esp37";
   static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char szProjectType[]     = "DEV_REMOTE";
   static const int  sProjectType        = sDevRemote;
-#endif
-
-#ifdef ESP8266
-  Adafruit_ADS1115  AtoD(0x48);
 #endif
 
 #if OTA_SERVER
@@ -187,33 +179,6 @@ void SetupBlynk(){
   Serial << LOG0 << " SetupBlynk(): Blynk.config() returned" << endl;
   return;
 } //SetupBlynk
-
-
-void SetupAtoD(){
-#ifdef ESP8266
-  szLogString="SetupAtoD(): Call AtoD.begin()";
-  LogToBoth(szLogString);
-  AtoD.begin();
-  szLogString="SetupAtoD(): Call AtoD.begin()";
-  LogToBoth(szLogString);
-#endif
-  return;
-} //SetupAtoD
-
-
-float fReadAtoD(int sChannel){
-  float fVoltage= 0.0;
-#ifdef ESP8266
-  szLogString="fReadAtoD(): Ch=";
-  LogToBoth(szLogString, sChannel);
-	int sAtoDReading = AtoD.readADC_SingleEnded(sChannel);
-  szLogString="fReadAtoD():";
-  LogToBoth(szLogString, sAtoDReading);
-	//Convert 16bit value from the AtoD into volts
-	fVoltage = (sAtoDReading * 0.1875)/1000;
-#endif
-  return  fVoltage;
-} //fReadAtoD
 
 
 #if OTA_SERVER
