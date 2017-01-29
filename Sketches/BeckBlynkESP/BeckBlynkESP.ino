@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 28, 2017B Lenny";
+static const char szFileDate[]    = "January 29, 2017A Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -24,10 +24,25 @@ static const char szFileDate[]    = "January 28, 2017B Lenny";
 String szLogString;
 
 #ifdef SKIP_BLYNK
-  static const bool bSkipBlynk          = true;
+  static const bool bSkipBlynk       = true;
 #else
-  static const bool bSkipBlynk          = false;
+  static const bool bSkipBlynk       = false;
 #endif
+
+//ESP32 AtoD Pinouts
+const uint8_t ucGrey1PowerPin		= 34;
+const uint8_t ucGrey1LevelPin		= 35;																																			;
+const uint8_t ucBlackPowerPin		= 25;
+const uint8_t ucBlackLevelPin		= 26;																																			;
+const uint8_t ucGrey2PowerPin		= 27;
+const uint8_t ucGrey2LevelPin		= 14;
+
+const uint8_t ucTankPin[3][2]=
+	{
+	{ucGrey1PowerPin, ucGrey1LevelPin},
+	{ucBlackPowerPin, ucBlackLevelPin},
+	{ucGrey2PowerPin, ucGrey2LevelPin}
+};
 
 static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
@@ -210,7 +225,6 @@ void SetupServer(void) {
     oESP8266WebServer.begin();
     MDNS.addService("http", "tcp", 80);
     Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
-//#endif
   return;
 } //SetupServer
 
@@ -285,7 +299,7 @@ void PauseBlynk() {
     ulUpdateTimeoutMsec= millis() + 20000;
   return;
 } //PauseBlynk
-#endif
+#endif	//OTA_SERVER
 
 
 int sSetupTime(){
