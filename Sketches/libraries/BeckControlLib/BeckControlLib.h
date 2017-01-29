@@ -23,6 +23,24 @@ extern const int    asSwitchPin[];    //0 is not a switch, switches are at 1,2,3
 
 extern DallasTemperature   oSensors;
 
+//ESP32 AtoD Input Pins
+extern const int	sNumTanks;
+extern const int	sPinsPerTank;
+
+extern const uint8_t ucGrey1PowerPin;
+extern const uint8_t ucGrey1LevelPin;
+extern const uint8_t ucBlackPowerPin;
+extern const uint8_t ucBlackLevelPin;
+extern const uint8_t ucGrey2PowerPin;
+extern const uint8_t ucGrey2LevelPin;
+
+/*
+extern const int		sNumTanks;
+extern const int		sPinsPerTank;
+extern const uint8_t 	ucTankPin[sNumTanks][sPinsPerTank];
+*/
+
+//Function protos.
 extern void SetupAtoD();
 extern float fReadAtoD(int sChannel);
 extern void HandleFurnaceSwitch();

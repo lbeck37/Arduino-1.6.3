@@ -47,25 +47,62 @@ DallasTemperature   oSensors(&oOneWire);
   Adafruit_ADS1115  AtoD(0x48);
 #endif
 
+//ESP32 AtoD Input Pins
+const int	sNumTanks		= 3;
+const int	sPinsPerTank		= 2;
+
+const uint8_t ucGrey1PowerPin		= 34;
+const uint8_t ucGrey1LevelPin		= 35;
+const uint8_t ucBlackPowerPin		= 25;
+const uint8_t ucBlackLevelPin		= 26;
+const uint8_t ucGrey2PowerPin		= 27;
+const uint8_t ucGrey2LevelPin		= 14;
+
+const uint8_t ucTankPin[sNumTanks][sPinsPerTank]=
+	{
+		{ucGrey1PowerPin, ucGrey1LevelPin},
+		{ucBlackPowerPin, ucBlackLevelPin},
+		{ucGrey2PowerPin, ucGrey2LevelPin}
+	};
+
 /****************************************************************/
 void SetupAtoD(){
-#ifdef ESP8266
+#if 1 //ESP32
+	for (int sTank= 0; sTank < sNumTanks; sTank++) {
+		for (int sPin= 0; sPin < sPinsPerTank; sPin++) {
+			  pinMode(ucTankPin[sTank][sPinsPerTank], INPUT);
+		}	//for (int sPin= 0;...
+	}	//for (int sTank= 0;...
+#endif	//ESP32
+
+#if ESP8266
   String szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
   AtoD.begin();
   szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
-#endif
+#endif	//ESP8266
   return;
 } //SetupAtoD
 
 
-float fReadAtoD(int sChannel){
-  float fVoltage= 0.0;
+float fReadAtoD(int sInputPin){
+  float fVoltage= 0.370;
+#if 1 //ESP32
+  uint8_t ucPin= (uint8_t)sInputPin;
+  String szLogString = "setup(): analogRead(ucPin)";
+  LogToBoth(szLogString);
+
+  int sValue= analogRead(ucPin);
+  szLogString = "setup(): sValue= ";
+  LogToBoth(szLogString, sValue);
+  fVoltage = (sValue * 1.61)/1000;	//12-bit AtoD +/-2048, assume 3.3V max
+#endif
+
 #ifdef ESP8266
   String szLogString="fReadAtoD(): Ch=";
-  LogToBoth(szLogString, sChannel);
-	int sAtoDReading = AtoD.readADC_SingleEnded(sChannel);
+  LogToBoth(szLogString, sInputPin);
+	int sAtoDReading = AtoD.readADC_SingleEnded(sInputPin);
   szLogString="fReadAtoD():";
   LogToBoth(szLogString, sAtoDReading);
 	//Convert 16bit value from the AtoD into volts

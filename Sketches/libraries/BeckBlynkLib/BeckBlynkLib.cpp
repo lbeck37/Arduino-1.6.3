@@ -296,7 +296,7 @@ BLYNK_WRITE(ThermoSwitch_V4){
 //WidgetLED oLED0(ThermoLED_V5) is constructed earlier
 
 BLYNK_READ(AtoD_1V6){
-  float fVolts= fReadAtoD(0);
+  float fVolts= fReadAtoD(ucGrey1LevelPin);
   String szLogString= "Read AtoD_1V6 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_1V6, fVolts);
@@ -377,7 +377,7 @@ BLYNK_WRITE(TimerB_1V12){
 
 
 BLYNK_READ(AtoD_2V14){
-  float fVolts= fReadAtoD(1);
+  float fVolts= fReadAtoD(ucBlackLevelPin);
   String szLogString= "Read AtoD_2V14 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_2V14, fVolts);
@@ -444,7 +444,7 @@ BLYNK_WRITE(TimerB_2V17){
 
 
 BLYNK_READ(AtoD_3V19){
-  float fVolts= fReadAtoD(2);
+  float fVolts= fReadAtoD(ucGrey2LevelPin);
   String szLogString= "Read AtoD_3V19 ";
   LogToBoth(szLogString, fVolts);
   Blynk.virtualWrite(AtoD_3V19, fVolts);
