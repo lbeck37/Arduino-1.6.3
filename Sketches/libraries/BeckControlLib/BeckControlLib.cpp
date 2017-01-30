@@ -65,6 +65,35 @@ const uint8_t ucTankPin[sNumTanks][sPinsPerTank]=
 		{ucGrey2PowerPin, ucGrey2LevelPin}
 	};
 
+const uint8_t ucADC_0			= -1;	//36; Preamp pins, skip testing
+const uint8_t ucADC_1			= -1;	//37;
+const uint8_t ucADC_2			= -1;	//38;
+const uint8_t ucADC_3			= -1;	//39;
+const uint8_t ucADC_4			= 32;
+
+const uint8_t ucADC_5			= 33;
+const uint8_t ucADC_6			= 34;
+const uint8_t ucADC_7			= 35;
+const uint8_t ucADC_18			= 25;
+const uint8_t ucADC_19			= 26;
+
+const uint8_t ucADC_17			= 27;
+const uint8_t ucADC_16			= 14;
+const uint8_t ucADC_15			= 12;
+const uint8_t ucADC_14			= 13;
+const uint8_t ucADC_13			= 15;
+
+const uint8_t ucADC_12			= -1;	//2;	//
+const uint8_t ucADC_11			= -1;	//0;
+const uint8_t ucADC_10			= 4;
+
+const int sNumADCpins			= 18;
+
+const uint8_t ucADC_Pins[sNumADCpins]= {
+    ucADC_0, ucADC_1, ucADC_2, ucADC_3, ucADC_4,
+    ucADC_5, ucADC_6, ucADC_7, ucADC_18, ucADC_19,
+    ucADC_17, ucADC_16, ucADC_15, ucADC_14, ucADC_13,
+    ucADC_12, ucADC_11, ucADC_10};
 /****************************************************************/
 void SetupAtoD(){
 #if 1 //ESP32
