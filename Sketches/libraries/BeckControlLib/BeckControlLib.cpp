@@ -90,8 +90,8 @@ float fReadAtoD(int sInputPin){
   float fVoltage= 0.370;
 #if 1 //ESP32
   uint8_t ucPin= (uint8_t)sInputPin;
-  String szLogString = "setup(): analogRead(ucPin)";
-  LogToBoth(szLogString);
+  String szLogString = "setup(): analogRead Pin:";
+  LogToBoth(szLogString, ucPin);
 
   int sValue= analogRead(ucPin);
   szLogString = "setup(): sValue= ";
