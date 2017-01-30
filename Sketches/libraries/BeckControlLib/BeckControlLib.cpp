@@ -5,8 +5,9 @@
 
 #include <OneWire.h>
 
-#ifndef ESP32
+#ifdef ESP8266
   #include <Adafruit_ADS1015.h>
+  Adafruit_ADS1115  AtoD(0x48);
 #endif
 
 #define ONEWIRE_PIN       12
@@ -34,20 +35,18 @@ float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
-const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
-
-//Maxim/Dallas OneWire sensors
-/*Set up a oneWire instance to communicate with any OneWire device*/
-OneWire         oOneWire(sOneWirePin);
-
-/*Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature   oSensors(&oOneWire);
 
 #ifdef ESP8266
-  Adafruit_ADS1115  AtoD(0x48);
-#endif
+  const int    sOneWirePin           = 12;  //Dallas DS18B20 Temperature Sensor
+  //Maxim/Dallas OneWire sensors
+  /*Set up a oneWire instance to communicate with any OneWire device*/
+  OneWire         oOneWire(sOneWirePin);
 
-//ESP32 AtoD Input Pins
+  /*Tell Dallas Temperature Library to use oneWire Library */
+  DallasTemperature   oSensors(&oOneWire);
+#endif	//ESP8266
+
+//ESP32 AtoD Input Pins for tank monitoring
 const int	sNumTanks		= 3;
 const int	sPinsPerTank		= 2;
 
@@ -65,6 +64,8 @@ const uint8_t ucTankPin[sNumTanks][sPinsPerTank]=
 		{ucGrey2PowerPin, ucGrey2LevelPin}
 	};
 
+//List of all possible ADCs for testing
+#define TEST_ADCs
 const uint8_t ucADC_0			= 99;	//36; Preamp pins, skip testing
 const uint8_t ucADC_1			= 99;	//37;
 const uint8_t ucADC_2			= 99;	//38;
@@ -96,16 +97,21 @@ const uint8_t ucADC_Pins[sNumADCpins]= {
     ucADC_12, ucADC_11, ucADC_10};
 
 //Local function protos
+void SetupAllADCs();
 void TestAllADCs();
 
 /****************************************************************/
 void SetupAtoD(){
 #if 1 //ESP32
-	for (int sTank= 0; sTank < sNumTanks; sTank++) {
-		for (int sPin= 0; sPin < sPinsPerTank; sPin++) {
-			  pinMode(ucTankPin[sTank][sPinsPerTank], INPUT);
-		}	//for (int sPin= 0;...
-	}	//for (int sTank= 0;...
+#ifndef TEST_ADCs
+  for (int sTank= 0; sTank < sNumTanks; sTank++) {
+    for (int sPin= 0; sPin < sPinsPerTank; sPin++) {
+      pinMode(ucTankPin[sTank][sPinsPerTank], INPUT);
+    }	//for (int sPin= 0;...
+  }	//for (int sTank= 0;...
+#else
+  SetupAllADCs();
+#endif	//TEST_ADCs
 #endif	//ESP32
 
 #if ESP8266
@@ -139,14 +145,27 @@ float fReadAtoD(int sInputPin){
 #ifdef ESP8266
   String szLogString="fReadAtoD(): Ch=";
   LogToBoth(szLogString, sInputPin);
-	int sAtoDReading = AtoD.readADC_SingleEnded(sInputPin);
+  int sAtoDReading = AtoD.readADC_SingleEnded(sInputPin);
   szLogString="fReadAtoD():";
   LogToBoth(szLogString, sAtoDReading);
-	//Convert 16bit value from the AtoD into volts
-	fVoltage = (sAtoDReading * 0.1875)/1000;
+  //Convert 16bit value from the AtoD into volts
+  fVoltage = (sAtoDReading * 0.1875)/1000;
 #endif
   return  fVoltage;
 } //fReadAtoD
+
+
+void SetupAllADCs() {
+  for (int sADCPin= 0; sADCPin < sNumADCpins; sADCPin++) {
+      uint8_t ucPin= ucADC_Pins[sADCPin];
+      if (ucPin != 99) {
+	String szLogString = "SetupAllADCs(): Pin set to input";
+	LogToBoth(szLogString, ucPin);
+	pinMode(ucPin, INPUT);
+      }	//if(ucPin!=99)
+    }	//for (int sADCPin= 0;...
+  return;
+}  //SetupAllADCs
 
 
 void TestAllADCs() {
@@ -265,6 +284,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
 
 float fGetDegF(bool bTakeReading){
   float fDegFReturn= 37.37;   //Value used for default in testing w/o reading sensor. fLastDegF
+#ifdef ESP8266
   if (bTakeReading){
     oSensors.requestTemperatures(); // Send the command to get temperatures
     fDegFReturn= oSensors.getTempFByIndex(0);
@@ -273,5 +293,6 @@ float fGetDegF(bool bTakeReading){
   else{
     fDegFReturn= fLastDegF;
   } //if(bTakeReading)else
+#endif
   return fDegFReturn;
 }  //fGetDegF
