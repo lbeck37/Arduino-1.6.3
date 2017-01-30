@@ -1,10 +1,10 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 29, 2017C Lenny";
+static const char szFileDate[]    = "January 29, 2017H Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGE
+//#define GARAGJ
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
