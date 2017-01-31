@@ -4,13 +4,7 @@
 #include <BeckControlLib.h>
 #include <OneWire.h>
 #include <Wire.h>
-
-#ifdef ESP8266
-  #include <Adafruit_ADS1015.h>
-  Adafruit_ADS1115  AtoD(0x48);
-#endif
-
-//#define ONEWIRE_PIN       12
+#include <Adafruit_ADS1015.h>
 
 const int    sSwitchOpen           = 0;
 const int    sSwitchClosed         = 1;
@@ -117,6 +111,8 @@ boolean         bGyroChanged       = false;
 
 int             asGyro[sNumGyroTypes][sNumAxis];
 
+Adafruit_ADS1115  AtoD(0x48);
+
 
 //Local function protos
 void SetupAllADCs();
@@ -212,13 +208,12 @@ void SetupAtoD(){
 #endif	//TEST_ADCs
 #endif	//ESP32
 
-#if ESP8266
+  //Using ADS1115 4-channel 16-bit AtoD
   String szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
   AtoD.begin();
   szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
-#endif	//ESP8266
   return;
 } //SetupAtoD
 
@@ -240,7 +235,7 @@ float fReadAtoD(int sInputPin){
   fVoltage = (sValue * 1.61)/1000;	//12-bit AtoD +/-2048, assume 3.3V max
 #endif
 
-#ifdef ESP8266
+  //Using ADS1115 4-channel 16-bit AtoD
   String szLogString="fReadAtoD(): Ch=";
   LogToBoth(szLogString, sInputPin);
   int sAtoDReading = AtoD.readADC_SingleEnded(sInputPin);
@@ -248,7 +243,6 @@ float fReadAtoD(int sInputPin){
   LogToBoth(szLogString, sAtoDReading);
   //Convert 16bit value from the AtoD into volts
   fVoltage = (sAtoDReading * 0.1875)/1000;
-#endif
   return  fVoltage;
 } //fReadAtoD
 
