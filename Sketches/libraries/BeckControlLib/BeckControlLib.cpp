@@ -197,23 +197,25 @@ void ReadGyro() {
 
 void SetupAtoD(){
 #if 0 //ESP32
-#ifndef TEST_ADCs
-  for (int sTank= 0; sTank < sNumTanks; sTank++) {
-    for (int sPin= 0; sPin < sPinsPerTank; sPin++) {
-      pinMode(ucTankPin[sTank][sPinsPerTank], INPUT);
-    }	//for (int sPin= 0;...
-  }	//for (int sTank= 0;...
-#else
-  SetupAllADCs();
-#endif	//TEST_ADCs
+  #ifndef TEST_ADCs
+    for (int sTank= 0; sTank < sNumTanks; sTank++) {
+      for (int sPin= 0; sPin < sPinsPerTank; sPin++) {
+	pinMode(ucTankPin[sTank][sPinsPerTank], INPUT);
+      }	//for (int sPin= 0;...
+    }	//for (int sTank= 0;...
+  #else
+    SetupAllADCs();
+  #endif	//TEST_ADCs
 #endif	//ESP32
 
   //Using ADS1115 4-channel 16-bit AtoD
-  String szLogString="SetupAtoD(): Call AtoD.begin()";
+  String szLogString="SetupAtoD(): Call Wire.begin()";
   LogToBoth(szLogString);
-  AtoD.begin();
+  //Wire.begin();
+
   szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
+  //AtoD.begin();
   return;
 } //SetupAtoD
 
@@ -235,14 +237,17 @@ float fReadAtoD(int sInputPin){
   fVoltage = (sValue * 1.61)/1000;	//12-bit AtoD +/-2048, assume 3.3V max
 #endif
 
+/*
   //Using ADS1115 4-channel 16-bit AtoD
   String szLogString="fReadAtoD(): Ch=";
   LogToBoth(szLogString, sInputPin);
   int sAtoDReading = AtoD.readADC_SingleEnded(sInputPin);
+
   szLogString="fReadAtoD():";
   LogToBoth(szLogString, sAtoDReading);
   //Convert 16bit value from the AtoD into volts
   fVoltage = (sAtoDReading * 0.1875)/1000;
+*/
   return  fVoltage;
 } //fReadAtoD
 
