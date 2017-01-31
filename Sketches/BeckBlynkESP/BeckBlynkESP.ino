@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 30, 2017A Lenny";
+static const char szFileDate[]    = "January 30, 2017F Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -109,6 +109,7 @@ void setup()
   SetupWiFi(szRouterName, szRouterPW);
   SetupBlynk();
   SetupAtoD();
+  SetupGyro();
   SetupSwitches();
   SetupSystem();
   return;
@@ -257,6 +258,7 @@ void HandleTankMonitor(){
 void HandleDevelopment(){
   String szLogString = "HandleDevelopment()";
   LogToBoth(szLogString);
+  ReadGyro();
   return;
 } //HandleDevelopment
 

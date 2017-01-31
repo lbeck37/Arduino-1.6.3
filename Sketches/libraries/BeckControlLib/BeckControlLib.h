@@ -41,6 +41,8 @@ extern const uint8_t 	ucTankPin[sNumTanks][sPinsPerTank];
 */
 
 //Function protos.
+extern void SetupGyro();
+extern void ReadGyro();
 extern void SetupAtoD();
 extern float fReadAtoD(int sChannel);
 extern void HandleFurnaceSwitch();

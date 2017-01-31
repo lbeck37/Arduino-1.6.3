@@ -2,15 +2,15 @@
 
 #include <BeckLib.h>
 #include <BeckControlLib.h>
-
 #include <OneWire.h>
+#include <Wire.h>
 
 #ifdef ESP8266
   #include <Adafruit_ADS1015.h>
   Adafruit_ADS1115  AtoD(0x48);
 #endif
 
-#define ONEWIRE_PIN       12
+//#define ONEWIRE_PIN       12
 
 const int    sSwitchOpen           = 0;
 const int    sSwitchClosed         = 1;
@@ -65,7 +65,7 @@ const uint8_t ucTankPin[sNumTanks][sPinsPerTank]=
 	};
 
 //List of all possible ADCs for testing
-#define TEST_ADCs
+//#define TEST_ADCs
 const uint8_t ucADC_0			= 99;	//36; Preamp pins, skip testing
 const uint8_t ucADC_1			= 99;	//37;
 const uint8_t ucADC_2			= 99;	//38;
@@ -96,13 +96,111 @@ const uint8_t ucADC_Pins[sNumADCpins]= {
     ucADC_17, ucADC_16, ucADC_15, ucADC_14, ucADC_13,
     ucADC_12, ucADC_11, ucADC_10};
 
+//******* MPU-6050 6-axis accelerometer and gyro
+const int MPU= 0x68;  // I2C address of the MPU-6050
+int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+
+//Gyro defines
+const int       sXAxis             = 0;
+const int       sYAxis             = 1;
+const int       sZAxis             = 2;
+const int       sNumAxis           = 3;
+
+const int       sAccel             = 0;
+const int       sRotation          = 1;
+const int       sTemperature       = 2;
+const int       sNumGyroTypes      = 3;
+const uint32_t  ulGyroReadTime     = 500;   //Gyro reads spaced by this.
+
+uint32_t        ulNextGyroTime     = 0;  //msec when the gyro will be read
+boolean         bGyroChanged       = false;
+
+int             asGyro[sNumGyroTypes][sNumAxis];
+
+
 //Local function protos
 void SetupAllADCs();
 void TestAllADCs();
 
 /****************************************************************/
+void SetupGyro() {
+   //Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
+   BLog("sSetupGyro(): Begin");
+   //Set up the I2C bus.
+   Wire.begin();
+   Wire.beginTransmission(MPU);
+   Wire.write(0x6B);  // PWR_MGMT_1 register
+   Wire.write(0);     // set to zero (wakes up the MPU-6050)
+   Wire.endTransmission(true);
+   //Initialize the data array.
+   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+         asGyro[sDataType][sAxis]= 0;
+      }  //for sDataType
+   }  //for sAxis
+   return;
+}  //SetupGyro
+
+
+void ReadGyro() {
+   int      asGyroReading[sNumGyroTypes][sNumAxis];
+   //boolean  bApplySmoothing= APPLY_SMOOTHING;
+
+   if (millis() > ulNextGyroTime) {
+      Wire.beginTransmission(MPU);
+      Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+      Wire.endTransmission(false);
+      //Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
+      //bool	bTrue= true;
+      Wire.requestFrom((uint8_t)MPU, (size_t)14, (bool)true);  // request a total of 14 registers
+
+      // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
+      // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+      // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+      // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+      // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+      // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+      // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+      asGyroReading[sAccel][sXAxis]= Wire.read()<<8|Wire.read();
+      asGyroReading[sAccel][sYAxis]= Wire.read()<<8|Wire.read();
+      asGyroReading[sAccel][sZAxis]= Wire.read()<<8|Wire.read();
+
+      asGyroReading[sTemperature][sXAxis]= Wire.read()<<8|Wire.read();
+
+      asGyroReading[sRotation][sXAxis]=Wire.read()<<8|Wire.read();
+      asGyroReading[sRotation][sYAxis]=Wire.read()<<8|Wire.read();
+      asGyroReading[sRotation][sZAxis]=Wire.read()<<8|Wire.read();
+
+      //Initialize missing temperature fields.
+      for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
+         asGyroReading[sTemperature][sAxis]= 0;
+      }  //for
+
+      //Apply low-pass filter to data
+      for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
+         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+#if APPLY_SMOOTHING
+            asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
+                                                  pusSmoothingMemory[sDataType][sAxis]);
+#else
+            asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
+#endif
+         }  //for sDataType
+      }  //for sAxis
+      //The following is for bringing up gyro
+      String szLogString="ReadGyro(): A-Y";
+      int sAccelYaxis= asGyro[sAccel][sYAxis];
+      LogToBoth(szLogString, sAccelYaxis);
+
+      bGyroChanged= true;
+      ulNextGyroTime= millis() + ulGyroReadTime;
+   }  //if (millis()>ulNextGyroTime)
+   return;
+}  //ReadGyro
+
+
 void SetupAtoD(){
-#if 1 //ESP32
+#if 0 //ESP32
 #ifndef TEST_ADCs
   for (int sTank= 0; sTank < sNumTanks; sTank++) {
     for (int sPin= 0; sPin < sPinsPerTank; sPin++) {
@@ -127,7 +225,7 @@ void SetupAtoD(){
 
 float fReadAtoD(int sInputPin){
   float fVoltage= 0.370;
-#if 1 //ESP32
+#if 0 //ESP32
   uint8_t ucPin= (uint8_t)sInputPin;
   //Run though all ADC'sif we are reading Grey1 Level.
   if (sInputPin == ucGrey1LevelPin) {
@@ -173,15 +271,15 @@ void TestAllADCs() {
   LogToBoth(szLogString);
   for (int sIndex= 0; sIndex < sNumADCpins;sIndex++) {
       uint8_t ucPin= ucADC_Pins[sIndex];
-      szLogString = "TestAllADCs(): analogRead Pin:";
+      szLogString = "TestAllADCs():Pin";
       LogToBoth(szLogString, ucPin);
       //Some pins are not tested and their pin mumbers are set to 99
       if (ucPin != 99) {
 	int sValue= analogRead(ucPin);
-	szLogString = "TestAllADCs(): sValue= ";
+	szLogString = "TestAllADCs():";
 	LogToBoth(szLogString, sValue);
 	float fVoltage = (sValue * 0.1875)/1000;
-	szLogString = "TestAllADCs(): fVoltage= ";
+	szLogString = "TestAllADCs():V=";
 	LogToBoth(szLogString, fVoltage);
 	delay(100);
       }	//if(ucPin!=99)
