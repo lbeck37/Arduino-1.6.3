@@ -215,7 +215,7 @@ void SetupAtoD(){
 
   szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
-  //AtoD.begin();
+  AtoD.begin();
   return;
 } //SetupAtoD
 
@@ -237,7 +237,6 @@ float fReadAtoD(int sInputPin){
   fVoltage = (sValue * 1.61)/1000;	//12-bit AtoD +/-2048, assume 3.3V max
 #endif
 
-/*
   //Using ADS1115 4-channel 16-bit AtoD
   String szLogString="fReadAtoD(): Ch=";
   LogToBoth(szLogString, sInputPin);
@@ -247,7 +246,6 @@ float fReadAtoD(int sInputPin){
   LogToBoth(szLogString, sAtoDReading);
   //Convert 16bit value from the AtoD into volts
   fVoltage = (sAtoDReading * 0.1875)/1000;
-*/
   return  fVoltage;
 } //fReadAtoD
 

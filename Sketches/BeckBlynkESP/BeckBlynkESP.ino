@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "January 31, 2017B Lenny";
+static const char szFileDate[]    = "January 31, 2017C Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
