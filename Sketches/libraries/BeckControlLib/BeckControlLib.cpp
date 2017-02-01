@@ -1,6 +1,6 @@
 //BeckControlLib.cpp
 
-#include <BeckLib.h>
+//#include <BeckLib.h>
 #include <BeckControlLib.h>
 #include <OneWire.h>
 #include <Wire.h>
@@ -109,7 +109,7 @@ const uint32_t  ulGyroReadTime     = 500;   //Gyro reads spaced by this.
 uint32_t        ulNextGyroTime     = 0;  //msec when the gyro will be read
 boolean         bGyroChanged       = false;
 
-int             asGyro[sNumGyroTypes][sNumAxis];
+INT32           awGyro[sNumGyroTypes][sNumAxis];	//Was int
 
 Adafruit_ADS1115  AtoD(0x48);
 
@@ -131,7 +131,7 @@ void SetupGyro() {
    //Initialize the data array.
    for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
       for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-         asGyro[sDataType][sAxis]= 0;
+         awGyro[sDataType][sAxis]= 0;
       }  //for sDataType
    }  //for sAxis
    return;
@@ -139,7 +139,7 @@ void SetupGyro() {
 
 
 void ReadGyro() {
-   int      asGyroReading[sNumGyroTypes][sNumAxis];
+  INT32      awGyroReading[sNumGyroTypes][sNumAxis];
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
    if (millis() > ulNextGyroTime) {
@@ -157,36 +157,36 @@ void ReadGyro() {
       // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
       // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
       // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-      asGyroReading[sAccel][sXAxis]= Wire.read()<<8|Wire.read();
-      asGyroReading[sAccel][sYAxis]= Wire.read()<<8|Wire.read();
-      asGyroReading[sAccel][sZAxis]= Wire.read()<<8|Wire.read();
+      awGyroReading[sAccel][sXAxis]= Wire.read()<<8|Wire.read();
+      awGyroReading[sAccel][sYAxis]= Wire.read()<<8|Wire.read();
+      awGyroReading[sAccel][sZAxis]= Wire.read()<<8|Wire.read();
 
-      asGyroReading[sTemperature][sXAxis]= Wire.read()<<8|Wire.read();
+      awGyroReading[sTemperature][sXAxis]= Wire.read()<<8|Wire.read();
 
-      asGyroReading[sRotation][sXAxis]=Wire.read()<<8|Wire.read();
-      asGyroReading[sRotation][sYAxis]=Wire.read()<<8|Wire.read();
-      asGyroReading[sRotation][sZAxis]=Wire.read()<<8|Wire.read();
+      awGyroReading[sRotation][sXAxis]=Wire.read()<<8|Wire.read();
+      awGyroReading[sRotation][sYAxis]=Wire.read()<<8|Wire.read();
+      awGyroReading[sRotation][sZAxis]=Wire.read()<<8|Wire.read();
 
       //Initialize missing temperature fields.
       for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
-         asGyroReading[sTemperature][sAxis]= 0;
+         awGyroReading[sTemperature][sAxis]= 0;
       }  //for
 
       //Apply low-pass filter to data
       for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
          for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
 #if APPLY_SMOOTHING
-            asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
+            awGyro[sDataType][sAxis]= FILTER_FUNC(awGyroReading[sDataType][sAxis],
                                                   pusSmoothingMemory[sDataType][sAxis]);
 #else
-            asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
+            awGyro[sDataType][sAxis]= awGyroReading[sDataType][sAxis];
 #endif
          }  //for sDataType
       }  //for sAxis
       //The following is for bringing up gyro
-      String szLogString="ReadGyro(): A-Y";
-      int sAccelYaxis= asGyro[sAccel][sYAxis];
-      LogToBoth(szLogString, sAccelYaxis);
+      String szLogString="ReadGyro(): AccelZ";
+      INT32 wAccelZaxis= awGyro[sAccel][sZAxis];
+      LogToBoth(szLogString, wAccelZaxis);
 
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;

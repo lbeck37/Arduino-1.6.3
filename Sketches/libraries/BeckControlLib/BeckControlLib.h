@@ -1,4 +1,5 @@
 //BeckControlLib.h
+#include <BeckLib.h>
 #include <DallasTemperature.h>
 
 extern int          asSwitchState[];
