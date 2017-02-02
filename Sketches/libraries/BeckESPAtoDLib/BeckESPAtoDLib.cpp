@@ -1,9 +1,8 @@
 // BeckESPAtoDLib.cpp
-
 #include <BeckESPAtoDLib.h>
 
 //ESP32 AtoD Input Pins for tank monitoring
-const int sNumTanks   = 3;
+const int sNumTanks       = 3;
 const int sPinsPerTank    = 2;
 
 const uint8_t ucGrey1PowerPin   = 34;

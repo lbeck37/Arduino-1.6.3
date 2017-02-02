@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 1, 2017E Lenny";
+static const char szFileDate[]    = "Feb 2, 2017A Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -18,7 +18,6 @@ static const char szFileDate[]    = "Feb 1, 2017E Lenny";
 #define OTA_SERVER   false     //Skip running OTA server
 
 #define LOG0    szLogLineHeader(++lLineCount)
-//String szLogString;
 
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk       = true;
