@@ -1,4 +1,4 @@
-//BeckESPAtoDLib.h
+//BeckESP32AtoDLib.h
 #include <BeckLib.h>
 
 //ESP32 AtoD Input Pins

@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 2, 2017A Lenny";
+static const char szFileDate[]    = "Feb 2, 2017B Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -11,7 +11,7 @@ static const char szFileDate[]    = "Feb 2, 2017A Lenny";
 #define DEV_REMOTE
 //#define TANK_MONITOR
 
-#include <BeckLib.h>
+//#include <BeckLib.h>
 #include <BeckControlLib.h>
 #include <BeckBlynkLib.h>
 

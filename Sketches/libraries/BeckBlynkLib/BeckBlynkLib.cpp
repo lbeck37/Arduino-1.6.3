@@ -2,7 +2,7 @@
 
 #include <BeckBlynkLib.h>
 #include <BeckControlLib.h>
-#include <BeckESPAtoDLib.h>
+#include <BeckESP32AtoDLib.h>
 #ifdef ESP8266
   #include <BlynkSimpleEsp8266.h>
 #endif  //ESP8266

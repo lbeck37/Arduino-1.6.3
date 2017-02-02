@@ -1,6 +1,6 @@
 //BeckControlLib.cpp
-
 #include <BeckControlLib.h>
+#include <BeckI2cLib.h>
 #include <OneWire.h>
 #include <Wire.h>
 #include <Adafruit_ADS1015.h>
@@ -29,16 +29,15 @@ const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch,
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 
-#ifdef ESP8266
-  const int    sOneWirePin           = 12;  //Dallas DS18B20 Temperature Sensor
-  //Maxim/Dallas OneWire sensors
-  /*Set up a oneWire instance to communicate with any OneWire device*/
-  OneWire         oOneWire(sOneWirePin);
+const int    sOneWirePin           = 12;  //Dallas DS18B20 Temperature Sensor
+//Maxim/Dallas OneWire sensors
+/*Set up a oneWire instance to communicate with any OneWire device*/
+OneWire         oOneWire(sOneWirePin);
 
-  /*Tell Dallas Temperature Library to use oneWire Library */
-  DallasTemperature   oSensors(&oOneWire);
-#endif  //ESP8266
+/*Tell Dallas Temperature Library to use oneWire Library */
+DallasTemperature   oSensors(&oOneWire);
 
+/*
 //******* MPU-6050 6-axis accelerometer and gyro
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
@@ -59,13 +58,14 @@ uint32_t        ulNextGyroTime     = 0;  //msec when the gyro will be read
 boolean         bGyroChanged       = false;
 
 INT16           asGyro[sNumGyroTypes][sNumAxis];  //Was int
+*/
 
 Adafruit_ADS1115  AtoD(0x48);
 
 
 //Local function protos
 void SetupAtoD();
-void SetupGyro();
+//void SetupGyro();
 
 
 /****************************************************************/
@@ -78,6 +78,7 @@ void SetupDevices() {
 } //SetupDevices
 
 
+/*
 void SetupGyro() {
    //Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
    BLog("sSetupGyro(): Begin");
@@ -150,6 +151,7 @@ void ReadGyro() {
    }  //if (millis()>ulNextGyroTime)
    return;
 }  //ReadGyro
+*/
 
 
 void SetupAtoD(){
