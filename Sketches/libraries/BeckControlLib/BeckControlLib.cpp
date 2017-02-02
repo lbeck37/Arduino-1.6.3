@@ -115,15 +115,25 @@ Adafruit_ADS1115  AtoD(0x48);
 
 
 //Local function protos
+void SetupAtoD();
+void SetupGyro();
 void SetupAllADCs();
 void TestAllADCs();
 
+
 /****************************************************************/
+void SetupDevices() {
+  //Set up the I2C bus.
+  Wire.begin();
+  SetupAtoD();
+  SetupGyro();
+  return;
+}	//SetupDevices
+
+
 void SetupGyro() {
    //Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
    BLog("sSetupGyro(): Begin");
-   //Set up the I2C bus.
-   Wire.begin();
    Wire.beginTransmission(MPU);
    Wire.write(0x6B);  // PWR_MGMT_1 register
    Wire.write(0);     // set to zero (wakes up the MPU-6050)
@@ -209,11 +219,7 @@ void SetupAtoD(){
 #endif	//ESP32
 
   //Using ADS1115 4-channel 16-bit AtoD
-  String szLogString="SetupAtoD(): Call Wire.begin()";
-  LogToBoth(szLogString);
-  //Wire.begin();
-
-  szLogString="SetupAtoD(): Call AtoD.begin()";
+  String szLogString="SetupAtoD(): Call AtoD.begin()";
   LogToBoth(szLogString);
   AtoD.begin();
   return;

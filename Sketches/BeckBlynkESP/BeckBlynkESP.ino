@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 1, 2017D Lenny";
+static const char szFileDate[]    = "Feb 1, 2017E Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -108,8 +108,7 @@ void setup()
   //Wire.begin();
   SetupWiFi(szRouterName, szRouterPW);
   SetupBlynk();
-  SetupAtoD();
-  SetupGyro();
+  SetupDevices();
   SetupSwitches();
   SetupSystem();
   return;
