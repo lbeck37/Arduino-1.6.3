@@ -39,6 +39,7 @@ const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused 
   DallasTemperature   oSensors(&oOneWire);
 #endif  //ESP8266
 
+/*
 //ESP32 AtoD Input Pins for tank monitoring
 const int sNumTanks   = 3;
 const int sPinsPerTank    = 2;
@@ -88,6 +89,7 @@ const uint8_t ucADC_Pins[sNumADCpins]= {
     ucADC_5, ucADC_6, ucADC_7, ucADC_18, ucADC_19,
     ucADC_17, ucADC_16, ucADC_15, ucADC_14, ucADC_13,
     ucADC_12, ucADC_11, ucADC_10};
+*/
 
 //******* MPU-6050 6-axis accelerometer and gyro
 const int MPU= 0x68;  // I2C address of the MPU-6050
@@ -116,8 +118,10 @@ Adafruit_ADS1115  AtoD(0x48);
 //Local function protos
 void SetupAtoD();
 void SetupGyro();
+/*
 void SetupAllADCs();
 void TestAllADCs();
+*/
 
 
 /****************************************************************/
@@ -255,6 +259,7 @@ float fReadAtoD(int sInputPin){
 } //fReadAtoD
 
 
+/*
 void SetupAllADCs() {
   for (int sADCPin= 0; sADCPin < sNumADCpins; sADCPin++) {
       uint8_t ucPin= ucADC_Pins[sADCPin];
@@ -288,6 +293,7 @@ void TestAllADCs() {
   } //for
   return;
 } //TestAllADCs
+*/
 
 
 void HandleFurnaceSwitch(){

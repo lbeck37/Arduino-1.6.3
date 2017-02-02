@@ -1,4 +1,5 @@
 //BeckBlynkLib.h
+#include <BeckLib.h>
 
 extern void RunBlynk();
 extern void ConfigBlynk(const char acBlynkAuthToken[]);

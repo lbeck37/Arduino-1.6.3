@@ -17,4 +17,7 @@ extern const int    sNumTanks;
 extern const int    sPinsPerTank;
 extern const uint8_t  ucTankPin[sNumTanks][sPinsPerTank];
 */
+
+extern float fReadESPAtoD(int sChannel);
+
 //Last line.

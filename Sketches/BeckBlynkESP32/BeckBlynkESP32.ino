@@ -28,6 +28,7 @@ static const char szFileDate[]    = "January 23, 2017A Lenny";
 #ifndef ESP32
   #include <Adafruit_ADS1015.h>
 #endif
+#include <BeckESPAtoDLib.>
 
 #define ONEWIRE_PIN       12
 
