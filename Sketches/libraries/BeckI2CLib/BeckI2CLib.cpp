@@ -37,7 +37,7 @@ const UINT16 usDefaultSingleChanReadConfig=
 //*********************************************************************************
 //Local function protos
 void 			WriteI2cRegister		(UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usValue);
-UINT16 		ReadI2cRegister			(UINT8 ucI2cAddress, UINT8 ucRegister);
+INT16 		ReadI2cRegister			(UINT8 ucI2cAddress, UINT8 ucRegister);
 
 //Writes 16-bits to the specified destination register
 //void WriteI2cRegister(uint8_t i2cAddress, uint8_t reg, uint16_t value) {
@@ -52,15 +52,15 @@ void WriteI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usValue) {
 
 //Reads 16-bits from the specified source register
 //static uint16_t ReadI2cRegister(uint8_t i2cAddress, uint8_t reg) {
-UINT16 ReadI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister) {
+INT16 ReadI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister) {
   Wire.beginTransmission(ucI2cAddress);
   Wire.write(ucRegister);											//Was ADS1015_REG_POINTER_CONVERT
   Wire.endTransmission();
 
   //Read the high byte and then the low byte
   Wire.requestFrom(ucI2cAddress, (UINT8)2);
-  UINT16 usReturn= ((Wire.read() << 8) | Wire.read());
-  return usReturn;
+  INT16 sReturn= ((Wire.read() << 8) | Wire.read());
+  return sReturn;
 }	//ReadI2cRegister
 
 
@@ -101,9 +101,9 @@ double dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
 
   WriteI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONFIG, usConfig);
   delay(50);			//Adafruit code only delays for 8.
-  UINT16 usVoltCount= ReadI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONVERT);
+  INT16 sVoltCount= ReadI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONVERT);
 
-  double dVoltsRead= (double)usVoltCount / 60000.0;
+  double dVoltsRead= (sVoltCount * 4.096) / 32768.0;
   return(dVoltsRead);
 }	//dRead_ADS1115
 

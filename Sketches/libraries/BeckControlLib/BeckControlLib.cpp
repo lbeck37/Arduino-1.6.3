@@ -39,23 +39,12 @@ DallasTemperature   oSensors(&oOneWire);
 void SetupAtoD();
 
 /****************************************************************/
-/*
-INT16 sSetup_AtoD(){
-  //Using ADS1115 4-channel 16-bit AtoD
-  String szLogString="sSetup_AtoD(): Begin";
-  LogToBoth(szLogString);
-  //AtoD.begin();
-  sSetup_ADS1115();
-  return 1;
-} //sSetup_AtoD
-*/
-
-
 double dRead_AtoD(INT16 sChannel){
   String szLogString="dRead_AtoD(): Ch=";
   LogToBoth(szLogString, sChannel);
-//  int sAtoDReading = AtoD.readADC_SingleEnded(sInputPin);
-  double dVolts= dRead_ADS1115(sChannel, GAIN_ONE);
+
+  adsGain_t eGain= GAIN_ONE;    //GAIN_ONE is +/- 4.096V
+  double dVolts= dRead_ADS1115(sChannel, eGain);
 
   szLogString="dReadAtoD():";
   LogToBoth(szLogString, dVolts);
