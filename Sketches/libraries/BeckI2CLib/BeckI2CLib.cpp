@@ -23,25 +23,88 @@ boolean         bGyroChanged       = false;
 
 INT16           asGyro[sNumGyroTypes][sNumAxis];  //Was int
 
+const UINT8			ucADS1115_Address	 = 0x48;
+
+const UINT16 usDefaultSingleChanReadConfig=
+																	ADS1015_REG_CONFIG_CQUE_NONE    | // Disable the comparator (default val)
+																	ADS1015_REG_CONFIG_CLAT_NONLAT  | // Non-latching (default val)
+																	ADS1015_REG_CONFIG_CPOL_ACTVLOW | // Alert/Rdy active low   (default val)
+																	ADS1015_REG_CONFIG_CMODE_TRAD   | // Traditional comparator (default val)
+																	ADS1015_REG_CONFIG_DR_1600SPS   | // 1600 samples per second (default)
+																	ADS1015_REG_CONFIG_MODE_SINGLE  | // Single-shot mode (default)
+																	ADS1015_REG_CONFIG_OS_SINGLE;     // Single-shot start conversion
+
 //*********************************************************************************
+//Local function protos
+void 			WriteI2cRegister		(UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usValue);
+UINT16 		ReadI2cRegister			(UINT8 ucI2cAddress, UINT8 ucRegister);
+
+//Writes 16-bits to the specified destination register
+//void WriteI2cRegister(uint8_t i2cAddress, uint8_t reg, uint16_t value) {
+void WriteI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usValue) {
+  Wire.beginTransmission(ucI2cAddress);
+  Wire.write(ucRegister);
+  Wire.write((UINT8)(usValue >> 8));			//High byte
+  Wire.write((UINT8)(usValue & 0xFF));		//Low byte
+  Wire.endTransmission();
+}	//WriteI2cRegister
+
+
+//Reads 16-bits from the specified source register
+//static uint16_t ReadI2cRegister(uint8_t i2cAddress, uint8_t reg) {
+UINT16 ReadI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister) {
+  Wire.beginTransmission(ucI2cAddress);
+  Wire.write(ucRegister);											//Was ADS1015_REG_POINTER_CONVERT
+  Wire.endTransmission();
+
+  //Read the high byte and then the low byte
+  Wire.requestFrom(ucI2cAddress, (UINT8)2);
+  UINT16 usReturn= ((Wire.read() << 8) | Wire.read());
+  return usReturn;
+}	//ReadI2cRegister
+
+
+//Exported functions
 INT16 sSetup_I2C() {
   Wire.begin();
   return 1;
 }	//sSetup_I2C
 
 
-//*********************************************************************************
 INT16 sSetup_ADS1115() {
-	INT16		sReturn= -1;
-
-  return sReturn;
+  return 1;
 }	//sSetup_ADS1115
 
 
-double dRead_ADS1115(INT16 sChannel) {
-  double  dReturnVolts;
+double dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
+  UINT16	usConfig= usDefaultSingleChanReadConfig;
 
-  return(dReturnVolts);
+  usConfig |= eGain;
+  switch (sChannel) {
+    case (0):
+		  usConfig |= ADS1015_REG_CONFIG_MUX_SINGLE_0;
+      break;
+    case (1):
+		  usConfig |= ADS1015_REG_CONFIG_MUX_SINGLE_1;
+      break;
+    case (2):
+		  usConfig |= ADS1015_REG_CONFIG_MUX_SINGLE_2;
+      break;
+    case (3):
+			usConfig |= ADS1015_REG_CONFIG_MUX_SINGLE_3;
+      break;
+    default:
+      String szLogString="dRead_ADS1115(): Bad switch";
+      LogToBoth(szLogString, sChannel);
+    	break;
+  }	//switch
+
+  WriteI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONFIG, usConfig);
+  delay(50);			//Adafruit code only delays for 8.
+  UINT16 usVoltCount= ReadI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONVERT);
+
+  double dVoltsRead= (double)usVoltCount / 60000.0;
+  return(dVoltsRead);
 }	//dRead_ADS1115
 
 

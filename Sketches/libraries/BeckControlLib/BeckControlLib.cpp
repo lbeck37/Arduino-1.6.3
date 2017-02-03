@@ -2,7 +2,6 @@
 #include <BeckControlLib.h>
 #include <BeckI2cLib.h>
 #include <OneWire.h>
-//#include <Adafruit_ADS1015.h>
 
 const int    sSwitchOpen           = 0;
 const int    sSwitchClosed         = 1;
@@ -56,7 +55,7 @@ double dRead_AtoD(INT16 sChannel){
   String szLogString="dRead_AtoD(): Ch=";
   LogToBoth(szLogString, sChannel);
 //  int sAtoDReading = AtoD.readADC_SingleEnded(sInputPin);
-  double dVolts= dRead_ADS1115(sChannel);
+  double dVolts= dRead_ADS1115(sChannel, GAIN_ONE);
 
   szLogString="dReadAtoD():";
   LogToBoth(szLogString, dVolts);
