@@ -122,13 +122,22 @@ void BlynkLogLine(String szString, int sValue){
 } //BlynkLogLine:int
 
 
-void BlynkLogLine(String szString, float fValue){
+void BlynkLogLine(String szString, float fValue) {
   String szTermString= szLogLineHeader(lLineCount);
   szTermString += szString;
   szTermString +=  fValue;
   WriteTerminalLine(szTermString);
   return;
 } //BlynkLogLine:float
+
+
+void BlynkLogLine(String szString, double dValue) {
+  String szTermString= szLogLineHeader(lLineCount);
+  szTermString += szString;
+  szTermString +=  dValue;
+  WriteTerminalLine(szTermString);
+  return;
+} //BlynkLogLine:double
 
 
 void HandleBlynkLEDs(){
@@ -296,10 +305,10 @@ BLYNK_WRITE(ThermoSwitch_V4){
 //WidgetLED oLED0(ThermoLED_V5) is constructed earlier
 
 BLYNK_READ(AtoD_1V6){
-  float fVolts= fReadAtoD(ucGrey1LevelPin);
+  double dVolts= dRead_AtoD(1);
   String szLogString= "Read AtoD_1V6 ";
-  LogToBoth(szLogString, fVolts);
-  Blynk.virtualWrite(AtoD_1V6, fVolts);
+  LogToBoth(szLogString, dVolts);
+  Blynk.virtualWrite(AtoD_1V6, dVolts);
 } //BLYNK_READ(AtoD_1V6)
 
 
@@ -377,10 +386,10 @@ BLYNK_WRITE(TimerB_1V12){
 
 
 BLYNK_READ(AtoD_2V14){
-  float fVolts= fReadAtoD(ucBlackLevelPin);
+  double dVolts= dRead_AtoD(2);
   String szLogString= "Read AtoD_2V14 ";
-  LogToBoth(szLogString, fVolts);
-  Blynk.virtualWrite(AtoD_2V14, fVolts);
+  LogToBoth(szLogString, dVolts);
+  Blynk.virtualWrite(AtoD_2V14, dVolts);
 } //BLYNK_READ(AtoD_2V14)
 
 
@@ -444,10 +453,10 @@ BLYNK_WRITE(TimerB_2V17){
 
 
 BLYNK_READ(AtoD_3V19){
-  float fVolts= fReadAtoD(ucGrey2LevelPin);
+  double dVolts= dRead_AtoD(3);
   String szLogString= "Read AtoD_3V19 ";
-  LogToBoth(szLogString, fVolts);
-  Blynk.virtualWrite(AtoD_3V19, fVolts);
+  LogToBoth(szLogString, dVolts);
+  Blynk.virtualWrite(AtoD_3V19, dVolts);
 } //BLYNK_READ(AtoD_3V19)
 
 
@@ -510,10 +519,10 @@ BLYNK_WRITE(TimerB_3V22){
 
 
 BLYNK_READ(AtoD_4V24){
-  float fVolts= fReadAtoD(3);
+  double dVolts= dRead_AtoD(4);
   String szLogString= "Read AtoD_4V24 ";
-  LogToBoth(szLogString, fVolts);
-  Blynk.virtualWrite(AtoD_4V24, fVolts);
+  LogToBoth(szLogString, dVolts);
+  Blynk.virtualWrite(AtoD_4V24, dVolts);
 } //BLYNK_READ(AtoD_4V24)
 
 

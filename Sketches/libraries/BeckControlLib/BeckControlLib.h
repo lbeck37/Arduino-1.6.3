@@ -1,4 +1,6 @@
 //BeckControlLib.h
+#ifndef BECKCONTROLLIB_H
+#define BECKCONTROLLIB_H
 #include <BeckLib.h>
 #include <BeckI2cLib.h>
 #include <DallasTemperature.h>
@@ -37,13 +39,13 @@ extern const uint8_t ucGrey2PowerPin;
 extern const uint8_t ucGrey2LevelPin;
 
 //Function protos.
-extern void SetupDevices();
-//extern void ReadGyro();
-extern float fReadAtoD(int sChannel);
-extern void HandleFurnaceSwitch();
-extern void TurnFurnaceOn(bool bTurnOn);
-extern void SetThermoState(int sSwitchState);
-extern void SetFurnaceSwitch(int sSwitchState);
-extern void SetSwitch(int sSwitch, int sSwitchState);
-extern float fGetDegF(bool bTakeReading);
-//Last line.
+extern void 		SetupDevices();
+extern double 	dRead_AtoD(INT16 sChannel);
+extern void 		HandleFurnaceSwitch();
+extern void 		TurnFurnaceOn(bool bTurnOn);
+extern void 		SetThermoState(int sSwitchState);
+extern void 		SetFurnaceSwitch(int sSwitchState);
+extern void 		SetSwitch(int sSwitch, int sSwitchState);
+extern float 		fGetDegF(bool bTakeReading);
+
+#endif	//BECKCONTROLLIB_H

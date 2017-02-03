@@ -258,4 +258,11 @@ void LogToBoth(String szLogString, float fLogValue){
   BlynkLogLine(szLogString, fLogValue);
   return;
 } //LogToBoth:float
+
+
+void LogToBoth(String szLogString, double dLogValue){
+  Serial << LOG0 << szLogString << " " << dLogValue << endl;
+  BlynkLogLine(szLogString, dLogValue);
+  return;
+} //LogToBoth:double
 //Last line.

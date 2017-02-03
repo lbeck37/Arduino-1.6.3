@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 2, 2017B Lenny";
+static const char szFileDate[]    = "Feb 2, 2017D Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -13,6 +13,7 @@ static const char szFileDate[]    = "Feb 2, 2017B Lenny";
 
 //#include <BeckLib.h>
 #include <BeckControlLib.h>
+#include <BeckI2cLib.h>
 #include <BeckBlynkLib.h>
 
 #define OTA_SERVER   false     //Skip running OTA server
@@ -136,6 +137,15 @@ void loop() {
 } //loop
 
 
+void SetupDevices() {
+  //Set up the I2C bus.
+	sSetup_I2C();
+  sSetup_ADS1115();
+  sSetup_Gyro();
+  return;
+} //SetupDevices
+
+
 void SetupBlynk(){
 /*
   WiFi.mode(WIFI_AP_STA);
@@ -256,7 +266,7 @@ void HandleTankMonitor(){
 void HandleDevelopment(){
   String szLogString = "HandleDevelopment()";
   LogToBoth(szLogString);
-  ReadGyro();
+  Read_Gyro();
   return;
 } //HandleDevelopment
 

@@ -24,9 +24,30 @@ boolean         bGyroChanged       = false;
 INT16           asGyro[sNumGyroTypes][sNumAxis];  //Was int
 
 //*********************************************************************************
-void SetupGyro() {
+INT16 sSetup_I2C() {
+  Wire.begin();
+  return 1;
+}	//sSetup_I2C
+
+
+//*********************************************************************************
+INT16 sSetup_ADS1115() {
+	INT16		sReturn= -1;
+
+  return sReturn;
+}	//sSetup_ADS1115
+
+
+double dRead_ADS1115(INT16 sChannel) {
+  double  dReturnVolts;
+
+  return(dReturnVolts);
+}	//dRead_ADS1115
+
+
+INT16 sSetup_Gyro() {
    //Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
-   BLog("sSetupGyro(): Begin");
+   BLog("sSetup_Gyro(): Begin");
    Wire.beginTransmission(MPU);
    Wire.write(0x6B);  // PWR_MGMT_1 register
    Wire.write(0);     // set to zero (wakes up the MPU-6050)
@@ -37,11 +58,11 @@ void SetupGyro() {
          asGyro[sDataType][sAxis]= 0;
       }  //for sDataType
    }  //for sAxis
-   return;
-}  //SetupGyro
+   return 1;
+}  //sSetup_Gyro
 
 
-void ReadGyro() {
+void Read_Gyro() {
   INT16      asGyroReading[sNumGyroTypes][sNumAxis];
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
@@ -87,7 +108,7 @@ void ReadGyro() {
          }  //for sDataType
       }  //for sAxis
       //The following is for bringing up gyro
-      String szLogString="ReadGyro(): AccelZ";
+      String szLogString="Read_Gyro(): AccelZ";
       INT16 sAccelZaxis= asGyro[sAccel][sZAxis];
       LogToBoth(szLogString, sAccelZaxis);
 
@@ -95,5 +116,5 @@ void ReadGyro() {
       ulNextGyroTime= millis() + ulGyroReadTime;
    }  //if (millis()>ulNextGyroTime)
    return;
-}  //ReadGyro
+}  //Read_Gyro
 //Last line.
