@@ -70,10 +70,32 @@ WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
 
+//class BeckBlynk
+BeckBlynk::BeckBlynk() {
+	return;
+}	//Constructor
+
+void BeckBlynk::Config(const char acBlynkAuthToken[]) {
+  Blynk.config(acBlynkAuthToken);
+  return;
+}	//Config(INT8)
+
+
+void BeckBlynk::Config(const char acBlynkAuthToken[], IPAddress oIPAddress) {
+  Blynk.config(acBlynkAuthToken, oIPAddress);
+  return;
+}	//Config(INT8,IPAddress)
+
+
+void BeckBlynk::Run() {
+  Blynk.run();
+  return;
+}	//Run
+
+
 //Local function protos.
 void WriteTerminalLine(String szString);
 void WriteTerminalString(String szString);
-
 
 //Functions
 void RunBlynk() {

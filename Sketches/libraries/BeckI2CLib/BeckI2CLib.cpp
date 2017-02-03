@@ -64,6 +64,7 @@ INT16 ReadI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister) {
 }	//ReadI2cRegister
 
 
+//*********************************************************************************
 //Exported functions
 INT16 sSetup_I2C() {
   Wire.begin();

@@ -14,4 +14,11 @@ extern void BlynkLogLine(String szLogString, float fLogValue);
 extern void BlynkLogLine(String szLogString, double dValue);
 extern void HandleBlynkLEDs();
 
+class BeckBlynk {
+	BeckBlynk();
+	void 		Config					(const char acBlynkAuthToken[]);
+	void 		Config					(const char acBlynkAuthToken[], IPAddress oIPAddress);
+	void		Run							();
+};	//BeckBlynk
+
 #endif	//BECKBLYNKLIB_H
