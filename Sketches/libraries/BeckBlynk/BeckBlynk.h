@@ -2,6 +2,7 @@
 #ifndef BECKBLYNK_H
 #define BECKBLYNK_H
 #include <BeckLib.h>
+#include <BeckAtoD.h>
 
 extern void BlynkLogLine(String szLogString);
 extern void BlynkLogLine(String szLogString, String szLogValue);
@@ -14,7 +15,8 @@ class BeckBlynk {
 protected:
   INT8    acBlynkAuthToken_[];
 public:
-          BeckBlynk       (const INT8 acBlynkAuthToken[]);
+          BeckBlynk       (const INT8 acBlynkAuthToken[], const BeckAtoD* pBeckAtoD);
   void    Run             ();
+  double	dReadAtoD				(INT16 sChannel);
 };  //BeckBlynk
 #endif  //BECKBLYNK_H

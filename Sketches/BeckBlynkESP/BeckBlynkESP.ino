@@ -98,7 +98,7 @@ static long           sSystemHandlerSpacing; 		//Number of mSec between running 
 static bool           bUpdating             = false;    //Turns off Blynk.
 
 BeckAtoD		oBeckAtoD		(eADS1115);
-BeckBlynk 	oBeckBlynk	(acBlynkAuthToken);
+BeckBlynk 	oBeckBlynk	(acBlynkAuthToken, &oBeckAtoD);
 
 //Functions
 void setup()
