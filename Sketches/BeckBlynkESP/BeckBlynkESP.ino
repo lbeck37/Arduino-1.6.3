@@ -12,11 +12,11 @@ static const char szFileDate[]    = "Feb 4, 2017A Lenny";
 //#define TANK_MONITOR
 
 //#include <BeckLib.h>
+#include <BeckBlynk.h>
 #include <BeckControlLib.h>
 #include <BeckI2cLib.h>
 #include <BeckAtoD.h>
 #include <BeckGyro.h>
-#include <BeckBlynk.h>
 
 #define OTA_SERVER   false     //Skip running OTA server
 
@@ -99,8 +99,8 @@ static long           sSystemHandlerSpacing; 		//Number of mSec between running 
 static bool           bUpdating             = false;    //Turns off Blynk.
 
 BeckAtoD		oBeckAtoD		(eADS1115);
-BeckGyro		oBeckGyro		();
 BeckBlynk 	oBeckBlynk	(acBlynkAuthToken, &oBeckAtoD);
+BeckGyro		oBeckGyro		();
 
 //Functions
 void setup()
