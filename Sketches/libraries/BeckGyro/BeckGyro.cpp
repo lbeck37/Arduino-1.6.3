@@ -5,10 +5,10 @@
 
 //BeckAtoD class methods
 BeckGyro::BeckGyro(void) {
-	SetupData();
-	SetupI2C();
-	return;
-}	//Constructor
+  SetupData();
+  SetupI2C();
+  return;
+} //Constructor
 
 
 void BeckGyro::Read(void) {
@@ -65,7 +65,7 @@ void BeckGyro::Read(void) {
       ulNextGyroTime_= millis() + ulGyroReadTime_;
    }  //if (millis()>ulNextGyroTime)
    return;
-}	//dRead
+} //dRead
 
 
 void BeckGyro::SetupI2C(void) {
@@ -74,8 +74,8 @@ void BeckGyro::SetupI2C(void) {
   Wire.write(0x6B);  // PWR_MGMT_1 register
   Wire.write(0);     // set to zero (wakes up the MPU-6050)
   Wire.endTransmission(true);
-	return;
-}	//SetupI2C
+  return;
+} //SetupI2C
 
 
 void BeckGyro::SetupData(void) {
@@ -85,7 +85,6 @@ void BeckGyro::SetupData(void) {
         asGyro_[sDataType][sAxis]= 0;
      }  //for sDataType
   }  //for sAxis
-
-	return;
-}	//SetupData
+  return;
+} //SetupData
 //Last line.

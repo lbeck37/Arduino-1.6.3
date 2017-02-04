@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 4, 2017A Lenny";
+static const char szFileDate[]    = "Feb 4, 2017B Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -143,7 +143,7 @@ void SetupDevices() {
   //Set up the I2C bus.
 	sSetup_I2C();
   sSetup_ADS1115();
-  sSetup_Gyro();
+  //sSetup_Gyro();
   return;
 } //SetupDevices
 
@@ -231,7 +231,8 @@ void HandleTankMonitor(){
 void HandleDevelopment(){
   String szLogString = "HandleDevelopment()";
   LogToBoth(szLogString);
-  Read_Gyro();
+  //Read_Gyro();
+  oBeckGyro.Read();
   return;
 } //HandleDevelopment
 
