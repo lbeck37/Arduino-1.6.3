@@ -5,6 +5,7 @@
 #include <Time.h>
 //#include <Firebase.h>
 //#include <BeckFirebase.h>
+#include <Adafruit_ADS1015.h>		//Just for the defines
 
 #ifdef ESP8266
   #include <ESP8266WiFi.h>

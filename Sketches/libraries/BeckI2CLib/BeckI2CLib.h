@@ -2,7 +2,7 @@
 #ifndef BECKI2CLIB_H
 #define BECKI2CLIB_H
 #include <BeckLib.h>
-#include <Adafruit_ADS1015.h>		//Just for the defines
+//#include <Adafruit_ADS1015.h>		//Just for the defines
 
 extern INT16 		sSetup_I2C();
 extern INT16 		sSetup_ADS1115();
