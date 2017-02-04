@@ -29,8 +29,8 @@
   #include <U8glib.h>
 #endif
 
-#define INT8        int8_t
-#define UINT8       uint8_t
+#define INT8        char
+#define UINT8       unsigned char
 #define INT16       int16_t
 #define UINT16      uint16_t
 #define INT32       int32_t

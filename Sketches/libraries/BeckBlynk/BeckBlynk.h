@@ -1,4 +1,4 @@
-//BeckBlynkLib.h
+//BeckBlynk.h
 #ifndef BECKBLYNKLIB_H
 #define BECKBLYNKLIB_H
 #include <BeckLib.h>
@@ -15,10 +15,15 @@ extern void BlynkLogLine(String szLogString, double dValue);
 extern void HandleBlynkLEDs();
 
 class BeckBlynk {
-	BeckBlynk();
-	void 		Config					(const char acBlynkAuthToken[]);
-	void 		Config					(const char acBlynkAuthToken[], IPAddress oIPAddress);
-	void		Run							();
-};	//BeckBlynk
+protected:
+	INT8		acBlynkAuthToken_[];
+public:
+					BeckBlynk				(const INT8 acBlynkAuthToken[]);
+/*
+  void    Config          (const INT8 acBlynkAuthToken[]);
+  void    Config          (const INT8 acBlynkAuthToken[], IPAddress oIPAddress);
+*/
+  void    Run             ();
+};  //BeckBlynk
 
-#endif	//BECKBLYNKLIB_H
+#endif  //BECKBLYNKLIB_H

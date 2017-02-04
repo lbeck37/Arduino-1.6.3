@@ -1,6 +1,5 @@
-//BeckBlynkLib.cpp
-
-#include <BeckBlynkLib.h>
+//BeckBlynk.cpp
+#include <BeckBlynk.h>
 #include <BeckControlLib.h>
 #include <BeckESP32AtoDLib.h>
 #ifdef ESP8266
@@ -71,11 +70,14 @@ WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
 
 //class BeckBlynk
-BeckBlynk::BeckBlynk() {
+BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[]) {
+  Blynk.config(acBlynkAuthToken);
 	return;
 }	//Constructor
 
-void BeckBlynk::Config(const char acBlynkAuthToken[]) {
+
+/*
+void BeckBlynk::Config(const INT8 acBlynkAuthToken[]) {
   Blynk.config(acBlynkAuthToken);
   return;
 }	//Config(INT8)
@@ -85,6 +87,7 @@ void BeckBlynk::Config(const char acBlynkAuthToken[], IPAddress oIPAddress) {
   Blynk.config(acBlynkAuthToken, oIPAddress);
   return;
 }	//Config(INT8,IPAddress)
+*/
 
 
 void BeckBlynk::Run() {
