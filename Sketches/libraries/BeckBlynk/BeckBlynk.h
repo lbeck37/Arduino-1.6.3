@@ -15,7 +15,7 @@ class BeckBlynk {
 protected:
   INT8    acBlynkAuthToken_[];
 public:
-          BeckBlynk       (const INT8 acBlynkAuthToken[], const BeckAtoD* pBeckAtoD);
+          BeckBlynk       (const INT8 acBlynkAuthToken[], BeckAtoD* pBeckAtoD);
   void    Run             ();
   double	dReadAtoD				(INT16 sChannel);
 };  //BeckBlynk

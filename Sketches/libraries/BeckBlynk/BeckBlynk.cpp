@@ -73,7 +73,7 @@ BeckBlynk						*pBeckBlynk_;
 BeckAtoD 						*pBeckAtoD_;
 
 //class BeckBlynk
-BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[], const BeckAtoD* pBeckAtoD) {
+BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[], BeckAtoD* pBeckAtoD) {
 	*pBeckBlynk_= &this;
 	pBeckAtoD_= pBeckAtoD;
   Blynk.config(acBlynkAuthToken);
@@ -88,7 +88,7 @@ void BeckBlynk::Run() {
 
 
 double BeckBlynk::dReadAtoD(INT16 sChannel) {
-	return(pBeckAtoD_->dRead(sChannel));
+	return(pBeckAtoD_->dRead(sChannel, GAIN_ONE));
 }	//dReadAtoD
 
 
