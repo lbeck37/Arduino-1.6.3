@@ -100,7 +100,7 @@ static bool           bUpdating             = false;    //Turns off Blynk.
 
 BeckAtoD		oBeckAtoD		(eADS1115);
 BeckBlynk 	oBeckBlynk	(acBlynkAuthToken, &oBeckAtoD);
-BeckGyro		oBeckGyro		();
+BeckGyro		oBeckGyro		(0);
 
 //Functions
 void setup()

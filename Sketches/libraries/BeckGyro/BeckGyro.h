@@ -29,7 +29,7 @@ protected:
 public:
   INT16     asGyro_[eLastSensor - 1][eLastAxis - 1];
 
-            BeckGyro    (void);
+            BeckGyro    (INT16 sDummy);
   void      Read        (void);
 
 private:

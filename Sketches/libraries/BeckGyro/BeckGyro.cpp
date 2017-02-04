@@ -4,7 +4,7 @@
 #include <Wire.h>
 
 //BeckAtoD class methods
-BeckGyro::BeckGyro(void) {
+BeckGyro::BeckGyro(INT16 sDummy) {
   SetupData();
   SetupI2C();
   return;
