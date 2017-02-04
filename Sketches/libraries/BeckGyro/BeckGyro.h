@@ -19,8 +19,13 @@ typedef enum {
 
 class BeckGyro {
 protected:
-  INT16     sNumAxis_           = (eLastAxis   - 1);
-  INT16     sNumGyroSensors_    = (eLastSensor - 1);
+  INT16     		sNumAxis_           = (eLastAxis   - 1);
+  INT16    		 	sNumGyroSensors_    = (eLastSensor - 1);
+  UINT8					ucGyroAddress_			= 0x48;
+  const UINT32  ulGyroReadTime_    	= 500;   //Gyro reads spaced by this.
+
+  uint32_t        ulNextGyroTime_   = 0;  //msec when the gyro will be read
+  boolean         bGyroChanged_     = false;
 public:
   INT16     asGyro_[eLastSensor - 1][eLastAxis - 1];
 
@@ -28,6 +33,7 @@ public:
   void      Read        (void);
 
 private:
-  void      Setup       (void);
+  void      SetupI2C   	(void);
+  void      SetupData   (void);
 };  //BeckGyro
 #endif  //BECKGYRO_H
