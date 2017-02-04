@@ -1,5 +1,6 @@
 //BeckAtoD.cpp
 #include <BeckAtoD.h>
+#include <BeckI2cLib.h>
 
 //BeckAtoD class methods
 BeckAtoD::BeckAtoD(AtoD_t eType) {
@@ -8,12 +9,12 @@ BeckAtoD::BeckAtoD(AtoD_t eType) {
 }	//Constructor
 
 
-double dRead(INT16 sChan, adsGain_t eGain) {
-	return 0.37;
+double BeckAtoD::dRead(INT16 sChan, adsGain_t eGain) {
+	return(dRead_ADS1115(sChan, eGain));
 }	//dRead
 
 
-void SetAddress(UINT8 ucAddress) {
+void BeckAtoD::SetAddress(UINT8 ucAddress) {
 	return;
 }	//SetAddress
 //Last line.

@@ -74,7 +74,7 @@ BeckAtoD 						*pBeckAtoD_;
 
 //class BeckBlynk
 BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[], BeckAtoD* pBeckAtoD) {
-	*pBeckBlynk_= &this;
+	pBeckBlynk_= this;
 	pBeckAtoD_= pBeckAtoD;
   Blynk.config(acBlynkAuthToken);
 	return;
