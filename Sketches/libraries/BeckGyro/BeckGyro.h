@@ -21,7 +21,7 @@ class BeckGyro {
 protected:
   INT16     		sNumAxis_           = (eLastAxis   - 1);
   INT16    		 	sNumGyroSensors_    = (eLastSensor - 1);
-  UINT8					ucGyroAddress_			= 0x48;
+  UINT8					ucGyroAddress_			= 0x68;
   const UINT32  ulGyroReadTime_    	= 500;   //Gyro reads spaced by this.
 
   uint32_t        ulNextGyroTime_   = 0;  //msec when the gyro will be read

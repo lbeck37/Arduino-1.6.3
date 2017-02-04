@@ -2,6 +2,7 @@
 #include <BeckI2cLib.h>
 #include <Wire.h>
 
+/*
 //******* MPU-6050 6-axis accelerometer and gyro
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
@@ -22,6 +23,7 @@ uint32_t        ulNextGyroTime     = 0;  //msec when the gyro will be read
 boolean         bGyroChanged       = false;
 
 INT16           asGyro[sNumGyroTypes][sNumAxis];  //Was int
+*/
 
 const UINT8			ucADS1115_Address	 = 0x48;
 
@@ -109,6 +111,7 @@ double dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
 }	//dRead_ADS1115
 
 
+/*
 INT16 sSetup_Gyro() {
    //Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
    BLog("sSetup_Gyro(): Begin");
@@ -181,4 +184,5 @@ void Read_Gyro() {
    }  //if (millis()>ulNextGyroTime)
    return;
 }  //Read_Gyro
+*/
 //Last line.
