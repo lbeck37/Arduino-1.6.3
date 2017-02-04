@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 3, 2017C Lenny";
+static const char szFileDate[]    = "Feb 3, 2017D Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -106,9 +106,7 @@ void setup()
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
 
-  //Wire.begin();
   SetupWiFi(szRouterName, szRouterPW);
-  //SetupBlynk();
   SetupDevices();
   SetupSwitches();
   SetupSystem();
@@ -117,13 +115,11 @@ void setup()
 
 
 void loop() {
-//#ifndef SKIP_SERVER
 #if OTA_SERVER
   HandleHttpServer();
 #endif
   if (!bSkipBlynk) {
     if (!bUpdating) {
-      //RunBlynk();
     	oBeckBlynk.Run();
       HandleSystem();
     } //if(!bUpdating)
@@ -146,47 +142,6 @@ void SetupDevices() {
   sSetup_Gyro();
   return;
 } //SetupDevices
-
-
-/*
-void SetupBlynk(){
-
-  WiFi.mode(WIFI_AP_STA);
-  Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
-  //wl_status_t eWiFiStatus= WiFi.waitForConnectResult();
-  wl_status_t eWiFiStatus= (wl_status_t)WiFi.waitForConnectResult();
-  if(eWiFiStatus == WL_CONNECTED) {
-    Serial << LOG0 << " SetupServer(): WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
-    #if OTA_SERVER
-      SetupServer();
-    #endif
-  } //if(eWiFiStatus==WL_CONNECTED)
-  else {
-    //Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
-    Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
-  } //if(eWiFiStatus==WL_CONNECTED)else
-
-
-  switch (sProjectType){
-    case sGarageLocal:
-    case sDevLocal:
-      Serial << LOG0 << " SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
-//      Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
-//      ConfigBlynk(acBlynkAuthToken, IPAddress(192,168,15,191));
-      oBeckBlynk.Config(acBlynkAuthToken, IPAddress(192,168,15,191));
-      break;
-    default:
-      Serial << LOG0 << " SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
-//      Blynk.config(acBlynkAuthToken);
-//      ConfigBlynk(acBlynkAuthToken);
-      oBeckBlynk.Config(acBlynkAuthToken);
-      break;
-  } //switch
-  Serial << LOG0 << " SetupBlynk(): Blynk.config() returned" << endl;
-  return;
-} //SetupBlynk
-*/
 
 
 int sSetupTime(){

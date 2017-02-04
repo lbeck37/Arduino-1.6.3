@@ -76,20 +76,6 @@ BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[]) {
 }	//Constructor
 
 
-/*
-void BeckBlynk::Config(const INT8 acBlynkAuthToken[]) {
-  Blynk.config(acBlynkAuthToken);
-  return;
-}	//Config(INT8)
-
-
-void BeckBlynk::Config(const char acBlynkAuthToken[], IPAddress oIPAddress) {
-  Blynk.config(acBlynkAuthToken, oIPAddress);
-  return;
-}	//Config(INT8,IPAddress)
-*/
-
-
 void BeckBlynk::Run() {
   Blynk.run();
   return;
@@ -101,24 +87,6 @@ void WriteTerminalLine(String szString);
 void WriteTerminalString(String szString);
 
 //Functions
-void RunBlynk() {
-   Blynk.run();
-return;
-}	//RunBlynk
-
-
-void ConfigBlynk(const char acBlynkAuthToken[]) {
-   Blynk.config(acBlynkAuthToken);
-return;
-}	//ConfigBlynk
-
-
-void ConfigBlynk(const char acBlynkAuthToken[], IPAddress oIPAddress) {
-	   Blynk.config(acBlynkAuthToken, oIPAddress);
-return;
-}	//ConfigBlynk
-
-
 void BlynkLogLine(String szString){
   String szTermString= szLogLineHeader(lLineCount);
   szTermString += szString;
