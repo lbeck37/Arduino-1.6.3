@@ -265,4 +265,34 @@ void LogToBoth(String szLogString, double dLogValue){
   BlynkLogLine(szLogString, dLogValue);
   return;
 } //LogToBoth:double
+
+//**********************************
+void LogToSerial(String szLogString){
+  Serial << LOG0 << szLogString << endl;
+  return;
+} //LogToSerial:empty
+
+
+void LogToSerial(String szLogString, String szLogValue){
+  Serial << LOG0 << szLogString << " " << szLogValue << endl;
+  return;
+} //LogToSerial:String
+
+
+void LogToSerial(String szLogString, int sLogValue){
+  Serial << LOG0 << szLogString << " " << sLogValue << endl;
+  return;
+} //LogToSerial:int
+
+
+void LogToSerial(String szLogString, float fLogValue){
+  Serial << LOG0 << szLogString << " " << fLogValue << endl;
+  return;
+} //LogToSerial:float
+
+
+void LogToSerial(String szLogString, double dLogValue){
+  Serial << LOG0 << szLogString << " " << dLogValue << endl;
+  return;
+} //LogToSerial:double
 //Last line.

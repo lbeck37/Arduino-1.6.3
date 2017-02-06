@@ -134,11 +134,17 @@ extern bool                     bStartedOTA;
   extern U8GLIB_DOGS102           u8g;
 #endif
 
-extern void LogToBoth(String szLogString);
-extern void LogToBoth(String szLogString, String szLogValue);
-extern void LogToBoth(String szLogString, int sLogValue);
-extern void LogToBoth(String szLogString, float fLogValue);
-extern void LogToBoth(String szLogString, double dLogValue);
+  extern void LogToBoth(String szLogString);
+  extern void LogToBoth(String szLogString, String szLogValue);
+  extern void LogToBoth(String szLogString, int sLogValue);
+  extern void LogToBoth(String szLogString, float fLogValue);
+  extern void LogToBoth(String szLogString, double dLogValue);
+
+  extern void LogToSerial(String szLogString);
+  extern void LogToSerial(String szLogString, String szLogValue);
+  extern void LogToSerial(String szLogString, int sLogValue);
+  extern void LogToSerial(String szLogString, float fLogValue);
+  extern void LogToSerial(String szLogString, double dLogValue);
 
 extern const int       sUpButtonPin;
 extern const int       sDownButtonPin;

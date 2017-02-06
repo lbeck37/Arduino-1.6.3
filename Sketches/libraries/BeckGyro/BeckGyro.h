@@ -29,11 +29,12 @@ protected:
 public:
   INT16     asGyro_[eLastSensor - 1][eLastAxis - 1];
 
-            BeckGyro    (INT16 sDummy);
-  void      Read        (void);
+            BeckGyro    	(INT16 sDummy);
+  void      Read        	(void);
 
 private:
-  void      SetupI2C   	(void);
-  void      SetupData   (void);
+  void      SetupI2C   		(void);
+  void      SetupData   	(void);
+  INT16			sReadTwoBytes	(void);
 };  //BeckGyro
 #endif  //BECKGYRO_H
