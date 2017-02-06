@@ -2,6 +2,7 @@
 #ifndef BECKGYRO_H
 #define BECKGYRO_H
 #include <BeckLib.h>
+#include <BeckI2C.h>
 
 typedef enum {
   eXAxis= 1,
@@ -19,6 +20,7 @@ typedef enum {
 
 class BeckGyro {
 protected:
+	BeckI2C*			pBeckI2C_;
   INT16     		sNumAxis_           = (eLastAxis   - 1);
   INT16    		 	sNumGyroSensors_    = (eLastSensor - 1);
   UINT8					ucGyroAddress_			= 0x68;
@@ -29,7 +31,7 @@ protected:
 public:
   INT16     asGyro_[eLastSensor - 1][eLastAxis - 1];
 
-            BeckGyro    	(INT16 sDummy);
+            BeckGyro    	(BeckI2C* pBeckI2C);
   void      Read        	(void);
 
 private:

@@ -1,19 +1,16 @@
 //BeckGyro.cpp
 #include <BeckGyro.h>
+#include <BeckI2C.h>
 //#include <BeckI2cLib.h>
 #include <Wire.h>
 
 //BeckAtoD class methods
-BeckGyro::BeckGyro(INT16 sDummy) {
+BeckGyro::BeckGyro(BeckI2C* pBeckI2C) {
+	pBeckI2C_= pBeckI2C;
   SetupData();
   SetupI2C();
   return;
 } //Constructor
-
-
-INT16 BeckGyro::sReadTwoBytes(void) {
-	return(Wire.read() << 8 | Wire.read());
-}	//sReadTwoBytes
 
 
 void BeckGyro::Read(void) {
@@ -24,10 +21,6 @@ void BeckGyro::Read(void) {
       Wire.beginTransmission(ucGyroAddress_);
       Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
       Wire.endTransmission(false);
-      //Wire.requestFrom(ucGyroAddress_,14,true);  // request a total of 14 registers
-      //bool  bTrue= true;
-      String szLogString="BeckGyro::Read(): Call requestFrom()";
-      LogToSerial(szLogString);
       Wire.requestFrom((uint8_t)ucGyroAddress_, (size_t)14, (bool)true);  // request a total of 14 registers
 
       // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
@@ -42,15 +35,7 @@ void BeckGyro::Read(void) {
       asGyroReading[eAccel][eYAxis]= Wire.read() << 8 | Wire.read();
       asGyroReading[eAccel][eZAxis]= Wire.read() << 8 | Wire.read();
 
-      szLogString="BeckGyro::Read(): asGyroReading[eAccel][eZAxis]=";
-      LogToSerial(szLogString, asGyroReading[eAccel][eZAxis]);
-
-      //asGyroReading[eTemperature][eXAxis]= Wire.read() << 8 | Wire.read();
-      asGyroReading[eTemperature][eXAxis]= sReadTwoBytes();
-
-      szLogString="BeckGyro::Read(): asGyroReading[eTemperature][eXAxis]=";
-      LogToSerial(szLogString, asGyroReading[eTemperature][eXAxis]);
-
+      asGyroReading[eTemperature][eXAxis]= pBeckI2C_->sReadTwoBytes();
 
       asGyroReading[eRotation][eXAxis]=Wire.read() << 8 | Wire.read();
       asGyroReading[eRotation][eYAxis]=Wire.read() << 8 | Wire.read();
@@ -63,38 +48,19 @@ void BeckGyro::Read(void) {
 
       //Apply low-pass filter to data
       for (int sSensorType= eAccel; sSensorType <= sNumGyroSensors_; sSensorType++) {
-          szLogString="BeckGyro::Read():sSensorType=";
-          LogToSerial(szLogString, sSensorType);
          for (int sAxis= eXAxis; sAxis <= sNumAxis_; sAxis++) {
 #if APPLY_SMOOTHING
             asGyro_[sSensorType][sAxis]= FILTER_FUNC(asGyroReading[sSensorType][sAxis],
                                                   pusSmoothingMemory[sSensorType][sAxis]);
 #else
-            szLogString="BeckGyro::Read():sAxis=";
-            LogToSerial(szLogString, sAxis);
-
             asGyro_[sSensorType][sAxis]= asGyroReading[sSensorType][sAxis];
-            szLogString="BeckGyro::Read(): asGyro_[][]=";
-            LogToSerial(szLogString, asGyro_[sSensorType][sAxis]);
-
 #endif
          }  //for sAxis
       }  //for sSensorType
 
-      szLogString="BeckGyro::Read(): asGyroReading[eAccel][eZAxis]=";
-      LogToSerial(szLogString, asGyroReading[eAccel][eZAxis]);
-
-     szLogString="BeckGyro::Read(): asGyro_[eAccel][eZAxis]=";
-      LogToSerial(szLogString, asGyro_[eAccel][eZAxis]);
-
-      szLogString="BeckGyro::Read(): asGyro_[eTemperature][eXAxis]=";
-      LogToSerial(szLogString, asGyro_[eTemperature][eXAxis]);
-
-
       //The following is for bringing up gyro
-      szLogString="Read_Gyro(): AccelZ";
-      INT16 sAccelZaxis= asGyro_[eAccel][eZAxis];
-      LogToBoth(szLogString, sAccelZaxis);
+      String szLogString="Read_Gyro(): AccelZ";
+      LogToBoth(szLogString, asGyro_[eAccel][eZAxis]);
 
       bGyroChanged_= true;
       ulNextGyroTime_= millis() + ulGyroReadTime_;

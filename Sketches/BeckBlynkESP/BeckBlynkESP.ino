@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 5, 2017 F Lenny";
+static const char szFileDate[]    = "Feb 5, 2017 H Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -14,7 +14,7 @@ static const char szFileDate[]    = "Feb 5, 2017 F Lenny";
 //#include <BeckLib.h>
 #include <BeckBlynk.h>
 #include <BeckControlLib.h>
-#include <BeckI2cLib.h>
+#include <BeckI2C.h>
 #include <BeckAtoD.h>
 #include <BeckGyro.h>
 
@@ -98,9 +98,10 @@ static unsigned long  ulUpdateTimeoutMsec   = 0;
 static long           sSystemHandlerSpacing; 		//Number of mSec between running system handlers
 static bool           bUpdating             = false;    //Turns off Blynk.
 
-BeckAtoD		oBeckAtoD		(eADS1115);
+BeckI2C			oBeckI2C		(0);
+BeckAtoD		oBeckAtoD		(&oBeckI2C, eADS1115);
 BeckBlynk 	oBeckBlynk	(acBlynkAuthToken, &oBeckAtoD);
-BeckGyro		oBeckGyro		(0);
+BeckGyro		oBeckGyro		(&oBeckI2C);
 
 //Functions
 void setup()
