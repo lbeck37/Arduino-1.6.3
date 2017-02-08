@@ -6,15 +6,18 @@
 
 //BeckAtoD class methods
 BeckGyro::BeckGyro(BeckI2C* pBeckI2C) {
-	pBeckI2C_= pBeckI2C;
-  SetupData();
-  SetupI2C();
+  String szLogString="BeckGyro Constructor: Begin";
+  LogToBoth(szLogString);
+  pBeckI2C_= pBeckI2C;
+	SetupData();
+	SetupI2C();
   return;
 } //Constructor
 
 
 void BeckGyro::Read(void) {
   INT16      asGyroReading[sNumGyroSensors_][sNumAxis_];
+  String     szLogString;
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
    if (millis() > ulNextGyroTime_) {
@@ -34,6 +37,8 @@ void BeckGyro::Read(void) {
       asGyroReading[eAccel][eXAxis]= Wire.read() << 8 | Wire.read();
       asGyroReading[eAccel][eYAxis]= Wire.read() << 8 | Wire.read();
       asGyroReading[eAccel][eZAxis]= Wire.read() << 8 | Wire.read();
+      szLogString="Read_Gyro(): asGyroReading[eAccel][eZAxis]=";
+      LogToBoth(szLogString, asGyroReading[eAccel][eZAxis]);
 
       asGyroReading[eTemperature][eXAxis]= pBeckI2C_->sReadTwoBytes();
 
@@ -42,7 +47,7 @@ void BeckGyro::Read(void) {
       asGyroReading[eRotation][eZAxis]=Wire.read() << 8 | Wire.read();
 
       //Initialize missing temperature fields.
-      for (int sAxis= eYAxis; sAxis < sNumAxis_; sAxis++) {
+      for (int sAxis= eYAxis; sAxis <= sNumAxis_; sAxis++) {
          asGyroReading[eTemperature][sAxis]= 0;
       }  //for
 
@@ -59,14 +64,14 @@ void BeckGyro::Read(void) {
       }  //for sSensorType
 
       //The following is for bringing up gyro
-      String szLogString="Read_Gyro(): AccelZ";
+      szLogString="Read_Gyro(): AccelZ";
       LogToBoth(szLogString, asGyro_[eAccel][eZAxis]);
 
       bGyroChanged_= true;
       ulNextGyroTime_= millis() + ulGyroReadTime_;
    }  //if (millis()>ulNextGyroTime)
    return;
-} //dRead
+} //Read
 
 
 void BeckGyro::SetupI2C(void) {
@@ -81,10 +86,12 @@ void BeckGyro::SetupI2C(void) {
 
 void BeckGyro::SetupData(void) {
   //Initialize the data array.
-  for (int sDataType= eAccel; sDataType < sNumGyroSensors_; sDataType++) {
-     for (int sAxis= eXAxis; sAxis < sNumAxis_; sAxis++) {
-        asGyro_[sDataType][sAxis]= 37;
-     }  //for sDataType
+  String szLogString="SetupData(): Begin";
+  LogToBoth(szLogString);
+  for (int sSensorType= eAccel; sSensorType <= sNumGyroSensors_; sSensorType++) {
+     for (int sAxis= eXAxis; sAxis <= sNumAxis_; sAxis++) {
+        asGyro_[sSensorType][sAxis]= 37;
+     }  //for sSensorType
   }  //for sAxis
   return;
 } //SetupData

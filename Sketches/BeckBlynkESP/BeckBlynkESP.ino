@@ -1,6 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 5, 2017 H Lenny";
-
+static const char szFileDate[]    = "Feb 8, 2017 H Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -21,6 +20,8 @@ static const char szFileDate[]    = "Feb 5, 2017 H Lenny";
 #define OTA_SERVER   false     //Skip running OTA server
 
 #define LOG0    szLogLineHeader(++lLineCount)
+
+const bool bGyroOn       						= true;
 
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk       = true;
@@ -101,14 +102,16 @@ static bool           bUpdating             = false;    //Turns off Blynk.
 BeckI2C			oBeckI2C		(0);
 BeckAtoD		oBeckAtoD		(&oBeckI2C, eADS1115);
 BeckBlynk 	oBeckBlynk	(acBlynkAuthToken, &oBeckAtoD);
-BeckGyro		oBeckGyro		(&oBeckI2C);
+//BeckGyro		oBeckGyro		(&oBeckI2C, bGyroOn);
+
+BeckGyro*		pBeckGyro_;
 
 //Functions
 void setup()
 {
   sSetupTime();
   Serial.begin(lSerialMonitorBaud);
-  Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
+  Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
 
   SetupWiFi(szRouterName, szRouterPW);
@@ -144,7 +147,11 @@ void SetupDevices() {
   //Set up the I2C bus.
 	sSetup_I2C();
   sSetup_ADS1115();
-  //sSetup_Gyro();
+
+  //Create BeckGyro object
+  if (bGyroOn) {
+		pBeckGyro_= new BeckGyro(&oBeckI2C);
+  }//bGyroOn
   return;
 } //SetupDevices
 
@@ -232,8 +239,9 @@ void HandleTankMonitor(){
 void HandleDevelopment(){
   String szLogString = "HandleDevelopment()";
   LogToBoth(szLogString);
-  //Read_Gyro();
-  oBeckGyro.Read();
+  if(bGyroOn) {
+		pBeckGyro_->Read();
+  }
   return;
 } //HandleDevelopment
 
