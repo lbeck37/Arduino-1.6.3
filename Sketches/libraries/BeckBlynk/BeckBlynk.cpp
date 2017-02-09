@@ -7,7 +7,7 @@
 #endif  //ESP8266
 #ifdef ESP32
   #include <BlynkSimpleEsp32.h>
-#endif	//ESP32
+#endif  //ESP32
 
 //Define Virtual Pin names
 #define ReadF_V0          V0
@@ -69,27 +69,27 @@ WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
 
-BeckBlynk						*pBeckBlynk_;
-BeckAtoD 						*pBeckAtoD_;
+BeckBlynk           *pBeckBlynk_;
+BeckAtoD            *pBeckAtoD_;
 
 //class BeckBlynk
 BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[], BeckAtoD* pBeckAtoD) {
-	pBeckBlynk_= this;
-	pBeckAtoD_= pBeckAtoD;
+  pBeckBlynk_= this;
+  pBeckAtoD_= pBeckAtoD;
   Blynk.config(acBlynkAuthToken);
-	return;
-}	//Constructor
+  return;
+} //Constructor
 
 
 void BeckBlynk::Run() {
   Blynk.run();
   return;
-}	//Run
+} //Run
 
 
 double BeckBlynk::dReadAtoD(INT16 sChannel) {
-	return(pBeckAtoD_->dRead(sChannel, GAIN_ONE));
-}	//dReadAtoD
+  return(pBeckAtoD_->dRead(sChannel, GAIN_ONE));
+} //dReadAtoD
 
 
 //Local function protos.
@@ -522,7 +522,8 @@ BLYNK_WRITE(TimerB_3V22){
 
 
 BLYNK_READ(AtoD_4V24){
-  double dVolts= dRead_AtoD(4);
+  //double dVolts= dRead_AtoD(4);
+  double dVolts= pBeckBlynk_->dReadAtoD(4);
   String szLogString= "Read AtoD_4V24 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_4V24, dVolts);

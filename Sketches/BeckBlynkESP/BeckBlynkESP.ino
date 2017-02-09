@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 8, 2017 H Lenny";
+static const char szFileDate[]    = "Feb 8, 2017 J Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -99,12 +99,15 @@ static unsigned long  ulUpdateTimeoutMsec   = 0;
 static long           sSystemHandlerSpacing; 		//Number of mSec between running system handlers
 static bool           bUpdating             = false;    //Turns off Blynk.
 
-BeckI2C			oBeckI2C		(0);
-BeckAtoD		oBeckAtoD		(&oBeckI2C, eADS1115);
-BeckBlynk 	oBeckBlynk	(acBlynkAuthToken, &oBeckAtoD);
+//BeckI2C			oBeckI2C		(0);
+//BeckAtoD		oBeckAtoD		(&oBeckI2C, eADS1115);
+//BeckBlynk 	oBeckBlynk	(acBlynkAuthToken, &oBeckAtoD);
 //BeckGyro		oBeckGyro		(&oBeckI2C, bGyroOn);
 
-BeckGyro*		pBeckGyro_;
+BeckI2C*		pBeckI2C;
+BeckAtoD*		pBeckAtoD;
+BeckGyro*		pBeckGyro;
+BeckBlynk*	pBeckBlynk;
 
 //Functions
 void setup()
@@ -128,7 +131,7 @@ void loop() {
 #endif
   if (!bSkipBlynk) {
     if (!bUpdating) {
-    	oBeckBlynk.Run();
+    	pBeckBlynk->Run();
       HandleSystem();
     } //if(!bUpdating)
     else {
@@ -145,12 +148,15 @@ void loop() {
 
 void SetupDevices() {
   //Set up the I2C bus.
-	sSetup_I2C();
-  sSetup_ADS1115();
+	//sSetup_I2C();
+  //sSetup_ADS1115();
 
-  //Create BeckGyro object
+	pBeckI2C		= new	BeckI2C(0);
+	pBeckAtoD	= new	BeckAtoD(pBeckI2C, eADS1115);
+	pBeckBlynk	= new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
+
   if (bGyroOn) {
-		pBeckGyro_= new BeckGyro(&oBeckI2C);
+		pBeckGyro= new BeckGyro(pBeckI2C);
   }//bGyroOn
   return;
 } //SetupDevices
@@ -240,7 +246,7 @@ void HandleDevelopment(){
   String szLogString = "HandleDevelopment()";
   LogToBoth(szLogString);
   if(bGyroOn) {
-		pBeckGyro_->Read();
+		pBeckGyro->Read();
   }
   return;
 } //HandleDevelopment

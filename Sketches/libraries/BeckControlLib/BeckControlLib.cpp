@@ -1,6 +1,5 @@
 //BeckControlLib.cpp
 #include <BeckControlLib.h>
-#include <BeckI2cLib.h>
 #include <OneWire.h>
 
 const int    sSwitchOpen           = 0;
@@ -33,12 +32,11 @@ OneWire      oOneWire(sOneWirePin);
 /*Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature   oSensors(&oOneWire);
 
-//Adafruit_ADS1115  AtoD(0x48);
-
 //Local function protos
-void SetupAtoD();
+//void SetupAtoD();
 
 /****************************************************************/
+/*
 double dRead_AtoD(INT16 sChannel){
   String szLogString="dRead_AtoD(): Ch=";
   LogToBoth(szLogString, sChannel);
@@ -52,6 +50,7 @@ double dRead_AtoD(INT16 sChannel){
   //dVoltage = (sAtoDReading * 0.1875)/1000;
   return  dVolts;
 } //dRead_AtoD
+*/
 
 
 void HandleFurnaceSwitch(){

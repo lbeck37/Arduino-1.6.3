@@ -2,7 +2,7 @@
 #ifndef BECKCONTROLLIB_H
 #define BECKCONTROLLIB_H
 #include <BeckLib.h>
-#include <BeckI2cLib.h>
+//#include <BeckI2cLib.h>
 #include <DallasTemperature.h>
 
 extern int          asSwitchState[];
@@ -39,8 +39,8 @@ extern const uint8_t ucGrey2PowerPin;
 extern const uint8_t ucGrey2LevelPin;
 
 //Function protos.
-extern void 		SetupDevices();
-extern double 	dRead_AtoD(INT16 sChannel);
+//extern void 		SetupDevices();
+//extern double 	dRead_AtoD(INT16 sChannel);
 extern void 		HandleFurnaceSwitch();
 extern void 		TurnFurnaceOn(bool bTurnOn);
 extern void 		SetThermoState(int sSwitchState);
