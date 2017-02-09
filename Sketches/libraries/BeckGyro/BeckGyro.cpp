@@ -8,8 +8,8 @@ BeckGyro::BeckGyro(BeckI2C* pBeckI2C) {
   String szLogString="BeckGyro Constructor: Begin";
   LogToSerial(szLogString);
   pBeckI2C_= pBeckI2C;
-	SetupData();
-	SetupI2C();
+  SetupData();
+  SetupI2C();
   return;
 } //Constructor
 
@@ -36,7 +36,7 @@ void BeckGyro::Read(void) {
       asGyroReading[eAccel][eXAxis]= Wire.read() << 8 | Wire.read();
       asGyroReading[eAccel][eYAxis]= Wire.read() << 8 | Wire.read();
       asGyroReading[eAccel][eZAxis]= Wire.read() << 8 | Wire.read();
-      szLogString="Read_Gyro(): asGyroReading[eAccel][eZAxis]=";
+      szLogString="BeckGyro::Read_Gyro(): asGyroReading[eAccel][eZAxis]=";
       LogToBoth(szLogString, asGyroReading[eAccel][eZAxis]);
 
       asGyroReading[eTemperature][eXAxis]= pBeckI2C_->sReadTwoBytes();
@@ -63,7 +63,7 @@ void BeckGyro::Read(void) {
       }  //for sSensorType
 
       //The following is for bringing up gyro
-      szLogString="Read_Gyro(): AccelZ";
+      szLogString="BeckGyro::Read_Gyro(): AccelZ";
       LogToBoth(szLogString, asGyro_[eAccel][eZAxis]);
 
       bGyroChanged_= true;
@@ -74,7 +74,9 @@ void BeckGyro::Read(void) {
 
 
 void BeckGyro::SetupI2C(void) {
-  BLog("BeckGyro::SetupI2C: Begin");
+  //BLog("BeckGyro::SetupI2C: Begin");
+  String szLogString="BeckGyro::SetupI2C(): ucGyroAddress_=";
+  LogToBoth(szLogString, ucGyroAddress_);
   Wire.beginTransmission(ucGyroAddress_);
   Wire.write(0x6B);  // PWR_MGMT_1 register
   Wire.write(0);     // set to zero (wakes up the MPU-6050)
