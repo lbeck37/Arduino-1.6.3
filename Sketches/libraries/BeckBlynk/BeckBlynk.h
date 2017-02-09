@@ -13,10 +13,11 @@ extern void HandleBlynkLEDs();
 
 class BeckBlynk {
 protected:
-  INT8    acBlynkAuthToken_[];
+  INT8            acBlynkAuthToken_[];
+
 public:
           BeckBlynk       (const INT8 acBlynkAuthToken[], BeckAtoD* pBeckAtoD);
   void    Run             ();
-  double	dReadAtoD				(INT16 sChannel);
+  //double  dReadAtoD       (INT16 sChannel);
 };  //BeckBlynk
 #endif  //BECKBLYNK_H

@@ -3,6 +3,9 @@
 #include <Wire.h>
 
 BeckI2C::BeckI2C(INT16 sDummy) {
+  String szLogString="BeckI2C Constructor: Begin";
+  LogToSerial(szLogString);
+  this->sSetup_I2C();
 	return;
 }	//Constructor
 
@@ -33,6 +36,8 @@ INT16 BeckI2C::ReadI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister) {
 
 
 INT16 BeckI2C::sSetup_I2C() {
+  String szLogString="BeckI2C:sSetup_I2C(): call Wire.begin()";
+  LogToSerial(szLogString);
   Wire.begin();
   return 1;
 }	//sSetup_I2C

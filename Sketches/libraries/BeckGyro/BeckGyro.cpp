@@ -7,7 +7,7 @@
 //BeckAtoD class methods
 BeckGyro::BeckGyro(BeckI2C* pBeckI2C) {
   String szLogString="BeckGyro Constructor: Begin";
-  LogToBoth(szLogString);
+  LogToSerial(szLogString);
   pBeckI2C_= pBeckI2C;
 	SetupData();
 	SetupI2C();
@@ -86,7 +86,7 @@ void BeckGyro::SetupI2C(void) {
 
 void BeckGyro::SetupData(void) {
   //Initialize the data array.
-  String szLogString="SetupData(): Begin";
+  String szLogString="BeckGyro:SetupData(): Begin";
   LogToBoth(szLogString);
   for (int sSensorType= eAccel; sSensorType <= sNumGyroSensors_; sSensorType++) {
      for (int sAxis= eXAxis; sAxis <= sNumAxis_; sAxis++) {

@@ -1,7 +1,7 @@
 //BeckBlynk.cpp
 #include <BeckBlynk.h>
 #include <BeckControlLib.h>
-#include <BeckESP32AtoDLib.h>
+//#include <BeckESP32AtoDLib.h>
 #ifdef ESP8266
   #include <BlynkSimpleEsp8266.h>
 #endif  //ESP8266
@@ -69,12 +69,14 @@ WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
 
-BeckBlynk           *pBeckBlynk_;
-BeckAtoD            *pBeckAtoD_;
+  //BeckBlynk*      pBeckBlynk_;
+  BeckAtoD*       pBeckAtoD_;
 
 //class BeckBlynk
 BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[], BeckAtoD* pBeckAtoD) {
-  pBeckBlynk_= this;
+  String szLogString="BeckBlynk Constructor: Begin";
+  LogToSerial(szLogString);
+  //pBeckBlynk_= this;
   pBeckAtoD_= pBeckAtoD;
   Blynk.config(acBlynkAuthToken);
   return;
@@ -86,11 +88,11 @@ void BeckBlynk::Run() {
   return;
 } //Run
 
-
+/*
 double BeckBlynk::dReadAtoD(INT16 sChannel) {
   return(pBeckAtoD_->dRead(sChannel, GAIN_ONE));
 } //dReadAtoD
-
+*/
 
 //Local function protos.
 void WriteTerminalLine(String szString);
@@ -308,7 +310,8 @@ BLYNK_WRITE(ThermoSwitch_V4){
 //WidgetLED oLED0(ThermoLED_V5) is constructed earlier
 
 BLYNK_READ(AtoD_1V6){
-  double dVolts= pBeckBlynk_->dReadAtoD(1);
+  //double dVolts= pBeckBlynk_->dReadAtoD(1);
+  double dVolts= pBeckAtoD_->dRead(1, GAIN_ONE);
   String szLogString= "Read AtoD_1V6 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_1V6, dVolts);
@@ -389,7 +392,8 @@ BLYNK_WRITE(TimerB_1V12){
 
 
 BLYNK_READ(AtoD_2V14){
-  double dVolts= pBeckBlynk_->dReadAtoD(2);
+  //double dVolts= pBeckBlynk_->dReadAtoD(2);
+  double dVolts= pBeckAtoD_->dRead(2, GAIN_ONE);
   String szLogString= "Read AtoD_2V14 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_2V14, dVolts);
@@ -456,7 +460,8 @@ BLYNK_WRITE(TimerB_2V17){
 
 
 BLYNK_READ(AtoD_3V19){
-  double dVolts= pBeckBlynk_->dReadAtoD(3);
+//  double dVolts= pBeckBlynk_->dReadAtoD(3);
+  double dVolts= pBeckAtoD_->dRead(3, GAIN_ONE);
   String szLogString= "Read AtoD_3V19 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_3V19, dVolts);
@@ -523,7 +528,8 @@ BLYNK_WRITE(TimerB_3V22){
 
 BLYNK_READ(AtoD_4V24){
   //double dVolts= dRead_AtoD(4);
-  double dVolts= pBeckBlynk_->dReadAtoD(4);
+//  double dVolts= pBeckBlynk_->dReadAtoD(4);
+  double dVolts= pBeckAtoD_->dRead(4, GAIN_ONE);
   String szLogString= "Read AtoD_4V24 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_4V24, dVolts);
