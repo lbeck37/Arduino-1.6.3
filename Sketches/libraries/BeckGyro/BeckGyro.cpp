@@ -1,7 +1,6 @@
 //BeckGyro.cpp
 #include <BeckGyro.h>
 #include <BeckI2C.h>
-//#include <BeckI2cLib.h>
 #include <Wire.h>
 
 //BeckAtoD class methods
