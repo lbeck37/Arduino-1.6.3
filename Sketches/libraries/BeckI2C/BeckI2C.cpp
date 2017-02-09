@@ -38,7 +38,8 @@ INT16 BeckI2C::ReadI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister) {
 INT16 BeckI2C::sSetup_I2C() {
   String szLogString="BeckI2C:sSetup_I2C(): call Wire.begin()";
   LogToSerial(szLogString);
-  Wire.begin();
+  //Wire.begin();
+  Wire.begin(4, 5);
   return 1;
 }	//sSetup_I2C
 
