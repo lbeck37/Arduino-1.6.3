@@ -79,6 +79,8 @@ void BeckGyro::SetupI2C(void) {
   //BLog("BeckGyro::SetupI2C: Begin");
   String szLogString="BeckGyro::SetupI2C(): ucGyroAddress_=";
   LogToBoth(szLogString, ucGyroAddress_);
+	pBeckI2C_->TestI2C(ucGyroAddress_);
+
   Wire.beginTransmission(ucGyroAddress_);
   Wire.write(0x6B);  // PWR_MGMT_1 register
   Wire.write(0);     // set to zero (wakes up the MPU-6050)
