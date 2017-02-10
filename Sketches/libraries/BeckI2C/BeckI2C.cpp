@@ -19,10 +19,10 @@ void BeckI2C::TestI2C(UINT8 ucAddress) {
 	Wire.beginTransmission(ucAddress);
 	UINT8 ucError= Wire.endTransmission();
 	if (ucError == 0) {
-		szLogString="TestI2C(): Good responce from";
+		szLogString="TestI2C(): Good response from";
 	}
 	else {
-		szLogString="TestI2C(): ERROR: No responce from";
+		szLogString="TestI2C(): ERROR: No response from";
 	}
 	LogToSerial(szLogString, ucAddress);
 	return;
