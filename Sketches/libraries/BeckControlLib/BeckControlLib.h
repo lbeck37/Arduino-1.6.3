@@ -2,7 +2,6 @@
 #ifndef BECKCONTROLLIB_H
 #define BECKCONTROLLIB_H
 #include <BeckLib.h>
-//#include <BeckI2cLib.h>
 #include <DallasTemperature.h>
 
 extern int          asSwitchState[];
@@ -28,8 +27,8 @@ extern const int    asSwitchPin[];    //0 is not a switch, switches are at 1,2,3
 extern DallasTemperature   oSensors;
 
 //ESP32 AtoD Input Pins
-extern const int	sNumTanks;
-extern const int	sPinsPerTank;
+extern const int  sNumTanks;
+extern const int  sPinsPerTank;
 
 extern const uint8_t ucGrey1PowerPin;
 extern const uint8_t ucGrey1LevelPin;
@@ -39,13 +38,11 @@ extern const uint8_t ucGrey2PowerPin;
 extern const uint8_t ucGrey2LevelPin;
 
 //Function protos.
-//extern void 		SetupDevices();
-//extern double 	dRead_AtoD(INT16 sChannel);
-extern void 		HandleFurnaceSwitch();
-extern void 		TurnFurnaceOn(bool bTurnOn);
-extern void 		SetThermoState(int sSwitchState);
-extern void 		SetFurnaceSwitch(int sSwitchState);
-extern void 		SetSwitch(int sSwitch, int sSwitchState);
-extern float 		fGetDegF(bool bTakeReading);
+extern void     HandleFurnaceSwitch();
+extern void     TurnFurnaceOn(bool bTurnOn);
+extern void     SetThermoState(int sSwitchState);
+extern void     SetFurnaceSwitch(int sSwitchState);
+extern void     SetSwitch(int sSwitch, int sSwitchState);
+extern float    fGetDegF(bool bTakeReading);
 
-#endif	//BECKCONTROLLIB_H
+#endif  //BECKCONTROLLIB_H

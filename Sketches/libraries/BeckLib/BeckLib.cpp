@@ -253,6 +253,12 @@ void LogToBoth(String szLogString, int sLogValue){
 } //LogToBoth:int
 
 
+void LogToBoth(String szLogString, UINT32 uwLogValue){
+  Serial << LOG0 << szLogString << " " << uwLogValue << endl;
+  return;
+} //LogToBoth:UINT32
+
+
 void LogToBoth(String szLogString, float fLogValue){
   Serial << LOG0 << szLogString << " " << fLogValue << endl;
   BlynkLogLine(szLogString, fLogValue);
@@ -283,6 +289,12 @@ void LogToSerial(String szLogString, int sLogValue){
   Serial << LOG0 << szLogString << " " << sLogValue << endl;
   return;
 } //LogToSerial:int
+
+
+void LogToSerial(String szLogString, UINT32 uwLogValue){
+  Serial << LOG0 << szLogString << " " << uwLogValue << endl;
+  return;
+} //LogToSerial:UINT32
 
 
 void LogToSerial(String szLogString, float fLogValue){

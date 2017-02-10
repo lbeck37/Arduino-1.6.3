@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 9, 2017 *A* Lenny";
+static const char szFileDate[]    = "Feb 9, 2017 *H* Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -147,7 +147,13 @@ void loop() {
 
 
 void SetupDevices() {
+  String szLogString = "BeckBlynkESP.ino::SetupDevices(): Begin";
+  LogToSerial(szLogString);
+
   pBeckI2C    = new BeckI2C(0);
+  szLogString = "BeckBlynkESP.ino::SetupDevices(): pBeckI2C=";
+  LogToSerial(szLogString, (UINT32)pBeckI2C);
+
   pBeckAtoD   = new BeckAtoD(pBeckI2C, eADS1115);
   pBeckBlynk  = new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
 

@@ -18,6 +18,9 @@ double BeckAtoD::dRead(INT16 sChan, adsGain_t eGain) {
 
 double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
   UINT16  usConfig= usDefaultSingleChanReadConfig_;
+  String szLogString;
+  szLogString = "BeckAtoD::dRead_ADS1115: pBeckI2C_=";
+  LogToSerial(szLogString, (UINT32)pBeckI2C_);
 
   usConfig |= eGain;
   switch (sChannel) {
@@ -34,7 +37,7 @@ double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
       usConfig |= ADS1015_REG_CONFIG_MUX_SINGLE_3;
       break;
     default:
-      String szLogString="dRead_ADS1115(): Bad switch";
+      szLogString="dRead_ADS1115(): Bad switch";
       LogToBoth(szLogString, sChannel);
       break;
   } //switch
@@ -42,7 +45,7 @@ double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
   pBeckI2C_->WriteI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONFIG, usConfig);
   delay(50);      //Adafruit code only delays for 8.
   INT16 sVoltCount= pBeckI2C_->ReadI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONVERT);
-  String szLogString="BeckAtoD:dRead_ADS1115() sVoltCount=";
+  szLogString="BeckAtoD:dRead_ADS1115() sVoltCount=";
   LogToSerial(szLogString, sVoltCount);
 
   double dVoltsRead= (sVoltCount * 4.096) / 32768.0;

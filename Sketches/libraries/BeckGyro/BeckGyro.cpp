@@ -20,6 +20,8 @@ void BeckGyro::Read(void) {
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
    if (millis() > ulNextGyroTime_) {
+  		 pBeckI2C_->TestI2C(ucGyroAddress_);
+
       Wire.beginTransmission(ucGyroAddress_);
       Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
       Wire.endTransmission(false);

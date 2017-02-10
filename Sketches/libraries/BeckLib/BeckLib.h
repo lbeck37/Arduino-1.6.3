@@ -137,12 +137,14 @@ extern bool                     bStartedOTA;
   extern void LogToBoth(String szLogString);
   extern void LogToBoth(String szLogString, String szLogValue);
   extern void LogToBoth(String szLogString, int sLogValue);
+  extern void LogToBoth(String szLogString, UINT32 uwLogValue);
   extern void LogToBoth(String szLogString, float fLogValue);
   extern void LogToBoth(String szLogString, double dLogValue);
 
   extern void LogToSerial(String szLogString);
   extern void LogToSerial(String szLogString, String szLogValue);
   extern void LogToSerial(String szLogString, int sLogValue);
+  extern void LogToSerial(String szLogString, UINT32 uwLogValue);
   extern void LogToSerial(String szLogString, float fLogValue);
   extern void LogToSerial(String szLogString, double dLogValue);
 
