@@ -81,10 +81,24 @@ void BeckGyro::SetupI2C(void) {
   LogToBoth(szLogString, ucGyroAddress_);
 	pBeckI2C_->TestI2C(ucGyroAddress_);
 
+  szLogString="BeckGyro::SetupI2C(): Calling Wire.beginTransmission";
+  LogToBoth(szLogString, ucGyroAddress_);
   Wire.beginTransmission(ucGyroAddress_);
+
+  szLogString="BeckGyro::SetupI2C(): Call Wire.write(0x6B) & Wire.write(0)";
+  LogToBoth(szLogString);
   Wire.write(0x6B);  // PWR_MGMT_1 register
   Wire.write(0);     // set to zero (wakes up the MPU-6050)
+
+  szLogString="BeckGyro::SetupI2C(): Calling Wire.endTransmission(true)";
+  LogToBoth(szLogString);
   Wire.endTransmission(true);
+
+	pBeckI2C_->TestI2C(0x48);
+	pBeckI2C_->TestI2C(ucGyroAddress_);
+
+  szLogString="BeckGyro::SetupI2C(): End";
+  LogToBoth(szLogString);
   return;
 } //SetupI2C
 

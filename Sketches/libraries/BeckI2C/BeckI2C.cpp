@@ -7,26 +7,31 @@ BeckI2C::BeckI2C(INT16 sDummy) {
   LogToSerial(szLogString);
   szLogString = "BeckI2C Constructor: &Wire=";
   LogToSerial(szLogString, (UINT32)&Wire);
-  //this->sSetup_I2C();
+  szLogString = "BeckI2C Constructor: Call Wire.begin()";
+  LogToSerial(szLogString);
+
   Wire.begin();
   TestI2C(0x48);
   TestI2C(0x68);
+
+  szLogString = "BeckI2C Constructor: End";
+  LogToSerial(szLogString);
   return;
 } //Constructor
 
 void BeckI2C::TestI2C(UINT8 ucAddress) {
-	String szLogString;
-	Wire.beginTransmission(ucAddress);
-	UINT8 ucError= Wire.endTransmission();
-	if (ucError == 0) {
-		szLogString="TestI2C(): Good response from";
-	}
-	else {
-		szLogString="TestI2C(): ERROR: No response from";
-	}
-	LogToSerial(szLogString, ucAddress);
-	return;
-}	//TestI2C
+  String szLogString;
+  Wire.beginTransmission(ucAddress);
+  UINT8 ucError= Wire.endTransmission();
+  if (ucError == 0) {
+    szLogString="TestI2C(): Good response from";
+  }
+  else {
+    szLogString="TestI2C(): ERROR: No response from";
+  }
+  LogToSerial(szLogString, ucAddress);
+  return;
+} //TestI2C
 
 
 //Writes 16-bits to the specified destination register
