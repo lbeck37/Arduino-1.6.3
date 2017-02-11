@@ -94,8 +94,7 @@ void BeckGyro::SetupI2C(void) {
   LogToBoth(szLogString);
   Wire.endTransmission(true);
 
-	pBeckI2C_->TestI2C(0x48);
-	pBeckI2C_->TestI2C(ucGyroAddress_);
+	pBeckI2C_->TestI2C();
 
   szLogString="BeckGyro::SetupI2C(): End";
   LogToBoth(szLogString);

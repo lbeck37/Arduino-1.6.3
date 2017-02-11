@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 10, 2017 *C* Lenny";
+static const char szFileDate[]    = "Feb 10, 2017 *G* Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -190,8 +190,7 @@ void SetupSystem(){
 void SetupSwitches(){
   String szLogString = "SetupSwitches(): Begin";
   LogToBoth(szLogString);
-  pBeckI2C->TestI2C(0x48);
-  pBeckI2C->TestI2C(0x68);
+  pBeckI2C->TestI2C();
 
 /*
   for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
@@ -200,8 +199,7 @@ void SetupSwitches(){
   } //for
 */
 
-  pBeckI2C->TestI2C(0x48);
-  pBeckI2C->TestI2C(0x68);
+  pBeckI2C->TestI2C();
   szLogString = "SetupSwitches(): End";
   LogToBoth(szLogString);
   return;
