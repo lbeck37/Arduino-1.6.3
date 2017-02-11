@@ -77,8 +77,7 @@ void BeckGyro::Read(void) {
 
 void BeckGyro::SetupI2C(void) {
   //BLog("BeckGyro::SetupI2C: Begin");
-  String szLogString="BeckGyro::SetupI2C(): ucGyroAddress_=";
-  LogToBoth(szLogString, ucGyroAddress_);
+  String szLogString;
 	pBeckI2C_->TestI2C(ucGyroAddress_);
 
   szLogString="BeckGyro::SetupI2C(): Calling Wire.beginTransmission";

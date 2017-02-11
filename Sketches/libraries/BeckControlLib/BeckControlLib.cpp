@@ -8,7 +8,7 @@ const int    sOff                  = 0;
 const int    sOn                   = 1;
 const int    sNotInit              = -3737;
 
-const int    sNumSwitches          = 4;
+const int    sNumSwitches          = 3;
 const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
 const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
@@ -26,7 +26,8 @@ float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};    //15 is 8266 TXD0 and broke I2c
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 2};    	//2 is 8266 TXd1 and I2C stopped and blue LED on ESP12 module went on
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 0};    	//0 is 8266 Flash pin and when used caused relay to go on and off
-const int    asSwitchPin[]         = {-1, 12, 13, 14, 16};    	//0 is not a switch, switches are at 1,2,3,4
+//const int    asSwitchPin[]         = {-1, 12, 13, 14, 16};    //16 is 8266 User and Wake and broke I2C
+const int    asSwitchPin[]         = {-1, 12, 13, 14, 14};    	//0 is not a switch, switches are at 1,2,3,4
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 
