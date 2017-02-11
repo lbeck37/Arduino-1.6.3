@@ -38,8 +38,8 @@ void BeckGyro::Read(void) {
       asGyroReading[eAccel][eXAxis]= Wire.read() << 8 | Wire.read();
       asGyroReading[eAccel][eYAxis]= Wire.read() << 8 | Wire.read();
       asGyroReading[eAccel][eZAxis]= Wire.read() << 8 | Wire.read();
-      szLogString="BeckGyro::Read_Gyro(): asGyroReading[eAccel][eZAxis]=";
-      LogToBoth(szLogString, asGyroReading[eAccel][eZAxis]);
+      //szLogString="BeckGyro::Read_Gyro(): asGyroReading[eAccel][eZAxis]=";
+      //LogToBoth(szLogString, asGyroReading[eAccel][eZAxis]);
 
       asGyroReading[eTemperature][eXAxis]= pBeckI2C_->sReadTwoBytes();
 

@@ -22,7 +22,11 @@ bool         bThermoOn             = true;   //Whether thermostat is running.
 bool         bFurnaceOn            = false;  //If switch is on to turn on furnace.
 float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 
-const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
+//const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    	//0 is not a switch, switches are at 1,2,3,4
+//const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};    //15 is 8266 TXD0 and broke I2c
+//const int    asSwitchPin[]         = {-1, 12, 13, 14, 2};    	//2 is 8266 TXd1 and I2C stopped and blue LED on ESP12 module went on
+//const int    asSwitchPin[]         = {-1, 12, 13, 14, 0};    	//0 is 8266 Flash pin and when used caused relay to go on and off
+const int    asSwitchPin[]         = {-1, 12, 13, 14, 16};    	//0 is not a switch, switches are at 1,2,3,4
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 
@@ -31,27 +35,6 @@ const int    sOneWirePin           = 12;  //Dallas DS18B20 Temperature Sensor
 OneWire      oOneWire(sOneWirePin);
 /*Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature   oSensors(&oOneWire);
-
-//Local function protos
-//void SetupAtoD();
-
-/****************************************************************/
-/*
-double dRead_AtoD(INT16 sChannel){
-  String szLogString="dRead_AtoD(): Ch=";
-  LogToBoth(szLogString, sChannel);
-
-  adsGain_t eGain= GAIN_ONE;    //GAIN_ONE is +/- 4.096V
-  double dVolts= dRead_ADS1115(sChannel, eGain);
-
-  szLogString="dReadAtoD():";
-  LogToBoth(szLogString, dVolts);
-  //Convert 16bit value from the AtoD into volts
-  //dVoltage = (sAtoDReading * 0.1875)/1000;
-  return  dVolts;
-} //dRead_AtoD
-*/
-
 
 void HandleFurnaceSwitch(){
   String szLogString = "HandleFurnaceSwitch(): bFurnaceOn";
@@ -159,3 +142,4 @@ float fGetDegF(bool bTakeReading){
 #endif
   return fDegFReturn;
 }  //fGetDegF
+//Last line.

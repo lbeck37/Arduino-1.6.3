@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 10, 2017 *G* Lenny";
+static const char szFileDate[]    = "Feb 10, 2017 *M* Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -192,12 +192,10 @@ void SetupSwitches(){
   LogToBoth(szLogString);
   pBeckI2C->TestI2C();
 
-/*
   for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
     pinMode(asSwitchPin[sSwitch], OUTPUT);
     SetSwitch(sSwitch, sSwitchOpen);
   } //for
-*/
 
   pBeckI2C->TestI2C();
   szLogString = "SetupSwitches(): End";

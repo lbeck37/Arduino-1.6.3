@@ -19,8 +19,8 @@ double BeckAtoD::dRead(INT16 sChan, adsGain_t eGain) {
 double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
   UINT16  usConfig= usDefaultSingleChanReadConfig_;
   String szLogString;
-  szLogString = "BeckAtoD::dRead_ADS1115: pBeckI2C_=";
-  LogToSerial(szLogString, (UINT32)pBeckI2C_);
+  //szLogString = "BeckAtoD::dRead_ADS1115: pBeckI2C_=";
+  //LogToSerial(szLogString, (UINT32)pBeckI2C_);
 
   usConfig |= eGain;
   switch (sChannel) {

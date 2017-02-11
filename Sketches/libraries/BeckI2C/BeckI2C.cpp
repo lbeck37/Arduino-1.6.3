@@ -5,11 +5,8 @@
 BeckI2C::BeckI2C(INT16 sDummy) {
   String szLogString="BeckI2C Constructor: Begin";
   LogToSerial(szLogString);
-  szLogString = "BeckI2C Constructor: &Wire=";
-  LogToSerial(szLogString, (UINT32)&Wire);
   szLogString = "BeckI2C Constructor: Call Wire.begin()";
   LogToSerial(szLogString);
-
   Wire.begin();
   TestI2C();
   return;
@@ -43,13 +40,7 @@ void BeckI2C::TestI2C(UINT8 ucAddress) {
 //Writes 16-bits to the specified destination register
 //void WriteI2cRegister(uint8_t i2cAddress, uint8_t reg, uint16_t value) {
 void BeckI2C::WriteI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usValue) {
-  String szLogString = "BeckI2C::::WriteI2cRegister(): &Wire=";
-  LogToSerial(szLogString, (UINT32)&Wire);
-
-  szLogString = "BeckI2C::::WriteI2cRegister(): &ucI2cAddress=";
-  LogToSerial(szLogString, ucI2cAddress);
-  TestI2C(ucI2cAddress);
-
+  TestI2C();
   Wire.beginTransmission(ucI2cAddress);
   Wire.write(ucRegister);
   Wire.write((UINT8)(usValue >> 8));      //High byte
@@ -59,7 +50,6 @@ void BeckI2C::WriteI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usVa
 
 
 //Reads 16-bits from the specified source register
-//static uint16_t ReadI2cRegister(uint8_t i2cAddress, uint8_t reg) {
 INT16 BeckI2C::ReadI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister) {
   Wire.beginTransmission(ucI2cAddress);
   Wire.write(ucRegister);                     //Was ADS1015_REG_POINTER_CONVERT
@@ -70,17 +60,6 @@ INT16 BeckI2C::ReadI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister) {
   INT16 sReturn= ((Wire.read() << 8) | Wire.read());
   return sReturn;
 } //ReadI2cRegister
-
-
-/*
-INT16 BeckI2C::sSetup_I2C() {
-  String szLogString="BeckI2C:sSetup_I2C(): call Wire.begin()";
-  LogToSerial(szLogString);
-  Wire.begin();
-  //Wire.begin(4, 5);
-  return 1;
-} //sSetup_I2C
-*/
 
 
 INT16 BeckI2C::sReadTwoBytes(void) {
