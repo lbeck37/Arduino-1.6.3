@@ -8,6 +8,7 @@ BeckI2C::BeckI2C(INT16 sDummy) {
   szLogString = "BeckI2C Constructor: Call Wire.begin()";
   LogToSerial(szLogString);
   Wire.begin();
+  ScanForDevices();
   TestI2C();
   return;
 } //Constructor
@@ -34,6 +35,8 @@ void BeckI2C::SetDevicePresent(UINT8 ucAddress) {
 void BeckI2C::ScanForDevices(void){
 	UINT8 ucError, ucAddress;
   int nDevices;
+  String szLogString="BeckI2C::ScanForDevices(): Begin";
+  LogToSerial(szLogString);
 
   Serial.println("Scanning...");
   nDevices = 0;
@@ -47,6 +50,7 @@ void BeckI2C::ScanForDevices(void){
 
     if (ucError == 0)
     {
+    	SetDevicePresent(ucAddress);
       Serial.print("I2C device found at address 0x");
       if (ucAddress<16) {
         Serial.print("0");
@@ -64,10 +68,11 @@ void BeckI2C::ScanForDevices(void){
       Serial.println(ucAddress,HEX);
     }
   }
-  if (nDevices == 0)
+ /*if (nDevices == 0)
     Serial.println("No I2C devices found\n");
   else
-    Serial.println("done\n");
+    Serial.println("done");
+*/
   return;
 }	//ScanForDevices
 

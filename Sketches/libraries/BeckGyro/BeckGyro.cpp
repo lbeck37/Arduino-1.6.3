@@ -9,6 +9,14 @@ BeckGyro::BeckGyro(BeckI2C* pBeckI2C) {
   LogToSerial(szLogString);
   pBeckI2C_= pBeckI2C;
   bDevicePresent_= pBeckI2C_->bDevicePresent(eGyro);
+  if (bDevicePresent_) {
+		szLogString="BeckGyro Constructor: Gyro device is present";
+		LogToSerial(szLogString);
+  }
+  else {
+		szLogString="BeckGyro Constructor: Gyro device is NOT present";
+		LogToSerial(szLogString);
+  }
   SetupData();
   SetupI2C();
   return;
