@@ -17,8 +17,8 @@ class BeckI2C {
 protected:
   BeckI2C*    										pBeckI2C_;
   bool        										bSkipTestI2c_   = true;
-  bool														bDevicePresent_[eLastI2cDevice];
-  std::map<UINT8, I2cDevice_t>		mI2cAddresses {
+  bool														abDevicePresent_[eLastI2cDevice];
+  std::map<UINT8, I2cDevice_t>		mI2cAddresses_ {
   	{0x48, eAtoD},
 		{0x68, eGyro},
 		{0x3C, eDisplay}
@@ -26,6 +26,8 @@ protected:
 public:
               BeckI2C             (INT16 sDummy);
   bool				bDevicePresent			(I2cDevice_t eDevice);
+  void 				SetDevicePresent		(UINT8 ucAddress);
+  void 				ScanForDevices			(void);
   INT16       sReadTwoBytes       (void) ;
   void        WriteI2cRegister    (UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usValue);
   INT16       ReadI2cRegister     (UINT8 ucI2cAddress, UINT8 ucRegister);

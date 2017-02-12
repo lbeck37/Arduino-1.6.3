@@ -14,8 +14,62 @@ BeckI2C::BeckI2C(INT16 sDummy) {
 
 
 bool BeckI2C::bDevicePresent(I2cDevice_t eDevice) {
-  return bDevicePresent_[eDevice];
+  return abDevicePresent_[eDevice];
 } //bDevicePresent
+
+
+void BeckI2C::SetDevicePresent(UINT8 ucAddress) {
+  String szLogString="BeckI2C::SetDevicePresent(): Address";
+  LogToSerial(szLogString, ucAddress);
+
+	I2cDevice_t	eI2cDevice= mI2cAddresses_[ucAddress];
+	abDevicePresent_[eI2cDevice]= true;
+
+  szLogString="BeckI2C::SetDevicePresent(): Device";
+  LogToSerial(szLogString, eI2cDevice);
+  return;
+} //SetDevicePresent
+
+
+void BeckI2C::ScanForDevices(void){
+	UINT8 ucError, ucAddress;
+  int nDevices;
+
+  Serial.println("Scanning...");
+  nDevices = 0;
+  for(ucAddress = 1; ucAddress < 127; ucAddress++ )
+  {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire.beginTransmission(ucAddress);
+    ucError = Wire.endTransmission();
+
+    if (ucError == 0)
+    {
+      Serial.print("I2C device found at address 0x");
+      if (ucAddress<16) {
+        Serial.print("0");
+      }
+      Serial.print(ucAddress,HEX);
+      Serial.println("  !");
+      nDevices++;
+    }
+    else if (ucError==4)
+    {
+      Serial.print("Unknown error at address 0x");
+      if (ucAddress<16) {
+        Serial.print("0");
+      }
+      Serial.println(ucAddress,HEX);
+    }
+  }
+  if (nDevices == 0)
+    Serial.println("No I2C devices found\n");
+  else
+    Serial.println("done\n");
+  return;
+}	//ScanForDevices
 
 
 void BeckI2C::TestI2C(void) {
