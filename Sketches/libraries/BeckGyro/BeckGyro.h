@@ -21,6 +21,7 @@ typedef enum {
 class BeckGyro {
 protected:
   BeckI2C*      pBeckI2C_;
+	bool					bDevicePresent_;
   INT16         sNumAxis_           = (eLastAxis   - 1);
   INT16         sNumGyroSensors_    = (eLastSensor - 1);
   UINT8         ucGyroAddress_      = 0x68;

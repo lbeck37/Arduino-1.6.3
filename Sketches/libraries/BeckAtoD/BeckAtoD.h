@@ -14,6 +14,7 @@ class BeckAtoD {
 protected:
 	AtoD_t 				eType_;
 	BeckI2C*			pBeckI2C_;
+	bool					bDevicePresent_;
 	const UINT8		ucADS1115_Address	 = 0x48;
 	const UINT16 	usDefaultSingleChanReadConfig_=
 																		ADS1015_REG_CONFIG_CQUE_NONE    | // Disable the comparator (default val)

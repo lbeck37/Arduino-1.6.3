@@ -157,9 +157,9 @@ void SetupDevices() {
   pBeckAtoD   = new BeckAtoD(pBeckI2C, eADS1115);
   pBeckBlynk  = new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
 
-  if (bGyroOn) {
+  if (pBeckI2C->bDevicePresent(eGyro)) {
     pBeckGyro= new BeckGyro(pBeckI2C);
-  }//bGyroOn
+  }//if(pBeckI2C->bDevicePresent(eGyro))
   return;
 } //SetupDevices
 

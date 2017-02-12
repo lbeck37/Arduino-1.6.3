@@ -8,6 +8,7 @@ BeckGyro::BeckGyro(BeckI2C* pBeckI2C) {
   String szLogString="BeckGyro Constructor: Begin";
   LogToSerial(szLogString);
   pBeckI2C_= pBeckI2C;
+  bDevicePresent_= pBeckI2C_->bDevicePresent(eGyro);
   SetupData();
   SetupI2C();
   return;
@@ -21,7 +22,7 @@ void BeckGyro::Read(void) {
 
    if (millis() > ulNextGyroTime_) {
   		 pBeckI2C_->TestI2C();
-
+  	if (bDevicePresent_) {
       Wire.beginTransmission(ucGyroAddress_);
       Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
       Wire.endTransmission(false);
@@ -69,7 +70,12 @@ void BeckGyro::Read(void) {
       LogToBoth(szLogString, asGyro_[eAccel][eZAxis]);
 
       bGyroChanged_= true;
-      ulNextGyroTime_= millis() + ulGyroReadTime_;
+  	}	//if(bDevicePresent_)
+  	else {
+			String szLogString="BeckGyro::Read(): I2C Gyro not present";
+			LogToSerial(szLogString);
+  	}
+    ulNextGyroTime_= millis() + ulGyroReadTime_;
    }  //if (millis()>ulNextGyroTime)
    return;
 } //Read

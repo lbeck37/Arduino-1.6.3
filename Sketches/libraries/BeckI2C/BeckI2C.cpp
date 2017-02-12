@@ -13,6 +13,11 @@ BeckI2C::BeckI2C(INT16 sDummy) {
 } //Constructor
 
 
+bool BeckI2C::bDevicePresent(I2cDevice_t eDevice) {
+  return bDevicePresent_[eDevice];
+} //bDevicePresent
+
+
 void BeckI2C::TestI2C(void) {
 	ucTestI2C(0x48);
 	ucTestI2C(0x68);

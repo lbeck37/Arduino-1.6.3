@@ -7,12 +7,21 @@ BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType) {
   LogToSerial(szLogString);
   pBeckI2C_= pBeckI2C;
   eType_= eType;
+  bDevicePresent_= pBeckI2C_->bDevicePresent(eAtoD);
   return;
 } //Constructor
 
 
 double BeckAtoD::dRead(INT16 sChan, adsGain_t eGain) {
-  return(dRead_ADS1115(sChan, eGain));
+	if (bDevicePresent_) {
+		return(dRead_ADS1115(sChan, eGain));
+	}
+	else {
+		double dReturn= 3.737;
+		String szLogString="BeckAtoD::dRead(): I2C AtoD not present, returning";
+		LogToSerial(szLogString, dReturn);
+		return (dReturn);
+	}
 } //dRead
 
 
