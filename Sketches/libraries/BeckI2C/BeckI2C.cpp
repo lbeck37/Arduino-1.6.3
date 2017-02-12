@@ -14,17 +14,18 @@ BeckI2C::BeckI2C(INT16 sDummy) {
 
 
 void BeckI2C::TestI2C(void) {
-	TestI2C(0x48);
-	TestI2C(0x68);
+	ucTestI2C(0x48);
+	ucTestI2C(0x68);
   return;
 } //TestI2C:void
 
 
-void BeckI2C::TestI2C(UINT8 ucAddress) {
-  String szLogString;
+UINT8 BeckI2C::ucTestI2C(UINT8 ucAddress) {
+	UINT8 		ucError;
+  String 		szLogString;
   if (!bSkipTestI2c_) {
 		Wire.beginTransmission(ucAddress);
-		UINT8 ucError= Wire.endTransmission();
+		ucError= Wire.endTransmission();
 		if (ucError == 0) {
 			szLogString="TestI2C(): Good response from";
 		}
@@ -33,8 +34,8 @@ void BeckI2C::TestI2C(UINT8 ucAddress) {
 		}
 		LogToSerial(szLogString, ucAddress);
   }
-  return;
-} //TestI2C:UINT8
+  return ucError;
+} //ucTestI2C
 
 
 //Writes 16-bits to the specified destination register

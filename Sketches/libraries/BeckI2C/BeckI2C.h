@@ -13,6 +13,6 @@ public:
   void        WriteI2cRegister    (UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usValue);
   INT16       ReadI2cRegister     (UINT8 ucI2cAddress, UINT8 ucRegister);
   void        TestI2C             (void);
-  void        TestI2C             (UINT8 ucAddress);
+  UINT8       ucTestI2C           (UINT8 ucAddress);
 };  //BeckI2C
 #endif  //BECKI2C_H

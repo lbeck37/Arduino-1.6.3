@@ -69,14 +69,14 @@ WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
 
-  //BeckBlynk*      pBeckBlynk_;
+  BeckBlynk*      pBeckBlynk_;
   BeckAtoD*       pBeckAtoD_;
 
 //class BeckBlynk
 BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[], BeckAtoD* pBeckAtoD) {
   String szLogString="BeckBlynk Constructor: Begin";
   LogToSerial(szLogString);
-  //pBeckBlynk_= this;
+  pBeckBlynk_= this;
   pBeckAtoD_= pBeckAtoD;
   Blynk.config(acBlynkAuthToken);
   return;
@@ -346,6 +346,7 @@ BLYNK_WRITE(Switch_1V10){
     sSwitchSetting= sSwitchOpen;
   }
   SetSwitch(sSwitchNumber, sSwitchSetting);
+  HandleBlynkLEDs();
   return;
 } //BLYNK_WRITE(Switch_1V10)
 
