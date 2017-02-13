@@ -1,5 +1,5 @@
 // Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
-#define SKETCH_HEAD "\nBeckDisplayExample.ino, February 13, 2017 *C* Beck"
+#define SKETCH_HEAD "\nBeckDisplayExample.ino, February 13, 2017 *F* Beck"
 /*********************************************************************
 This is an example for our Monochrome OLEDs based on SSD1306 drivers
 This example is for a 128x64 size display using I2C to communicate
@@ -49,6 +49,10 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
 void setup()   {
   Serial.begin(115200);
 	Serial.println(SKETCH_HEAD);
+	Serial.println("Setup(): Call Wire.begin(4, 5)");
+  Wire.begin(4, 5);		//Beck 2/13/17
+  ScanForDevices();
+
   Serial.println("Setup(): Call display.begin()");
 
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
