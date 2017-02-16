@@ -1,5 +1,5 @@
 // Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
-#define SKETCH_HEAD "\nBeckDisplayExample.ino, February 15, 2017 *B* Beck"
+#define SKETCH_HEAD "\nBeckDisplayExample.ino, February 16, 2017 -C- Beck"
 /*********************************************************************
 This is an example for our Monochrome OLEDs based on SSD1306 drivers
 This example is for a 128x64 size display using I2C to communicate
@@ -16,8 +16,7 @@ All text above, and the splash screen must be included in any redistribution
 //#define OLED_RESET 4
 //Adafruit_SSD1306 oDisplay(OLED_RESET);
 
-//Adafruit_SSD1306 oDisplay(12);		//Pin 12 is where I connect relay #1
-Adafruit_SSD1306 oDisplay(-1);		//Looks like -1 is default
+Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
 
 #define NUMFLAKES 10
 #define XPOS 0
@@ -65,14 +64,15 @@ void setup()   {
   ScanForDevices();
   // init done
 
+  // Clear the buffer.
+  oDisplay.clearDisplay();
+
+  /*
   // Show image buffer on the display hardware.
   // Since the buffer is intialized with an Adafruit splashscreen
   // internally, this will display the splashscreen.
   oDisplay.display();
   delay(2000);
-
-  // Clear the buffer.
-  oDisplay.clearDisplay();
 
   // draw a single pixel
   oDisplay.drawPixel(10, 10, WHITE);
@@ -128,31 +128,39 @@ void setup()   {
   testfilltriangle();
   delay(2000);
   oDisplay.clearDisplay();
+*/
+  while (true) {
+/*
+		// draw the first ~12 characters in the font
+		testdrawchar();
+		oDisplay.display();
+		delay(2000);
+		oDisplay.clearDisplay();
+*/
 
-  // draw the first ~12 characters in the font
-  testdrawchar();
-  oDisplay.display();
-  delay(2000);
-  oDisplay.clearDisplay();
+  	Dashboard();
 
-  // draw scrolling text
-  testscrolltext();
-  delay(2000);
-  oDisplay.clearDisplay();
+		// draw scrolling text
+		testscrolltext();
+		delay(2000);
+		oDisplay.clearDisplay();
 
-  // text display tests
-  oDisplay.setTextSize(1);
-  oDisplay.setTextColor(WHITE);
-  oDisplay.setCursor(0,0);
-  oDisplay.println("Hello, world!");
-  oDisplay.setTextColor(BLACK, WHITE); // 'inverted' text
-  oDisplay.println(3.141592);
-  oDisplay.setTextSize(2);
-  oDisplay.setTextColor(WHITE);
-  oDisplay.print("0x"); oDisplay.println(0xDEADBEEF, HEX);
-  oDisplay.display();
-  delay(2000);
-  oDisplay.clearDisplay();
+/*
+		// text display tests
+		oDisplay.setTextSize(1);
+		oDisplay.setTextColor(WHITE);
+		oDisplay.setCursor(0,0);
+		oDisplay.println("Hello, world!");
+		oDisplay.setTextColor(BLACK, WHITE); // 'inverted' text
+		oDisplay.println(3.141592);
+		oDisplay.setTextSize(2);
+		oDisplay.setTextColor(WHITE);
+		oDisplay.print("0x"); oDisplay.println(0xDEADBEEF, HEX);
+		oDisplay.display();
+		delay(2000);
+		oDisplay.clearDisplay();
+*/
+  }	//while
 
   // miniature bitmap display
   oDisplay.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
@@ -174,6 +182,45 @@ void setup()   {
 void loop() {
 
 }	//loop
+
+
+void Dashboard(void) {
+	oDisplay.setTextSize(2);
+	oDisplay.setTextColor(WHITE);
+	oDisplay.setCursor(0,0);
+	oDisplay.println("+3.101");
+	oDisplay.println("+3.202");
+	oDisplay.println("+3.303");
+	oDisplay.println("+3.404");
+	oDisplay.display();
+	delay(5000);
+	oDisplay.clearDisplay();
+}	//Dashboard
+
+
+void testscrolltext(void) {
+  oDisplay.setTextSize(2);
+  oDisplay.setTextColor(WHITE);
+  oDisplay.setCursor(10,0);
+  oDisplay.clearDisplay();
+  oDisplay.println("I Love U");
+  oDisplay.display();
+  delay(1);
+
+  oDisplay.startscrollright(0x00, 0x0F);
+  delay(2000);
+  oDisplay.stopscroll();
+  delay(1000);
+  oDisplay.startscrollleft(0x00, 0x0F);
+  delay(2000);
+  oDisplay.stopscroll();
+  delay(1000);
+  oDisplay.startscrolldiagright(0x00, 0x07);
+  delay(2000);
+  oDisplay.startscrolldiagleft(0x00, 0x07);
+  delay(2000);
+  oDisplay.stopscroll();
+}	//testscrolltext
 
 
 void ScanForDevices(void){
@@ -395,28 +442,4 @@ void testdrawline() {
     delay(1);
   }
   delay(250);
-}
-
-void testscrolltext(void) {
-  oDisplay.setTextSize(2);
-  oDisplay.setTextColor(WHITE);
-  oDisplay.setCursor(10,0);
-  oDisplay.clearDisplay();
-  oDisplay.println("scroll");
-  oDisplay.display();
-  delay(1);
-
-  oDisplay.startscrollright(0x00, 0x0F);
-  delay(2000);
-  oDisplay.stopscroll();
-  delay(1000);
-  oDisplay.startscrollleft(0x00, 0x0F);
-  delay(2000);
-  oDisplay.stopscroll();
-  delay(1000);
-  oDisplay.startscrolldiagright(0x00, 0x07);
-  delay(2000);
-  oDisplay.startscrolldiagleft(0x00, 0x07);
-  delay(2000);
-  oDisplay.stopscroll();
 }

@@ -1,3 +1,4 @@
+// BeckI2cScan.h
 void ScanForDevices(void){
   byte ucError, ucAddress;
   int nDevices;
