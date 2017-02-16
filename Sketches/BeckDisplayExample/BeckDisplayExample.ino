@@ -1,5 +1,5 @@
 // Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
-#define SKETCH_HEAD "\nBeckDisplayExample.ino, February 13, 2017 *F* Beck"
+#define SKETCH_HEAD "\nBeckDisplayExample.ino, February 15, 2017 *B* Beck"
 /*********************************************************************
 This is an example for our Monochrome OLEDs based on SSD1306 drivers
 This example is for a 128x64 size display using I2C to communicate
@@ -13,8 +13,11 @@ All text above, and the splash screen must be included in any redistribution
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#define OLED_RESET 4
-Adafruit_SSD1306 oDisplay(OLED_RESET);
+//#define OLED_RESET 4
+//Adafruit_SSD1306 oDisplay(OLED_RESET);
+
+//Adafruit_SSD1306 oDisplay(12);		//Pin 12 is where I connect relay #1
+Adafruit_SSD1306 oDisplay(-1);		//Looks like -1 is default
 
 #define NUMFLAKES 10
 #define XPOS 0
