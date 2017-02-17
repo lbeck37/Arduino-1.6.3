@@ -17,11 +17,7 @@ static const char szFileDate[]    = "Feb 16, 2017 -F- Lenny";
 #include <BeckAtoD.h>
 #include <BeckGyro.h>
 #include <BeckTanks.h>
-
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
-
-Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
+#include <BeckDisplay.h>
 
 #define OTA_SERVER   false     //Skip running OTA server
 
@@ -110,11 +106,12 @@ static bool           bUpdating             = false;    //Turns off Blynk.
 //BeckBlynk   oBeckBlynk  (acBlynkAuthToken, &oBeckAtoD);
 //BeckGyro    oBeckGyro   (&oBeckI2C, bGyroOn);
 
-BeckI2C*    pBeckI2C;
-BeckAtoD*   pBeckAtoD;
-BeckGyro*   pBeckGyro;
-BeckBlynk*  pBeckBlynk;
-BeckTanks*  pBeckTanks;
+BeckDisplay*    pBeckDisplay;
+BeckI2C*    		pBeckI2C;
+BeckAtoD*   		pBeckAtoD;
+BeckGyro*   		pBeckGyro;
+BeckBlynk*  		pBeckBlynk;
+BeckTanks*  		pBeckTanks;
 
 //Functions
 void setup()
@@ -161,10 +158,12 @@ void SetupDevices() {
   //szLogString = "BeckBlynkESP.ino::SetupDevices(): pBeckI2C=";
   //LogToSerial(szLogString, (UINT32)pBeckI2C);
 
-  SetupDisplay();
+  //SetupDisplay();
 
-  pBeckAtoD   = new BeckAtoD(pBeckI2C, eADS1115);
-  pBeckBlynk  = new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
+  pBeckDisplay    = new BeckDisplay();
+  pBeckAtoD   		= new BeckAtoD(pBeckI2C, eADS1115);
+  pBeckBlynk  		= new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
+  pBeckTanks      = new BeckTanks(pBeckDisplay);
 
   if (pBeckI2C->bDevicePresent(eGyro)) {
     pBeckGyro= new BeckGyro(pBeckI2C);
@@ -173,6 +172,7 @@ void SetupDevices() {
 } //SetupDevices
 
 
+/*
 void SetupDisplay(){
   String szLogString = "BeckBlynkESP.ino::SetupDisplay(): Begin";
   LogToSerial(szLogString);
@@ -182,6 +182,7 @@ void SetupDisplay(){
   oDisplay.clearDisplay();
   return;
 } //SetupDisplay
+*/
 
 
 int sSetupTime(){
@@ -247,7 +248,7 @@ void HandleSystem(){
         break;
       case sDevLocal:
       case sDevRemote:
-        HandleDevelopment();
+      	HandleTankMonitor();
         break;
       case sTankMonitor:
         HandleTankMonitor();
@@ -266,6 +267,8 @@ void HandleSystem(){
 void HandleTankMonitor(){
   String szLogString = "HandleTankMonitor()";
   LogToBoth(szLogString);
+  pBeckTanks->Read();
+  pBeckTanks->UpdateDisplay();
   return;
 } //HandleTankMonitor
 
