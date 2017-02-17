@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 12, 2017 *D* Lenny";
+static const char szFileDate[]    = "Feb 16, 2017 -F- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -16,6 +16,12 @@ static const char szFileDate[]    = "Feb 12, 2017 *D* Lenny";
 #include <BeckI2C.h>
 #include <BeckAtoD.h>
 #include <BeckGyro.h>
+#include <BeckTanks.h>
+
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
 
 #define OTA_SERVER   false     //Skip running OTA server
 
@@ -108,6 +114,7 @@ BeckI2C*    pBeckI2C;
 BeckAtoD*   pBeckAtoD;
 BeckGyro*   pBeckGyro;
 BeckBlynk*  pBeckBlynk;
+BeckTanks*  pBeckTanks;
 
 //Functions
 void setup()
@@ -154,6 +161,8 @@ void SetupDevices() {
   //szLogString = "BeckBlynkESP.ino::SetupDevices(): pBeckI2C=";
   //LogToSerial(szLogString, (UINT32)pBeckI2C);
 
+  SetupDisplay();
+
   pBeckAtoD   = new BeckAtoD(pBeckI2C, eADS1115);
   pBeckBlynk  = new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
 
@@ -162,6 +171,17 @@ void SetupDevices() {
   }//if(pBeckI2C->bDevicePresent(eGyro))
   return;
 } //SetupDevices
+
+
+void SetupDisplay(){
+  String szLogString = "BeckBlynkESP.ino::SetupDisplay(): Begin";
+  LogToSerial(szLogString);
+
+  oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+  // Clear the buffer.
+  oDisplay.clearDisplay();
+  return;
+} //SetupDisplay
 
 
 int sSetupTime(){
