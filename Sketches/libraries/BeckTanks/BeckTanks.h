@@ -1,4 +1,4 @@
-//BeckTanks.h
+//BeckTanks.h 2/26/17
 #ifndef BECKTANKS_H
 #define BECKTANKS_H
 #include <BeckLib.h>
@@ -25,7 +25,7 @@ protected:
 public:
   double    adTankPercentFull_[eLastTank];
 
-            BeckTanks     (BeckAtoD* pBeckAtoD, BeckDisplay*	pBeckDisplay);
+            BeckTanks     (BeckAtoD* pBeckAtoD, BeckDisplay* pBeckDisplay);
   void      Read          (void);
   void 			UpdateDisplay	(void);
 };  //BeckTanks

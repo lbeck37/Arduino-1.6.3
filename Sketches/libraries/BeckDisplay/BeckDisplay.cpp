@@ -26,8 +26,9 @@ void BeckDisplay::UpdateTanks(double adVolts) {
 	pDisplay_->setTextColor(WHITE);
 	pDisplay_->setCursor(0,0);
 
-  for (int sTank= eGrey1; sTank < sNumTanks_; sTank++) {
-  	pDisplay_->println(adVolts[sTank]);
+  for (int sTank= eGrey1; sTank < eLastTank; sTank++) {
+//    	pDisplay_->println(adVolts[sTank]);
+    	pDisplay_->println("3.737");
   }  //for
 
   return;
