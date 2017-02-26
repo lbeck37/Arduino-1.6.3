@@ -9,8 +9,8 @@ protected:
 Adafruit_SSD1306*			pDisplay_;
 
 public:
-	BeckDisplay     (void);
-	void		UpdateTanks(double adVolts);
-
+	BeckDisplay     			(void);
+	void		UpdateTanks		(double adVolts[]);
+	void 		Setup					(void);
 };  //BeckDisplay
 #endif  //BECKDISPLAY_H

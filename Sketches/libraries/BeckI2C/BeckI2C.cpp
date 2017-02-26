@@ -35,10 +35,10 @@ void BeckI2C::SetDevicePresent(UINT8 ucAddress) {
 void BeckI2C::ScanForDevices(void){
 	UINT8 ucError, ucAddress;
   int nDevices;
-  String szLogString="BeckI2C::ScanForDevices(): Begin";
+  String szLogString="BeckI2C::ScanForDevices(): Scanning";
   LogToSerial(szLogString);
 
-  Serial.println("Scanning...");
+  //Serial.println("Scanning...");
   nDevices = 0;
   for(ucAddress = 1; ucAddress < 127; ucAddress++ )
   {

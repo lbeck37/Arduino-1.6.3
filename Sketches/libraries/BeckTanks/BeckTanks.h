@@ -15,7 +15,7 @@ typedef enum {
 class BeckTanks {
 protected:
   INT16           sNumTanks_          = eLastTank;
-  double					adVolts[eLastTank];
+  double					adVolts_[eLastTank];
   const UINT32    ulTanksReadTime_    = 1000;   //Spacing between reading tanks
 
   uint32_t        ulNextTanksTime_    = 0;  //msec when the tanks will be read

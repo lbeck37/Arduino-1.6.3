@@ -16,8 +16,10 @@ void BeckTanks::Read(void) {
 
    if (millis() > ulNextTanksTime_) {
     ulNextTanksTime_= millis() + ulTanksReadTime_;
+    String szLogString="BeckTanks::Read(): Read AtoD's";
+    LogToSerial(szLogString);
     for (int sTank= eGrey1; sTank < eLastTank; sTank++) {
-    		adVolts[sTank]= pBeckAtoD_->dRead(sTank + 1, GAIN_ONE);
+    	adVolts_[sTank]= pBeckAtoD_->dRead(sTank + 1, GAIN_ONE);
     }  //for
    }  //if (millis()>ulNextTanksTime)
    return;
@@ -25,6 +27,9 @@ void BeckTanks::Read(void) {
 
 
 void BeckTanks::UpdateDisplay(void) {
-   return;
+  // szLogString="BeckTanks::UpdateDisplay(): Call pBeckDisplay_->UpdateTanks(adVolts_)";
+  //LogToSerial(szLogString);
+  pBeckDisplay_->UpdateTanks(adVolts_);
+  return;
 } //UpdateDisplay
 //Last line.
