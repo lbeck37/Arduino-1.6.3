@@ -36,8 +36,8 @@ void BeckDisplay::UpdateTanks(double adVolts[]) {
 	pDisplay_->setCursor(0,0);
 
   for (int sTank= eGrey1; sTank < eLastTank; sTank++) {
-//    	pDisplay_->println(adVolts[sTank]);
-    	pDisplay_->println("3.737");
+    	pDisplay_->println(adVolts[sTank]);
+//    	pDisplay_->println("3.737");
   }  //for
   pDisplay_->display();
   return;
