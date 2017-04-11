@@ -1,13 +1,14 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
+//static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
+static const char szFileDate[]    = "Apr 1, 2017 -A- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGJ
+#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-#define DEV_REMOTE
+//#define DEV_REMOTE
 //#define TANK_MONITOR
 
 //#include <BeckLib.h>
@@ -40,11 +41,13 @@ static const int    sDevLocal             = 6;
 static const int    sDevRemote            = 7;
 static const int    sTankMonitor          = 8;
 
-//static const char   szRouterName[]        = "Aspot24";
-//static const char   szRouterName[]        = "P291spot";
-static const char   szRouterName[]        = "TPspot";
+static const char   szRouterName[]        = "P291spot";
+static const char   szRouterPW[]          = "Wsxwsx22";
 
-static const char   szRouterPW[]          = "Qazqaz11";
+//static const char   szRouterName[]        = "Aspot24";
+//static const char   szRouterName[]        = "TPspot";
+//static const char   szRouterPW[]          = "Qazqaz11";
+
 static const char   acHostname[]          = "esp37";
 
 #ifdef DEBUG
@@ -107,11 +110,11 @@ static bool           bUpdating             = false;    //Turns off Blynk.
 //BeckGyro    oBeckGyro   (&oBeckI2C, bGyroOn);
 
 BeckDisplay*    pBeckDisplay;
-BeckI2C*    		pBeckI2C;
-BeckAtoD*   		pBeckAtoD;
-BeckGyro*   		pBeckGyro;
-BeckBlynk*  		pBeckBlynk;
-BeckTanks*  		pBeckTanks;
+BeckI2C*        pBeckI2C;
+BeckAtoD*       pBeckAtoD;
+BeckGyro*       pBeckGyro;
+BeckBlynk*      pBeckBlynk;
+BeckTanks*      pBeckTanks;
 
 //Functions
 void setup()
@@ -161,8 +164,8 @@ void SetupDevices() {
   //SetupDisplay();
 
   pBeckDisplay    = new BeckDisplay();
-  pBeckAtoD   		= new BeckAtoD(pBeckI2C, eADS1115);
-  pBeckBlynk  		= new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
+  pBeckAtoD       = new BeckAtoD(pBeckI2C, eADS1115);
+  pBeckBlynk      = new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
   pBeckTanks      = new BeckTanks(pBeckAtoD, pBeckDisplay);
 
   if (false && pBeckI2C->bDevicePresent(eGyro)) {
@@ -251,7 +254,7 @@ void HandleSystem(){
         break;
       case sDevLocal:
       case sDevRemote:
-      	HandleTankMonitor();
+        HandleTankMonitor();
         break;
       case sTankMonitor:
         HandleTankMonitor();
