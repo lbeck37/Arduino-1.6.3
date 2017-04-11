@@ -2,8 +2,8 @@ String acSketchName  = "BeckPowerShift.ino";
 String acFileDate    = "April 10, 2016 Lenny A";
 //April 10, 2017:Copied from Powershift.ino "May 16, 2016_HP7AA";
 
+#define OTA_SERVER
 #include <BeckLib.h>
-#include <LBeck37.h>
 #include <SPI.h>
 #include <EasyButton.h>
 #include <Servo.h>
@@ -11,13 +11,11 @@ String acFileDate    = "April 10, 2016 Lenny A";
 //#include <U8glib.h>
 #include <stdarg.h>
 
-/*
 #if 1
 	#ifndef ESP8266
 		#define ESP8266
 	#endif	//ESP8266
 #endif
-*/
 
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
@@ -167,8 +165,8 @@ void setup() {
 
    SetupWiFi(acRouterName, acRouterPW);
 
-   StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
-   SendInfoToLog();
+   //StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
+   //SendInfoToLog();
 
 
 #ifndef NO_DISPLAY

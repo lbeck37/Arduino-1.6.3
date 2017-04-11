@@ -25,7 +25,7 @@
   //#include <BlynkSimpleEsp32.h>
 #endif	//ESP32
 
-#define NO_DISPLAY
+//#define NO_DISPLAY
 #ifndef NO_DISPLAY
   #include <U8glib.h>
 #endif
