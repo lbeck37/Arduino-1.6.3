@@ -7,14 +7,20 @@
 //#include <BeckFirebase.h>
 #include <Adafruit_ADS1015.h>		//Just for the defines
 
+#ifndef OTA_SERVER
+	#define OTA_SERVER
+#endif	//OTA_SERVER
+
 #ifdef ESP8266
   #include <ESP8266WiFi.h>
   #include <WiFiClient.h>
   //#include <BlynkSimpleEsp8266.h>
-  #if OTA_SERVER
+  #ifdef OTA_SERVER
     #include <ESP8266WebServer.h>
     #include <ESP8266mDNS.h>
     #include <ESP8266HTTPUpdateServer.h>
+		//extern ESP8266WebServer        		oHttpServer;
+		//extern ESP8266HTTPUpdateServer   	oHttpUpdateServer;
   #endif  //OTA_SERVER
 #endif  //ESP8266
 
@@ -101,9 +107,10 @@ static const long   lMsecPerSec           =     1000;
 //extern WidgetTerminal   oTerminal;		//Blynk Terminal
 extern bool         	bDebugLog;   	//Used to limit number of printouts.
 
+//Function protos
 void      SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
 String    szWiFiStatus(wl_status_t status);
-#if OTA_SERVER
+#ifdef OTA_SERVER
   void      SetupHttpServer(const char* acHostname,
                             ESP8266WebServer&        oHttpServer,
                             ESP8266HTTPUpdateServer& oHttpUpdateServer);
@@ -125,7 +132,7 @@ extern String                   szLogLine;
 extern bool                     bWiFiOn;
 extern bool                     bFirebaseOn;
 extern bool                     bStartedOTA;
-#if OTA_SERVER
+#ifdef OTA_SERVER
   extern ESP8266WebServer         oHttpServer;
   extern ESP8266HTTPUpdateServer  oHttpUpdateServer;
 #endif  //OTA_SERVER

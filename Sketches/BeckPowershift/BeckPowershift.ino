@@ -1,5 +1,5 @@
 String acSketchName  = "BeckPowerShift.ino";
-String acFileDate    = "April 10, 2016 Lenny A";
+String acFileDate    = "April 11, 2016 Lenny A";
 //April 10, 2017:Copied from Powershift.ino "May 16, 2016_HP7AA";
 
 #define OTA_SERVER
@@ -11,11 +11,9 @@ String acFileDate    = "April 10, 2016 Lenny A";
 //#include <U8glib.h>
 #include <stdarg.h>
 
-#if 1
-	#ifndef ESP8266
-		#define ESP8266
-	#endif	//ESP8266
-#endif
+#ifndef ESP8266
+	#define ESP8266
+#endif	//ESP8266
 
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;

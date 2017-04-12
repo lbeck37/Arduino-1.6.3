@@ -1,4 +1,5 @@
-//BeckLib.cpp, Jan 27, 2017B
+//BeckLib.cpp, April 11, 2017
+#define OTA_SERVER
 #include <BeckLib.h>
 #include <BeckBlynk.h>
 //#define DEBUG_LOGGING
@@ -13,7 +14,7 @@ bool                    bWiFiOn           = false;
 bool                    bFirebaseOn       = false;
 bool                    bStartedOTA       = false;
 
-#if OTA_SERVER
+#ifdef OTA_SERVER
   ESP8266WebServer        oHttpServer(80);
   ESP8266HTTPUpdateServer   oHttpUpdateServer(true);
 #endif  //OTA_SERVER
@@ -126,7 +127,7 @@ String szWiFiStatus(wl_status_t status) {
 } //GetWiFiStatusString
 
 
-#if OTA_SERVER
+#ifdef OTA_SERVER
 void SetupHttpServer(const char* acHostname,
           ESP8266WebServer& oHttpServer,
           ESP8266HTTPUpdateServer& oHttpUpdateServer){
