@@ -1,15 +1,15 @@
-//BeckLib.h, Jan 28, 2017
+//BeckLib.h, Apr 14, 2017
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>
 #include <Time.h>
 //#include <Firebase.h>
 //#include <BeckFirebase.h>
-#include <Adafruit_ADS1015.h>		//Just for the defines
+#include <Adafruit_ADS1015.h>   //Just for the defines
 
 #ifndef OTA_SERVER
-	#define OTA_SERVER
-#endif	//OTA_SERVER
+  #define OTA_SERVER
+#endif  //OTA_SERVER
 
 #ifdef ESP8266
   #include <ESP8266WiFi.h>
@@ -19,8 +19,8 @@
     #include <ESP8266WebServer.h>
     #include <ESP8266mDNS.h>
     #include <ESP8266HTTPUpdateServer.h>
-		//extern ESP8266WebServer        		oHttpServer;
-		//extern ESP8266HTTPUpdateServer   	oHttpUpdateServer;
+    //extern ESP8266WebServer           oHttpServer;
+    //extern ESP8266HTTPUpdateServer    oHttpUpdateServer;
   #endif  //OTA_SERVER
 #endif  //ESP8266
 
@@ -29,7 +29,7 @@
   #include <WiFi.h>
   #include <WiFiClient.h>
   //#include <BlynkSimpleEsp32.h>
-#endif	//ESP32
+#endif  //ESP32
 
 //#define NO_DISPLAY
 #ifndef NO_DISPLAY
@@ -104,8 +104,8 @@ static const long   lMsecPerSec           =     1000;
 #define Unassigned_V31    V31
 
 
-//extern WidgetTerminal   oTerminal;		//Blynk Terminal
-extern bool         	bDebugLog;   	//Used to limit number of printouts.
+//extern WidgetTerminal   oTerminal;    //Blynk Terminal
+extern bool           bDebugLog;    //Used to limit number of printouts.
 
 //Function protos
 void      SetupWiFi(const char* pcRouterName, const char* pcRouterPW);

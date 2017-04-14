@@ -1,4 +1,4 @@
-//BeckLib.cpp, April 11, 2017
+//BeckLib.cpp, April 14, 2017
 #define OTA_SERVER
 #include <BeckLib.h>
 #include <BeckBlynk.h>
@@ -64,7 +64,7 @@ bool                    bStartedOTA       = false;
   #endif  //ESP8266
 #endif  //ESP32
 
-bool         		bDebugLog= true;   //Used to limit number of printouts.
+bool            bDebugLog= true;   //Used to limit number of printouts.
 
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
   wl_status_t eStatus;
