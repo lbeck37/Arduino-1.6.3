@@ -33,16 +33,17 @@
 
 //#define NO_DISPLAY
 #ifndef NO_DISPLAY
-#ifdef USE_U8GLIB
-  #include <U8glib.h>
-#else
-	#include <dog_1701.h>
-	#include <font_16x32nums.h>
-	#include <font_6x8.h>
-	#include <font_8x16.h>
-	#include <font_8x8.h>
-	#include <logo_BLH.h>
-#endif
+	#ifdef USE_U8GLIB
+		#include <U8glib.h>
+	#else
+		#include <dog_1701.h>
+		#include <font_16x32nums.h>
+		#include <font_6x8.h>
+		#include <font_8x16.h>
+		#include <font_8x8.h>
+		#include <logo_BLH.h>
+	#endif	//USE_U8GLIB
+#endif	//NO_DISPLAY
 
 #define INT8        char
 #define UINT8       unsigned char
@@ -173,10 +174,13 @@ extern const int       sUpButtonPin;
 extern const int       sDownButtonPin;
 extern const byte      cI2C_SDA_Pin;
 extern const byte      cI2C_SCL_Pin;
+extern const byte      cSPI_CmdData_Pin;
 extern const byte      cSPI_MISO_Pin;
 extern const byte      cSPI_MOSI_Pin;
 extern const byte      cSPI_CLK_Pin;
 extern const byte      cSPI_Select_Pin;
 extern const int       sServoPin;
+extern const byte      cBogusResetPin;
+extern const byte      cHW_SPI;
 
 #endif   //BECKLIB_H

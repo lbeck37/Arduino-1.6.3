@@ -53,11 +53,14 @@ bool                    bStartedOTA       = false;
     const int       sDownButtonPin   		=  2;
     const byte      cI2C_SDA_Pin      	=  4;
     const byte      cI2C_SCL_Pin      	=  5;
+    const byte      cSPI_CmdData_Pin    =  4;
     const byte      cSPI_MISO_Pin      	= 12;
     const byte      cSPI_MOSI_Pin      	= 13;
     const byte      cSPI_CLK_Pin       	= 14;
     const byte      cSPI_Select_Pin    	= 15;
     const int       sServoPin        		= 16;
+    const byte      cBogusResetPin      =  5;
+    const byte      cHW_SPI             =  0;      //This is what their demo used.
   #else
     //const int       sSelectButton         = A3;
     const int       sDownButton           = A2;
