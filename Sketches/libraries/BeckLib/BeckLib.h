@@ -33,7 +33,15 @@
 
 //#define NO_DISPLAY
 #ifndef NO_DISPLAY
+#ifdef USE_U8GLIB
   #include <U8glib.h>
+#else
+	#include <dog_1701.h>
+	#include <font_16x32nums.h>
+	#include <font_6x8.h>
+	#include <font_8x16.h>
+	#include <font_8x8.h>
+	#include <logo_BLH.h>
 #endif
 
 #define INT8        char
@@ -132,13 +140,19 @@ extern String                   szLogLine;
 extern bool                     bWiFiOn;
 extern bool                     bFirebaseOn;
 extern bool                     bStartedOTA;
+
 #ifdef OTA_SERVER
   extern ESP8266WebServer         oHttpServer;
   extern ESP8266HTTPUpdateServer  oHttpUpdateServer;
 #endif  //OTA_SERVER
 
 #ifndef NO_DISPLAY
-  extern U8GLIB_DOGS102           u8g;
+	#ifdef USE_U8GLIB
+		extern U8GLIB_DOGS102           u8g;
+	#else
+		//Reference display object fot the DOGS102-6 (102x64) display
+		extern dog_1701 DOG;
+	#endif	//USE_U8GLIB
 #endif
 
   extern void LogToBoth(String szLogString);
@@ -157,12 +171,12 @@ extern bool                     bStartedOTA;
 
 extern const int       sUpButtonPin;
 extern const int       sDownButtonPin;
-extern const byte      cI2C_SDAPin;
-extern const byte      cI2C_SCLPin;
-extern const byte      cSPIMISOPin;
-extern const byte      cSPIMOSIPin;
-extern const byte      cSPICLKPin;
-extern const byte      cSPISelectPin;
+extern const byte      cI2C_SDA_Pin;
+extern const byte      cI2C_SCL_Pin;
+extern const byte      cSPI_MISO_Pin;
+extern const byte      cSPI_MOSI_Pin;
+extern const byte      cSPI_CLK_Pin;
+extern const byte      cSPI_Select_Pin;
 extern const int       sServoPin;
 
 #endif   //BECKLIB_H

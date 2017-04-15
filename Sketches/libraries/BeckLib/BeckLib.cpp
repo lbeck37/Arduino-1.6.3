@@ -1,5 +1,5 @@
 //BeckLib.cpp, April 14, 2017
-#define OTA_SERVER
+//#define OTA_SERVER
 #include <BeckLib.h>
 #include <BeckBlynk.h>
 //#define DEBUG_LOGGING
@@ -22,7 +22,12 @@ bool                    bStartedOTA       = false;
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
 //U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 #ifndef NO_DISPLAY
-  U8GLIB_DOGS102 u8g(cSPICLKPin, cSPIMOSIPin, cSPISelectPin, cSPIMISOPin);
+#ifdef USE_U8GLIB
+  U8GLIB_DOGS102 u8g(cSPI_CLK_Pin, cSPI_MOSI_Pin, cSPI_Select_Pin, cSPI_MISO_Pin);
+#else
+	//Create display object fot the DOGS102-6 (102x64) display
+	dog_1701 DOG;
+#endif	//USE_U8GLIB
 #endif
 
 //Digital Pins
@@ -30,29 +35,29 @@ bool                    bStartedOTA       = false;
   //BlynkBeck uses pins 4, 5, 15, 16
   //static const int       sSelectButton;
   //static const int       sBacklightPin;
-  const int       sUpButtonPin     =  0;
-  const int       sDownButtonPin   =  2;
-  const byte      cI2C_SDAPin      =  4;
-  const byte      cI2C_SCLPin      =  5;
-  const byte      cSPIMISOPin      = 12;
-  const byte      cSPIMOSIPin      = 13;
-  const byte      cSPICLKPin       = 14;
-  const byte      cSPISelectPin    = 15;
-  const int       sServoPin        = 16;
+  const int       sUpButtonPin       =  0;
+  const int       sDownButtonPin     =  2;
+  const byte      cI2C_SDA_Pin       =  4;
+  const byte      cI2C_SCL_Pin       =  5;
+  const byte      cSPI_MISO_Pin      = 12;
+  const byte      cSPI_MOSI_Pin      = 13;
+  const byte      cSPI_CLK_Pin       = 14;
+  const byte      cSPI_Select_Pin    = 15;
+  const int       sServoPin          = 16;
 #else   //ESP32
   #ifdef ESP8266
     //BlynkBeck uses pins 4, 5, 15, 16
     //static const int       sSelectButton;
     //static const int       sBacklightPin;
-    const int       sUpButtonPin     =  0;
-    const int       sDownButtonPin   =  2;
-    const byte      cI2C_SDAPin      =  4;
-    const byte      cI2C_SCLPin      =  5;
-    const byte      cSPIMISOPin      = 12;
-    const byte      cSPIMOSIPin      = 13;
-    const byte      cSPICLKPin       = 14;
-    const byte      cSPISelectPin    = 15;
-    const int       sServoPin        = 16;
+    const int       sUpButtonPin     		=  0;
+    const int       sDownButtonPin   		=  2;
+    const byte      cI2C_SDA_Pin      	=  4;
+    const byte      cI2C_SCL_Pin      	=  5;
+    const byte      cSPI_MISO_Pin      	= 12;
+    const byte      cSPI_MOSI_Pin      	= 13;
+    const byte      cSPI_CLK_Pin       	= 14;
+    const byte      cSPI_Select_Pin    	= 15;
+    const int       sServoPin        		= 16;
   #else
     //const int       sSelectButton         = A3;
     const int       sDownButton           = A2;

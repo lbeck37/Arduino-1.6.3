@@ -1,19 +1,25 @@
 String acSketchName  = "BeckPowerShift.ino";
-String acFileDate    = "April 14, 2016 Lenny A";
+String acFileDate    = "April 14, 2016 Lenny F";
 //April 10, 2017:Copied from Powershift.ino "May 16, 2016_HP7AA";
 
-#define OTA_SERVER
-#include <BeckLib.h>
-#include <SPI.h>
-#include <EasyButton.h>
-#include <Servo.h>
-#include <Wire.h>
-//#include <U8glib.h>
-#include <stdarg.h>
+#ifndef NO_I2C
+	#define NO_I2C
+#endif	//NO_I2C
 
 #ifndef ESP8266
 	#define ESP8266
 #endif	//ESP8266
+
+//#define OTA_SERVER
+#include <BeckLib.h>
+#include <SPI.h>
+#include <EasyButton.h>
+#include <Servo.h>
+#ifndef NO_I2C
+	#include <Wire.h>
+#endif	//NO_I2C
+//#include <U8glib.h>
+#include <stdarg.h>
 
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
@@ -99,7 +105,7 @@ static const int       sDefaultBrightness   = sBrightness100;
 
 static const int       sFontNotSet         =   0;
 static const int       sFontNormal         =   1;
-static const int       sFontBig         =   2;
+static const int       sFontBig            =   2;
 static const int       sFontGearNum        =   3;
 static const int       sFontSquare         =   4;
 //End of the const's
@@ -148,11 +154,11 @@ static char        sz10CharString[10];
 //Brought in from BeckESP8266Base.ino
 static const char       		acRouterName[]      = "Aspot24";
 static const char       		acRouterPW[]        = "Qazqaz11";
-static const String     		sDatabaseURL   		= "intense-fire-3958.firebaseio.com";
-static const String     		sFirebaseSecret  	= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
-static const char           	acMyURL[]           = "esp1101Dev";   //Beck, Dev type sensor, #1
-static const String         	sLogPath      		= "/Logs/";
-static const char           	acMyFbaseName[]     = "Powershift_3dotESP";
+static const String     		sDatabaseURL   			= "intense-fire-3958.firebaseio.com";
+static const String     		sFirebaseSecret  		= "LhXHxFsUn7SVYoRC82dKKSqqD67Ls9nfdtMBAWUe";
+static const char           acMyURL[]           = "esp1101Dev";   //Beck, Dev type sensor, #1
+static const String         sLogPath      			= "/Logs/";
+static const char           acMyFbaseName[]     = "Powershift_3dotESP";
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup() {
@@ -218,7 +224,7 @@ void loop() {
 
 
 int sSetupGyro() {
-   //Serial << sLC++ <<"sSetupGyro(): Begin"<< endl;
+#ifndef NO_I2C
    BLog("sSetupGyro(): Begin");
    //Set up the I2C bus.
    Wire.begin();
@@ -226,6 +232,7 @@ int sSetupGyro() {
    Wire.write(0x6B);  // PWR_MGMT_1 register
    Wire.write(0);     // set to zero (wakes up the MPU-6050)
    Wire.endTransmission(true);
+#endif	//NO_I2C
    //Initialize the data array.
    for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
       for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
@@ -237,17 +244,18 @@ int sSetupGyro() {
 
 
 int sSetupServo() {
-   //Serial << sLC++ <<"sSetupServo(): Begin"<< endl;
   BLog("sSetupServo(): Begin");
-   if (bServoOn) {
-      myservo.attach(sServoPin);
-      sServoMove(asGearLocation[sCurrentGear]);
-   }  //if(bServoOn)
-   return 1;
+	if (bServoOn) {
+		LogToSerial("sSetupServo(): Attach Servo to pin ", sServoPin);
+		myservo.attach(sServoPin);
+		sServoMove(asGearLocation[sCurrentGear]);
+	}  //if(bServoOn)
+  return 1;
 } //sSetupServo
 
 
 int sLoopI2C() {
+#ifndef NO_I2C
    int      asGyroReading[sNumGyroTypes][sNumAxis];
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
@@ -295,6 +303,7 @@ int sLoopI2C() {
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;
    }  //if (millis()>ulNextGyroTime)
+#endif	//NO_I2C
    return 1;
 }  //sLoopI2C
 
@@ -615,12 +624,14 @@ int sSetupDisplay() {
     u8g.setRot180();
   }  //if(bFlipDisplay)
 
+/*
    //Set backlight pin to be a PWM "analog" out pin.
    //Drive LED backlight through 15 ohm resistor.
 #ifndef ESP8266
    pinMode(sBacklightPin, OUTPUT);
    sDisplaySetBrightness(sDefaultBrightness);
 #endif
+*/
    return 1;
 }  //sSetupDisplay
 
