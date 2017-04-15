@@ -7,6 +7,8 @@
 //#include <BeckFirebase.h>
 #include <Adafruit_ADS1015.h>   //Just for the defines
 
+#define USE_U8GLIB
+
 #ifndef OTA_SERVER
   #define OTA_SERVER
 #endif  //OTA_SERVER
