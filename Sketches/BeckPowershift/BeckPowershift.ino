@@ -1,5 +1,5 @@
 String acSketchName  = "BeckPowerShift.ino";
-String acFileDate    = "April 15, 2016 Lenny A";
+String acFileDate    = "April 16, 2016 Lenny B";
 //April 10, 2017:Copied from Powershift.ino "May 16, 2016_HP7AA";
 
 #ifndef NO_I2C
@@ -379,7 +379,8 @@ void loop() {
 
 
 	int sSwitchFont(int sFont) {
-		 if (sFont != sCurrentFont) {
+		 //if (sFont != sCurrentFont) {
+		if (1) {
 				switch (sFont) {
 					 case sFontNormal:
 							u8g.setFont(u8g_font_5x7);
@@ -388,7 +389,7 @@ void loop() {
 							//u8g.setFont(u8g_font_fub11n);
 							u8g.setFont(u8g_font_7x13B);
 							break;
-					 case sFontGearNum:
+					 case sFontBigNum:
 							u8g.setFont(u8g_font_fub35n);
 							break;
 					 case sFontSquare:

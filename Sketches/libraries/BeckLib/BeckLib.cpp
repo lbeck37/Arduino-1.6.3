@@ -19,17 +19,6 @@ bool                    bStartedOTA       = false;
   ESP8266HTTPUpdateServer   oHttpUpdateServer(true);
 #endif  //OTA_SERVER
 
-//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
-//U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8);     // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
-#ifndef NO_DISPLAY
-#ifdef USE_U8GLIB
-  U8GLIB_DOGS102 u8g(cSPI_CLK_Pin, cSPI_MOSI_Pin, cSPI_Select_Pin, cSPI_MISO_Pin);
-#else
-	//Create display object fot the DOGS102-6 (102x64) display
-	dog_1701 DOG;
-#endif	//USE_U8GLIB
-#endif
-
 //Digital Pins
 #ifdef ESP32
   //BlynkBeck uses pins 4, 5, 15, 16
@@ -39,6 +28,7 @@ bool                    bStartedOTA       = false;
   const int       sDownButtonPin     =  2;
   const byte      cI2C_SDA_Pin       =  4;
   const byte      cI2C_SCL_Pin       =  5;
+  const byte      cSPI_A0CmdData_Pin =  4;
   const byte      cSPI_MISO_Pin      = 12;
   const byte      cSPI_MOSI_Pin      = 13;
   const byte      cSPI_CLK_Pin       = 14;
@@ -53,7 +43,7 @@ bool                    bStartedOTA       = false;
     const int       sDownButtonPin   		=  2;
     const byte      cI2C_SDA_Pin      	=  4;
     const byte      cI2C_SCL_Pin      	=  5;
-    const byte      cSPI_CmdData_Pin    =  4;
+    const byte      cSPI_A0CmdData_Pin  =  4;
     const byte      cSPI_MISO_Pin      	= 12;
     const byte      cSPI_MOSI_Pin      	= 13;
     const byte      cSPI_CLK_Pin       	= 14;
@@ -73,6 +63,18 @@ bool                    bStartedOTA       = false;
 #endif  //ESP32
 
 bool            bDebugLog= true;   //Used to limit number of printouts.
+
+//U8glibs constructor for DOGS102-6 (sometimes called 1701) display
+//U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8); // Pro Mini SPI: SCK = 13, MOSI = 11, CS = 10, A0 = 9
+#ifndef NO_DISPLAY
+	#ifdef USE_U8GLIB
+		U8GLIB_DOGS102 u8g(cSPI_CLK_Pin, cSPI_MOSI_Pin, cSPI_Select_Pin, cSPI_A0CmdData_Pin);
+	#else
+		//Create display object fot the DOGS102-6 (102x64) display
+		dog_1701 DOG;
+	#endif	//USE_U8GLIB
+#endif
+
 
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
   wl_status_t eStatus;

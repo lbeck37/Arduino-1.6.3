@@ -7,11 +7,13 @@
 //#include <BeckFirebase.h>
 #include <Adafruit_ADS1015.h>   //Just for the defines
 
-#define USE_U8GLIB
-
 #ifndef OTA_SERVER
   #define OTA_SERVER
 #endif  //OTA_SERVER
+
+#ifndef USE_U8GLIB
+  #define USE_U8GLIB
+#endif  //USE_U8GLIB
 
 #ifdef ESP8266
   #include <ESP8266WiFi.h>
