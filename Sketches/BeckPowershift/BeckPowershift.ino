@@ -1,5 +1,5 @@
 String acSketchName  = "BeckPowerShift.ino";
-String acFileDate    = "April 16, 2016 Lenny B";
+String acFileDate    = "April 17, 2016 Lenny A";
 //April 10, 2017:Copied from Powershift.ino "May 16, 2016_HP7AA";
 
 #ifndef NO_I2C
@@ -177,11 +177,11 @@ void setup() {
    //sSetupSmoothing();
 
 #ifndef NO_DISPLAY
-	#ifndef USE_U8GLIB
-		 sShowStartScreen();
+	#ifdef USE_U8GLIB
+	 sSetupDisplay();
+   sDrawStartScreen();
 	#else
-		 sSetupDisplay();
-	   sDrawStartScreen();
+		 sShowStartScreen();
 	#endif	//USE_U8GLIB
 #endif	//NO_DISPLAY
 
@@ -203,10 +203,10 @@ void loop() {
    if (!bStartedOTA) {
     sCheckButtons();
     sLoopI2C();
-		#ifndef USE_U8GLIB
-			sDisplayUpdate();
-		#else
+		#ifdef USE_U8GLIB
 			sDrawMainScreen();
+		#else
+			sDisplayUpdate();
 		#endif	//USE_U8GLIB
     //sTestContrast();
     sHandleButtons();
@@ -218,11 +218,130 @@ void loop() {
 }  //loop()
 
 
-#ifndef USE_U8GLIB
-	//DOG display library code
+#ifdef USE_U8GLIB
+//u8g display library code
+int sSetupDisplay() {
+/*
+	 Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
+	 Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
+*/
+	BLog("sSetupDisplay(): Begin");
+	BLog("sSetupDisplay(): Set Contrast to " + String(ucContrast));
+
+	u8g.setContrast(ucContrast);
+	sSwitchFont(sFontNormal);
+	u8g.setColorIndex(1);
+	if (bFlipDisplay) {
+		u8g.setRot180();
+	}  //if(bFlipDisplay)
+
+/*
+	 //Set backlight pin to be a PWM "analog" out pin.
+	 //Drive LED backlight through 15 ohm resistor.
+#ifndef ESP8266
+	 pinMode(sBacklightPin, OUTPUT);
+	 sDisplaySetBrightness(sDefaultBrightness);
+#endif
+*/
+	 return 1;
+}  //sSetupDisplay
+
+
+int sTestContrast() {
+	 for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
+			//Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
+		 BLog("sTestContrast(): Contrast= " + sContrast);
+			u8g.setContrast(sContrast);
+			delay(1000);
+	 }  //for(int sContrast=0...
+	 return 1;
+}  //sTestContrast
+
+
+int sDrawStartScreen(void) {
+	 //u8g.undoRotation();
+	 //u8g.setRot180();
+	 u8g.firstPage();
+	 do {
+#ifndef NO_DISPLAY
+			sDisplaySplash();
+#endif
+	 } while(u8g.nextPage());
+
+	 delay(sSplashDelay);
+	 return 1;
+}  //sDrawStartScreen
+
+
+int sDrawMainScreen(void) {
+	 //u8g.undoRotation();
+	 //u8g.setRot180();
+	 u8g.firstPage();
+	 do {
+			sDisplayMainObjects();
+	 } while(u8g.nextPage());
+	 return 1;
+}  //sDrawMainScreen
+
+
+int sDisplaySplash(void) {
+#if 0
+   sDisplayText(0, sLPixel(1), sFontNormal, "PowerShift");
+   sDisplayText(0, sLPixel(2), sFontNormal, "  by ShiftE");
+   //Lines in normal font
+   sDisplayText(20, sLPixel(5), sFontNormal, szSplashLine1);
+   sDisplayText(0, sLPixel(6), sFontNormal, szSplashLine2);
+   sDisplayText(0, sLPixel(7), sFontNormal, szSplashLine3);
+#endif
+   sDisplayText(10, 5, sFontBig, szSplashLine4);
+   sDisplayText(10, 20, sFontBig, szSplashLine5);
+
+   sDisplayText(8, 37, sFontNormal, szSplashLine1);
+   sDisplayText(6, 46, sFontNormal, szSplashLine2);
+   sDisplayText(6, 55, sFontNormal, szSplashLine3);
+   return 1;
+}  //sDisplaySplash
+
+
+int sSwitchFont(int sFont) {
+	 //if (sFont != sCurrentFont) {
+	if (1) {
+			switch (sFont) {
+				 case sFontNormal:
+						u8g.setFont(u8g_font_5x7);
+						break;
+				 case sFontBig:
+						//u8g.setFont(u8g_font_fub11n);
+						u8g.setFont(u8g_font_7x13B);
+						break;
+				 case sFontBigNum:
+						u8g.setFont(u8g_font_fub35n);
+						break;
+				 case sFontSquare:
+						break;
+				 default:
+						//Serial << "sSwitchFont(): Bad case in switch()= " << sFont << endl;
+					 BLog("sSwitchFont(): Bad case in switch()= " + sFont);
+						break;
+			}  //switch
+			//Set the reference position for the font.
+			u8g.setFontRefHeightExtendedText();
+			u8g.setFontPosTop();
+	 }  //if(sFont!=sCurrentFont)
+	 return 1;
+}  //sSwitchFont
+
+
+int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
+	 sSwitchFont(sFont);
+	 u8g.drawStr( sXpixel, sYpixel, pcText);
+	 return 1;
+}  //sDisplayText
+#else
+//DOG display library code
 	int sDisplayBegin() {
-		 DOG.initialize(cSPI_Select_Pin, cHW_SPI       , cHW_SPI,
-										cSPI_CmdData_Pin   , cBogusResetPin, DOGS102);
+		 DOG.initialize(cSPI_Select_Pin,    cHW_SPI,        cHW_SPI,
+										cSPI_A0CmdData_Pin, cBogusResetPin, DOGS102);
 		 DOG.view(sDisplayNormal);  //View screen Normal or Flipped
 		 //Set backlight pin to be a PWM "analog" out pin.
 		 //Drive LED backlight through 15 ohm resistor.
@@ -293,125 +412,6 @@ void loop() {
 	   DOG.clear();  //clear whole display
 	   return 1;
 	}  //sDisplayClear
-#else
-	//u8g display library code
-	int sSetupDisplay() {
-	/*
-		 Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
-		 Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
-	*/
-		BLog("sSetupDisplay(): Begin");
-		BLog("sSetupDisplay(): Set Contrast to " + String(ucContrast));
-
-		u8g.setContrast(ucContrast);
-		sSwitchFont(sFontNormal);
-		u8g.setColorIndex(1);
-		if (bFlipDisplay) {
-			u8g.setRot180();
-		}  //if(bFlipDisplay)
-
-	/*
-		 //Set backlight pin to be a PWM "analog" out pin.
-		 //Drive LED backlight through 15 ohm resistor.
-	#ifndef ESP8266
-		 pinMode(sBacklightPin, OUTPUT);
-		 sDisplaySetBrightness(sDefaultBrightness);
-	#endif
-	*/
-		 return 1;
-	}  //sSetupDisplay
-
-
-	int sTestContrast() {
-		 for (int sContrast= 50; sContrast <= 125; sContrast += 25) {
-				//Serial << sLC++ <<"sTestContrast(): Contrast= "<< sContrast << endl;
-			 BLog("sTestContrast(): Contrast= " + sContrast);
-				u8g.setContrast(sContrast);
-				delay(1000);
-		 }  //for(int sContrast=0...
-		 return 1;
-	}  //sTestContrast
-
-
-	int sDrawStartScreen(void) {
-		 //u8g.undoRotation();
-		 //u8g.setRot180();
-		 u8g.firstPage();
-		 do {
-	#ifndef NO_DISPLAY
-				sDisplaySplash();
-	#endif
-		 } while(u8g.nextPage());
-
-		 delay(sSplashDelay);
-		 return 1;
-	}  //sDrawStartScreen
-
-
-	int sDrawMainScreen(void) {
-		 //u8g.undoRotation();
-		 //u8g.setRot180();
-		 u8g.firstPage();
-		 do {
-				sDisplayMainObjects();
-		 } while(u8g.nextPage());
-		 return 1;
-	}  //sDrawMainScreen
-
-
-	int sDisplaySplash(void) {
-	#if 0
-	   sDisplayText(0, sLPixel(1), sFontNormal, "PowerShift");
-	   sDisplayText(0, sLPixel(2), sFontNormal, "  by ShiftE");
-	   //Lines in normal font
-	   sDisplayText(20, sLPixel(5), sFontNormal, szSplashLine1);
-	   sDisplayText(0, sLPixel(6), sFontNormal, szSplashLine2);
-	   sDisplayText(0, sLPixel(7), sFontNormal, szSplashLine3);
-	#endif
-	   sDisplayText(10, 5, sFontBig, szSplashLine4);
-	   sDisplayText(10, 20, sFontBig, szSplashLine5);
-
-	   sDisplayText(8, 37, sFontNormal, szSplashLine1);
-	   sDisplayText(6, 46, sFontNormal, szSplashLine2);
-	   sDisplayText(6, 55, sFontNormal, szSplashLine3);
-	   return 1;
-	}  //sDisplaySplash
-
-
-	int sSwitchFont(int sFont) {
-		 //if (sFont != sCurrentFont) {
-		if (1) {
-				switch (sFont) {
-					 case sFontNormal:
-							u8g.setFont(u8g_font_5x7);
-							break;
-					 case sFontBig:
-							//u8g.setFont(u8g_font_fub11n);
-							u8g.setFont(u8g_font_7x13B);
-							break;
-					 case sFontBigNum:
-							u8g.setFont(u8g_font_fub35n);
-							break;
-					 case sFontSquare:
-							break;
-					 default:
-							//Serial << "sSwitchFont(): Bad case in switch()= " << sFont << endl;
-						 BLog("sSwitchFont(): Bad case in switch()= " + sFont);
-							break;
-				}  //switch
-				//Set the reference position for the font.
-				u8g.setFontRefHeightExtendedText();
-				u8g.setFontPosTop();
-		 }  //if(sFont!=sCurrentFont)
-		 return 1;
-	}  //sSwitchFont
-
-
-	int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
-		 sSwitchFont(sFont);
-		 u8g.drawStr( sXpixel, sYpixel, pcText);
-		 return 1;
-	}  //sDisplayText
 #endif	//USE_U8GLIB
 
 

@@ -11,9 +11,17 @@
   #define OTA_SERVER
 #endif  //OTA_SERVER
 
+/*
+#ifdef USE_U8GLIB
+  #undef USE_U8GLIB
+#endif  //USE_U8GLIB
+*/
+
+/*
 #ifndef USE_U8GLIB
   #define USE_U8GLIB
 #endif  //USE_U8GLIB
+*/
 
 #ifdef ESP8266
   #include <ESP8266WiFi.h>
@@ -155,7 +163,7 @@ extern bool                     bStartedOTA;
 	#ifdef USE_U8GLIB
 		extern U8GLIB_DOGS102           u8g;
 	#else
-		//Reference display object fot the DOGS102-6 (102x64) display
+		//Reference display object for the DOGS102-6 (102x64) display
 		extern dog_1701 DOG;
 	#endif	//USE_U8GLIB
 #endif
@@ -178,7 +186,7 @@ extern const int       sUpButtonPin;
 extern const int       sDownButtonPin;
 extern const byte      cI2C_SDA_Pin;
 extern const byte      cI2C_SCL_Pin;
-extern const byte      cSPI_CmdData_Pin;
+extern const byte      cSPI_A0CmdData_Pin;
 extern const byte      cSPI_MISO_Pin;
 extern const byte      cSPI_MOSI_Pin;
 extern const byte      cSPI_CLK_Pin;
