@@ -17,11 +17,9 @@
 #endif  //USE_U8GLIB
 */
 
-/*
 #ifndef USE_U8GLIB
   #define USE_U8GLIB
 #endif  //USE_U8GLIB
-*/
 
 #ifdef ESP8266
   #include <ESP8266WiFi.h>

@@ -1,5 +1,5 @@
 String acSketchName  = "BeckPowerShift.ino";
-String acFileDate    = "April 17, 2016 Lenny A";
+String acFileDate    = "April 17, 2016 Lenny G";
 //April 10, 2017:Copied from Powershift.ino "May 16, 2016_HP7AA";
 
 #ifndef NO_I2C
@@ -10,7 +10,8 @@ String acFileDate    = "April 17, 2016 Lenny A";
 	#define ESP8266
 #endif	//ESP8266
 
-//#define OTA_SERVER
+#define USE_U8GLIB
+
 #include <BeckLib.h>
 #include <SPI.h>
 #include <EasyButton.h>
@@ -225,7 +226,7 @@ int sSetupDisplay() {
 	 Serial << sLC++ <<"sSetupDisplay(): Begin"<< endl;
 	 Serial << sLC++ <<"sSetupDisplay(): Set Contrast to "<< ucContrast << endl;
 */
-	BLog("sSetupDisplay(): Begin");
+	BLog("sSetupDisplay() u8g: Begin");
 	BLog("sSetupDisplay(): Set Contrast to " + String(ucContrast));
 
 	u8g.setContrast(ucContrast);
@@ -276,6 +277,7 @@ int sDrawStartScreen(void) {
 int sDrawMainScreen(void) {
 	 //u8g.undoRotation();
 	 //u8g.setRot180();
+	 //BLog("sDrawMainScreen() u8g: Begin");
 	 u8g.firstPage();
 	 do {
 			sDisplayMainObjects();
@@ -293,6 +295,7 @@ int sDisplaySplash(void) {
    sDisplayText(0, sLPixel(6), sFontNormal, szSplashLine2);
    sDisplayText(0, sLPixel(7), sFontNormal, szSplashLine3);
 #endif
+	 BLog("sDisplaySplash() u8g: Begin");
    sDisplayText(10, 5, sFontBig, szSplashLine4);
    sDisplayText(10, 20, sFontBig, szSplashLine5);
 
@@ -339,16 +342,25 @@ int sDisplayText(int sXpixel, int sYpixel, int sFont, const char *pcText) {
 }  //sDisplayText
 #else
 //DOG display library code
-	int sDisplayBegin() {
-		 DOG.initialize(cSPI_Select_Pin,    cHW_SPI,        cHW_SPI,
-										cSPI_A0CmdData_Pin, cBogusResetPin, DOGS102);
-		 DOG.view(sDisplayNormal);  //View screen Normal or Flipped
-		 //Set backlight pin to be a PWM "analog" out pin.
-		 //Drive LED backlight through 15 ohm resistor.
-		 //pinMode(sBacklightPin, OUTPUT);
-		 //sDisplaySetBrightness(sDefaultBrightness);
-		 return 1;
-	}  //sDisplayBegin
+int sDisplayBegin() {
+	//dog_1701::initialize(byte p_cs, byte p_si, byte p_clk, byte p_a0, byte p_res, byte type)
+	//initialize(cSPI_Select_Pin,    cSPI_MOSI_Pin,  cSPI_CLK_Pin,
+	//           cSPI_A0CmdData_Pin, cBogusResetPin, DOGS102)
+	// If 2nd & 3rd parameters (MOSI and CLK) are the same it's HW SPI, otherwise SW
+	//	DOG.initialize(cSPI_Select_Pin,    cHW_SPI,        cHW_SPI,
+	//									cSPI_A0CmdData_Pin, cBogusResetPin, DOGS102);
+	Serial << LOG0 << "sDisplayBegin(): Call DOG.initialize( " << cSPI_Select_Pin
+			   << ", " << cSPI_MOSI_Pin << ", " << cSPI_CLK_Pin << ", " << cSPI_A0CmdData_Pin
+				 << ", " << cBogusResetPin << ", " << DOGS102 << ")" << endl;
+  DOG.initialize(cSPI_Select_Pin,    cSPI_MOSI_Pin,  cSPI_CLK_Pin,
+								 cSPI_A0CmdData_Pin, cBogusResetPin, DOGS102);
+	DOG.view(sDisplayNormal);  //View screen Normal or Flipped
+	 //Set backlight pin to be a PWM "analog" out pin.
+	 //Drive LED backlight through 15 ohm resistor.
+	 //pinMode(sBacklightPin, OUTPUT);
+	 //sDisplaySetBrightness(sDefaultBrightness);
+	 return 1;
+}  //sDisplayBegin
 
 
 	int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
