@@ -10,7 +10,7 @@ extern float        fLastDegF;
 extern int          sSetpointF;
 extern int          sThermoTimesCount;
 extern bool         bThermoOn;
-extern bool         bFurnaceOn;
+extern bool         bHeatOn;
 extern float        fThermoOffDegF;
 extern const long   sThermoTimesInRow;
 extern const float  fMaxHeatRangeF;
@@ -38,10 +38,10 @@ extern const uint8_t ucGrey2PowerPin;
 extern const uint8_t ucGrey2LevelPin;
 
 //Function protos.
-extern void     HandleFurnaceSwitch();
-extern void     TurnFurnaceOn(bool bTurnOn);
+extern void     HandleHeatSwitch();
+extern void     TurnHeatOn(bool bTurnOn);
 extern void     SetThermoState(int sSwitchState);
-extern void     SetFurnaceSwitch(int sSwitchState);
+extern void     SetHeatSwitch(int sSwitchState);
 extern void     SetSwitch(int sSwitch, int sSwitchState);
 extern float    fGetDegF(bool bTakeReading);
 

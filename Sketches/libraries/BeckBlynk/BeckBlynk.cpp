@@ -299,7 +299,7 @@ BLYNK_WRITE(ThermoSwitch_V4){
   String szLogString= "ThermoSwitch_V4 ";
   LogToBoth(szLogString, sParam);
   SetThermoState(sParam);
-  HandleFurnaceSwitch();
+  HandleHeatSwitch();
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
   SendIntToBlynk(GetSetpointF_V3, sSetpointF);

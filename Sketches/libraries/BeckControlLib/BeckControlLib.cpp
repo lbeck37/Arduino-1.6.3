@@ -9,7 +9,7 @@ const int    sOn                   = 1;
 const int    sNotInit              = -3737;
 
 const int    sNumSwitches          = 3;
-const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
+const int    sHeatSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
 const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
@@ -19,7 +19,7 @@ float        fLastDegF             = 37.37;  //Last temperature reading.
 int          sSetpointF            = 37;
 int          sThermoTimesCount     = 0;      //Number of times temperature out of range
 bool         bThermoOn             = true;   //Whether thermostat is running.
-bool         bFurnaceOn            = false;  //If switch is on to turn on furnace.
+bool         bHeatOn            = false;  //If switch is on to turn on furnace.
 float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 
 //const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    	//0 is not a switch, switches are at 1,2,3,4
@@ -37,41 +37,41 @@ OneWire      oOneWire(sOneWirePin);
 /*Tell Dallas Temperature Library to use oneWire Library */
 DallasTemperature   oSensors(&oOneWire);
 
-void HandleFurnaceSwitch(){
-  String szLogString = "HandleFurnaceSwitch(): bFurnaceOn";
-  LogToBoth(szLogString, bFurnaceOn);
-  //Serial << LOG0 << "HandleFurnaceSwitch(): bThermoOn, bFurnaceOn " << bThermoOn << ", " << bFurnaceOn << endl;
+void HandleHeatSwitch(){
+  String szLogString = "HandleHeatSwitch(): bHeatOn";
+  LogToBoth(szLogString, bHeatOn);
+  //Serial << LOG0 << "HandleHeatSwitch(): bThermoOn, bFurnaceOn " << bThermoOn << ", " << bFurnaceOn << endl;
   //Make sure  switch state represents bHeatOn correctly.
-  if (bFurnaceOn){
+  if (bHeatOn){
     //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOn" << endl;
-    asSwitchState[sFurnaceSwitchNum]= sOn;
-  } //if(bFurnaceOn)
+    asSwitchState[sHeatSwitchNum]= sOn;
+  } //if(bHeatOn)
   else{
     //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOff" << endl;
-    asSwitchState[sFurnaceSwitchNum]= sOff;
+    asSwitchState[sHeatSwitchNum]= sOff;
   } //if(bFurnaceOn)else
-  SetSwitch(sFurnaceSwitchNum, asSwitchState[sFurnaceSwitchNum]);
+  SetSwitch(sHeatSwitchNum, asSwitchState[sHeatSwitchNum]);
   return;
-} //HandleFurnaceSwitch
+} //HandleHeatSwitch
 
 
-void TurnFurnaceOn(bool bTurnOn){
+void TurnHeatOn(bool bTurnOn){
   if (bTurnOn){
-    String szLogString= "TurnFurnaceOn(): Furnace turned ON";
+    String szLogString= "TurnHeatOn(): Heat turned ON";
     LogToBoth(szLogString);
-    bFurnaceOn= true;
-    SetFurnaceSwitch(sSwitchClosed);
+    bHeatOn= true;
+    SetHeatSwitch(sSwitchClosed);
     sThermoTimesCount= 0;
   } //if(bTurnOn)
   else{
-    String szLogString= "TurnFurnaceOn(): Furnace turned OFF";
+    String szLogString= "TurnHeatOn(): Heat turned OFF";
     LogToBoth(szLogString);
-    bFurnaceOn= false;
-    SetFurnaceSwitch(sSwitchOpen);
+    bHeatOn= false;
+    SetHeatSwitch(sSwitchOpen);
     sThermoTimesCount= 0;
   } //if(bTurnOn)else
   return;
-} //TurnFurnaceOn
+} //TurnHeatOn
 
 
 void SetThermoState(int sSwitchState){
@@ -81,18 +81,18 @@ void SetThermoState(int sSwitchState){
   } //if(sState==sOn)
   else{
     bThermoOn= false;
-    bFurnaceOn= false;
+    bHeatOn= false;
     sThermoTimesCount= 0;
-    SetFurnaceSwitch(sSwitchOpen);
+    SetHeatSwitch(sSwitchOpen);
   } //if(sState==sOn)else
   return;
 } //SetThermoState
 
 
-void SetFurnaceSwitch(int sSwitchState){
-  SetSwitch(sFurnaceSwitchNum, sSwitchState);
+void SetHeatSwitch(int sSwitchState){
+  SetSwitch(sHeatSwitchNum, sSwitchState);
   return;
-} //SetFurnaceSwitch
+} //SetHeatSwitch
 
 
 void SetSwitch(int sSwitch, int sSwitchState){

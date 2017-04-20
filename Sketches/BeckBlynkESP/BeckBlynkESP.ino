@@ -1,15 +1,16 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "Apr 1, 2017 -A- Lenny";
+static const char szFileDate[]    = "Apr 18, 2017 -B- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-#define GARAGE
+//#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
 //#define DEV_REMOTE
 //#define TANK_MONITOR
+#define HOT_TUB
 
 //#include <BeckLib.h>
 #include <BeckBlynk.h>
@@ -40,13 +41,14 @@ static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sDevRemote            = 7;
 static const int    sTankMonitor          = 8;
+static const int    sHotTub          			= 9;
 
-static const char   szRouterName[]        = "P291spot";
-static const char   szRouterPW[]          = "Wsxwsx22";
+//static const char   szRouterName[]        = "P291spot";
+//static const char   szRouterPW[]          = "Wsxwsx22";
 
-//static const char   szRouterName[]        = "Aspot24";
+static const char   szRouterName[]        = "Aspot24";
 //static const char   szRouterName[]        = "TPspot";
-//static const char   szRouterPW[]          = "Qazqaz11";
+static const char   szRouterPW[]          = "Qazqaz11";
 
 static const char   acHostname[]          = "esp37";
 
@@ -97,6 +99,11 @@ static const char   acHostname[]          = "esp37";
   static const char acBlynkAuthToken[]  = "a74c478f829945c2bb5eb9bb88c9f406";
   static const char szProjectType[]     = "TANK_MONITOR";
   static const int  sProjectType        = sTankMonitor;
+#endif
+#ifdef HOT_TUB
+  static const char acBlynkAuthToken[]  = "a1ac9db4af734950bafa6d072b0e7ca8";
+  static const char szProjectType[]     = "HOT_TUB";
+  static const int  sProjectType        = sHotTub;
 #endif
 
 static unsigned long  ulNextHandlerMsec     = 0;
@@ -243,11 +250,12 @@ void HandleSystem(){
       case sFireplace:
         HandleFireplace();
         break;
+      case sHotTub:
       case sGarage:
       case sGarageLocal:
         HandleThermostat();
         //HandleBlynkLEDs();
-        HandleFurnaceSwitch();
+        HandleHeatSwitch();
         break;
       case sHeater:
         HandleHeater();
@@ -318,26 +326,26 @@ void HandleThermostat(){
     float fDegF= fGetDegF(true);
     float fRoundDegF= fRound(fDegF);
     DebugHandleThermostat(fDegF);
-    if (bFurnaceOn){
+    if (bHeatOn){
       if (fRoundDegF >= fThermoOffDegF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnFurnaceOn(false);
+          TurnHeatOn(false);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
       } //if(fRoundDegF>=fThermoOffDegF)
       else{
         sThermoTimesCount= 0;
       } //if(fRoundDegF>=fThermoOffDegF)else
-    } //if(bFurnaceOn)
+    } //if(bHeatOn)
     else{
       if (fRoundDegF <= sSetpointF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnFurnaceOn(true);
+          TurnHeatOn(true);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
       } //if(fRoundDegF<sSetpointF)
       else{
         sThermoTimesCount= 0;
       } //if(fRoundDegF<sSetpointF)else
-    } //if(bFurnaceOn)else
+    } //if(bHeatOn)else
   } //if(bThermoOn)
   else{
     LogToBoth(szLogString);
@@ -360,7 +368,7 @@ void DebugHandleThermostat(float fDegF){
   szLogString= " OffDegF=";
   LogToBoth(szLogString, fThermoOffDegF);
   szLogString= " bFurnaceOn=";
-  LogToBoth(szLogString, bFurnaceOn);
+  LogToBoth(szLogString, bHeatOn);
   szLogString= " OnCount=";
   LogToBoth(szLogString, sThermoTimesCount);
   return;
