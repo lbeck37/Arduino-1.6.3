@@ -2,6 +2,7 @@
 #ifndef BECKCONTROLLIB_H
 #define BECKCONTROLLIB_H
 #include <BeckLib.h>
+//#include <BeckOneWire.h>
 #include <DallasTemperature.h>
 
 extern int          asSwitchState[];
