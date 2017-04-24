@@ -1,6 +1,6 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "Apr 18, 2017 -B- Lenny";
+static const char szFileDate[]    = "Apr 23, 2017 -B- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -10,7 +10,8 @@ static const char szFileDate[]    = "Apr 18, 2017 -B- Lenny";
 //#define DEV_LOCAL
 //#define DEV_REMOTE
 //#define TANK_MONITOR
-#define HOT_TUB
+//#define HOT_TUB
+#define HOT_TUB_V2
 
 //#include <BeckLib.h>
 #include <BeckBlynk.h>
@@ -42,6 +43,7 @@ static const int    sDevLocal             = 6;
 static const int    sDevRemote            = 7;
 static const int    sTankMonitor          = 8;
 static const int    sHotTub          			= 9;
+static const int    sHotTubV2          		= 10;
 
 //static const char   szRouterName[]        = "P291spot";
 //static const char   szRouterPW[]          = "Wsxwsx22";
@@ -104,6 +106,11 @@ static const char   acHostname[]          = "esp37";
   static const char acBlynkAuthToken[]  = "a1ac9db4af734950bafa6d072b0e7ca8";
   static const char szProjectType[]     = "HOT_TUB";
   static const int  sProjectType        = sHotTub;
+#endif
+#ifdef HOT_TUB_V2
+  static const char acBlynkAuthToken[]  = "aeeef3b69d9d477ba6edf91c8e42fe72";
+  static const char szProjectType[]     = "HOT_TUB_V2";
+  static const int  sProjectType        = sHotTubV2;
 #endif
 
 static unsigned long  ulNextHandlerMsec     = 0;
@@ -251,6 +258,7 @@ void HandleSystem(){
         HandleFireplace();
         break;
       case sHotTub:
+      case sHotTubV2:
       case sGarage:
       case sGarageLocal:
         HandleThermostat();
