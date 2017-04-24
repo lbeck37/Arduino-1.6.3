@@ -131,8 +131,8 @@ static char        sz10CharString[10];
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
-  Serial.begin(9600);
-  Serial << "Begin setup()" << endl;
+  Serial.begin(115200);
+  Serial << "Powershift_DOGS102.ino, Apr 16, 2017 A" << endl;
   Serial << "Free Ram= " << freeRam() << endl;
 
   sFillGearLocations();

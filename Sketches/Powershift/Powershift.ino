@@ -1,6 +1,14 @@
 String acSketchName  = "PowerShift.ino";
 String acFileDate    = "May 16, 2016_HP7AA";
 
+#ifndef ESP8266
+	#define ESP8266
+#endif	//ESP8266
+
+#ifndef USE_U8GLIB
+	#define USE_U8GLIB
+#endif	//USE_U8GLIB
+
 #include <BeckLib.h>
 #include <LBeck37.h>
 #include <SPI.h>
@@ -166,8 +174,8 @@ void setup() {
 
    SetupWiFi(acRouterName, acRouterPW);
 
-   StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
-   SendInfoToLog();
+   //StartBeckFirebase(sDatabaseURL, sFirebaseSecret, sLogPath, acMyFbaseName);
+   //SendInfoToLog();
 
 
 #ifndef NO_DISPLAY

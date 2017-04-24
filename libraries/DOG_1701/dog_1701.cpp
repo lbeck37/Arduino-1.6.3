@@ -10,7 +10,7 @@
 
 #include <Arduino.h>
 #include <SPI.h>
-#include <avr/pgmspace.h>
+//Beck #include <avr/pgmspace.h>
 
 #include "dog_1701.h"
 

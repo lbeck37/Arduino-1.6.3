@@ -1,5 +1,5 @@
 String acSketchName  = "Flojet.ino";
-String acFileDate    = "July 6, 2016_HP7_B";
+String acFileDate    = "January 27, 2017_HP7_A";
 // Sketch to use relays 1 and 2 in parallel to power FloJet on and off
 // 7/5/16 Use Maxim/Dallas 1-wire DS18B20 Temp sensor in in 1-wire configuration
 // 7/4/16 Add (2) TMP36 temp sensors for motor case and outlet air.
