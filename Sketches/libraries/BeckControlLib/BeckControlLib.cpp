@@ -15,7 +15,6 @@ const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat i
 
 int          asSwitchState[]       = {0, 0, 0, 0, 0};
 int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-float        fLastDegF             = 37.37;  //Last temperature reading.
 int          sSetpointF            = 37;
 int          sThermoTimesCount     = 0;      //Number of times temperature out of range
 bool         bThermoOn             = true;   //Whether thermostat is running.
@@ -30,12 +29,6 @@ float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 const int    asSwitchPin[]         = {-1, 12, 13, 14, 14};      //0 is not a switch, switches are at 1,2,3,4
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
-
-const int    sOneWirePin           = 12;  //Dallas DS18B20 Temperature Sensor
-
-OneWire      oOneWire(sOneWirePin);
-/*Tell Dallas Temperature Library to use oneWire Library */
-DallasTemperature   oSensors(&oOneWire);
 
 void HandleHeatSwitch(){
   String szLogString = "HandleHeatSwitch(): bHeatOn";
@@ -127,20 +120,4 @@ void SetSwitch(int sSwitch, int sSwitchState){
   //HandleBlynkLEDs();
   return;
 } //SetSwitch
-
-
-float fGetDegF(bool bTakeReading){
-  float fDegFReturn= 37.37;   //Value used for default in testing w/o reading sensor. fLastDegF
-#ifdef ESP8266
-  if (bTakeReading){
-    oSensors.requestTemperatures(); // Send the command to get temperatures
-    fDegFReturn= oSensors.getTempFByIndex(0);
-    fLastDegF= fDegFReturn;
-  } //if(bTakeReading)
-  else{
-    fDegFReturn= fLastDegF;
-  } //if(bTakeReading)else
-#endif
-  return fDegFReturn;
-}  //fGetDegF
 //Last line.

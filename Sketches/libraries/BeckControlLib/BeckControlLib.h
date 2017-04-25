@@ -2,8 +2,7 @@
 #ifndef BECKCONTROLLIB_H
 #define BECKCONTROLLIB_H
 #include <BeckLib.h>
-//#include <BeckOneWire.h>
-#include <DallasTemperature.h>
+#include <BeckOneWire.h>
 
 extern int          asSwitchState[];
 extern int          asSwitchLastState[];
@@ -25,8 +24,6 @@ extern const int    sNotInit;
 extern const int    sNumSwitches;
 extern const int    asSwitchPin[];    //0 is not a switch, switches are at 1,2,3,4
 
-extern DallasTemperature   oSensors;
-
 //ESP32 AtoD Input Pins
 extern const int  sNumTanks;
 extern const int  sPinsPerTank;
@@ -44,6 +41,5 @@ extern void     TurnHeatOn(bool bTurnOn);
 extern void     SetThermoState(int sSwitchState);
 extern void     SetHeatSwitch(int sSwitchState);
 extern void     SetSwitch(int sSwitch, int sSwitchState);
-extern float    fGetDegF(bool bTakeReading);
 
 #endif  //BECKCONTROLLIB_H
