@@ -8,4 +8,15 @@ extern DallasTemperature   oSensors;
 
 extern float    fGetDegF(bool bTakeReading);
 
+class BeckOneWire {
+protected:
+
+public:
+	BeckOneWire(DeviceAddress aucDeviceAddress);
+
+private:
+	DeviceAddress		aucDeviceAddress_;
+
+};	//BeckOneWire
+
 #endif  //BECKONEWIRE_H

@@ -23,4 +23,12 @@ float fGetDegF(bool bTakeReading){
 #endif
   return fDegFReturn;
 }  //fGetDegF
+
+BeckOneWire::BeckOneWire(DeviceAddress aucDeviceAddress) {
+	//Copy the 8 address bytes
+	for (int sByte= 0; sByte < 8; sByte++) {
+			aucDeviceAddress_[sByte]= aucDeviceAddress[sByte];
+	}
+	return;
+}	//Constructor
 //Last line.
