@@ -178,9 +178,13 @@ void SetupDevices() {
   //SetupDisplay();
 
   pBeckDisplay    = new BeckDisplay();
-  pBeckAtoD       = new BeckAtoD(pBeckI2C, eADS1115);
-  pBeckBlynk      = new BeckBlynk(acBlynkAuthToken, pBeckAtoD);
-  pBeckTanks      = new BeckTanks(pBeckAtoD, pBeckDisplay);
+  pBeckAtoD       = new BeckAtoD		(pBeckI2C, eADS1115);
+  pBeckBlynk      = new BeckBlynk		(acBlynkAuthToken, pBeckAtoD);
+  pBeckTanks      = new BeckTanks		(pBeckAtoD, pBeckDisplay);
+
+  pOneWireV40			= new BeckOneWire	(acOneWireV40);
+  pOneWireV41			= new BeckOneWire	(acOneWireV41);
+  pOneWireV42			= new BeckOneWire	(acOneWireV42);
 
   if (false && pBeckI2C->bDevicePresent(eGyro)) {
     pBeckGyro= new BeckGyro(pBeckI2C);

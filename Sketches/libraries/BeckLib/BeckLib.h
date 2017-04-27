@@ -55,8 +55,8 @@
 	#endif	//USE_U8GLIB
 #endif	//NO_DISPLAY
 
-#define INT8        char
-#define UINT8       unsigned char
+#define INT8        int8_t
+#define UINT8       uint8_t
 #define INT16       int16_t
 #define UINT16      uint16_t
 #define INT32       int32_t

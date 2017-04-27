@@ -9,7 +9,11 @@
   #include <BlynkSimpleEsp32.h>
 #endif  //ESP32
 
-//Define Virtual Pin names
+//Define Virtual Pin names (V0 - V127)
+#define ReadF_V40         V40
+#define ReadF_V41         V41
+#define ReadF_V42         V42
+
 #define ReadF_V0          V0
 #define ReadF_V1          V1
 #define SetSetpointF_V2   V2
@@ -250,6 +254,36 @@ void SendIntToBlynk(int sVirtualPin, int sValue){
 //and returns the value or state of some variable.
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
 //and pass a variable in the "param" object.
+BLYNK_READ(ReadF_V40){
+  bool bTakeReading= true;
+  float fDegF= pOneWireV40->fGetDegF(bTakeReading);
+  String szLogString= "Read ReadF_V40 ";
+  LogToBoth(szLogString, fDegF);
+
+  Blynk.virtualWrite(ReadF_V40, fDegF);
+} //BLYNK_READ(ReadF_V41)
+
+
+BLYNK_READ(ReadF_V41){
+  bool bTakeReading= true;
+  float fDegF= pOneWireV41->fGetDegF(bTakeReading);
+  String szLogString= "Read ReadF_V41 ";
+  LogToBoth(szLogString, fDegF);
+
+  Blynk.virtualWrite(ReadF_V41, fDegF);
+} //BLYNK_READ(ReadF_V41)
+
+
+BLYNK_READ(ReadF_V42){
+  bool bTakeReading= true;
+  float fDegF= pOneWireV42->fGetDegF(bTakeReading);
+  String szLogString= "Read ReadF_V42 ";
+  LogToBoth(szLogString, fDegF);
+
+  Blynk.virtualWrite(ReadF_V42, fDegF);
+} //BLYNK_READ(ReadF_V42)
+
+
 BLYNK_READ(ReadF_V0){
   bool bTakeReading= true;
   float fDegF= fGetDegF(bTakeReading);
