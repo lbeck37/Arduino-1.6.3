@@ -16,7 +16,7 @@
 #include <DallasTemperature.h>
 
 /*-----( Declare Constants and Pin Numbers )-----*/
-#define ONE_WIRE_BUS_PIN 2
+#define ONE_WIRE_BUS_PIN 12
 
 /*-----( Declare objects )-----*/
 // Setup a oneWire instance to communicate with any OneWire devices
@@ -52,7 +52,7 @@ void setup()   /****** SETUP: RUNS ONCE ******/
 {
   // start serial port to show results
   Serial.begin(115200);
-  Serial.println("BeckOneWireMulti.ino, April 27, 2017");
+  Serial.println("\nBeckOneWireMulti.ino, April 27, 2017");
   Serial.print("Initializing Temperature Control Library Version ");
   Serial.println(DALLASTEMPLIBVERSION);
 
@@ -60,17 +60,20 @@ void setup()   /****** SETUP: RUNS ONCE ******/
   sensors.begin();
 
   // set the resolution to 10 bit (Can be 9 to 12 bits .. lower is faster)
-  sensors.setResolution(Probe01, 10);
-  sensors.setResolution(Probe02, 10);
-  sensors.setResolution(Probe03, 10);
-  //sensors.setResolution(Probe04, 10);
-  //sensors.setResolution(Probe05, 10);
+  int	sResolution= 12;
+  Serial.print("Set resolution to ");
+  Serial.println(sResolution);
+  sensors.setResolution(Probe01, sResolution);
+  sensors.setResolution(Probe02, sResolution);
+  sensors.setResolution(Probe03, sResolution);
+  //sensors.setResolution(Probe04, sResolution);
+  //sensors.setResolution(Probe05, sResolution);
 
 }//--(end setup )---
 
 void loop()   /****** LOOP: RUNS CONSTANTLY ******/
 {
-  delay(1000);
+  //delay(1000);
   Serial.println();
   Serial.print("Number of Devices found on bus = ");
   Serial.println(sensors.getDeviceCount());
@@ -102,6 +105,7 @@ void loop()   /****** LOOP: RUNS CONSTANTLY ******/
   Serial.println();
 */
 
+  delay(3000);
 
 }//--(end main loop )---
 
