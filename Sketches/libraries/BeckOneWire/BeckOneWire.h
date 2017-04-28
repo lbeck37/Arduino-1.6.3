@@ -10,10 +10,12 @@ extern const 	UINT8 							ucOneWirePin_;
 extern float    fGetDegF(bool bTakeReading);
 
 typedef enum {
-	eVP40 = 1,
+	eVP40 = 0,
 	eVP41,
 	eVP42,
 	eVP43,
+	eVP44,
+	eVP45,
 	eLastVP
 } VirtualPin_t;
 
@@ -40,7 +42,7 @@ public:
 
 private:
 	UINT8 									ucOneWirePin_;
-	BeckOneWireSensor*			apOneWireSensor_[4];
+	BeckOneWireSensor*			apOneWireSensor_[6];
 };	//BeckOneWire
 
 extern BeckOneWire*		pBeckOneWire;

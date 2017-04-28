@@ -10,10 +10,13 @@
 #endif  //ESP32
 
 //Define Virtual Pin names (V0 - V127)
+//DS18B20 OneWire temp sensors
 #define ReadF_V40         V40
 #define ReadF_V41         V41
 #define ReadF_V42         V42
 #define ReadF_V43         V43
+#define ReadF_V44         V44
+#define ReadF_V45         V45
 
 #define ReadF_V0          V0
 #define ReadF_V1          V1
@@ -256,8 +259,6 @@ void SendIntToBlynk(int sVirtualPin, int sValue){
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
 //and pass a variable in the "param" object.
 BLYNK_READ(ReadF_V40){
-  bool bTakeReading= true;
-  //float fDegF= pOneWireV40->fGetDegF(bTakeReading);
   float fDegF= pBeckOneWire->fGetDegF(eVP40);
   String szLogString= "Read ReadF_V40 ";
   LogToBoth(szLogString, fDegF);
@@ -267,8 +268,6 @@ BLYNK_READ(ReadF_V40){
 
 
 BLYNK_READ(ReadF_V41){
-  bool bTakeReading= true;
-  //float fDegF= pOneWireV41->fGetDegF(bTakeReading);
   float fDegF= pBeckOneWire->fGetDegF(eVP41);
   String szLogString= "Read ReadF_V41 ";
   LogToBoth(szLogString, fDegF);
@@ -278,8 +277,6 @@ BLYNK_READ(ReadF_V41){
 
 
 BLYNK_READ(ReadF_V42){
-  bool bTakeReading= true;
-  //float fDegF= pOneWireV42->fGetDegF(bTakeReading);
   float fDegF= pBeckOneWire->fGetDegF(eVP42);
   String szLogString= "Read ReadF_V42 ";
   LogToBoth(szLogString, fDegF);
@@ -289,14 +286,30 @@ BLYNK_READ(ReadF_V42){
 
 
 BLYNK_READ(ReadF_V43){
-  bool bTakeReading= true;
-  //float fDegF= pOneWireV43->fGetDegF(bTakeReading);
   float fDegF= pBeckOneWire->fGetDegF(eVP43);
   String szLogString= "Read ReadF_V43 ";
   LogToBoth(szLogString, fDegF);
 
   Blynk.virtualWrite(ReadF_V43, fDegF);
 } //BLYNK_READ(ReadF_V43)
+
+
+BLYNK_READ(ReadF_V44){
+  float fDegF= pBeckOneWire->fGetDegF(eVP44);
+  String szLogString= "Read ReadF_V44 ";
+  LogToBoth(szLogString, fDegF);
+
+  Blynk.virtualWrite(ReadF_V44, fDegF);
+} //BLYNK_READ(ReadF_V44)
+
+
+BLYNK_READ(ReadF_V45){
+  float fDegF= pBeckOneWire->fGetDegF(eVP45);
+  String szLogString= "Read ReadF_V45 ";
+  LogToBoth(szLogString, fDegF);
+
+  Blynk.virtualWrite(ReadF_V45, fDegF);
+} //BLYNK_READ(ReadF_V45)
 
 
 BLYNK_READ(ReadF_V0){
