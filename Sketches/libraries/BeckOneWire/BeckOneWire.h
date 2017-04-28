@@ -43,6 +43,6 @@ private:
 	BeckOneWireSensor*			apOneWireSensor_[4];
 };	//BeckOneWire
 
-
 extern BeckOneWire*		pBeckOneWire;
+
 #endif  //BECKONEWIRE_H

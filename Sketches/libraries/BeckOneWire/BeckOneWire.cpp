@@ -3,7 +3,6 @@
 #include <OneWire.h>
 
 float        					fLastDegF             = 37.37;  //Last temperature reading.
-//const int    					sOneWirePin           = 12;  //Dallas DS18B20 Temperature Sensor
 
 //(4) Bare DS18B20 temperature sensors
 DeviceAddress		acOneWireV40							= {0x28, 0xFF, 0xBA, 0xB4, 0xA0, 0x16, 0x05, 0xAA};
@@ -16,11 +15,6 @@ OneWire      				oOneWire(ucOneWirePin_);
 DallasTemperature   oSensors(&oOneWire);
 
 BeckOneWire::BeckOneWire(UINT8 ucOneWirePin) {
-	//OneWire							oOneWire			{ucOneWirePin};
-	//DallasTemperature   oSensors			{&oOneWire};
-  //pOneWire_= new OneWire						(sOneWirePin);
-  //pSensors_= new DallasTemperature	(pOneWire_);
-
 	ucOneWirePin_= ucOneWirePin;
 
 	apOneWireSensor_[0]= new BeckOneWireSensor(acOneWireV40);
@@ -75,5 +69,4 @@ float fGetDegF(bool bTakeReading){
 #endif
   return fDegFReturn;
 }  //fGetDegF
-
 //Last line.

@@ -119,11 +119,6 @@ static unsigned long  ulUpdateTimeoutMsec   = 0;
 static long           sSystemHandlerSpacing;    //Number of mSec between running system handlers
 static bool           bUpdating             = false;    //Turns off Blynk.
 
-//BeckI2C     oBeckI2C    (0);
-//BeckAtoD    oBeckAtoD   (&oBeckI2C, eADS1115);
-//BeckBlynk   oBeckBlynk  (acBlynkAuthToken, &oBeckAtoD);
-//BeckGyro    oBeckGyro   (&oBeckI2C, bGyroOn);
-
 BeckDisplay*    pBeckDisplay;
 BeckI2C*        pBeckI2C;
 BeckAtoD*       pBeckAtoD;
@@ -174,9 +169,6 @@ void SetupDevices() {
   LogToSerial(szLogString);
 
   pBeckI2C    = new BeckI2C(0);
-  //szLogString = "BeckBlynkESP.ino::SetupDevices(): pBeckI2C=";
-  //LogToSerial(szLogString, (UINT32)pBeckI2C);
-
   //SetupDisplay();
 
   pBeckDisplay    = new BeckDisplay();
@@ -184,12 +176,6 @@ void SetupDevices() {
   pBeckBlynk      = new BeckBlynk		(acBlynkAuthToken, pBeckAtoD);
   pBeckTanks      = new BeckTanks		(pBeckAtoD, pBeckDisplay);
   pBeckOneWire		= new BeckOneWire	(ucOneWirePin_);
-
-/*
-  pOneWireV40			= new BeckOneWire	(acOneWireV40);
-  pOneWireV41			= new BeckOneWire	(acOneWireV41);
-  pOneWireV42			= new BeckOneWire	(acOneWireV42);
-*/
 
   if (false && pBeckI2C->bDevicePresent(eGyro)) {
     pBeckGyro= new BeckGyro(pBeckI2C);
