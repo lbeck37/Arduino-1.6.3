@@ -13,6 +13,7 @@
 #define ReadF_V40         V40
 #define ReadF_V41         V41
 #define ReadF_V42         V42
+#define ReadF_V43         V43
 
 #define ReadF_V0          V0
 #define ReadF_V1          V1
@@ -256,7 +257,8 @@ void SendIntToBlynk(int sVirtualPin, int sValue){
 //and pass a variable in the "param" object.
 BLYNK_READ(ReadF_V40){
   bool bTakeReading= true;
-  float fDegF= pOneWireV40->fGetDegF(bTakeReading);
+  //float fDegF= pOneWireV40->fGetDegF(bTakeReading);
+  float fDegF= pBeckOneWire->fGetDegF(eVP40);
   String szLogString= "Read ReadF_V40 ";
   LogToBoth(szLogString, fDegF);
 
@@ -266,7 +268,8 @@ BLYNK_READ(ReadF_V40){
 
 BLYNK_READ(ReadF_V41){
   bool bTakeReading= true;
-  float fDegF= pOneWireV41->fGetDegF(bTakeReading);
+  //float fDegF= pOneWireV41->fGetDegF(bTakeReading);
+  float fDegF= pBeckOneWire->fGetDegF(eVP41);
   String szLogString= "Read ReadF_V41 ";
   LogToBoth(szLogString, fDegF);
 
@@ -276,7 +279,8 @@ BLYNK_READ(ReadF_V41){
 
 BLYNK_READ(ReadF_V42){
   bool bTakeReading= true;
-  float fDegF= pOneWireV42->fGetDegF(bTakeReading);
+  //float fDegF= pOneWireV42->fGetDegF(bTakeReading);
+  float fDegF= pBeckOneWire->fGetDegF(eVP42);
   String szLogString= "Read ReadF_V42 ";
   LogToBoth(szLogString, fDegF);
 
@@ -286,7 +290,8 @@ BLYNK_READ(ReadF_V42){
 
 BLYNK_READ(ReadF_V43){
   bool bTakeReading= true;
-  float fDegF= pOneWireV43->fGetDegF(bTakeReading);
+  //float fDegF= pOneWireV43->fGetDegF(bTakeReading);
+  float fDegF= pBeckOneWire->fGetDegF(eVP43);
   String szLogString= "Read ReadF_V43 ";
   LogToBoth(szLogString, fDegF);
 

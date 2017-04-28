@@ -4,31 +4,18 @@
 #include <BeckLib.h>
 #include <DallasTemperature.h>
 
-extern DallasTemperature   oSensors;
+extern 				DallasTemperature   oSensors;
+extern const 	UINT8 							ucOneWirePin_;
 
 extern float    fGetDegF(bool bTakeReading);
 
-/*
-extern const DeviceAddress		acOneWireV40;
-extern const DeviceAddress		acOneWireV41;
-extern const DeviceAddress		acOneWireV42;
-extern const DeviceAddress		acOneWireV43;
-*/
-
-/*
-extern const DeviceAddress		acOneWireV40= acSensorB;
-extern const DeviceAddress		acOneWireV41= acSensorC;
-extern const DeviceAddress		acOneWireV42= acSensorD;
-*/
-
-class BeckOneWire {
-protected:
-
-public:
-	BeckOneWire(INT16 sOneWirePin);
-
-private:
-};	//BeckOneWire
+typedef enum {
+	eVP40 = 1,
+	eVP41,
+	eVP42,
+	eVP43,
+	eLastVP
+} VirtualPin_t;
 
 
 class BeckOneWireSensor {
@@ -43,10 +30,19 @@ private:
 	UINT8						ucResolution_				= 12;
 };	//BeckOneWireSensor
 
-/*
-extern BeckOneWire*		pOneWireV40;
-extern BeckOneWire*		pOneWireV41;
-extern BeckOneWire*		pOneWireV42;
-*/
+
+class BeckOneWire {
+protected:
+
+public:
+	BeckOneWire(UINT8 ucOneWirePin);
+	float 	fGetDegF(VirtualPin_t eVirtualPin);
+
+private:
+	UINT8 									ucOneWirePin_;
+	BeckOneWireSensor*			apOneWireSensor_[4];
+};	//BeckOneWire
+
+
 extern BeckOneWire*		pBeckOneWire;
 #endif  //BECKONEWIRE_H

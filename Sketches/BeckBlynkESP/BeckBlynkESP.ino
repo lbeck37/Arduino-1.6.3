@@ -1,6 +1,6 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "Apr 24, 2017 -F- Lenny";
+static const char szFileDate[]    = "Apr 27, 2017 -A- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -26,7 +26,7 @@ static const char szFileDate[]    = "Apr 24, 2017 -F- Lenny";
 
 #define LOG0    szLogLineHeader(++lLineCount)
 
-const INT16	sOneWirePin           		= 12;  //Dallas DS18B20 Temperature Sensor
+const UINT8 ucOneWirePin_           = 12;  //Dallas DS18B20 Temperature Sensor
 const bool 	bGyroOn                  = true;
 
 #ifdef SKIP_BLYNK
@@ -183,7 +183,7 @@ void SetupDevices() {
   pBeckAtoD       = new BeckAtoD		(pBeckI2C, eADS1115);
   pBeckBlynk      = new BeckBlynk		(acBlynkAuthToken, pBeckAtoD);
   pBeckTanks      = new BeckTanks		(pBeckAtoD, pBeckDisplay);
-  pBeckOneWire		= new BeckOneWire	(sOneWirePin);
+  pBeckOneWire		= new BeckOneWire	(ucOneWirePin_);
 
 /*
   pOneWireV40			= new BeckOneWire	(acOneWireV40);
