@@ -77,7 +77,7 @@ WidgetLED           oLED4(LED_4V28);
   BeckAtoD*       pBeckAtoD_;
 
 //class BeckBlynk
-BeckBlynk::BeckBlynk(const INT8 acBlynkAuthToken[], BeckAtoD* pBeckAtoD) {
+BeckBlynk::BeckBlynk(const char acBlynkAuthToken[], BeckAtoD* pBeckAtoD) {
   String szLogString="BeckBlynk Constructor: Begin";
   LogToSerial(szLogString);
   pBeckBlynk_= this;
@@ -282,6 +282,16 @@ BLYNK_READ(ReadF_V42){
 
   Blynk.virtualWrite(ReadF_V42, fDegF);
 } //BLYNK_READ(ReadF_V42)
+
+
+BLYNK_READ(ReadF_V43){
+  bool bTakeReading= true;
+  float fDegF= pOneWireV43->fGetDegF(bTakeReading);
+  String szLogString= "Read ReadF_V43 ";
+  LogToBoth(szLogString, fDegF);
+
+  Blynk.virtualWrite(ReadF_V43, fDegF);
+} //BLYNK_READ(ReadF_V43)
 
 
 BLYNK_READ(ReadF_V0){

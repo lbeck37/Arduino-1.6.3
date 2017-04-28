@@ -26,7 +26,8 @@ static const char szFileDate[]    = "Apr 24, 2017 -F- Lenny";
 
 #define LOG0    szLogLineHeader(++lLineCount)
 
-const bool bGyroOn                  = true;
+const INT16	sOneWirePin           		= 12;  //Dallas DS18B20 Temperature Sensor
+const bool 	bGyroOn                  = true;
 
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk       = true;
@@ -129,6 +130,7 @@ BeckAtoD*       pBeckAtoD;
 BeckGyro*       pBeckGyro;
 BeckBlynk*      pBeckBlynk;
 BeckTanks*      pBeckTanks;
+BeckOneWire*		pBeckOneWire;
 
 //Functions
 void setup()
@@ -181,10 +183,13 @@ void SetupDevices() {
   pBeckAtoD       = new BeckAtoD		(pBeckI2C, eADS1115);
   pBeckBlynk      = new BeckBlynk		(acBlynkAuthToken, pBeckAtoD);
   pBeckTanks      = new BeckTanks		(pBeckAtoD, pBeckDisplay);
+  pBeckOneWire		= new BeckOneWire	(sOneWirePin);
 
+/*
   pOneWireV40			= new BeckOneWire	(acOneWireV40);
   pOneWireV41			= new BeckOneWire	(acOneWireV41);
   pOneWireV42			= new BeckOneWire	(acOneWireV42);
+*/
 
   if (false && pBeckI2C->bDevicePresent(eGyro)) {
     pBeckGyro= new BeckGyro(pBeckI2C);

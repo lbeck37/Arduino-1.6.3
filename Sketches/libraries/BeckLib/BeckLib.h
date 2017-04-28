@@ -74,6 +74,7 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
+/*
 //Define Virtual Pin names
 #define ReadF_V0          V0
 #define ReadF_V1          V1
@@ -121,6 +122,7 @@ static const long   lMsecPerSec           =     1000;
 #define Unassigned_V29    V29
 #define Unassigned_V30    V30
 #define Unassigned_V31    V31
+*/
 
 
 //extern WidgetTerminal   oTerminal;    //Blynk Terminal
