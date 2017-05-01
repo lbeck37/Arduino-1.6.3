@@ -161,11 +161,11 @@ void HandleBlynkLEDs(){
   //static int asSwitchLastState[]= {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
   //bDebugLog= bDebug;  //If bDebug is OfF then we turn logging off for this routine, resetting at end.
   for (int sSwitch= 0; sSwitch <= sNumSwitches; sSwitch++){
-    if (true || (asSwitchState[sSwitch] != asSwitchLastState[sSwitch])){
-      asSwitchLastState[sSwitch]= asSwitchState[sSwitch];
+    if (true || (asSwitchState_[sSwitch] != asSwitchLastState_[sSwitch])){
+      asSwitchLastState_[sSwitch]= asSwitchState_[sSwitch];
       switch (sSwitch){
         case 0:
-          if (asSwitchState[sSwitch]){
+          if (asSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED0.on();
           } //if(asSwitchState[sSwitch])
@@ -175,7 +175,7 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 1:
-          if (asSwitchState[sSwitch]){
+          if (asSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED1.on();
           } //if(asSwitchState[sSwitch])
@@ -185,7 +185,7 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 2:
-          if (asSwitchState[sSwitch]){
+          if (asSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED2.on();
           } //if(asSwitchState[sSwitch])
@@ -195,7 +195,7 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 3:
-          if (asSwitchState[sSwitch]){
+          if (asSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED3.on();
           } //if(asSwitchState[sSwitch])
@@ -205,7 +205,7 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 4:
-          if (asSwitchState[sSwitch]){
+          if (asSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED4.on();
           } //if(asSwitchState[sSwitch])
@@ -335,21 +335,21 @@ BLYNK_READ(ReadF_V1){
 
 BLYNK_WRITE(SetSetpointF_V2){
   int sSetpointParam= param.asInt();
-  sSetpointF= sSetpointParam;
-  fThermoOffDegF= sSetpointF + fMaxHeatRangeF;
+  sSetpointF_= sSetpointParam;
+  fThermoOffDegF= sSetpointF_ + fMaxHeatRangeF;
   String szLogString= "SetSetpointF_V2 ";
-  LogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, sSetpointF_);
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  SendIntToBlynk(GetSetpointF_V3, sSetpointF);
+  SendIntToBlynk(GetSetpointF_V3, sSetpointF_);
   return;
 } //BLYNK_WRITE(Switch_2V15)
 
 
 BLYNK_READ(GetSetpointF_V3){
-  int sReturnF= sSetpointF;
+  int sReturnF= sSetpointF_;
   String szLogString= "GetSetpointF_V3 ";
-  LogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, sSetpointF_);
 
   Blynk.virtualWrite(GetSetpointF_V3, sReturnF);
 } //BLYNK_READ(GetSetpointF_V3)
@@ -364,7 +364,7 @@ BLYNK_WRITE(ThermoSwitch_V4){
   HandleHeatSwitch();
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  SendIntToBlynk(GetSetpointF_V3, sSetpointF);
+  SendIntToBlynk(GetSetpointF_V3, sSetpointF_);
   //HandleBlynkLEDs();
   return;
 } //BLYNK_WRITE(ThermoSwitch_V4)

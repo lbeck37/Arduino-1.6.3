@@ -13,13 +13,13 @@ const int    sHeatSwitchNum        = 2;      //Was 1, switch number that turns f
 const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
-int          asSwitchState[]       = {0, 0, 0, 0, 0};
-int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-int          sSetpointF            = 37;
-int          sThermoTimesCount     = 0;      //Number of times temperature out of range
-bool         bThermoOn             = true;   //Whether thermostat is running.
-bool         bHeatOn               = false;  //If switch is on to turn on furnace.
-float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
+int          asSwitchState_[]       = {0, 0, 0, 0, 0};
+int          asSwitchLastState_[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
+int          sSetpointF_            = 37;
+int          sThermoTimesCount_     = 0;      //Number of times temperature out of range
+bool         bThermoOn_             = true;   //Whether thermostat is running.
+bool         bHeatOn_               = false;  //If switch is on to turn on furnace.
+float        fThermoOffDegF        = sSetpointF_ + fMaxHeatRangeF;
 
 //const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};      //0 is not a switch, switches are at 1,2,3,4
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};    //15 is 8266 TXD0 and broke I2c
@@ -32,18 +32,18 @@ const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused 
 
 void HandleHeatSwitch(){
   String szLogString = "HandleHeatSwitch(): bHeatOn";
-  LogToBoth(szLogString, bHeatOn);
+  LogToBoth(szLogString, bHeatOn_);
   //Serial << LOG0 << "HandleHeatSwitch(): bThermoOn, bFurnaceOn " << bThermoOn << ", " << bFurnaceOn << endl;
   //Make sure  switch state represents bHeatOn correctly.
-  if (bHeatOn){
+  if (bHeatOn_){
     //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOn" << endl;
-    asSwitchState[sHeatSwitchNum]= sOn;
+    asSwitchState_[sHeatSwitchNum]= sOn;
   } //if(bHeatOn)
   else{
     //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOff" << endl;
-    asSwitchState[sHeatSwitchNum]= sOff;
+    asSwitchState_[sHeatSwitchNum]= sOff;
   } //if(bFurnaceOn)else
-  SetSwitch(sHeatSwitchNum, asSwitchState[sHeatSwitchNum]);
+  SetSwitch(sHeatSwitchNum, asSwitchState_[sHeatSwitchNum]);
   return;
 } //HandleHeatSwitch
 
@@ -52,30 +52,30 @@ void TurnHeatOn(bool bTurnOn){
   if (bTurnOn){
     String szLogString= "TurnHeatOn(): Heat turned ON";
     LogToBoth(szLogString);
-    bHeatOn= true;
+    bHeatOn_= true;
     SetHeatSwitch(sSwitchClosed);
-    sThermoTimesCount= 0;
+    sThermoTimesCount_= 0;
   } //if(bTurnOn)
   else{
     String szLogString= "TurnHeatOn(): Heat turned OFF";
     LogToBoth(szLogString);
-    bHeatOn= false;
+    bHeatOn_= false;
     SetHeatSwitch(sSwitchOpen);
-    sThermoTimesCount= 0;
+    sThermoTimesCount_= 0;
   } //if(bTurnOn)else
   return;
 } //TurnHeatOn
 
 
 void SetThermoState(int sSwitchState){
-  asSwitchState[sThermoDummySwitch]= sSwitchState;
+  asSwitchState_[sThermoDummySwitch]= sSwitchState;
   if (sSwitchState == sOn){
-    bThermoOn= true;
+    bThermoOn_= true;
   } //if(sState==sOn)
   else{
-    bThermoOn= false;
-    bHeatOn= false;
-    sThermoTimesCount= 0;
+    bThermoOn_= false;
+    bHeatOn_= false;
+    sThermoTimesCount_= 0;
     SetHeatSwitch(sSwitchOpen);
   } //if(sState==sOn)else
   return;
@@ -91,7 +91,7 @@ void SetHeatSwitch(int sSwitchState){
 void SetSwitch(int sSwitch, int sSwitchState){
   int sSwitchPin= asSwitchPin[sSwitch];
   bool bPinSetting;
-  asSwitchState[sSwitch]= sSwitchState;
+  asSwitchState_[sSwitch]= sSwitchState;
   //bDebugLog= bDebug;
   if (abSwitchInverted[sSwitch]){
     bPinSetting= !sSwitchState;
@@ -114,7 +114,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
   //Some switch positions don't have pins, just Blynk LEDs.
   if (sSwitchPin >= 0){
     digitalWrite(sSwitchPin, bPinSetting);
-    asSwitchState[sSwitch]= sSwitchState;
+    asSwitchState_[sSwitch]= sSwitchState;
   } //if(sSwitchPin>=0)
   //bDebugLog= true;
   //HandleBlynkLEDs();

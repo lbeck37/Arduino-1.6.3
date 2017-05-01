@@ -4,13 +4,13 @@
 #include <BeckLib.h>
 #include <BeckOneWire.h>
 
-extern int          asSwitchState[];
-extern int          asSwitchLastState[];
-extern float        fLastDegF;
-extern int          sSetpointF;
-extern int          sThermoTimesCount;
-extern bool         bThermoOn;
-extern bool         bHeatOn;
+extern int          asSwitchState_[];
+extern int          asSwitchLastState_[];
+extern float        fLastDegF_;
+extern int          sSetpointF_;
+extern int          sThermoTimesCount_;
+extern bool         bThermoOn_;
+extern bool         bHeatOn_;
 extern float        fThermoOffDegF;
 extern const long   sThermoTimesInRow;
 extern const float  fMaxHeatRangeF;

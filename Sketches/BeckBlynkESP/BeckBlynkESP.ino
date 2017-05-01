@@ -1,6 +1,6 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "May 1, 2017 -C- Lenny";
+static const char szFileDate[]    = "May 1, 2017 -J- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -51,9 +51,13 @@ static const int    sHotTubV2          		= 10;
 //static const char   szRouterName[]        = "P291spot";
 //static const char   szRouterPW[]          = "Wsxwsx22";
 
-static const char   szRouterName[]        = "Aspot24";
 //static const char   szRouterName[]        = "TPspot";
+/*
+static const char   szRouterName[]        = "Aspot24";
 static const char   szRouterPW[]          = "Qazqaz11";
+*/
+static const char   szRouterName[]        = "Library";
+static const char   szRouterPW[]          = "";
 
 static const char   acHostname[]          = "esp37";
 
@@ -260,7 +264,7 @@ void HandleSystem(){
       case sGarageLocal:
         HandleThermostat();
         //HandleBlynkLEDs();
-        //HandleHeatSwitch();			//See BeckControlLib.cpp
+        HandleHeatSwitch();			//See BeckControlLib.cpp
         break;
       case sHeater:
         HandleHeater();
@@ -327,29 +331,29 @@ void HandleThermostat(){
   String szLogString = "HandleThermostat()";
   LogToBoth(szLogString);
   //Only do anything if the thermostat is turned on.
-  if (bThermoOn){
+  if (bThermoOn_){
     //float fDegF= fGetDegF(true);
     float fDegF= pBeckOneWire->fGetDegF(eWaterTemp);
     float fRoundDegF= fRound(fDegF);
     DebugHandleThermostat(fDegF);
-    if (bHeatOn){
+    if (bHeatOn_){
       if (fRoundDegF >= fThermoOffDegF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
+        if (++sThermoTimesCount_ >= sThermoTimesInRow){
           TurnHeatOn(false);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
       } //if(fRoundDegF>=fThermoOffDegF)
       else{
-        sThermoTimesCount= 0;
+        sThermoTimesCount_= 0;
       } //if(fRoundDegF>=fThermoOffDegF)else
     } //if(bHeatOn)
     else{
-      if (fRoundDegF <= sSetpointF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
+      if (fRoundDegF <= sSetpointF_){
+        if (++sThermoTimesCount_ >= sThermoTimesInRow){
           TurnHeatOn(true);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
       } //if(fRoundDegF<sSetpointF)
       else{
-        sThermoTimesCount= 0;
+        sThermoTimesCount_= 0;
       } //if(fRoundDegF<sSetpointF)else
     } //if(bHeatOn)else
   } //if(bThermoOn)
@@ -369,14 +373,14 @@ void DebugHandleThermostat(float fDegF){
   LogToBoth(szLogString);
   szLogString= " DegF=";
   LogToBoth(szLogString, fDegF);
-  szLogString= " SetpointF=";
-  LogToBoth(szLogString, sSetpointF);
+  szLogString= " sSetpointF_=";
+  LogToBoth(szLogString, sSetpointF_);
   szLogString= " OffDegF=";
   LogToBoth(szLogString, fThermoOffDegF);
-  szLogString= " bFurnaceOn=";
-  LogToBoth(szLogString, bHeatOn);
+  szLogString= " bHeatOn_=";
+  LogToBoth(szLogString, bHeatOn_);
   szLogString= " OnCount=";
-  LogToBoth(szLogString, sThermoTimesCount);
+  LogToBoth(szLogString, sThermoTimesCount_);
   return;
 } //DebugHandleThermostat
 

@@ -2,7 +2,7 @@
 #include <BeckOneWire.h>
 #include <OneWire.h>
 
-float        					fLastDegF             = 37.37;  //Last temperature reading.
+float        					fLastDegF_             = 37.37;  //Last temperature reading.
 
 //(4) Bare DS18B20 temperature sensors
 DeviceAddress		acOneWireV40	= {0x28, 0xFF, 0xBA, 0xB4, 0xA0, 0x16, 0x05, 0xAA};
@@ -49,10 +49,10 @@ float BeckOneWireSensor::fGetDegF(bool bTakeReading) {
   if (bTakeReading){
     oSensors.requestTemperatures(); // Send the command to get read all sensors
     fDegFReturn= oSensors.getTempF(aucDeviceAddress_);
-    fLastDegF= fDegFReturn;
+    fLastDegF_= fDegFReturn;
   } //if(bTakeReading)
   else{
-    fDegFReturn= fLastDegF;
+    fDegFReturn= fLastDegF_;
   } //if(bTakeReading)else
   return fDegFReturn;
 }	//fGetDegF
@@ -65,10 +65,10 @@ float fGetDegF(bool bTakeReading){
   if (bTakeReading){
     oSensors.requestTemperatures(); // Send the command to get temperatures
     fDegFReturn= oSensors.getTempFByIndex(0);
-    fLastDegF= fDegFReturn;
+    fLastDegF_= fDegFReturn;
   } //if(bTakeReading)
   else{
-    fDegFReturn= fLastDegF;
+    fDegFReturn= fLastDegF_;
   } //if(bTakeReading)else
 #endif
   return fDegFReturn;
