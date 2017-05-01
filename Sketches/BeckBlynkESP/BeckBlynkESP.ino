@@ -1,6 +1,6 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "Apr 28, 2017 -C- Lenny";
+static const char szFileDate[]    = "Apr 30, 2017 -B- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -17,6 +17,7 @@ static const char szFileDate[]    = "Apr 28, 2017 -C- Lenny";
 #include <BeckBlynk.h>
 #include <BeckControlLib.h>
 #include <BeckI2C.h>
+#include <BeckOneWire.h>
 #include <BeckAtoD.h>
 #include <BeckGyro.h>
 #include <BeckTanks.h>
@@ -27,6 +28,7 @@ static const char szFileDate[]    = "Apr 28, 2017 -C- Lenny";
 #define LOG0    szLogLineHeader(++lLineCount)
 
 const UINT8 ucOneWirePin_           = 12;  //Dallas DS18B20 Temperature Sensor
+VirtualPin_t	eWaterTemp						= eVP45;
 const bool 	bGyroOn                  = true;
 
 #ifdef SKIP_BLYNK
@@ -258,7 +260,7 @@ void HandleSystem(){
       case sGarageLocal:
         HandleThermostat();
         //HandleBlynkLEDs();
-        HandleHeatSwitch();
+        //HandleHeatSwitch();			//See BeckControlLib.cpp
         break;
       case sHeater:
         HandleHeater();
@@ -326,7 +328,8 @@ void HandleThermostat(){
   LogToBoth(szLogString);
   //Only do anything if the thermostat is turned on.
   if (bThermoOn){
-    float fDegF= fGetDegF(true);
+    //float fDegF= fGetDegF(true);
+    float fDegF= pBeckOneWire->fGetDegF(eWaterTemp);
     float fRoundDegF= fRound(fDegF);
     DebugHandleThermostat(fDegF);
     if (bHeatOn){
