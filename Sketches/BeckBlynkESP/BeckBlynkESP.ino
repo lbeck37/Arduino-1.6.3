@@ -1,6 +1,6 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "Apr 30, 2017 -B- Lenny";
+static const char szFileDate[]    = "May 1, 2017 -C- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -27,7 +27,7 @@ static const char szFileDate[]    = "Apr 30, 2017 -B- Lenny";
 
 #define LOG0    szLogLineHeader(++lLineCount)
 
-const UINT8 ucOneWirePin_           = 12;  //Dallas DS18B20 Temperature Sensor
+const UINT8 ucOneWirePin_           = 2;  //Was 12, Dallas DS18B20 Temperature Sensor
 VirtualPin_t	eWaterTemp						= eVP45;
 const bool 	bGyroOn                  = true;
 
@@ -365,7 +365,7 @@ void HandleThermostat(){
 
 void DebugHandleThermostat(float fDegF){
   //String szLogString2= " ";
-  String szLogString = "HandleThermostat";
+  String szLogString = "DebugHandleThermostat()";
   LogToBoth(szLogString);
   szLogString= " DegF=";
   LogToBoth(szLogString, fDegF);
