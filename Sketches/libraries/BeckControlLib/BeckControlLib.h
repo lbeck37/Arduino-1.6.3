@@ -21,7 +21,7 @@ extern const int    sOff;
 extern const int    sOn;
 extern const int    sNotInit;
 
-extern const int    sNumSwitches;
+extern const int    sNumSwitches_;
 extern const int    asSwitchPin[];    //0 is not a switch, switches are at 1,2,3,4
 
 //ESP32 AtoD Input Pins

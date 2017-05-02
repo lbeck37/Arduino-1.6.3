@@ -160,7 +160,7 @@ void HandleBlynkLEDs(){
   //Only send data back to Blynk if state of LED has changed.
   //static int asSwitchLastState[]= {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
   //bDebugLog= bDebug;  //If bDebug is OfF then we turn logging off for this routine, resetting at end.
-  for (int sSwitch= 0; sSwitch <= sNumSwitches; sSwitch++){
+  for (int sSwitch= 0; sSwitch <= sNumSwitches_; sSwitch++){
     if (true || (asSwitchState_[sSwitch] != asSwitchLastState_[sSwitch])){
       asSwitchLastState_[sSwitch]= asSwitchState_[sSwitch];
       switch (sSwitch){
@@ -361,11 +361,10 @@ BLYNK_WRITE(ThermoSwitch_V4){
   String szLogString= "ThermoSwitch_V4 ";
   LogToBoth(szLogString, sParam);
   SetThermoState(sParam);
-  HandleHeatSwitch();
-
+  //HandleHeatSwitch();
+  HandleBlynkLEDs();
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  SendIntToBlynk(GetSetpointF_V3, sSetpointF_);
-  //HandleBlynkLEDs();
+  //SendIntToBlynk(GetSetpointF_V3, sSetpointF_);
   return;
 } //BLYNK_WRITE(ThermoSwitch_V4)
 
