@@ -11,7 +11,7 @@ extern int          sSetpointF_;
 extern int          sThermoTimesCount_;
 extern bool         bThermoOn_;
 extern bool         bHeatOn_;
-extern float        fThermoOffDegF;
+extern float        fThermoOffDegF_;
 extern const long   sThermoTimesInRow;
 extern const float  fMaxHeatRangeF;
 

@@ -336,7 +336,7 @@ BLYNK_READ(ReadF_V1){
 BLYNK_WRITE(SetSetpointF_V2){
   int sSetpointParam= param.asInt();
   sSetpointF_= sSetpointParam;
-  fThermoOffDegF= sSetpointF_ + fMaxHeatRangeF;
+  fThermoOffDegF_= sSetpointF_ + fMaxHeatRangeF;
   String szLogString= "SetSetpointF_V2 ";
   LogToBoth(szLogString, sSetpointF_);
 
@@ -383,8 +383,9 @@ BLYNK_READ(AtoD_1V6){
 //Handler callback function called when Button set as a Switch is pressed.
 //Light around button is lit when 1 is passed as parameter, unlit when 0 is passed.
 //Opto-isolated relay is inverse logic, pulling input pin low cn relay.
-//Relay #0 is connected to Blynk virtual pins 10, 11, 12
-//Relay #1 is connected to Blynk virtual pins 20, 21, 22
+//Relay #0 is associated with Blynk virtual pins 10, 11, 12, 13
+//Relay #1 is associated with Blynk virtual pins 15, 16, 17, 18
+//	Each "Relay" has a switch, 2 timers, and an LED. Timers never worked
 BLYNK_WRITE(Switch_1V10){
   //Virtual pin 10, 15, 20 and 25 control Switches 1, 2, 3 and 4.
   int sSwitchNumber= 1;
@@ -394,13 +395,13 @@ BLYNK_WRITE(Switch_1V10){
   String szLogString= "Set Switch_1V10 ";
   szLogString += sSetting;
   LogToBoth(szLogString);
-
+/*
   //Test writing to LCD
   LCDWidget.clear();
   int sCharPos= 0;   //Position 0-15
   int sLineNum= 0;   //Line 0-1
   LCDWidget.print(0, 0, "Relay #0 set to: ");
-
+*/
   if (sSetting == 1){
     sSwitchSetting= sSwitchClosed;
   }

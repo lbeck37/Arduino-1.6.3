@@ -1,6 +1,6 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "May 1, 2017 -J- Lenny";
+static const char szFileDate[]    = "May 1, 2017 -P- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -48,16 +48,17 @@ static const int    sTankMonitor          = 8;
 static const int    sHotTub          			= 9;
 static const int    sHotTubV2          		= 10;
 
-//static const char   szRouterName[]        = "P291spot";
-//static const char   szRouterPW[]          = "Wsxwsx22";
 
-//static const char   szRouterName[]        = "TPspot";
 /*
-static const char   szRouterName[]        = "Aspot24";
-static const char   szRouterPW[]          = "Qazqaz11";
-*/
+static const char   szRouterName[]        = "P291spot";
+static const char   szRouterPW[]          = "Wsxwsx22";
+
+static const char   szRouterName[]        = "TPspot";
 static const char   szRouterName[]        = "Library";
 static const char   szRouterPW[]          = "";
+*/
+static const char   szRouterName[]        = "Aspot24";
+static const char   szRouterPW[]          = "Qazqaz11";
 
 static const char   acHostname[]          = "esp37";
 
@@ -189,7 +190,20 @@ void SetupDevices() {
 
   pBeckDisplay->Setup();
 
-  return;
+  switch (sProjectType){
+    case sHotTub:
+    case sHotTubV2:
+    	sSetpointF_= 75;
+    	break;
+    case sGarage:
+    case sGarageLocal:
+    	sSetpointF_= 37;
+    	break;
+    default:
+      break;
+  } //switch
+
+ return;
 } //SetupDevices
 
 
@@ -335,9 +349,12 @@ void HandleThermostat(){
     //float fDegF= fGetDegF(true);
     float fDegF= pBeckOneWire->fGetDegF(eWaterTemp);
     float fRoundDegF= fRound(fDegF);
-    DebugHandleThermostat(fDegF);
+    fThermoOffDegF_= sSetpointF_ + fMaxHeatRangeF;
+    DebugHandleThermostat(fDegF, fRoundDegF);
     if (bHeatOn_){
-      if (fRoundDegF >= fThermoOffDegF){
+      if (fRoundDegF >= fThermoOffDegF_){
+				szLogString= "HandleThermostat(): fRoundDegF >= fThermoOffDegF";
+				LogToBoth(szLogString);
         if (++sThermoTimesCount_ >= sThermoTimesInRow){
           TurnHeatOn(false);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
@@ -358,7 +375,7 @@ void HandleThermostat(){
     } //if(bHeatOn)else
   } //if(bThermoOn)
   else{
-    LogToBoth(szLogString);
+    //LogToBoth(szLogString);
     szLogString= " bThermoOn is false";
     LogToBoth(szLogString);
   }
@@ -367,19 +384,21 @@ void HandleThermostat(){
 } //HandleThermostat
 
 
-void DebugHandleThermostat(float fDegF){
+void DebugHandleThermostat(float fDegF, float fRoundDegF){
   //String szLogString2= " ";
   String szLogString = "DebugHandleThermostat()";
   LogToBoth(szLogString);
-  szLogString= " DegF=";
+  szLogString= "  DegF=";
   LogToBoth(szLogString, fDegF);
-  szLogString= " sSetpointF_=";
+  szLogString= "  fRoundDegF=";
+  LogToBoth(szLogString, fRoundDegF);
+  szLogString= "  sSetpointF_=";
   LogToBoth(szLogString, sSetpointF_);
-  szLogString= " OffDegF=";
-  LogToBoth(szLogString, fThermoOffDegF);
-  szLogString= " bHeatOn_=";
+  szLogString= "  fThermoOffDegF=";
+  LogToBoth(szLogString, fThermoOffDegF_);
+  szLogString= "  bHeatOn_=";
   LogToBoth(szLogString, bHeatOn_);
-  szLogString= " OnCount=";
+  szLogString= "  sThermoTimesCount_=";
   LogToBoth(szLogString, sThermoTimesCount_);
   return;
 } //DebugHandleThermostat

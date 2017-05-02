@@ -19,14 +19,15 @@ int          sSetpointF_            = 37;
 int          sThermoTimesCount_     = 0;      //Number of times temperature out of range
 bool         bThermoOn_             = true;   //Whether thermostat is running.
 bool         bHeatOn_               = false;  //If switch is on to turn on furnace.
-float        fThermoOffDegF        = sSetpointF_ + fMaxHeatRangeF;
+//float        fThermoOffDegF_        = sSetpointF_ + fMaxHeatRangeF;
+float        fThermoOffDegF_;
 
 //const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};      //0 is not a switch, switches are at 1,2,3,4
-//const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};    //15 is 8266 TXD0 and broke I2c
+//const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};    //15 is 8266 TXD0 and broke I2c ????
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 2};     //2 is 8266 TXd1 and I2C stopped and blue LED on ESP12 module went on
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 0};     //0 is 8266 Flash pin and when used caused relay to go on and off
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 16};    //16 is 8266 User and Wake and broke I2C
-const int    asSwitchPin[]         = {-1, 12, 13, 14, 14};      //0 is not a switch, switches are at 1,2,3,4
+const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};      //0 is not a switch, switches are at 1,2,3,4
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 
@@ -114,7 +115,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
   //Some switch positions don't have pins, just Blynk LEDs.
   if (sSwitchPin >= 0){
     digitalWrite(sSwitchPin, bPinSetting);
-    asSwitchState_[sSwitch]= sSwitchState;
+    //asSwitchState_[sSwitch]= sSwitchState;
   } //if(sSwitchPin>=0)
   //bDebugLog= true;
   //HandleBlynkLEDs();
