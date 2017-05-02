@@ -21,6 +21,9 @@ bool         bHeatOn_               = false;  //If switch is on to turn on furna
 //float        fThermoOffDegF_        = sSetpointF_ + fMaxHeatRangeF;
 float        fThermoOffDegF_;
 
+bool          bFlowState_       			= false;
+bool          bFlowLastState_   			= false;
+
 //const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};      //0 is not a switch, switches are at 1,2,3,4
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};    //15 is 8266 TXD0 and broke I2c ????
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 2};     //2 is 8266 TXd1 and I2C stopped and blue LED on ESP12 module went on
@@ -30,6 +33,7 @@ const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};      //0 is not a swi
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 const int    sThermoDummySwitch    = 0;  			//Thermostat Blynk LED lives with unused switch Relay #0.
 const int    sHeatSwitchNum        = 2;      	//Was 1, switch number that turns heat on and off.
+const int		 sFlowSensorPin_			 = 16;
 
 void HandleHeatSwitch(){
   String szLogString = "HandleHeatSwitch(): bHeatOn";

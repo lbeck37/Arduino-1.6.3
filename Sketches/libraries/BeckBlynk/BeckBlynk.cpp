@@ -62,7 +62,7 @@
 #define LED_4V28          V28
 
 #define Unassigned_V29    V29
-#define Unassigned_V30    V30
+#define FlowLED_V30    		V30
 #define Unassigned_V31    V31
 
 //Blynk Terminal
@@ -76,9 +76,10 @@ WidgetLED           oLED1(LED_1V13);
 WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
+WidgetLED           oLED5(FlowLED_V30);
 
-  BeckBlynk*      pBeckBlynk_;
-  BeckAtoD*       pBeckAtoD_;
+BeckBlynk*      pBeckBlynk_;
+BeckAtoD*       pBeckAtoD_;
 
 //class BeckBlynk
 BeckBlynk::BeckBlynk(const char acBlynkAuthToken[], BeckAtoD* pBeckAtoD) {
@@ -217,9 +218,22 @@ void HandleBlynkLEDs(){
         default:
           break;
       } //switch
-      //LogToBoth(szLogString, sSwitch);
+      LogToBoth(szLogString, sSwitch);
     } //if(asSwitchState[sSwitch]!=asSwitchLastState[sSwitch])
   } //for
+
+  bFlowLastState_= bFlowState_;
+	if (bFlowState_){
+		szLogString = "Switch ON LED Flow";
+    LogToBoth(szLogString);
+		oLED5.on();
+	} //if(asSwitchState[sSwitch])
+	else{
+		szLogString = "Switch OFF LED Flow";
+    LogToBoth(szLogString);
+		oLED5.off();
+	} //if(asSwitchState[sSwitch])else
+
   bDebugLog= true;
   return;
 } //HandleBlynkLEDs

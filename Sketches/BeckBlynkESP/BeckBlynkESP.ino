@@ -1,6 +1,6 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "May 1, 2017 -S- Lenny";
+static const char szFileDate[]    = "May 2, 2017 -B- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -255,6 +255,8 @@ void SetupSwitches(){
     SetSwitch(sSwitch, sSwitchOpen);
   } //for
 
+  pinMode(sFlowSensorPin_, INPUT);
+
   //pBeckI2C->TestI2C();
   //szLogString = "SetupSwitches(): End";
   //LogToBoth(szLogString);
@@ -276,6 +278,10 @@ void HandleSystem(){
         break;
       case sHotTub:
       case sHotTubV2:
+      	HandleHotTub();
+        //HandleBlynkLEDs();
+        //HandleHeatSwitch();			//See BeckControlLib.cpp
+        break;
       case sGarage:
       case sGarageLocal:
         HandleThermostat();
@@ -301,6 +307,24 @@ void HandleSystem(){
   } //if(millis()>=ulNextHandlerMsec)
   return;
 } //HandleSystem
+
+
+void HandleHotTub(){
+  String szLogString = "HandleHotTub()";
+  LogToBoth(szLogString);
+  ReadFlowSensor();
+  HandleThermostat();
+  HandleHeatSwitch();			//See BeckControlLib.cpp
+  return;
+} //HandleHotTub
+
+
+void ReadFlowSensor(){
+  String szLogString = "ReadFlowSensor()";
+  LogToBoth(szLogString);
+  bFlowState_= !digitalRead(sFlowSensorPin_);
+  return;
+} //ReadFlowSensor
 
 
 void HandleTankMonitor(){

@@ -23,6 +23,10 @@ extern const int    sNotInit;
 
 extern const int    sNumSwitches_;
 extern const int    asSwitchPin[];    //0 is not a switch, switches are at 1,2,3,4
+extern const int		sFlowSensorPin_;
+extern bool         bFlowState_;
+extern bool         bFlowLastState_;
+
 
 //ESP32 AtoD Input Pins
 extern const int  sNumTanks;
