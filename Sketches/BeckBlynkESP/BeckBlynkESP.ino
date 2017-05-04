@@ -1,6 +1,6 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "May 2, 2017 -B- Lenny";
+static const char szFileDate[]    = "May 3, 2017 -D- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -151,6 +151,15 @@ void setup()
 
 
 void loop() {
+	//First check for overheat.
+  switch (sProjectType){
+    case sHotTub:
+    case sHotTubV2:
+    	bCheckOverheat(false);
+      break;
+    default:
+      break;
+  } //switch
 #if OTA_SERVER
   HandleHttpServer();
 #endif
@@ -234,9 +243,15 @@ void SetupSystem(){
   case sDevLocal:
       sSystemHandlerSpacing = 10 * lMsecPerSec;
       break;
-    default:
-      sSystemHandlerSpacing = 10 * lMsecPerSec;
-      break;
+  case sHotTub:
+  case sHotTubV2:
+  	if (!bCheckOverheat(true)) {
+  		SetOverheatSwitch(true);
+  	}
+    break;
+	default:
+		sSystemHandlerSpacing = 10 * lMsecPerSec;
+		break;
   } //switch
   //HandleBlynkLEDs();
   return;
@@ -319,12 +334,37 @@ void HandleHotTub(){
 } //HandleHotTub
 
 
+void CheckFlowSensor(){
+	ReadFlowSensor();
+	if (!bFlowState_) {
+		bNoFlow_= true;
+		TurnHeatOn(false);
+		SetThermoState(false);
+	}
+  return;
+} //CheckFlowSensor
+
+
 void ReadFlowSensor(){
   String szLogString = "ReadFlowSensor()";
   LogToBoth(szLogString);
   bFlowState_= !digitalRead(sFlowSensorPin_);
   return;
 } //ReadFlowSensor
+
+
+bool bCheckOverheat(bool bSetup){
+	bool bReturn= true;
+  float fDegF= pBeckOneWire->fGetDegF(eVP42);
+	if (fDegF >= fOverheatDegF_) {
+		SetOverheatSwitch(false);
+		TurnHeatOn(false);
+		SetThermoState(false);
+		bOverheatOn_= true;
+		bReturn= false;
+	}	//if(fDegF>=fOverheatDegF)
+  return(bReturn);
+} //bCheckOverheat
 
 
 void HandleTankMonitor(){
@@ -372,7 +412,7 @@ void HandleThermostat(){
   LogToBoth(szLogString);
   //Only do anything if the thermostat is turned on.
   if (bThermoOn_){
-    //float fDegF= fGetDegF(true);
+  	CheckFlowSensor();
     float fDegF= pBeckOneWire->fGetDegF(eWaterTemp);
     float fRoundDegF= fRound(fDegF);
     fThermoOffDegF_= sSetpointF_ + fMaxHeatRangeF;

@@ -24,8 +24,13 @@ extern const int    sNotInit;
 extern const int    sNumSwitches_;
 extern const int    asSwitchPin[];    //0 is not a switch, switches are at 1,2,3,4
 extern const int		sFlowSensorPin_;
+extern const int    sOverheatSwitchNum;
+extern const float	fOverheatDegF_;
+
 extern bool         bFlowState_;
 extern bool         bFlowLastState_;
+extern bool					bNoFlow_;
+extern bool					bOverheatOn_;
 
 
 //ESP32 AtoD Input Pins
@@ -44,6 +49,7 @@ extern void     HandleHeatSwitch();
 extern void     TurnHeatOn(bool bTurnOn);
 extern void     SetThermoState(int sSwitchState);
 extern void     SetHeatSwitch(int sSwitchState);
+extern void 		SetOverheatSwitch(int sSwitchState);
 extern void     SetSwitch(int sSwitch, int sSwitchState);
 
 #endif  //BECKCONTROLLIB_H

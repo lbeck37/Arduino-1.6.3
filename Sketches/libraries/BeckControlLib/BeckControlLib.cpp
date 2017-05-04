@@ -23,6 +23,8 @@ float        fThermoOffDegF_;
 
 bool          bFlowState_       			= false;
 bool          bFlowLastState_   			= false;
+bool					bNoFlow_								= false;
+bool					bOverheatOn_						= false;
 
 //const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};      //0 is not a switch, switches are at 1,2,3,4
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};    //15 is 8266 TXD0 and broke I2c ????
@@ -31,9 +33,11 @@ bool          bFlowLastState_   			= false;
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 16};    //16 is 8266 User and Wake and broke I2C
 const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};      //0 is not a switch, switches are at 1,2,3,4
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
-const int    sThermoDummySwitch    = 0;  			//Thermostat Blynk LED lives with unused switch Relay #0.
+const int    sThermoDummySwitchNum = 0;  			//Thermostat Blynk LED lives with unused switch Relay #0.
+const int    sOverheatSwitchNum    = 1;      	//Relay that opens on overheat and kills power to heater
 const int    sHeatSwitchNum        = 2;      	//Was 1, switch number that turns heat on and off.
 const int		 sFlowSensorPin_			 = 16;
+const float	 fOverheatDegF_				 = 110.0;
 
 void HandleHeatSwitch(){
   String szLogString = "HandleHeatSwitch(): bHeatOn";
@@ -73,7 +77,7 @@ void TurnHeatOn(bool bTurnOn){
 
 
 void SetThermoState(int sSwitchState){
-  asSwitchState_[sThermoDummySwitch]= sSwitchState;
+  asSwitchState_[sThermoDummySwitchNum]= sSwitchState;
   if (sSwitchState == sOn){
     bThermoOn_= true;
   } //if(sState==sOn)
@@ -91,6 +95,24 @@ void SetHeatSwitch(int sSwitchState){
   SetSwitch(sHeatSwitchNum, sSwitchState);
   return;
 } //SetHeatSwitch
+
+
+void HandleOverheat(){
+	String szLogString= "TurnHeatOn(): Heat turned OFF";
+	LogToBoth(szLogString);
+  bThermoOn_= false;
+	bHeatOn_= false;
+	SetHeatSwitch(sSwitchOpen);
+  return;
+} //HandleOverheat
+
+
+void SetOverheatSwitch(int sSwitchState){
+  String szLogString= "SetOverheatSwitch(): sSwitchState=";
+  LogToBoth(szLogString, sSwitchState);
+  SetSwitch(sOverheatSwitchNum, sSwitchState);
+  return;
+} //SetOverheatSwitch
 
 
 void SetSwitch(int sSwitch, int sSwitchState){
