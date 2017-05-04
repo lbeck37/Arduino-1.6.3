@@ -13,8 +13,8 @@ const int    sNumSwitches_         = 4;
 const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
-int          asSwitchState_[]       = {0, 0, 0, 0, 0};
-int          asSwitchLastState_[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
+bool         abSwitchState_[]       = {false, false, false, false, false};
+bool         abSwitchLastState_[]   = {false, false, false, false, false};
 int          sSetpointF_            = 37;
 int          sThermoTimesCount_     = 0;      //Number of times temperature out of range
 bool         bThermoOn_             = true;   //Whether thermostat is running.
@@ -61,19 +61,19 @@ void SetupHotTub(){
 
 
 void HandleHeatSwitch(){
-  String szLogString = "HandleHeatSwitch(): bHeatOn";
+  String szLogString = "HandleHeatSwitch(): bHeatOn_=";
   LogToBoth(szLogString, bHeatOn_);
   //Serial << LOG0 << "HandleHeatSwitch(): bThermoOn, bFurnaceOn " << bThermoOn << ", " << bFurnaceOn << endl;
   //Make sure  switch state represents bHeatOn correctly.
   if (bHeatOn_){
     //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOn" << endl;
-    asSwitchState_[sHeatSwitchNum]= sOn;
+    abSwitchState_[sHeatSwitchNum]= sOn;
   } //if(bHeatOn)
   else{
     //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOff" << endl;
-    asSwitchState_[sHeatSwitchNum]= sOff;
+    abSwitchState_[sHeatSwitchNum]= sOff;
   } //if(bFurnaceOn)else
-  SetSwitch(sHeatSwitchNum, asSwitchState_[sHeatSwitchNum]);
+  SetSwitch(sHeatSwitchNum, abSwitchState_[sHeatSwitchNum]);
   return;
 } //HandleHeatSwitch
 
@@ -110,7 +110,7 @@ void SetHeatSwitch(int sSwitchState){
 void SetThermoState(int sSwitchState){
   String szLogString= "SetThermoState(): sSwitchState=";
   LogToBoth(szLogString, sSwitchState);
-  asSwitchState_[sThermoDummySwitchNum]= sSwitchState;
+  abSwitchState_[sThermoDummySwitchNum]= sSwitchState;
   if (sSwitchState == sOn){
     bThermoOn_= true;
   } //if(sState==sOn)
@@ -172,7 +172,7 @@ void SetOverheatSwitch(int sSwitchState){
 void SetSwitch(int sSwitch, int sSwitchState){
   int sSwitchPin= asSwitchPin[sSwitch];
   bool bPinSetting;
-  asSwitchState_[sSwitch]= sSwitchState;
+  abSwitchState_[sSwitch]= sSwitchState;
   //bDebugLog= bDebug;
   if (abSwitchInverted[sSwitch]){
     bPinSetting= !sSwitchState;

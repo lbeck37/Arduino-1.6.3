@@ -4,8 +4,8 @@
 #include <BeckLib.h>
 #include <BeckOneWire.h>
 
-extern int          asSwitchState_[];
-extern int          asSwitchLastState_[];
+extern bool         abSwitchState_[];
+extern bool         abSwitchLastState_[];
 extern float        fLastDegF_;
 extern int          sSetpointF_;
 extern int          sThermoTimesCount_;

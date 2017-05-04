@@ -162,11 +162,11 @@ void HandleBlynkLEDs(){
   //static int asSwitchLastState[]= {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
   //bDebugLog= bDebug;  //If bDebug is OfF then we turn logging off for this routine, resetting at end.
   for (int sSwitch= 0; sSwitch <= sNumSwitches_; sSwitch++){
-    if (true || (asSwitchState_[sSwitch] != asSwitchLastState_[sSwitch])){
-      asSwitchLastState_[sSwitch]= asSwitchState_[sSwitch];
+    if (true || (abSwitchState_[sSwitch] != abSwitchLastState_[sSwitch])){
+      abSwitchLastState_[sSwitch]= abSwitchState_[sSwitch];
       switch (sSwitch){
         case 0:
-          if (asSwitchState_[sSwitch]){
+          if (abSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED0.on();
           } //if(asSwitchState[sSwitch])
@@ -176,7 +176,7 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 1:
-          if (asSwitchState_[sSwitch]){
+          if (abSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED1.on();
           } //if(asSwitchState[sSwitch])
@@ -186,7 +186,7 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 2:
-          if (asSwitchState_[sSwitch]){
+          if (abSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED2.on();
           } //if(asSwitchState[sSwitch])
@@ -196,7 +196,7 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 3:
-          if (asSwitchState_[sSwitch]){
+          if (abSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED3.on();
           } //if(asSwitchState[sSwitch])
@@ -206,7 +206,7 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 4:
-          if (asSwitchState_[sSwitch]){
+          if (abSwitchState_[sSwitch]){
             szLogString = "Switch ON LED";
             oLED4.on();
           } //if(asSwitchState[sSwitch])
