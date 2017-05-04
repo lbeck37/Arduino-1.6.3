@@ -49,7 +49,11 @@ extern void     HandleHeatSwitch();
 extern void     TurnHeatOn(bool bTurnOn);
 extern void     SetThermoState(int sSwitchState);
 extern void     SetHeatSwitch(int sSwitchState);
+extern void 		HandleOverheat();
+extern bool 		bCheckOverheat(bool bSetup);
 extern void 		SetOverheatSwitch(int sSwitchState);
 extern void     SetSwitch(int sSwitch, int sSwitchState);
+extern void 		ReadFlowSensor();
+extern void 		CheckFlowSensor();
 
 #endif  //BECKCONTROLLIB_H

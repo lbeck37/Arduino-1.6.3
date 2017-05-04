@@ -107,6 +107,33 @@ void HandleOverheat(){
 } //HandleOverheat
 
 
+bool bCheckOverheat(bool bSetup){
+	//Returns true if below overheat limit.
+	bool bReturn= true;
+  float fDegF= pBeckOneWire->fGetDegF(eVP42);
+  if (bSetup) {
+		String szLogString= "bCheckOverheat(): DegF=";
+		LogToBoth(szLogString, fDegF);
+		szLogString= "                  Limit=";
+		LogToBoth(szLogString, fOverheatDegF_);
+  }
+	if (fDegF >= fOverheatDegF_) {
+		String szLogString= "bCheckOverheat(): **ERROR= Overheat**";
+		LogToBoth(szLogString);
+		szLogString= "bCheckOverheat(): DegF=";
+		LogToBoth(szLogString, fDegF);
+		szLogString= "                  Limit=";
+		LogToBoth(szLogString, fOverheatDegF_);
+		SetOverheatSwitch(false);
+		TurnHeatOn(false);
+		SetThermoState(false);
+		bOverheatOn_= true;
+		bReturn= false;
+	}	//if(fDegF>=fOverheatDegF)
+  return(bReturn);
+} //bCheckOverheat
+
+
 void SetOverheatSwitch(int sSwitchState){
   String szLogString= "SetOverheatSwitch(): sSwitchState=";
   LogToBoth(szLogString, sSwitchState);
@@ -147,4 +174,23 @@ void SetSwitch(int sSwitch, int sSwitchState){
   //HandleBlynkLEDs();
   return;
 } //SetSwitch
+
+
+void CheckFlowSensor(){
+  String szLogString = "CheckFlowSensor()";
+  LogToBoth(szLogString);
+	ReadFlowSensor();
+	if (!bFlowState_) {
+		bNoFlow_= true;
+		TurnHeatOn(false);
+		SetThermoState(false);
+	}
+  return;
+} //CheckFlowSensor
+
+
+void ReadFlowSensor(){
+  bFlowState_= !digitalRead(sFlowSensorPin_);
+  return;
+} //ReadFlowSensor
 //Last line.

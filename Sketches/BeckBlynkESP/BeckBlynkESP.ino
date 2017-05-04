@@ -1,6 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-//static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
-static const char szFileDate[]    = "May 3, 2017 -D- Lenny";
+static const char szFileDate[]    = "May 3, 2017 -J- Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -121,7 +120,7 @@ static const char   acHostname[]          = "esp37";
   static const int  sProjectType        = sHotTubV2;
 #endif
 
-static unsigned long  ulNextHandlerMsec     = 0;
+static unsigned long	ulNextHandlerMsec     = 0;
 static unsigned long  ulUpdateTimeoutMsec   = 0;
 static long           sSystemHandlerSpacing;    //Number of mSec between running system handlers
 static bool           bUpdating             = false;    //Turns off Blynk.
@@ -245,7 +244,8 @@ void SetupSystem(){
       break;
   case sHotTub:
   case sHotTubV2:
-  	if (!bCheckOverheat(true)) {
+		sSystemHandlerSpacing = 10 * lMsecPerSec;
+  	if (bCheckOverheat(true)) {
   		SetOverheatSwitch(true);
   	}
     break;
@@ -281,9 +281,10 @@ void SetupSwitches(){
 
 void HandleSystem(){
   if (millis() >= ulNextHandlerMsec){
-    String szLogString = "HandleSystem()";
-    LogToBoth(szLogString);
+    Serial << LOG0 << "HandleSystem(): ulNextHandlerMsec= " << ulNextHandlerMsec << endl;
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
+    Serial << LOG0 << "   sSystemHandlerSpacing= " << sSystemHandlerSpacing << endl;
+    Serial << LOG0 << "   ulNextHandlerMsec set to " << ulNextHandlerMsec << endl;
     switch (sProjectType){
       case sFrontLights:
         HandleFrontLights();
@@ -332,39 +333,6 @@ void HandleHotTub(){
   HandleHeatSwitch();			//See BeckControlLib.cpp
   return;
 } //HandleHotTub
-
-
-void CheckFlowSensor(){
-	ReadFlowSensor();
-	if (!bFlowState_) {
-		bNoFlow_= true;
-		TurnHeatOn(false);
-		SetThermoState(false);
-	}
-  return;
-} //CheckFlowSensor
-
-
-void ReadFlowSensor(){
-  String szLogString = "ReadFlowSensor()";
-  LogToBoth(szLogString);
-  bFlowState_= !digitalRead(sFlowSensorPin_);
-  return;
-} //ReadFlowSensor
-
-
-bool bCheckOverheat(bool bSetup){
-	bool bReturn= true;
-  float fDegF= pBeckOneWire->fGetDegF(eVP42);
-	if (fDegF >= fOverheatDegF_) {
-		SetOverheatSwitch(false);
-		TurnHeatOn(false);
-		SetThermoState(false);
-		bOverheatOn_= true;
-		bReturn= false;
-	}	//if(fDegF>=fOverheatDegF)
-  return(bReturn);
-} //bCheckOverheat
 
 
 void HandleTankMonitor(){
