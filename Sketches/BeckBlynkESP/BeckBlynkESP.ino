@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckBlynkESP.ino";
-static const char szFileDate[]    = "May 3, 2017 -J- Lenny";
+
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -12,7 +12,7 @@ static const char szFileDate[]    = "May 3, 2017 -J- Lenny";
 //#define HOT_TUB
 #define HOT_TUB_V2
 
-//#include <BeckLib.h>
+#include <BeckLib.h>
 #include <BeckBlynk.h>
 #include <BeckControlLib.h>
 #include <BeckI2C.h>
@@ -139,7 +139,7 @@ void setup()
   sSetupTime();
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
+  Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szVersionDate << endl;
 
   SetupWiFi(szRouterName, szRouterPW);
   SetupDevices();
@@ -237,20 +237,13 @@ int sSetupTime(){
 void SetupSystem(){
   String szLogString = "SetupSystem()";
   LogToBoth(szLogString);
+  sSystemHandlerSpacing = 10 * lMsecPerSec;
   switch (sProjectType){
-  case sDevRemote:
-  case sDevLocal:
-      sSystemHandlerSpacing = 10 * lMsecPerSec;
-      break;
   case sHotTub:
   case sHotTubV2:
-		sSystemHandlerSpacing = 10 * lMsecPerSec;
-  	if (bCheckOverheat(true)) {
-  		SetOverheatSwitch(true);
-  	}
+		SetupHotTub();
     break;
 	default:
-		sSystemHandlerSpacing = 10 * lMsecPerSec;
 		break;
   } //switch
   //HandleBlynkLEDs();
@@ -281,10 +274,7 @@ void SetupSwitches(){
 
 void HandleSystem(){
   if (millis() >= ulNextHandlerMsec){
-    Serial << LOG0 << "HandleSystem(): ulNextHandlerMsec= " << ulNextHandlerMsec << endl;
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
-    Serial << LOG0 << "   sSystemHandlerSpacing= " << sSystemHandlerSpacing << endl;
-    Serial << LOG0 << "   ulNextHandlerMsec set to " << ulNextHandlerMsec << endl;
     switch (sProjectType){
       case sFrontLights:
         HandleFrontLights();
@@ -302,7 +292,7 @@ void HandleSystem(){
       case sGarageLocal:
         HandleThermostat();
         //HandleBlynkLEDs();
-        HandleHeatSwitch();			//See BeckControlLib.cpp
+        //HandleHeatSwitch();			//See BeckControlLib.cpp
         break;
       case sHeater:
         HandleHeater();
@@ -328,7 +318,7 @@ void HandleSystem(){
 void HandleHotTub(){
   String szLogString = "HandleHotTub()";
   LogToBoth(szLogString);
-  ReadFlowSensor();
+  //CheckFlowSensor();
   HandleThermostat();
   HandleHeatSwitch();			//See BeckControlLib.cpp
   return;
@@ -380,15 +370,17 @@ void HandleThermostat(){
   LogToBoth(szLogString);
   //Only do anything if the thermostat is turned on.
   if (bThermoOn_){
-  	CheckFlowSensor();
     float fDegF= pBeckOneWire->fGetDegF(eWaterTemp);
     float fRoundDegF= fRound(fDegF);
     fThermoOffDegF_= sSetpointF_ + fMaxHeatRangeF;
-    DebugHandleThermostat(fDegF, fRoundDegF);
+    //DebugHandleThermostat(fDegF, fRoundDegF);
     if (bHeatOn_){
+    	bCheckFlowSensor(true);
       if (fRoundDegF >= fThermoOffDegF_){
 				szLogString= "HandleThermostat(): fRoundDegF >= fThermoOffDegF";
 				LogToBoth(szLogString);
+		    szLogString= "HandleThermostat(): *** sThermoTimesCount_=";
+		    LogToBoth(szLogString, sThermoTimesCount_);
         if (++sThermoTimesCount_ >= sThermoTimesInRow){
           TurnHeatOn(false);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
@@ -399,6 +391,8 @@ void HandleThermostat(){
     } //if(bHeatOn)
     else{
       if (fRoundDegF <= sSetpointF_){
+				szLogString= "HandleThermostat(): *** sThermoTimesCount_=";
+				LogToBoth(szLogString, sThermoTimesCount_);
         if (++sThermoTimesCount_ >= sThermoTimesInRow){
           TurnHeatOn(true);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
@@ -412,8 +406,7 @@ void HandleThermostat(){
     //LogToBoth(szLogString);
     szLogString= " bThermoOn is false";
     LogToBoth(szLogString);
-  }
-  //} //if(millis()>=ulNextHandlerMsec)
+  }	//if(bThermoOn)else
   return;
 } //HandleThermostat
 

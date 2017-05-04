@@ -2,6 +2,7 @@
 #include <BeckControlLib.h>
 #include <OneWire.h>
 
+const bool	 bUseFlowSwitch				 = false;
 const int    sSwitchOpen           = 0;
 const int    sSwitchClosed         = 1;
 const int    sOff                  = 0;
@@ -34,10 +35,30 @@ bool					bOverheatOn_						= false;
 const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};      //0 is not a switch, switches are at 1,2,3,4
 const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 const int    sThermoDummySwitchNum = 0;  			//Thermostat Blynk LED lives with unused switch Relay #0.
-const int    sOverheatSwitchNum    = 1;      	//Relay that opens on overheat and kills power to heater
-const int    sHeatSwitchNum        = 2;      	//Was 1, switch number that turns heat on and off.
+const int    sOverheatSwitchNum    = 1;      	//Relay 1 opens on overheat and kills power to heater
+const int    sHeatSwitchNum        = 2;      	//Relay 2 turns heat on
+const int    sPumpSwitchNum        = 3;      	//Relay 3 turns pump on
+const int    sSpeedSwitchNum       = 4;      //Relay 4 controls pump speed, Off is Low, On is High
 const int		 sFlowSensorPin_			 = 16;
-const float	 fOverheatDegF_				 = 110.0;
+const float	 fOverheatDegF_				 = 105.0;
+
+void SetupHotTub(){
+  String szLogString = "SetupHotTub(): Begin";
+  LogToBoth(szLogString);
+	if(!bUseFlowSwitch){
+		String szLogString = "***** SetupHotTub(): bUseFlowSwitch SET TO FALSE**************";
+		LogToBoth(szLogString);
+	}
+	TurnHeatOn(false);
+	bTurnPumpOn(false);
+	sSetpointF_= 80;
+	SetThermoState(true);
+	if (bCheckOverheat(true)) {
+		SetOverheatSwitch(true);
+	}
+	return;
+}	//SetupHotTub
+
 
 void HandleHeatSwitch(){
   String szLogString = "HandleHeatSwitch(): bHeatOn";
@@ -58,16 +79,20 @@ void HandleHeatSwitch(){
 
 
 void TurnHeatOn(bool bTurnOn){
+  String szLogString= "TurnHeatOn(): bTurnOn=";
+  LogToBoth(szLogString, bTurnOn);
   if (bTurnOn){
-    String szLogString= "TurnHeatOn(): Heat turned ON";
-    LogToBoth(szLogString);
-    bHeatOn_= true;
-    SetHeatSwitch(sSwitchClosed);
-    sThermoTimesCount_= 0;
+    if(bTurnPumpOn(true)){
+			bHeatOn_= true;
+			SetHeatSwitch(sSwitchClosed);
+			sThermoTimesCount_= 0;
+    }	//if(bTurnPumpOn(true))
+    else{
+    	//Pump didn't turn on and stay on, flow switch may have errored.
+      sThermoTimesCount_= 0;
+    }	//if(bTurnPumpOn(true))else
   } //if(bTurnOn)
   else{
-    String szLogString= "TurnHeatOn(): Heat turned OFF";
-    LogToBoth(szLogString);
     bHeatOn_= false;
     SetHeatSwitch(sSwitchOpen);
     sThermoTimesCount_= 0;
@@ -76,7 +101,15 @@ void TurnHeatOn(bool bTurnOn){
 } //TurnHeatOn
 
 
+void SetHeatSwitch(int sSwitchState){
+  SetSwitch(sHeatSwitchNum, sSwitchState);
+  return;
+} //SetHeatSwitch
+
+
 void SetThermoState(int sSwitchState){
+  String szLogString= "SetThermoState(): sSwitchState=";
+  LogToBoth(szLogString, sSwitchState);
   asSwitchState_[sThermoDummySwitchNum]= sSwitchState;
   if (sSwitchState == sOn){
     bThermoOn_= true;
@@ -89,12 +122,6 @@ void SetThermoState(int sSwitchState){
   } //if(sState==sOn)else
   return;
 } //SetThermoState
-
-
-void SetHeatSwitch(int sSwitchState){
-  SetSwitch(sHeatSwitchNum, sSwitchState);
-  return;
-} //SetHeatSwitch
 
 
 void HandleOverheat(){
@@ -176,21 +203,65 @@ void SetSwitch(int sSwitch, int sSwitchState){
 } //SetSwitch
 
 
-void CheckFlowSensor(){
-  String szLogString = "CheckFlowSensor()";
-  LogToBoth(szLogString);
-	ReadFlowSensor();
-	if (!bFlowState_) {
-		bNoFlow_= true;
-		TurnHeatOn(false);
-		SetThermoState(false);
-	}
+bool bTurnPumpOn(bool bTurnOn){
+	String szLogString;
+	bool bReturn= true;
+	if(bTurnOn){
+		//Make sure flow switch is open before turning pump on
+		if(!bUseFlowSwitch || !bReadFlowSensor()){
+				szLogString = "bTurnPumpOn(): *** Pump ON, looking at flow switch ***";
+				LogToBoth(szLogString);
+				SetPumpSwitch(true);
+				//Wait 2 seconds and make sure flow switch is closed.
+				delay(2000);
+				if(bUseFlowSwitch && !bReadFlowSensor()){
+					szLogString = "bTurnPumpOn(): ERROR: Flow switch open with pump on";
+					LogToBoth(szLogString);
+					SetPumpSwitch(false);
+					bReturn= false;
+				}	//if(!bReadFlowSensor())
+		}	//if(!bReadFlowSensor())
+		else{
+			szLogString = "bTurnPumpOn(): ERROR: Flow switch closed with pump off";
+			LogToBoth(szLogString);
+			bReturn= false;
+		}	//if(!bReadFlowSensor())else
+	}	//if(bTurnOn)
+	else{
+		SetPumpSwitch(false);
+	}	//if(bTurnOn)else
+	return(bReturn);
+}	//bTurnPumpOn
+
+
+void SetPumpSwitch(int sSwitchState){
+  SetSwitch(sPumpSwitchNum, sSwitchState);
   return;
+} //SetPumpSwitch
+
+
+bool bCheckFlowSensor(bool bExpectedState){
+	bool bReturn= true;
+	if(bUseFlowSwitch){
+		String szLogString = "CheckFlowSensor()";
+		LogToBoth(szLogString);
+		bReadFlowSensor();
+		if(bFlowState_ != bExpectedState){
+			bNoFlow_= true;
+			TurnHeatOn(false);
+			SetThermoState(false);
+			bReturn= true;
+		}	//if(!bReadFlowSensor())
+	}	//if(bUseFlowSwitch)
+	else{
+		bReturn= bExpectedState;
+	}
+  return(bReturn);
 } //CheckFlowSensor
 
 
-void ReadFlowSensor(){
+bool bReadFlowSensor(){
   bFlowState_= !digitalRead(sFlowSensorPin_);
-  return;
-} //ReadFlowSensor
+  return(bFlowState_);
+} //bReadFlowSensor
 //Last line.

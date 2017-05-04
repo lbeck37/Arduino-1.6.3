@@ -45,15 +45,18 @@ extern const uint8_t ucGrey2PowerPin;
 extern const uint8_t ucGrey2LevelPin;
 
 //Function protos.
+extern void			SetupHotTub();
 extern void     HandleHeatSwitch();
 extern void     TurnHeatOn(bool bTurnOn);
-extern void     SetThermoState(int sSwitchState);
 extern void     SetHeatSwitch(int sSwitchState);
+extern void     SetThermoState(int sSwitchState);
 extern void 		HandleOverheat();
 extern bool 		bCheckOverheat(bool bSetup);
 extern void 		SetOverheatSwitch(int sSwitchState);
 extern void     SetSwitch(int sSwitch, int sSwitchState);
-extern void 		ReadFlowSensor();
-extern void 		CheckFlowSensor();
+extern bool 		bTurnPumpOn(bool bTurnOn);
+extern void 		SetPumpSwitch(int sSwitchState);
+extern bool 		bCheckFlowSensor(bool bExpectedReturn);
+extern bool 		bReadFlowSensor();
 
 #endif  //BECKCONTROLLIB_H

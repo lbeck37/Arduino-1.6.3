@@ -68,6 +68,8 @@
 #define BLog        LogJustToSerial
 #define BLogS       LogJustToSerial
 
+extern const char 	szVersionDate[];
+
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;
