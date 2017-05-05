@@ -2,7 +2,7 @@
 #include <BeckControlLib.h>
 #include <OneWire.h>
 
-const bool	 bUseFlowSwitch				 = false;
+const bool	 bUseFlowSwitch				 = true;
 const int    sSwitchOpen           = 0;
 const int    sSwitchClosed         = 1;
 const int    sOff                  = 0;
@@ -13,6 +13,7 @@ const int    sNumSwitches_         = 4;
 const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
 
+//int					 sProjectType_;		//Different from local variable sProjectType in BeckBlynkESP.ino
 bool         abSwitchState_[]       = {false, false, false, false, false};
 bool         abSwitchLastState_[]   = {false, false, false, false, false};
 int          sSetpointF_            = 37;
@@ -25,7 +26,7 @@ float        fThermoOffDegF_;
 bool          bFlowState_       			= false;
 bool          bFlowLastState_   			= false;
 bool					bNoFlow_								= false;
-bool					bOverheatOn_						= false;
+bool					bOverheatFailure_						= false;
 
 //const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};      //0 is not a switch, switches are at 1,2,3,4
 //const int    asSwitchPin[]         = {-1, 12, 13, 14, 15};    //15 is 8266 TXD0 and broke I2c ????
@@ -136,15 +137,31 @@ void HandleOverheat(){
 
 bool bCheckOverheat(bool bSetup){
 	//Returns true if below overheat limit.
-	bool bReturn= true;
+	//Test by forcing failure when millis() is between 40 seconds (~18 sec after heat on)
+	//and 50 seconds.
+	bool bReturn			= true;
+	bool bForceFailure= false;
+	unsigned long		ulCurrentMsec= millis();
+	unsigned long		ulFailureStartMsec= 40 * lMsecPerSec;
+	unsigned long		ulFailureEndMsec	= 50 * lMsecPerSec;
+  //Serial << LOG0 << " bCheckOverheat(): ulFailureStartMsec= " << ulFailureStartMsec << ", ulFailureEndMsec= " << ulFailureEndMsec << endl;
+	if((ulCurrentMsec >= ulFailureStartMsec) && (ulCurrentMsec <= ulFailureEndMsec)){
+		bForceFailure= true;
+		String szLogString= "bCheckOverheat(): **Forcing failure for testing**";
+		LogToBoth(szLogString);
+	}
   float fDegF= pBeckOneWire->fGetDegF(eVP42);
-  if (bSetup) {
+  if(bSetup){
+  	//During setup we print some info
 		String szLogString= "bCheckOverheat(): DegF=";
 		LogToBoth(szLogString, fDegF);
 		szLogString= "                  Limit=";
 		LogToBoth(szLogString, fOverheatDegF_);
-  }
-	if (fDegF >= fOverheatDegF_) {
+		szLogString= "                  bForceFailure=";
+		LogToBoth(szLogString, bForceFailure);
+  }	//if(bSetup)
+
+	if(bForceFailure || (fDegF >= fOverheatDegF_)){
 		String szLogString= "bCheckOverheat(): **ERROR= Overheat**";
 		LogToBoth(szLogString);
 		szLogString= "bCheckOverheat(): DegF=";
@@ -154,9 +171,9 @@ bool bCheckOverheat(bool bSetup){
 		SetOverheatSwitch(false);
 		TurnHeatOn(false);
 		SetThermoState(false);
-		bOverheatOn_= true;
+		bOverheatFailure_= true;
 		bReturn= false;
-	}	//if(fDegF>=fOverheatDegF)
+	}	//if(bForceFailure||(fDegF >= fOverheatDegF_))
   return(bReturn);
 } //bCheckOverheat
 

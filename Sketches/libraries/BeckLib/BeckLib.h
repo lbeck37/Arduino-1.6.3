@@ -70,6 +70,20 @@
 
 extern const char 	szVersionDate[];
 
+/*
+extern const int    sFrontLights;
+extern const int    sFireplace;
+extern const int    sGarage;
+extern const int    sGarageLocal;
+extern const int    sHeater;
+extern const int    sDevLocal;
+extern const int    sDevRemote;
+extern const int    sTankMonitor;
+extern const int    sHotTub;
+extern const int    sHotTubV2;
+*/
+extern int					sProjectType_;
+
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;

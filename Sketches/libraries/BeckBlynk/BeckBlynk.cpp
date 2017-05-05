@@ -1,4 +1,5 @@
 //BeckBlynk.cpp
+#include <BeckLib.h>
 #include <BeckBlynk.h>
 #include <BeckControlLib.h>
 //#include <BeckESP32AtoDLib.h>
@@ -176,14 +177,22 @@ void HandleBlynkLEDs(){
           } //if(asSwitchState[sSwitch])else
           break;
         case 1:
-          if (abSwitchState_[sSwitch]){
+        	bool bLEDState;
+        	//Overheat relay Blynk LED will be illuminated on overheat.
+        	if(sProjectType_= 10){
+        		bLEDState= !abSwitchState_[sSwitch];
+        	}
+        	else{
+          	bLEDState= abSwitchState_[sSwitch];
+        	}
+          if (bLEDState){
             szLogString = "Switch ON LED";
             oLED1.on();
-          } //if(asSwitchState[sSwitch])
+          } //if(bLEDState)
           else{
             szLogString = "Switch ON LED";
             oLED1.off();
-          } //if(asSwitchState[sSwitch])else
+          } //if(bLEDState)else
           break;
         case 2:
           if (abSwitchState_[sSwitch]){

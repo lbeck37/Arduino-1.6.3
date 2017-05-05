@@ -47,7 +47,6 @@ static const int    sTankMonitor          = 8;
 static const int    sHotTub          			= 9;
 static const int    sHotTubV2          		= 10;
 
-
 /*
 static const char   szRouterName[]        = "P291spot";
 static const char   szRouterPW[]          = "Wsxwsx22";
@@ -154,7 +153,9 @@ void loop() {
   switch (sProjectType){
     case sHotTub:
     case sHotTubV2:
-    	bCheckOverheat(false);
+    	if(!bOverheatFailure_){
+        bCheckOverheat(false);
+    	}	//if(!bOverheatFailure_)
       break;
     default:
       break;
@@ -201,13 +202,16 @@ void SetupDevices() {
   switch (sProjectType){
     case sHotTub:
     case sHotTubV2:
+    	sProjectType_= 10;
     	sSetpointF_= 75;
     	break;
     case sGarage:
     case sGarageLocal:
+    	sProjectType_= 3;
     	sSetpointF_= 37;
     	break;
     default:
+    	sProjectType_= 0;
       break;
   } //switch
 

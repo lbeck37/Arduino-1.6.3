@@ -30,7 +30,7 @@ extern const float	fOverheatDegF_;
 extern bool         bFlowState_;
 extern bool         bFlowLastState_;
 extern bool					bNoFlow_;
-extern bool					bOverheatOn_;
+extern bool					bOverheatFailure_;
 
 
 //ESP32 AtoD Input Pins

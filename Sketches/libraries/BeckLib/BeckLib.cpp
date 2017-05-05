@@ -4,7 +4,7 @@
 #include <BeckBlynk.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
-const char szVersionDate[]    = "May 4, 2017 -K- Lenny";
+const char szVersionDate[]    = "May 4, 2017 -V- Lenny";
 
 //Global variables
 long                  lLineCount      = 0;  //Serial Monitor uses for clarity.
@@ -20,7 +20,22 @@ bool                    bStartedOTA       = false;
   ESP8266HTTPUpdateServer   oHttpUpdateServer(true);
 #endif  //OTA_SERVER
 
-//Digital Pins
+/*
+const int    sUndefinedProject     = 0;
+const int    sFrontLights          = 1;
+const int    sFireplace            = 2;
+const int    sGarage               = 3;
+const int    sGarageLocal          = 4;
+const int    sHeater               = 5;
+const int    sDevLocal             = 6;
+const int    sDevRemote            = 7;
+const int    sTankMonitor          = 8;
+const int    sHotTub          		 = 9;
+const int    sHotTubV2          	 = 10;
+*/
+int					 sProjectType_;		//Different from local variable sProjectType in BeckBlynkESP.ino
+
+  //Digital Pins
 #ifdef ESP32
   //BlynkBeck uses pins 4, 5, 15, 16
   //static const int       sSelectButton;
