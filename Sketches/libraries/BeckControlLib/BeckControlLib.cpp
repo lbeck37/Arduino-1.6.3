@@ -2,6 +2,8 @@
 #include <BeckControlLib.h>
 #include <OneWire.h>
 
+//#define TEST_OVERHEAT
+
 const bool	 bUseFlowSwitch				 = true;
 const int    sSwitchOpen           = 0;
 const int    sSwitchClosed         = 1;
@@ -50,6 +52,23 @@ void SetupHotTub(){
 		String szLogString = "***** SetupHotTub(): bUseFlowSwitch SET TO FALSE**************";
 		LogToBoth(szLogString);
 	}
+	ResetHotTub();
+/*
+	TurnHeatOn(false);
+	bTurnPumpOn(false);
+	sSetpointF_= 80;
+	SetThermoState(true);
+	if (bCheckOverheat(true)) {
+		SetOverheatSwitch(true);
+	}
+*/
+	return;
+}	//SetupHotTub
+
+
+void ResetHotTub(){
+  String szLogString = "ResetHotTub(): Begin";
+  LogToBoth(szLogString);
 	TurnHeatOn(false);
 	bTurnPumpOn(false);
 	sSetpointF_= 80;
@@ -58,7 +77,7 @@ void SetupHotTub(){
 		SetOverheatSwitch(true);
 	}
 	return;
-}	//SetupHotTub
+}	//ResetHotTub
 
 
 void HandleHeatSwitch(){
@@ -141,6 +160,7 @@ bool bCheckOverheat(bool bSetup){
 	//and 50 seconds.
 	bool bReturn			= true;
 	bool bForceFailure= false;
+#ifdef TEST_OVERHEAT
 	unsigned long		ulCurrentMsec= millis();
 	unsigned long		ulFailureStartMsec= 40 * lMsecPerSec;
 	unsigned long		ulFailureEndMsec	= 50 * lMsecPerSec;
@@ -149,7 +169,8 @@ bool bCheckOverheat(bool bSetup){
 		bForceFailure= true;
 		String szLogString= "bCheckOverheat(): **Forcing failure for testing**";
 		LogToBoth(szLogString);
-	}
+	}	//if((ulCurrentMsec>=ulFailureStartMsec)&&...
+#endif	//TEST_OVERHEAT
   float fDegF= pBeckOneWire->fGetDegF(eVP42);
   if(bSetup){
   	//During setup we print some info
@@ -168,6 +189,7 @@ bool bCheckOverheat(bool bSetup){
 		LogToBoth(szLogString, fDegF);
 		szLogString= "                  Limit=";
 		LogToBoth(szLogString, fOverheatDegF_);
+
 		SetOverheatSwitch(false);
 		TurnHeatOn(false);
 		SetThermoState(false);
@@ -245,6 +267,9 @@ bool bTurnPumpOn(bool bTurnOn){
 		}	//if(!bReadFlowSensor())else
 	}	//if(bTurnOn)
 	else{
+		szLogString = "bTurnPumpOn(): Turning Pump OFF";
+		LogToBoth(szLogString);
+		TurnHeatOn(false);
 		SetPumpSwitch(false);
 	}	//if(bTurnOn)else
 	return(bReturn);
@@ -258,21 +283,20 @@ void SetPumpSwitch(int sSwitchState){
 
 
 bool bCheckFlowSensor(bool bExpectedState){
+	String szLogString;
 	bool bReturn= true;
 	if(bUseFlowSwitch){
-		String szLogString = "CheckFlowSensor()";
-		LogToBoth(szLogString);
 		bReadFlowSensor();
 		if(bFlowState_ != bExpectedState){
+			szLogString = "CheckFlowSensor(): ***ERROR*** Not in expected state";
+			LogToBoth(szLogString);
 			bNoFlow_= true;
 			TurnHeatOn(false);
+			bTurnPumpOn(false);
 			SetThermoState(false);
-			bReturn= true;
+			bReturn= false;
 		}	//if(!bReadFlowSensor())
 	}	//if(bUseFlowSwitch)
-	else{
-		bReturn= bExpectedState;
-	}
   return(bReturn);
 } //CheckFlowSensor
 

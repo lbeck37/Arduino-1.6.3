@@ -121,7 +121,8 @@ static const char   acHostname[]          = "esp37";
 
 static unsigned long	ulNextHandlerMsec     = 0;
 static unsigned long  ulUpdateTimeoutMsec   = 0;
-static long           sSystemHandlerSpacing;    //Number of mSec between running system handlers
+static long           lSystemHandlerSpacing = 10 * lMsecPerSec;  //mSec between running system handlers
+
 static bool           bUpdating             = false;    //Turns off Blynk.
 
 BeckDisplay*    pBeckDisplay;
@@ -241,7 +242,7 @@ int sSetupTime(){
 void SetupSystem(){
   String szLogString = "SetupSystem()";
   LogToBoth(szLogString);
-  sSystemHandlerSpacing = 10 * lMsecPerSec;
+  //sSystemHandlerSpacing = 10 * lMsecPerSec;
   switch (sProjectType){
   case sHotTub:
   case sHotTubV2:
@@ -278,7 +279,7 @@ void SetupSwitches(){
 
 void HandleSystem(){
   if (millis() >= ulNextHandlerMsec){
-    ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
+    ulNextHandlerMsec= millis() + lSystemHandlerSpacing;
     switch (sProjectType){
       case sFrontLights:
         HandleFrontLights();

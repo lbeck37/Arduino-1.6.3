@@ -12,13 +12,6 @@
 
 //Define Virtual Pin names (V0 - V127)
 //DS18B20 OneWire temp sensors
-#define ReadF_V40         V40
-#define ReadF_V41         V41
-#define ReadF_V42         V42
-#define ReadF_V43         V43
-#define ReadF_V44         V44
-#define ReadF_V45         V45
-
 #define ReadF_V0          V0
 #define ReadF_V1          V1
 #define SetSetpointF_V2   V2
@@ -65,6 +58,15 @@
 #define Unassigned_V29    V29
 #define FlowLED_V30    		V30
 #define Unassigned_V31    V31
+
+#define Reset_V37    			V37
+
+#define ReadF_V40         V40
+#define ReadF_V41         V41
+#define ReadF_V42         V42
+#define ReadF_V43         V43
+#define ReadF_V44         V44
+#define ReadF_V45         V45
 
 //Blynk Terminal
 WidgetTerminal      oTerminal(Terminal_V7);
@@ -178,8 +180,8 @@ void HandleBlynkLEDs(){
           break;
         case 1:
         	bool bLEDState;
-        	//Overheat relay Blynk LED will be illuminated on overheat.
-        	if(sProjectType_= 10){
+        	//Overheat relay Blynk LED will be illuminated on overheat for Hot Tub
+        	if(sProjectType_== 10){
         		bLEDState= !abSwitchState_[sSwitch];
         	}
         	else{
@@ -281,6 +283,15 @@ void SendIntToBlynk(int sVirtualPin, int sValue){
 //and returns the value or state of some variable.
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
 //and pass a variable in the "param" object.
+BLYNK_WRITE(Reset_V37){
+  //Reset the Hot Tub system.
+  String szLogString= "BLYNK_WRITE(Reset_V37) ";
+  LogToBoth(szLogString);
+  ResetHotTub();
+  return;
+} //BLYNK_WRITE(Reset_V37)
+
+
 BLYNK_READ(ReadF_V40){
   float fDegF= pBeckOneWire->fGetDegF(eVP40);
   String szLogString= "Read ReadF_V40 ";
@@ -391,7 +402,9 @@ BLYNK_WRITE(ThermoSwitch_V4){
   return;
 } //BLYNK_WRITE(ThermoSwitch_V4)
 
+
 //WidgetLED oLED0(ThermoLED_V5) is constructed earlier
+
 
 BLYNK_READ(AtoD_1V6){
   //double dVolts= pBeckBlynk_->dReadAtoD(1);
@@ -555,19 +568,25 @@ BLYNK_READ(AtoD_3V19){
 
 
 BLYNK_WRITE(Switch_3V20){
-  int sSwitchNumber= 3;
-  int sSwitchSetting;
   int sSetting= param.asInt();
-  String szLogString= "Set Switch_3V20 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
+  if(sProjectType_ == 10){
+  	//Hot Tub V2, pump ON/OFF relay
+  	bTurnPumpOn((bool)sSetting);
+  }	//if(sProjectType_==10)
   else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
+		int sSwitchNumber= 3;
+		int sSwitchSetting;
+	  String szLogString= "Set Switch_3V20 ";
+	  szLogString += sSetting;
+	  LogToBoth(szLogString);
+	  if (sSetting == 1){
+	    sSwitchSetting= sSwitchClosed;
+	  }
+	  else{
+	    sSwitchSetting= sSwitchOpen;
+	  }
+	  SetSwitch(sSwitchNumber, sSwitchSetting);
+  }	//if(sProjectType_==10)else
   return;
 } //BLYNK_WRITE(Switch_3V20)
 

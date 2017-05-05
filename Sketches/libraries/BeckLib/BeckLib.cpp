@@ -4,7 +4,7 @@
 #include <BeckBlynk.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
-const char szVersionDate[]    = "May 4, 2017 -V- Lenny";
+const char szVersionDate[]    = "May 4, 2017 -CC- Lenny";
 
 //Global variables
 long                  lLineCount      = 0;  //Serial Monitor uses for clarity.

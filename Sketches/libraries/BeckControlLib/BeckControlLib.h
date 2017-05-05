@@ -46,6 +46,7 @@ extern const uint8_t ucGrey2LevelPin;
 
 //Function protos.
 extern void			SetupHotTub();
+extern void 		ResetHotTub();
 extern void     HandleHeatSwitch();
 extern void     TurnHeatOn(bool bTurnOn);
 extern void     SetHeatSwitch(int sSwitchState);
