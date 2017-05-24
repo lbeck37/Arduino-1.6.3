@@ -1,0 +1,5 @@
+Sources for Anet A8 X Axis Cable Chain with Z Stop Adjustment
+
+Z_Motor_Fixation_Chain for Anet A8 (http://www.thingiverse.com/thing:2055872)
+improved linear chain to Extruder on Anet A8 (http://www.thingiverse.com/thing:1905344)
+Prusa i3 ANET A8, Z Endstop Adjuster. (http://www.thingiverse.com/thing:1479176)
