@@ -34,8 +34,11 @@ $fn = 60;
 x = 0; y = 1; z = 2;
 thick = 3;
 space = 3;
+bearingDia= 22.25;   //22 produced 21.75mm holes
 
-bearing = [22, 22, 7]; //608 bearing
+//bearing = [22, 22, 7]; //608 bearing
+bearing = [bearingDia, bearingDia, 7]; //608 bearing
+//bearing = [22.25, 22.25, 7]; //608 bearing
 sae = [.577*25.4, .5 * 25.4, 7]; // 5/16 hex nut
 sae38 = [.650*25.4,.562*25.4, 7];	// 3/8 
 sae12 = [.866*25.4, .75*25.4, 7];	// 1/2
