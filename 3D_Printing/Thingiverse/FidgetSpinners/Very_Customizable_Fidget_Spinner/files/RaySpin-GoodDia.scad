@@ -1,16 +1,17 @@
-// 6/27/17A Beck
+// 6/28/17A Beck
 // lucina
 // 2017-05-18
 // preview[view:south, tilt:top]
 
 // the number of rays
-rays = 4; //[1,2,3,4,5,6]
+rays = 2; //[1,2,3,4,5,6]
 
 // the weights per ray
 numWeights = 1;   //[1, 2, 3, 4]
 
 // mm to extend ray if only 1 weight per ray
-extra = 4;  //[0:1:20]
+//extra = 4;  //[0:1:20]
+extra = 0;  //[0:1:20]
 
 // the type of weight
 //whichWeight = "3/8 hex nut";   
@@ -34,7 +35,8 @@ $fn = 60;
 x = 0; y = 1; z = 2;
 thick = 3;
 space = 3;
-bearingDia= 22.25;   //22 produced 21.75mm holes
+//bearingDia= 22.25;   //22 produced 21.75mm holes
+bearingDia= 22.20;   //22 produced 21.75mm holes
 
 //bearing = [22, 22, 7]; //608 bearing
 bearing = [bearingDia, bearingDia, 7]; //608 bearing
