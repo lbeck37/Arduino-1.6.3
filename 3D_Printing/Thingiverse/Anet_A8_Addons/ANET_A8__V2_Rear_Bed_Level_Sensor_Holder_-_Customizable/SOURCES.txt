@@ -1,0 +1,5 @@
+Sources for ANET A8 | V2 Rear Bed Level Sensor Holder - Customizable
+
+ANET A8 | Rear Bed Level Sensor Holder (18mm, 12mm & 8mm) (http://www.thingiverse.com/thing:2105275)
+Anet A8 bed level holder (18mm capacitive sensor) (http://www.thingiverse.com/thing:1883473)
+Anet A8 bed level holder (12mm inductive sensor) (http://www.thingiverse.com/thing:1884118)
