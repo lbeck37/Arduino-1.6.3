@@ -47,6 +47,7 @@ static const int       sLastButton           = sSelect;
 static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
+#if 0		//Pro Mini
 static const int       sSelectButton         = A3;
 static const int       sDownButton           = A2;
 static const int       sUpButton             = A1;
@@ -54,6 +55,19 @@ static const int       sBacklightPin         =  6;
 static const int       sServoPin             =  7;
 static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
+#endif
+
+#if 1		//NodeMCU
+//static const int       sSelectButton         =  1;		//Need to eliminate this
+static const int       sSelectButton         = 10;		//Need to eliminate this
+static const int       sDownButton           =  2;
+static const int       sUpButton             =  0;
+static const int       sBacklightPin         =  1;	//Need to eliminate this
+//static const int       sServoPin             =  3;
+static const int       sServoPin             =  9;
+static const byte      cSPICmdDataPin        = 16;
+static const byte      cSPIChipSelectPin     =  1;
+#endif
 
 //Constants used locally for state in sCheckButtons
 static const int       sButtonOpen        = 0;
@@ -132,8 +146,9 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  Serial << "Powershift_DOGS102.ino, Apr 16, 2017 A" << endl;
-  Serial << "Free Ram= " << freeRam() << endl;
+  //Serial << "Powershift_DOGS102.ino, Apr 16, 2017 A" << endl;
+  Serial << "Powershift_DOGS102.ino, July 14, 2017 Ace-C NodeMCU" << endl;
+  //Serial << "Free Ram= " << freeRam() << endl;
 
   sFillGearLocations();
   sServoInit();
@@ -563,7 +578,7 @@ int sServoSetPosition(int sServoPos) {
    return 1;
 }  //sServoSetPosition
 
-
+/*
 //freeRam() returns the number of bytes currently free in RAM.
 int freeRam(void)
 {
@@ -578,4 +593,5 @@ int freeRam(void)
   }
   return free_memory;
 }  //freeRam
+*/
 //Last line.
