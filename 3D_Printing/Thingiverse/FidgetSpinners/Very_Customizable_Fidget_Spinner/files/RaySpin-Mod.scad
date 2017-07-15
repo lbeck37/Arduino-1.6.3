@@ -4,7 +4,7 @@
 // preview[view:south, tilt:top]
 
 // the number of rays
-rays = 2; //[1,2,3,4,5,6]
+rays = 4; //[1,2,3,4,5,6]
 
 // the weights per ray
 numWeights = 1;   //[1, 2, 3, 4]
@@ -38,7 +38,6 @@ bearingDia= 22.25;   //22 produced 21.75mm holes
 
 //bearing = [22, 22, 7]; //608 bearing
 bearing = [bearingDia, bearingDia, 7]; //608 bearing
-//bearing = [22.25, 22.25, 7]; //608 bearing
 sae = [.577*25.4, .5 * 25.4, 7]; // 5/16 hex nut
 sae38 = [.650*25.4,.562*25.4, 7];	// 3/8 
 sae12 = [.866*25.4, .75*25.4, 7];	// 1/2
