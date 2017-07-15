@@ -1,5 +1,9 @@
+//char acSketchName[]  = "DOGS102_demo.ino";
+//char acFileDate[]    = "July 14, 2017 Ace B";
 // 5/14/15 Beck Copied in from C:\Dev\Arduino\DOGS_LCD\Arduino meets EA DOGS102
+// 7/14/15 Trying to get DOGS102 to show anything
 #include <Arduino.h>
+#include <Streaming.h>
 #include <SPI.h>
 #include <dog_1701.h>
 #include <font_16x32nums.h>
@@ -25,6 +29,10 @@ dog_1701 DOG;
 int led       = 6;
 int led_green = 5;
 int led_red   = 3;
+
+String acSketchName  = "DOGS102_demo.ino";
+String acFileDate    = "July 14, 2017 Ace E";
+
 void init_backlight(boolean mono);
 void mono_backlight(byte brightness);
 void gr_backlight(byte green, byte red);
@@ -35,17 +43,38 @@ void sample_screen(void);
 //initialize the backlight and the display
 void setup()
 {
-  init_backlight(true); //use RGB backlight in this sample code. Please change it to your configuration
-  DOG.initialize(10,0,0,9,4,DOGS102);   //SS = 10, 0,0= use Hardware SPI, 9 = A0, 4 = RESET, EA DOGS102-6 (=102x64 dots)
+	long	lSerialMonitorBaud= 115200;
+	Serial.begin(lSerialMonitorBaud);
+	Serial << endl;
+  Serial << "setup(): Initialized serial to " + String(lSerialMonitorBaud) + " baud" << endl;
+  Serial << "Sketch: " + acSketchName + ", " + acFileDate << endl;
+  //init_backlight(true); //use RGB backlight in this sample code. Please change it to your configuration
 
+	Serial << "setup(): Call DOG.initialize()" << endl;
+  //DOG.initialize(10,0,0,9,4,DOGS102);   //SS = 10, 0,0= use Hardware SPI, 9 = A0, 4 = RESET, EA DOGS102-6 (=102x64 dots)
+
+	const byte       cSPICmdDataPin       =  4;	//Was 16
+	const byte       cSPIChipSelectPin    = 15;
+	const byte       cBogusResetPin      	=  4;
+	const byte       cHW_SPI             	=  0;      //This is what their demo used.
+  DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
+                 cSPICmdDataPin   , cBogusResetPin, DOGS102);
+
+	Serial << "setup(): Call DOG.view()" << endl;
   DOG.view(VIEW_BOTTOM);  //default viewing direction
 }
 
 //create a sample sceen content
 void sample_screen(void)
 {
+	//Serial << "sample_screen(): Begin" << endl;
+
+	//Serial << "sample_screen(): Call DOG.clear()" << endl;
   DOG.clear();  //clear whole display
+
+	//Serial << "sample_screen(): Call DOG.picture()" << endl;
   DOG.picture(0,0,ea_logo);
+
   //DOG.string(71,0,font_8x16,"DOGS");      //font size 8x16 first page
   DOG.string(71,0,font_8x16,"Tuna");      //font size 8x16 first page
   DOG.rectangle(71,2,127,2,0x03);              //show small line (filled pattern = 0x03), to the left and right of 'DOGL128'
@@ -59,7 +88,8 @@ void sample_screen(void)
   //DOG.string(0,4,font_6x8,"-DOGS102-6");
   //DOG.string(0,6,font_6x8,"PowerShift by ShiftE");
   DOG.string(0,7,font_6x8,"The Dude abides");
-}
+}	//sample_screen
+
 
 //main loop
 void loop()
@@ -72,13 +102,15 @@ void loop()
   DOG.view(VIEW_TOP);    //alternate viewing direction
   sample_screen();
   delay(1000);
-#endif
+//#endif
   for (int sPercentBrightness= 100; sPercentBrightness >= 0; sPercentBrightness -= 25) {
    mono_backlight((sPercentBrightness * 255) / 100);    //BL full brightness
    delay(1000);
   }   //for
   delay(1000);
-}
+#endif
+}	//loop
+
 
 //The following functions controll the backlight with a PWM. Not needed for the display content
 void init_backlight(boolean mono)
