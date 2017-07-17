@@ -1,5 +1,3 @@
-//char acSketchName[]  = "DOGS102_demo.ino";
-//char acFileDate[]    = "July 14, 2017 Ace B";
 // 5/14/15 Beck Copied in from C:\Dev\Arduino\DOGS_LCD\Arduino meets EA DOGS102
 // 7/14/15 Trying to get DOGS102 to show anything
 #include <Arduino.h>
@@ -7,13 +5,11 @@
 #include <SPI.h>
 #include <dog_1701.h>
 //None of the font includes are protected from multiple includes
-/*
 #include <font_16x32nums.h>
 #include <font_6x8.h>
 #include <font_8x16.h>
 #include <font_8x8.h>
 #include <logo_BLH.h>
-*/
 
 /*Available functions in dog_1701 Libraray:
   void initialize  (byte p_cs, byte p_si, byte p_clk, byte p_a0, byte p_res, byte type);
@@ -25,6 +21,12 @@
   void picture     (byte column, byte page, const byte *pic_adress);
 */
 
+/*
+extern const byte ea_logo[];
+extern const byte font_6x8[];
+extern const byte font_8x16[];
+*/
+
 dog_1701 DOG;
 
 //the following port definitions are used by our demo board "EA PCBARDDOG7565"
@@ -34,7 +36,7 @@ int led_green = 5;
 int led_red   = 3;
 
 String acSketchName  = "DOGS102_demo.ino";
-String acFileDate    = "July 14, 2017 Ace E";
+String acFileDate    = "July 17, 2017 Ace A";
 
 //void init_backlight(boolean mono);
 void mono_backlight(byte brightness);
