@@ -47,7 +47,7 @@ static const int       sLastButton           = sSelect;
 static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
-#if 1		//Pro Mini
+#if 1   //Pro Mini
 static const int       sSelectButton         = A3;
 static const int       sDownButton           = A2;
 static const int       sUpButton             = A1;
@@ -57,12 +57,12 @@ static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
 #endif
 
-#if 0		//NodeMCU
-//static const int       sSelectButton         =  1;		//Need to eliminate this
-static const int       sSelectButton         = 10;		//Need to eliminate this
+#if 0   //NodeMCU
+//static const int       sSelectButton         =  1;    //Need to eliminate this
+static const int       sSelectButton         = 10;    //Need to eliminate this
 static const int       sDownButton           =  2;
 static const int       sUpButton             =  0;
-static const int       sBacklightPin         =  1;	//Need to eliminate this
+static const int       sBacklightPin         =  1;  //Need to eliminate this
 //static const int       sServoPin             =  3;
 static const int       sServoPin             =  9;
 static const byte      cSPICmdDataPin        = 16;
@@ -197,7 +197,8 @@ int sShowSplash(void) {
 
    //2 lines in normal font
    sDisplayText(5, 0, sFontNormal, "Always ride safe!");
-   sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
+   //sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
+   sDisplayText(7, 0, sFontNormal, "July 17, 2017 D");
    return 1;
 }  //sShowSplash
 
