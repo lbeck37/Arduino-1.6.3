@@ -5,6 +5,9 @@
   2th Byte: Height of image in dots
   After that image data will follow */
 
+#ifndef LOGO_SMALL_BLH_H
+#define LOGO_SMALL_BLH_H
+
 #define EA_LOGO_SMALL_LEN  98
 
 const byte ea_logo_small[EA_LOGO_SMALL_LEN] __attribute__((section(".progmem.data")))=
@@ -17,3 +20,4 @@ const byte ea_logo_small[EA_LOGO_SMALL_LEN] __attribute__((section(".progmem.dat
     3,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  7,  3,  0,  3,  7,
     7,  7,  7,  3,  1,  1,  1,  1,  1,  1,  3,  7,  7,  7,  7,  3
 };
+#endif	//LOGO_SMALL_BLH_H

@@ -6,11 +6,14 @@
 #include <Streaming.h>
 #include <SPI.h>
 #include <dog_1701.h>
+//None of the font includes are protected from multiple includes
+/*
 #include <font_16x32nums.h>
 #include <font_6x8.h>
 #include <font_8x16.h>
 #include <font_8x8.h>
 #include <logo_BLH.h>
+*/
 
 /*Available functions in dog_1701 Libraray:
   void initialize  (byte p_cs, byte p_si, byte p_clk, byte p_a0, byte p_res, byte type);
@@ -33,9 +36,9 @@ int led_red   = 3;
 String acSketchName  = "DOGS102_demo.ino";
 String acFileDate    = "July 14, 2017 Ace E";
 
-void init_backlight(boolean mono);
+//void init_backlight(boolean mono);
 void mono_backlight(byte brightness);
-void gr_backlight(byte green, byte red);
+//void gr_backlight(byte green, byte red);
 
 
 void sample_screen(void);
@@ -113,6 +116,7 @@ void loop()
 
 
 //The following functions controll the backlight with a PWM. Not needed for the display content
+/*
 void init_backlight(boolean mono)
 {
   if(mono) //EA LED39X41-W, EA LED39X41-A
@@ -138,3 +142,4 @@ void rgb_backlight(byte green, byte red)
   analogWrite(led_red,  red);
   analogWrite(led_green, green);
 }
+*/

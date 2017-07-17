@@ -14,6 +14,9 @@ for more details (techik@lcd-module.de)
             or 0 for big fonts calculate WidthInDots * HeightInBytes
   After that font data will follow */
 
+#ifndef FONT_16X32NUMS_H
+#define FONT_16X32NUMS_H
+
 #define FONT_16X32NUMS_LEN  1096
 
 const byte font_16x32nums[FONT_16X32NUMS_LEN] __attribute__((section(".progmem.data"))) =
@@ -88,3 +91,4 @@ const byte font_16x32nums[FONT_16X32NUMS_LEN] __attribute__((section(".progmem.d
     0,  0,  0,  0,  0,  0,248,248,248,248,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 };
+#endif	//FONT_16X32NUMS_H
