@@ -36,10 +36,10 @@ int led_green = 5;
 int led_red   = 3;
 
 String acSketchName  = "DOGS102_demo.ino";
-String acFileDate    = "July 17, 2017 Ace A";
+String acFileDate    = "July 17, 2017 Ace C";
 
 //void init_backlight(boolean mono);
-void mono_backlight(byte brightness);
+//void mono_backlight(byte brightness);
 //void gr_backlight(byte green, byte red);
 
 
@@ -58,11 +58,18 @@ void setup()
 	Serial << "setup(): Call DOG.initialize()" << endl;
   //DOG.initialize(10,0,0,9,4,DOGS102);   //SS = 10, 0,0= use Hardware SPI, 9 = A0, 4 = RESET, EA DOGS102-6 (=102x64 dots)
 
-	const byte       cSPICmdDataPin       =  4;	//Was 16
+	const byte       cSPICmdDataPin       =  4;			//Was 16
 	const byte       cSPIChipSelectPin    = 15;
-	const byte       cBogusResetPin      	=  4;
-	const byte       cHW_SPI             	=  0;      //This is what their demo used.
+	const byte       cSPI_MOSIPin       	= 13;
+	const byte       cSPI_CLKPin    			= 14;
+	//const byte       cBogusResetPin      	=  4;
+	const byte       cBogusResetPin      	=  9;			//NodeMCU shows pin 9 as SD1, secondary data?
+	const byte       cHW_SPI             	=  0; 		//This is what their demo used.
+/*
   DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
+                 cSPICmdDataPin   , cBogusResetPin, DOGS102);
+*/
+  DOG.initialize(cSPIChipSelectPin, cSPI_MOSIPin  , cSPI_CLKPin,
                  cSPICmdDataPin   , cBogusResetPin, DOGS102);
 
 	Serial << "setup(): Call DOG.view()" << endl;

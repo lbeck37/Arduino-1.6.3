@@ -127,7 +127,7 @@ EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
 
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
-static int              sButtonCountLast[]   = { 0, 0, 0};
+//static int              sButtonCountLast[]   = { 0, 0, 0};
 static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
@@ -324,11 +324,13 @@ int sFillGearLocations(void) {
 
 
 int sHandleButtons(void) {
+/*
    int          sButton;
    int          sGearChange;
    int          sNewGear;
    int          sTargetLocation;
    int          sTargetChange= 0;
+*/
 
   if (!bHandleBothHeld()) {
      if (millis() > ulModeReadyTime) {
