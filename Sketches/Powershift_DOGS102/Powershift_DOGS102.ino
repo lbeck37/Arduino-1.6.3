@@ -47,7 +47,7 @@ static const int       sLastButton           = sSelect;
 static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
-#if 0		//Pro Mini
+#if 1		//Pro Mini
 static const int       sSelectButton         = A3;
 static const int       sDownButton           = A2;
 static const int       sUpButton             = A1;
@@ -57,7 +57,7 @@ static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
 #endif
 
-#if 1		//NodeMCU
+#if 0		//NodeMCU
 //static const int       sSelectButton         =  1;		//Need to eliminate this
 static const int       sSelectButton         = 10;		//Need to eliminate this
 static const int       sDownButton           =  2;
@@ -146,8 +146,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  //Serial << "Powershift_DOGS102.ino, Apr 16, 2017 A" << endl;
-  Serial << "Powershift_DOGS102.ino, July 14, 2017 Ace-C NodeMCU" << endl;
+  Serial << "Powershift_DOGS102.ino, July 17, 2017 Ace-D ProMini" << endl;
   //Serial << "Free Ram= " << freeRam() << endl;
 
   sFillGearLocations();
