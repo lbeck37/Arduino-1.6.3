@@ -31,7 +31,7 @@ static const int       sServoMin             = 0;
 static const int       sServoMax             = 180;
 static const int       sServoMsecWait        = 15;
 static const int       sNumGears             = 7;
-static const boolean   bServoOn              = true;
+static const boolean   bServoOn              = false;
 static const int       sHoldDeltaPos         = 2; //Servo move size when button held.
 static const int       sTrimDeltaPos         = 1; //Servo move size when button clicked.
 
@@ -47,8 +47,8 @@ static const int       sLastButton           = sSelect;
 static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
-#if 1   //Pro Mini
-static const int       sSelectButton         = A3;
+#if 0   //Pro Mini
+//static const int       sSelectButton         = A3;
 static const int       sDownButton           = A2;
 static const int       sUpButton             = A1;
 static const int       sBacklightPin         =  6;
@@ -57,16 +57,18 @@ static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
 #endif
 
-#if 0   //NodeMCU
+#if 1   //NodeMCU
 //static const int       sSelectButton         =  1;    //Need to eliminate this
-static const int       sSelectButton         = 10;    //Need to eliminate this
-static const int       sDownButton           =  2;
+//static const int       sSelectButton         = 10;    //Need to eliminate this
+static const int       sDownButton           =  2;			//Why isn't the down button 1 ?
 static const int       sUpButton             =  0;
 static const int       sBacklightPin         =  1;  //Need to eliminate this
-//static const int       sServoPin             =  3;
-static const int       sServoPin             =  9;
+static const int       sServoPin             =  3;	//Pin 3, D9, RXD0
+//static const int       sServoPin             =  9;	//Pin 9, SD2
+//static const int       sServoPin             =  4;	//Pin 4, D2, I2C SDA
+//static const int       sServoPin             =  1;	//Pin 1, D10, TXD0
 static const byte      cSPICmdDataPin        = 16;
-static const byte      cSPIChipSelectPin     =  1;
+static const byte      cSPIChipSelectPin     = 15;
 #endif
 
 //Constants used locally for state in sCheckButtons
@@ -122,7 +124,7 @@ dog_1701 DOG;
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
 EasyButton DownButton   (sDownButton,   NULL, CALL_NONE, bButtonPullUp);
-EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
+//EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
 
 
 //Number of unhandled presses, up to sMaxButtonPresses
@@ -146,11 +148,13 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  Serial << "Powershift_DOGS102.ino, July 17, 2017 Ace-D ProMini" << endl;
-  //Serial << "Free Ram= " << freeRam() << endl;
+  Serial << endl << "Powershift_DOGS102.ino, July 18, 2017 Ace-S NodeMCU" << endl;
 
+  Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
+	Serial << "setup(): Call sServoInit()" << endl;
   sServoInit();
+	Serial << "setup(): Call sShowStartScreen()" << endl;
   sShowStartScreen();
 
   //Dither the servo once so it's position shows on the LCD.
@@ -169,22 +173,22 @@ void loop() {
 
 
 int sDisplayBegin() {
-   DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
-                  cSPICmdDataPin   , cBogusResetPin, DOGS102);
-   DOG.view(sDisplayNormal);  //View screen Normal or Flipped
-   //Set backlight pin to be a PWM "analog" out pin.
-   //Drive LED backlight through 15 ohm resistor.
-   pinMode(sBacklightPin, OUTPUT);
-   sDisplaySetBrightness(sDefaultBrightness);
-   return 1;
+	Serial << "sDisplayBegin(): Call DOG.initialize()" << endl;
+	DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
+								 cSPICmdDataPin   , cBogusResetPin, DOGS102);
+	Serial << "sDisplayBegin(): Call DOG.view()" << endl;
+	DOG.view(sDisplayNormal);  //View screen Normal or Flipped
+	return 1;
 }  //sDisplayBegin
 
 
 int sShowStartScreen(void) {
-   sDisplayBegin();
-   sShowSplash();
-   delay(3000);
-   return 1;
+	Serial << "sShowStartScreen(): Call sDisplayBegin()" << endl;
+	sDisplayBegin();
+	Serial << "sShowStartScreen(): Call sShowSplash()" << endl;
+	sShowSplash();
+	delay(3000);
+	return 1;
 }  //sShowStartScreen
 
 
@@ -198,15 +202,17 @@ int sShowSplash(void) {
    //2 lines in normal font
    sDisplayText(5, 0, sFontNormal, "Always ride safe!");
    //sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
-   sDisplayText(7, 0, sFontNormal, "July 17, 2017 D");
+   sDisplayText(7, 0, sFontNormal, "July 18, 2017 ");
    return 1;
 }  //sShowSplash
 
 
+/*
 int sDisplaySetBrightness(int sBrightness){
    analogWrite(sBacklightPin, sBrightness);
    return 1;
 }  //sDisplaySetBrightness
+*/
 
 
 int sDisplayUpdate(void) {
@@ -264,17 +270,19 @@ int sDisplayButtons() {
    strcpy(szLineBuffer, "U ");
    itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   sDisplayText(5, 82, sFontNormal, szLineBuffer);
+   sDisplayText(5, 82, sFontNormal, szLineBuffer);	//Move this and next to lines 6 and 7
 
    strcpy(szLineBuffer, "D ");
    itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(6, 82, sFontNormal, szLineBuffer);
 
+/*
    strcpy(szLineBuffer, "S ");
    itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(7, 82, sFontNormal, szLineBuffer);
+*/
    return 1;
 }  //sDisplayButtons
 
@@ -484,9 +492,10 @@ int sCheckButtons(void) {
 
   UpButton.update();
   DownButton.update();
-  SelectButton.update();
+  //SelectButton.update();
 
    //Run through the buttons, use short-circuiting to select
+   //7/18/17 Why is sDown 2 and not 1?
    for (sButton= sUp; sButton <= sDown; sButton++) {
       //Check for IsRelease for all buttons.
       if ( ((sButton == sUp)   && UpButton.IsRelease  ()) ||
@@ -534,11 +543,14 @@ int sCheckButtons(void) {
 
 
 int sServoInit() {
-   if (bServoOn) {
-      myservo.attach(sServoPin);
-      sServoMove(asGearLocation[sCurrentGear]);
-   }  //if(bServoOn)
-   return 1;
+	Serial << "sServoInit(): Check bServoOn" << endl;
+	if (bServoOn) {
+		Serial << "sServoInit(): Call myservo.attach() for pin " << sServoPin << endl;
+		myservo.attach(sServoPin);
+	}  //if(bServoOn)
+	Serial << "sServoInit(): Call sServoMove()" << endl;
+	sServoMove(asGearLocation[sCurrentGear]);
+	return 1;
 } //sServoInit
 
 int sServoMove(int sServoPos) {
@@ -576,24 +588,10 @@ int sServoSetPosition(int sServoPos) {
    if (bServoOn) {
       myservo.write(sServoPos);
    }
+   else {
+     Serial << "sServoSetPosition():bServoOn is false, skip move to " << sServoPos << endl;
+   }
    delay(sServoMsecWait);
    return 1;
 }  //sServoSetPosition
-
-/*
-//freeRam() returns the number of bytes currently free in RAM.
-int freeRam(void)
-{
-  extern int  __bss_end;
-  extern int  *__brkval;
-  int free_memory;
-  if((int)__brkval == 0) {
-    free_memory = ((int)&free_memory) - ((int)&__bss_end);
-  }
-  else {
-    free_memory = ((int)&free_memory) - ((int)__brkval);
-  }
-  return free_memory;
-}  //freeRam
-*/
 //Last line.
