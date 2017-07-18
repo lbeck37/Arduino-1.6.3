@@ -40,9 +40,9 @@ static const int       sCalibMode            = 1;
 
 static const int       sUp                   = 0;
 static const int       sDown                 = 1;
-static const int       sSelect               = 2;
+//static const int       sSelect               = 2;
 static const int       sFirstButton          = sUp;
-static const int       sLastButton           = sSelect;
+static const int       sLastButton           = sDown;
 
 static const boolean   bButtonPullUp         = true;
 
@@ -51,7 +51,7 @@ static const boolean   bButtonPullUp         = true;
 //static const int       sSelectButton         = A3;
 static const int       sDownButton           = A2;
 static const int       sUpButton             = A1;
-static const int       sBacklightPin         =  6;
+//static const int       sBacklightPin         =  6;
 static const int       sServoPin             =  7;
 static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
@@ -60,9 +60,9 @@ static const byte      cSPIChipSelectPin     = 10;
 #if 1   //NodeMCU
 //static const int       sSelectButton         =  1;    //Need to eliminate this
 //static const int       sSelectButton         = 10;    //Need to eliminate this
-static const int       sDownButton           =  2;			//Why isn't the down button 1 ?
+static const int       sDownButton           =  2;
 static const int       sUpButton             =  0;
-static const int       sBacklightPin         =  1;  //Need to eliminate this
+//static const int       sBacklightPin         =  1;  //Need to eliminate this
 static const int       sServoPin             =  3;	//Pin 3, D9, RXD0
 //static const int       sServoPin             =  9;	//Pin 9, SD2
 //static const int       sServoPin             =  4;	//Pin 4, D2, I2C SDA
@@ -148,7 +148,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  Serial << endl << "Powershift_DOGS102.ino, July 18, 2017 Ace-S NodeMCU" << endl;
+  Serial << endl << "Powershift_DOGS102.ino, July 18, 2017 Ace-T NodeMCU" << endl;
 
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
@@ -495,7 +495,6 @@ int sCheckButtons(void) {
   //SelectButton.update();
 
    //Run through the buttons, use short-circuiting to select
-   //7/18/17 Why is sDown 2 and not 1?
    for (sButton= sUp; sButton <= sDown; sButton++) {
       //Check for IsRelease for all buttons.
       if ( ((sButton == sUp)   && UpButton.IsRelease  ()) ||
