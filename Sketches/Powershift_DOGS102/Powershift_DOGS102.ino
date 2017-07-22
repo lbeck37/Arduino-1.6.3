@@ -58,17 +58,16 @@ static const byte      cSPIChipSelectPin     = 10;
 #endif
 
 #if 1   //NodeMCU
-//static const int       sSelectButton         =  1;    //Need to eliminate this
-//static const int       sSelectButton         = 10;    //Need to eliminate this
-static const int       sDownButton           =  2;
+//static const int       sServoPin             =  9;		//Pin 9, SD2
+//static const int       sServoPin             =  4;		//Pin 4, D2, I2C SDA
+//static const int       sServoPin             =  1;		//Pin 1, D10, TXD0
+static const int       sServoPin             =  3;		//Pin 3, D9, RXD0
+static const int       sDownButton           =  2;		//Pin 2, D4
 static const int       sUpButton             =  0;		//Pin 0, D3
-//static const int       sBacklightPin         =  1;  //Need to eliminate this
-static const int       sServoPin             =  3;	//Pin 3, D9, RXD0
-//static const int       sServoPin             =  9;	//Pin 9, SD2
-//static const int       sServoPin             =  4;	//Pin 4, D2, I2C SDA
-//static const int       sServoPin             =  1;	//Pin 1, D10, TXD0
-static const byte      cSPICmdDataPin        = 16;
-static const byte      cSPIChipSelectPin     = 15;
+static const byte      cSPICmdDataPin        = 16;		//Pin 16, D0
+//static const byte      cSPICmdDataPin        =  5;		//Pin 5, D1, ILI9341 display article
+static const byte      cSPIChipSelectPin     = 15;		//Pin 15, D8
+//static const byte      cSPIChipSelectPin     =  4;		//Pin 4, D2, ILI9341 display article
 #endif
 
 //Constants used locally for state in sCheckButtons
@@ -148,7 +147,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  Serial << endl << "Powershift_DOGS102.ino, July 18, 2017 Ace-T NodeMCU" << endl;
+  Serial << endl << "Powershift_DOGS102.ino, July 19, 2017 Ace-F NodeMCU" << endl;
 
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
@@ -202,7 +201,7 @@ int sShowSplash(void) {
    //2 lines in normal font
    sDisplayText(5, 0, sFontNormal, "Always ride safe!");
    //sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
-   sDisplayText(7, 0, sFontNormal, "July 18, 2017 ");
+   sDisplayText(7, 0, sFontNormal, "July 19, 2017 ");
    return 1;
 }  //sShowSplash
 
