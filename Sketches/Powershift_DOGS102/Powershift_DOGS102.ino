@@ -147,7 +147,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  Serial << endl << "Powershift_DOGS102.ino, July 22, 2017 Ace-F NodeMCU" << endl;
+  Serial << endl << "Powershift_DOGS102.ino, July 22, 2017 Lenny-F NodeMCU" << endl;
 
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
