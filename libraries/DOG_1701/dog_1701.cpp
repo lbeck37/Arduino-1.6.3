@@ -35,16 +35,20 @@ void dog_1701::initialize(byte p_cs, byte p_si, byte p_clk, byte p_a0, byte p_re
 	pinMode(p_a0, OUTPUT);
 	spi_initialize(p_cs, p_si, p_clk); //init SPI to Mode 3
 
+/*
 	//perform a Reset
 	digitalWrite(p_res, LOW);
 	pinMode(p_res, OUTPUT);
 	delayMicroseconds(10);
 	digitalWrite(p_res, HIGH);
 	delay(1);
+*/
 
 	//Init DOGS displays, depending on users choice
 	ptr_init = init_DOGS102; //default pointer for wrong parameters
-	if(type == DOGS102) 		ptr_init = init_DOGS102;
+	if(type == DOGS102){
+		ptr_init = init_DOGS102;
+	}
 	
 	dog_1701::type = type;
 
@@ -287,12 +291,18 @@ void dog_1701::spi_initialize(byte cs, byte si, byte clk)
 	}
 	else 
 	{
-		hardware = false;
+		//For ESP8266
+		if ((p_si == 13) && (p_clk == 14)) {
+			hardware = true;
+		}
+		else{
+			hardware= false;
+		}
 		p_si = si;
 		p_clk = clk;
 	}
 	
-	// Set CS to deselct slaves
+	// Set CS to deselect slaves
 	digitalWrite(p_cs, HIGH);
 	pinMode(p_cs, OUTPUT);
 	

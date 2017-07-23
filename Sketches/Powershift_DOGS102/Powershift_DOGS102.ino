@@ -68,6 +68,8 @@ static const byte      cSPICmdDataPin        = 16;		//Pin 16, D0
 //static const byte      cSPICmdDataPin        =  5;		//Pin 5, D1, ILI9341 display article
 static const byte      cSPIChipSelectPin     = 15;		//Pin 15, D8
 //static const byte      cSPIChipSelectPin     =  4;		//Pin 4, D2, ILI9341 display article
+static const byte      cSPI_MOSI_Pin         = 13;		//Pin 13, D7
+static const byte      cSPI_CLK_Pin          = 14;		//Pin 14, D5
 #endif
 
 //Constants used locally for state in sCheckButtons
@@ -147,7 +149,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  Serial << endl << "Powershift_DOGS102.ino, July 22, 2017 Lenny-F NodeMCU" << endl;
+  Serial << endl << "Powershift_DOGS102.ino, July 22, 2017 Ace-R NodeMCU" << endl;
 
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
@@ -173,7 +175,11 @@ void loop() {
 
 int sDisplayBegin() {
 	Serial << "sDisplayBegin(): Call DOG.initialize()" << endl;
+/*
 	DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
+								 cSPICmdDataPin   , cBogusResetPin, DOGS102);
+*/
+	DOG.initialize(cSPIChipSelectPin, cSPI_MOSI_Pin , cSPI_CLK_Pin,
 								 cSPICmdDataPin   , cBogusResetPin, DOGS102);
 	Serial << "sDisplayBegin(): Call DOG.view()" << endl;
 	DOG.view(sDisplayNormal);  //View screen Normal or Flipped
