@@ -47,7 +47,7 @@ static const int       sLastButton           = sDown;
 static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
-#if 0   //Pro Mini
+#if 1   //Pro Mini
 //static const int       sSelectButton         = A3;
 static const int       sDownButton           = A2;
 static const int       sUpButton             = A1;
@@ -57,7 +57,7 @@ static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
 #endif
 
-#if 1   //NodeMCU
+#if 0   //NodeMCU
 //static const int       sServoPin             =  9;		//Pin 9, SD2
 //static const int       sServoPin             =  4;		//Pin 4, D2, I2C SDA
 //static const int       sServoPin             =  1;		//Pin 1, D10, TXD0
@@ -149,7 +149,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  Serial << endl << "Powershift_DOGS102.ino, July 22, 2017 Ace-R NodeMCU" << endl;
+  Serial << endl << "Powershift_DOGS102.ino, July 31, 2017 Ace-A Pro Mini" << endl;
 
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
@@ -175,13 +175,13 @@ void loop() {
 
 int sDisplayBegin() {
 	Serial << "sDisplayBegin(): Call DOG.initialize()" << endl;
-/*
 	DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
 								 cSPICmdDataPin   , cBogusResetPin, DOGS102);
-*/
+/*
 	DOG.initialize(cSPIChipSelectPin, cSPI_MOSI_Pin , cSPI_CLK_Pin,
 								 cSPICmdDataPin   , cBogusResetPin, DOGS102);
 	Serial << "sDisplayBegin(): Call DOG.view()" << endl;
+*/
 	DOG.view(sDisplayNormal);  //View screen Normal or Flipped
 	return 1;
 }  //sDisplayBegin
