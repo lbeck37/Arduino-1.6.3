@@ -31,7 +31,7 @@ static const int       sServoMin             = 0;
 static const int       sServoMax             = 180;
 static const int       sServoMsecWait        = 15;
 static const int       sNumGears             = 7;
-static const boolean   bServoOn              = false;
+static const boolean   bServoOn              = true;
 static const int       sHoldDeltaPos         = 2; //Servo move size when button held.
 static const int       sTrimDeltaPos         = 1; //Servo move size when button clicked.
 
@@ -149,7 +149,7 @@ static char        sz10CharString[10];
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  Serial << endl << "Powershift_DOGS102.ino, July 31, 2017 Ace-A Pro Mini" << endl;
+  Serial << endl << "Powershift_DOGS102.ino, July 31, 2017 Ace-B Pro Mini" << endl;
 
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
