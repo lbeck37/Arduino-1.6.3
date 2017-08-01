@@ -92,6 +92,7 @@ bool            bDebugLog= true;   //Used to limit number of printouts.
 #endif
 
 
+#ifdef ESP8266
 void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
   wl_status_t eStatus;
   BLogS("SetupWiFi(): Setting WiFi mode to WIFI_AP_STA");
@@ -153,6 +154,24 @@ String szWiFiStatus(wl_status_t status) {
 } //GetWiFiStatusString
 
 
+void LogESPValues() {
+    //BLog("getVcc= " + (String)ESP.getVcc());
+    BLog("getFreeHeap= " + (String)ESP.getFreeHeap());
+    BLog("getChipId= " + (String)ESP.getChipId());
+    BLog("getSdkVersion= " + (String)ESP.getSdkVersion());
+    //BLog("getBootVersion= " + (String)ESP.getBootVersion());
+    BLog("getCpuFreqMHz= " + (String)ESP.getCpuFreqMHz());
+    //BLog("getFlashChipId= " + (String)ESP.getFlashChipId());
+    //BLog("getFlashChipRealSize= " + (String)ESP.getFlashChipRealSize());
+    BLog("getFlashChipSize= " + (String)ESP.getFlashChipSize());
+    BLog("getFlashChipSpeed= " + (String)ESP.getFlashChipSpeed());
+    //BLog("getFlashChipSizeByChipId= " + (String)ESP.getFlashChipSizeByChipId());
+    //BLog("getFreeSketchSpace= " + (String)ESP.getFreeSketchSpace());
+    //BLog("getSketchSize= " + (String)ESP.getSketchSize());
+    return;
+} //LogESPValues
+#endif
+
 #ifdef OTA_SERVER
 void SetupHttpServer(const char* acHostname,
           ESP8266WebServer& oHttpServer,
@@ -200,24 +219,6 @@ String szLogLineHeader(long lLineCount){
   szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
-
-
-void LogESPValues() {
-    //BLog("getVcc= " + (String)ESP.getVcc());
-    BLog("getFreeHeap= " + (String)ESP.getFreeHeap());
-    BLog("getChipId= " + (String)ESP.getChipId());
-    BLog("getSdkVersion= " + (String)ESP.getSdkVersion());
-    //BLog("getBootVersion= " + (String)ESP.getBootVersion());
-    BLog("getCpuFreqMHz= " + (String)ESP.getCpuFreqMHz());
-    //BLog("getFlashChipId= " + (String)ESP.getFlashChipId());
-    //BLog("getFlashChipRealSize= " + (String)ESP.getFlashChipRealSize());
-    BLog("getFlashChipSize= " + (String)ESP.getFlashChipSize());
-    BLog("getFlashChipSpeed= " + (String)ESP.getFlashChipSpeed());
-    //BLog("getFlashChipSizeByChipId= " + (String)ESP.getFlashChipSizeByChipId());
-    //BLog("getFreeSketchSpace= " + (String)ESP.getFreeSketchSpace());
-    //BLog("getSketchSize= " + (String)ESP.getSketchSize());
-    return;
-} //LogESPValues
 
 
 String szGetTime(long lMsec){

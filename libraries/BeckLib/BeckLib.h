@@ -1,4 +1,4 @@
-//BeckLib.h, Apr 14, 2017
+//BeckLib.h, 7/31/17
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <Streaming.h>
@@ -7,9 +7,11 @@
 //#include <BeckFirebase.h>
 #include <Adafruit_ADS1015.h>   //Just for the defines
 
+/*
 #ifndef OTA_SERVER
   #define OTA_SERVER
 #endif  //OTA_SERVER
+*/
 
 /*
 #ifdef USE_U8GLIB
@@ -22,6 +24,9 @@
 #endif  //USE_U8GLIB
 
 #ifdef ESP8266
+	#ifndef OTA_SERVER
+  	#define OTA_SERVER
+	#endif  //OTA_SERVER
   #include <ESP8266WiFi.h>
   #include <WiFiClient.h>
   //#include <BlynkSimpleEsp8266.h>
@@ -93,8 +98,11 @@ static const long   lMsecPerSec           =     1000;
 extern bool           bDebugLog;    //Used to limit number of printouts.
 
 //Function protos
-void      SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
-String    szWiFiStatus(wl_status_t status);
+#ifdef ESP8266
+	void      SetupWiFi(const char* pcRouterName, const char* pcRouterPW);
+	String    szWiFiStatus(wl_status_t status);
+	void      LogESPValues();
+#endif
 #ifdef OTA_SERVER
   void      SetupHttpServer(const char* acHostname,
                             ESP8266WebServer&        oHttpServer,
@@ -102,7 +110,6 @@ String    szWiFiStatus(wl_status_t status);
   void      HandleHttpServer(ESP8266WebServer& oHttpServer);
 #endif  //OTA_SERVER
 void      LogJustToSerial(String sLogline);
-void      LogESPValues();
 String    szLogLineHeader(long lLineCount);
 String    szGetTime(long lMsec);
 String    szAddZeros(int sValue, int sNumDigits);
