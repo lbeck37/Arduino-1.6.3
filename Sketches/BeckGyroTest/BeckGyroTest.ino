@@ -37,7 +37,7 @@
 //
 
 #include <Wire.h>
-
+#include <Streaming.h>
 
 // The name of the sensor is "MPU-6050".
 // For program code, I omit the '-',
@@ -675,8 +675,13 @@ void setup()
 
 
   Serial.begin(115200);
+
+  Serial << endl << "setup() Begin: BeckGyroTest.ino, 8/2/17, Ace-A" << endl;
+
+/*
   Serial.println(F("InvenSense MPU-6050"));
   Serial.println(F("June 2012"));
+*/
 
   // Initialize the 'Wire' class for the I2C-bus.
   Wire.begin();
