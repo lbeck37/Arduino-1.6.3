@@ -108,12 +108,12 @@ extern bool           bDebugLog;    //Used to limit number of printouts.
                             ESP8266WebServer&        oHttpServer,
                             ESP8266HTTPUpdateServer& oHttpUpdateServer);
   void      HandleHttpServer(ESP8266WebServer& oHttpServer);
+  String    szIPaddress(IPAddress oIP);
 #endif  //OTA_SERVER
 void      LogJustToSerial(String sLogline);
 String    szLogLineHeader(long lLineCount);
 String    szGetTime(long lMsec);
 String    szAddZeros(int sValue, int sNumDigits);
-String    szIPaddress(IPAddress oIP);
 
 
 //Global variables

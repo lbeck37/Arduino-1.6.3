@@ -202,6 +202,13 @@ void HandleHttpServer(ESP8266WebServer& oHttpServer){
   oHttpServer.handleClient();
   delay(1);
 } //HandleHttpServer
+
+
+String szIPaddress(IPAddress oIP){
+  String szDot= ".";
+  String szOctetIP= oIP[0] + szDot +  oIP[1] + szDot  + oIP[2] + szDot +  oIP[3];
+  return szOctetIP;
+} //szIPaddress
 #endif  //OTA_SERVER
 
 
@@ -249,13 +256,6 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
-
-
-String szIPaddress(IPAddress oIP){
-  String szDot= ".";
-  String szOctetIP= oIP[0] + szDot +  oIP[1] + szDot  + oIP[2] + szDot +  oIP[3];
-  return szOctetIP;
-} //szIPaddress
 
 
 //LogToBoth() and BlynkLogLine()have multiple versions
