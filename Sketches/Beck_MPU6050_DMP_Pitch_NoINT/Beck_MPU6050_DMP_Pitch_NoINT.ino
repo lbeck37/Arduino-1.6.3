@@ -1,5 +1,5 @@
 String	acSketchName	= "Beck_MPU6050_DMP_Pitch_NoINT.ino, ";
-String	acFileDate		= "Aug 3, 2017, Ace-M";
+String	acFileDate		= "Aug 3, 2017, Ace-Q";
 
 #include <BeckLogLib.h>
 #include <Streaming.h>
@@ -15,8 +15,8 @@ Quaternion 	q;
 VectorFloat	gravity;
 float 			ypr[3];
 
-const unsigned long	ulGyroSpacingMilli	= 500;
-unsigned long				ulNextGyroMilli			= 0;
+const unsigned long	ulGyroSpacingMsec		= 500;
+unsigned long				ulNextGyroMsec			= 0;
 
 void setup() {
   Serial.begin(115200);
@@ -38,17 +38,17 @@ void setup() {
 
 
 void loop() {
-	//Serial << "loop(): Call GyroLoop()" << endl;
-	BLog("loop(): Call GyroLoop()");
 	GyroLoop();
-	BLog("loop(): Back from GyroLoop()");
+//	BLog("loop(): Back from GyroLoop()");
 	return;
 }	//loop
 
 
 void GyroLoop(){
-	if (true || (millis() > ulNextGyroMilli)) {
-		ulNextGyroMilli= millis() + ulNextGyroMilli;
+	unsigned long ulCurrentMsec= millis();
+	if (false || (ulCurrentMsec > ulNextGyroMsec)) {
+		BLog("GyroLoop(): It's time again");
+		ulNextGyroMsec= ulCurrentMsec + ulGyroSpacingMsec;
 		while (fifoCount < packetSize) {
 			//insert here your code
 			fifoCount= mpu.getFIFOCount();
@@ -68,7 +68,7 @@ void GyroLoop(){
 					mpu.getFIFOBytes(fifoBuffer, packetSize);
 					fifoCount -= packetSize;
 				}	//while
-				BLog("GyroLoop(): Call dmpGetQuaternion()");
+				//BLog("GyroLoop(): Call dmpGetQuaternion()");
 				mpu.dmpGetQuaternion(&q, fifoBuffer);
 				mpu.dmpGetGravity(&gravity, &q);
 				mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
