@@ -1,8 +1,8 @@
-String	acSketchName	= "Beck_MPU6050_DMP_Pitch_NoINT.ino, ";
+String	acSketchName	= "BeckMPU6050pitch.ino, ";
 String	acFileDate		= "Aug 5, 2017, Ace-E";
 
 #include <BeckLogLib.h>
-#include <Streaming.h>
+//#include <Streaming.h>
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
