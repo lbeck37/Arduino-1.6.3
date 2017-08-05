@@ -1,5 +1,5 @@
 String	acSketchName	= "Beck_MPU6050_DMP_Pitch_NoINT.ino, ";
-String	acFileDate		= "Aug 3, 2017, Ace-Q";
+String	acFileDate		= "Aug 5, 2017, Ace-E";
 
 #include <BeckLogLib.h>
 #include <Streaming.h>
@@ -20,26 +20,35 @@ unsigned long				ulNextGyroMsec			= 0;
 
 void setup() {
   Serial.begin(115200);
-	Serial << endl << "setup(): Begin " << acSketchName << acFileDate << endl;
+	//Serial << endl << "setup(): Begin " << acSketchName << acFileDate << endl;
+	BLog("setup(): Begin " + acSketchName + acFileDate);
 	Wire.begin();
 	TWBR = 24;
+	BLog("setup(): Call mpu.initialize()");
 	mpu.initialize();
+	BLog("setup(): After initialize(), fifoCount= ", mpu.getFIFOCount());
+
+	BLog("setup(): Call mpu.dmpInitialize()");
 	mpu.dmpInitialize();
+	BLog("setup(): After dmpInitialize(), fifoCount= ", mpu.getFIFOCount());
+
 	mpu.setXAccelOffset(-1343);
 	mpu.setYAccelOffset(-1155);
 	mpu.setZAccelOffset(1033);
 	mpu.setXGyroOffset(19);
 	mpu.setYGyroOffset(-27);
 	mpu.setZGyroOffset(16);
-	mpu.setDMPEnabled(true);
+	//mpu.setDMPEnabled(true);
 	packetSize= mpu.dmpGetFIFOPacketSize();
+	BLog("setup(): packetSize= ", packetSize);
 	fifoCount = mpu.getFIFOCount();
+	BLog("setup(): fifoCount= ", fifoCount);
+	mpu.setDMPEnabled(true);
 }	//setup
 
 
 void loop() {
 	GyroLoop();
-//	BLog("loop(): Back from GyroLoop()");
 	return;
 }	//loop
 
@@ -53,9 +62,12 @@ void GyroLoop(){
 			//insert here your code
 			fifoCount= mpu.getFIFOCount();
 		}	//while
+		BLog("GyroLoop(): After while(), fifoCount= ", fifoCount);
 
 		if (fifoCount == 1024) {
+			BLog("GyroLoop(): Call mpu.resetFIFO()");
 			mpu.resetFIFO();
+			BLog("GyroLoop(): After resetFIFO(), FIFOCount= ", mpu.getFIFOCount());
 			Serial.println(F("FIFO overflow!"));
 		}	//if(fifoCount==1024)
 		else {
