@@ -1,4 +1,6 @@
-//*/
+//Copied from arduino_code_for_mpu_sensor.ino
+//This is an interrupt (pin 2) driven solution, runs full blast
+//After each reading it prints the Yaw, Pitch and Roll
 
 // I2Cdev and MPU6050 must be installed as libraries, or else the .cpp/.h files
 // for both classes must be in the include path of your project
