@@ -1,3 +1,6 @@
+String	acSketchName	= "BeckMPU6050_IMU.ino, ";
+String	acFileDate		= "Aug 10, 2017, Ace-B";
+
 /* MPU6050 Basic Example with IMU  
  by: Kris Winer
  date: May 10, 2014
@@ -24,10 +27,14 @@
  We have disabled the internal pull-ups used by the Wire library in the Wire.h/twi.c utility file.
  We are also using the 400 kHz fast I2C mode by setting the TWI_FREQ  to 400000L /twi.h utility file.
  */
- 
+
+//#undefine	USE_DISPLAY
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_PCD8544.h>
+#include <BeckLogLib.h>
+
+#ifdef USE_DISPLAY
+//#include <Adafruit_GFX.h>
+//#include <Adafruit_PCD8544.h>
 
 // Using NOKIA 5110 monochrome 84 x 48 pixel display
 // pin 9 - Serial clock out (SCLK)
@@ -36,6 +43,7 @@
 // pin 5 - LCD chip select (CS)
 // pin 6 - LCD reset (RST)
 Adafruit_PCD8544 display = Adafruit_PCD8544(9, 8, 7, 5, 6);
+#endif	//USE_DISPLAY
 
 // Define registers per MPU6050, Register Map and Descriptions, Rev 4.2, 08/19/2013 6 DOF Motion sensor fusion device
 // Invensense Inc., www.invensense.com
@@ -217,7 +225,9 @@ float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};            // vector to hold quaternion
 void setup()
 {
   Wire.begin();
-  Serial.begin(38400);
+  //Serial.begin(38400);
+  Serial.begin(115200);
+	BLog("setup(): Begin " + acSketchName + acFileDate);
   
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -225,6 +235,7 @@ void setup()
   pinMode(blinkPin, OUTPUT);
   digitalWrite(blinkPin, HIGH);
   
+#ifdef USE_DISPLAY
   display.begin(); // Initialize the display
   display.setContrast(50); // Set the contrast
   display.setRotation(2); //  0 or 2) width = width, 1 or 3) width = height, swapped etc.
@@ -245,9 +256,11 @@ void setup()
   display.setTextSize(1); // Set text size to normal, 2 is twice normal etc.
   display.setTextColor(BLACK); // Set pixel color; 1 on the monochrome screen
   display.clearDisplay();   // clears the screen and buffer
+#endif	//USE_DISPLAY
 
   // Read the WHO_AM_I register, this is a good test of communication
   uint8_t c = readByte(MPU6050_ADDRESS, WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
+#ifdef USE_DISPLAY
   display.setCursor(20,0); display.print("MPU6050");
   display.setCursor(0,10); display.print("I AM");
   display.setCursor(0,20); display.print(c, HEX);  
@@ -255,6 +268,7 @@ void setup()
   display.setCursor(0,40); display.print(0x68, HEX); 
   display.display();
   delay(1000); 
+#endif	//USE_DISPLAY
 
   if (c == 0x68) // WHO_AM_I should always be 0x68
   {  
@@ -268,14 +282,18 @@ void setup()
 //    Serial.print("y-axis self test: gyration trim within : "); Serial.print(SelfTest[4],1); Serial.println("% of factory value");
 //    Serial.print("z-axis self test: gyration trim within : "); Serial.print(SelfTest[5],1); Serial.println("% of factory value");
 
-    if(SelfTest[0] < 1.0f && SelfTest[1] < 1.0f && SelfTest[2] < 1.0f && SelfTest[3] < 1.0f && SelfTest[4] < 1.0f && SelfTest[5] < 1.0f) {
+    if(SelfTest[0] < 1.0f && SelfTest[1] < 1.0f && SelfTest[2] < 1.0f &&
+    		SelfTest[3] < 1.0f && SelfTest[4] < 1.0f && SelfTest[5] < 1.0f) {
+#ifdef USE_DISPLAY
     display.clearDisplay();
     display.setCursor(0, 30); display.print("Pass Selftest!");  
     display.display();
     delay(1000);
-  
-    calibrateMPU6050(gyroBias, accelBias); // Calibrate gyro and accelerometers, load biases in bias registers  
-  display.clearDisplay();
+#endif	//USE_DISPLAY
+
+    calibrateMPU6050(gyroBias, accelBias); //Calibrate gyro and accelerometers, load biases in bias registers
+#ifdef USE_DISPLAY
+    display.clearDisplay();
      
   display.setCursor(20, 0); display.print("MPU6050 bias");
   display.setCursor(0, 8); display.print(" x   y   z  ");
@@ -292,17 +310,20 @@ void setup()
  
   display.display();
   delay(1000); 
-    
-   initMPU6050(); Serial.println("MPU6050 initialized for active data mode...."); // Initialize device for active mode read of acclerometer, gyroscope, and temperature
-   }
+#endif	//USE_DISPLAY
+
+   initMPU6050(); // Initialize device for active mode read of accelerometer, gyros, and temp
+   Serial.println("MPU6050 initialized for active data mode....");
+   }	//if(SelfTest[0]<1.0f&&...
    else
    {
     Serial.print("Could not connect to MPU6050: 0x");
     Serial.println(c, HEX);
     while(1) ; // Loop forever if communication doesn't happen
-   }
-  }
-}
+   }	//if(SelfTest[0]<1.0f&&...else
+  }	//if(c==0x68)
+}	//setup
+
 
 void loop()
 {  
@@ -326,7 +347,7 @@ void loop()
 
     tempCount = readTempData();  // Read the x/y/z adc values
     temperature = ((float) tempCount) / 340. + 36.53; // Temperature in degrees Centigrade
-   }  
+   }	//if(readByte(MPU6050_ADDRESS,INT_STATUS)&0x01)
    
     Now = micros();
     deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
@@ -341,7 +362,7 @@ void loop()
     // Serial print and/or display at 0.5 s rate independent of data rates
     delt_t = millis() - count;
     if (delt_t > 500) { // update LCD once per half-second independent of read rate
-    digitalWrite(blinkPin, blinkOn);
+    	digitalWrite(blinkPin, blinkOn);
 /* 
     Serial.print("ax = "); Serial.print((int)1000*ax);  
     Serial.print(" ay = "); Serial.print((int)1000*ay); 
@@ -380,7 +401,8 @@ void loop()
     Serial.println(roll, 2);
 
 //    Serial.print("average rate = "); Serial.print(1.0f/deltat, 2); Serial.println(" Hz");
-    
+
+#ifdef USE_DISPLAY
     display.clearDisplay();
       
     display.setCursor(0, 0); display.print(" x   y   z  ");
@@ -402,16 +424,17 @@ void loop()
   
     display.setCursor(0, 40); display.print("rt: "); display.print(1.0f/deltat, 2); display.print(" Hz"); 
     display.display();
+#endif	//USE_DISPLAY
     
     blinkOn = ~blinkOn;
     count = millis();  
-}
-  }
+    }	//if (delt_t>500)
+}	//loop
+
 
 //===================================================================================================================
-//====== Set of useful function to access acceleratio, gyroscope, and temperature data
+//====== Set of useful function to access acceleration, gyroscope, and temperature data
 //===================================================================================================================
-
 void getGres() {
   switch (Gscale)
   {
@@ -431,7 +454,8 @@ void getGres() {
           gRes = 2000.0/32768.0;
           break;
   }
-}
+}	//getGres
+
 
 void getAres() {
   switch (Ascale)
@@ -452,7 +476,7 @@ void getAres() {
           aRes = 16.0/32768.0;
           break;
   }
-}
+}	//getAres
 
 
 void readAccelData(int16_t * destination)
@@ -462,7 +486,8 @@ void readAccelData(int16_t * destination)
   destination[0] = (int16_t)((rawData[0] << 8) | rawData[1]) ;  // Turn the MSB and LSB into a signed 16-bit value
   destination[1] = (int16_t)((rawData[2] << 8) | rawData[3]) ;  
   destination[2] = (int16_t)((rawData[4] << 8) | rawData[5]) ; 
-}
+}	//readAccelData
+
 
 void readGyroData(int16_t * destination)
 {
@@ -471,18 +496,18 @@ void readGyroData(int16_t * destination)
   destination[0] = (int16_t)((rawData[0] << 8) | rawData[1]) ;  // Turn the MSB and LSB into a signed 16-bit value
   destination[1] = (int16_t)((rawData[2] << 8) | rawData[3]) ;  
   destination[2] = (int16_t)((rawData[4] << 8) | rawData[5]) ; 
-}
+}	//readGyroData
+
 
 int16_t readTempData()
 {
   uint8_t rawData[2];  // x/y/z gyro register data stored here
   readBytes(MPU6050_ADDRESS, TEMP_OUT_H, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array 
   return ((int16_t)rawData[0]) << 8 | rawData[1] ;  // Turn the MSB and LSB into a 16-bit value
-}
+}	//readTempData
 
 
-
-// Configure the motion detection control for low power accelerometer mode
+// Configure the motion detection control for low power accelerometer mode, not called?
 void LowPowerAccelOnlyMPU6050()
 {
 
@@ -531,8 +556,7 @@ void LowPowerAccelOnlyMPU6050()
   c = readByte(MPU6050_ADDRESS, PWR_MGMT_1);
   writeByte(MPU6050_ADDRESS, PWR_MGMT_1, c & ~0x20); // Clear sleep and cycle bit 5
   writeByte(MPU6050_ADDRESS, PWR_MGMT_1, c |  0x20); // Set cycle bit 5 to begin low power accelerometer motion interrupts
-
-}
+}	//LowPowerAccelOnlyMPU6050
 
 
 void initMPU6050()
@@ -571,7 +595,8 @@ void initMPU6050()
   // can join the I2C bus and all can be controlled by the Arduino as master
    writeByte(MPU6050_ADDRESS, INT_PIN_CFG, 0x22);    
    writeByte(MPU6050_ADDRESS, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
-}
+}	//initMPU6050
+
 
 // Function which accumulates gyro and accelerometer data after device initialization. It calculates the average
 // of the at-rest readings and then loads the resulting offsets into accelerometer and gyro bias registers.
@@ -716,7 +741,7 @@ void calibrateMPU6050(float * dest1, float * dest2)
    dest2[0] = (float)accel_bias[0]/(float)accelsensitivity; 
    dest2[1] = (float)accel_bias[1]/(float)accelsensitivity;
    dest2[2] = (float)accel_bias[2]/(float)accelsensitivity;
-}
+}	//calibrateMPU6050
 
 
 // Accelerometer and gyroscope self test; check calibration wrt factory settings
@@ -761,18 +786,19 @@ void MPU6050SelfTest(float * destination) // Should return percent deviation fro
    for (int i = 0; i < 6; i++) {
      destination[i] = 100.0 + 100.0*((float)selfTest[i] - factoryTrim[i])/factoryTrim[i]; // Report percent differences
    }
-   
-}
+}	//MPU6050SelfTest
 
-        void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
+
+void writeByte(uint8_t address, uint8_t subAddress, uint8_t data)
 {
 	Wire.beginTransmission(address);  // Initialize the Tx buffer
 	Wire.write(subAddress);           // Put slave register address in Tx buffer
 	Wire.write(data);                 // Put data in Tx buffer
 	Wire.endTransmission();           // Send the Tx buffer
-}
+}	//writeByte
 
-        uint8_t readByte(uint8_t address, uint8_t subAddress)
+
+uint8_t readByte(uint8_t address, uint8_t subAddress)
 {
 	uint8_t data; // `data` will store the register data	 
 	Wire.beginTransmission(address);         // Initialize the Tx buffer
@@ -781,9 +807,10 @@ void MPU6050SelfTest(float * destination) // Should return percent deviation fro
 	Wire.requestFrom(address, (uint8_t) 1);  // Read one byte from slave register address 
 	data = Wire.read();                      // Fill Rx buffer with result
 	return data;                             // Return data read from slave register
-}
+}	//readByte
 
-        void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+
+void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
 {  
 	Wire.beginTransmission(address);   // Initialize the Tx buffer
 	Wire.write(subAddress);            // Put slave register address in Tx buffer
@@ -792,4 +819,101 @@ void MPU6050SelfTest(float * destination) // Should return percent deviation fro
         Wire.requestFrom(address, count);  // Read bytes from slave register address 
 	while (Wire.available()) {
         dest[i++] = Wire.read(); }         // Put read results in the Rx buffer
-}
+}	//readBytes
+
+
+// 8/10/17 From MPU6050 repo on github
+// Implementation of Sebastian Madgwick's "...efficient orientation filter for... inertial/magnetic sensor arrays"
+// (see http://www.x-io.co.uk/category/open-source/ for examples and more details)
+// which fuses acceleration and rotation rate to produce a quaternion-based estimate of relative
+// device orientation -- which can be converted to yaw, pitch, and roll. Useful for stabilizing quadcopters, etc.
+// The performance of the orientation filter is at least as good as conventional Kalman-based filtering algorithms
+// but is much less computationally intensive---it can be performed on a 3.3 V Pro Mini operating at 8 MHz!
+void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz)
+{
+		float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];         // short name local variable for readability
+		float norm;                                               // vector norm
+		float f1, f2, f3;                                         // objetive funcyion elements
+		float J_11or24, J_12or23, J_13or22, J_14or21, J_32, J_33; // objective function Jacobian elements
+		float qDot1, qDot2, qDot3, qDot4;
+		float hatDot1, hatDot2, hatDot3, hatDot4;
+		float gerrx, gerry, gerrz, gbiasx, gbiasy, gbiasz;        // gyro bias error
+
+		// Auxiliary variables to avoid repeated arithmetic
+		float _halfq1 = 0.5f * q1;
+		float _halfq2 = 0.5f * q2;
+		float _halfq3 = 0.5f * q3;
+		float _halfq4 = 0.5f * q4;
+		float _2q1 = 2.0f * q1;
+		float _2q2 = 2.0f * q2;
+		float _2q3 = 2.0f * q3;
+		float _2q4 = 2.0f * q4;
+		float _2q1q3 = 2.0f * q1 * q3;
+		float _2q3q4 = 2.0f * q3 * q4;
+
+		// Normalise accelerometer measurement
+		norm = sqrt(ax * ax + ay * ay + az * az);
+		if (norm == 0.0f) return; // handle NaN
+		norm = 1.0f/norm;
+		ax *= norm;
+		ay *= norm;
+		az *= norm;
+
+		// Compute the objective function and Jacobian
+		f1 = _2q2 * q4 - _2q1 * q3 - ax;
+		f2 = _2q1 * q2 + _2q3 * q4 - ay;
+		f3 = 1.0f - _2q2 * q2 - _2q3 * q3 - az;
+		J_11or24 = _2q3;
+		J_12or23 = _2q4;
+		J_13or22 = _2q1;
+		J_14or21 = _2q2;
+		J_32 = 2.0f * J_14or21;
+		J_33 = 2.0f * J_11or24;
+
+		// Compute the gradient (matrix multiplication)
+		hatDot1 = J_14or21 * f2 - J_11or24 * f1;
+		hatDot2 = J_12or23 * f1 + J_13or22 * f2 - J_32 * f3;
+		hatDot3 = J_12or23 * f2 - J_33 *f3 - J_13or22 * f1;
+		hatDot4 = J_14or21 * f1 + J_11or24 * f2;
+
+		// Normalize the gradient
+		norm = sqrt(hatDot1 * hatDot1 + hatDot2 * hatDot2 + hatDot3 * hatDot3 + hatDot4 * hatDot4);
+		hatDot1 /= norm;
+		hatDot2 /= norm;
+		hatDot3 /= norm;
+		hatDot4 /= norm;
+
+		// Compute estimated gyroscope biases
+		gerrx = _2q1 * hatDot2 - _2q2 * hatDot1 - _2q3 * hatDot4 + _2q4 * hatDot3;
+		gerry = _2q1 * hatDot3 + _2q2 * hatDot4 - _2q3 * hatDot1 - _2q4 * hatDot2;
+		gerrz = _2q1 * hatDot4 - _2q2 * hatDot3 + _2q3 * hatDot2 - _2q4 * hatDot1;
+
+		// Compute and remove gyroscope biases
+		gbiasx += gerrx * deltat * zeta;
+		gbiasy += gerry * deltat * zeta;
+		gbiasz += gerrz * deltat * zeta;
+		gx -= gbiasx;
+		gy -= gbiasy;
+		gz -= gbiasz;
+
+		// Compute the quaternion derivative
+		qDot1 = -_halfq2 * gx - _halfq3 * gy - _halfq4 * gz;
+		qDot2 =  _halfq1 * gx + _halfq3 * gz - _halfq4 * gy;
+		qDot3 =  _halfq1 * gy - _halfq2 * gz + _halfq4 * gx;
+		qDot4 =  _halfq1 * gz + _halfq2 * gy - _halfq3 * gx;
+
+		// Compute then integrate estimated quaternion derivative
+		q1 += (qDot1 -(beta * hatDot1)) * deltat;
+		q2 += (qDot2 -(beta * hatDot2)) * deltat;
+		q3 += (qDot3 -(beta * hatDot3)) * deltat;
+		q4 += (qDot4 -(beta * hatDot4)) * deltat;
+
+		// Normalize the quaternion
+		norm = sqrt(q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4);    // normalise quaternion
+		norm = 1.0f/norm;
+		q[0] = q1 * norm;
+		q[1] = q2 * norm;
+		q[2] = q3 * norm;
+		q[3] = q4 * norm;
+}	//MadgwickQuaternionUpdate
+//Last line.
