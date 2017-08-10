@@ -1,5 +1,5 @@
-String	acSketchName	= "BeckMPU6050_IMU.ino, ";
-String	acFileDate		= "Aug 10, 2017, Ace-B";
+//String	acSketchName	= "BeckMPU6050_IMU.ino, ";
+//String	acFileDate		= "Aug 10, 2017, Ace-D";
 
 /* MPU6050 Basic Example with IMU  
  by: Kris Winer
@@ -30,7 +30,6 @@ String	acFileDate		= "Aug 10, 2017, Ace-B";
 
 //#undefine	USE_DISPLAY
 #include <Wire.h>
-#include <BeckLogLib.h>
 
 #ifdef USE_DISPLAY
 //#include <Adafruit_GFX.h>
@@ -227,7 +226,8 @@ void setup()
   Wire.begin();
   //Serial.begin(38400);
   Serial.begin(115200);
-	BLog("setup(): Begin " + acSketchName + acFileDate);
+  Serial.println("setup(): Begin BeckMPU6050_IMU.ino, 8/10/17, Ace:E");
+	//BLog("setup(): Begin " + acSketchName + acFileDate);
   
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
