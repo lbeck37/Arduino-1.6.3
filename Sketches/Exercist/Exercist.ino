@@ -1,5 +1,5 @@
 String acSketchName  = "Exercist.ino";
-String acFileDate    = "Aug 11, 2017, Lenny-F";
+String acFileDate    = "Aug 11, 2017, Lenny-H";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -289,8 +289,14 @@ int sLoopI2C() {
 
 
 void ComputeRollPitch() { //
+/*
 	dRoll = atan2(adGvalueXYZ[sYAxis], adGvalueXYZ[sZAxis]) * dRadsToDeg;
-	dPitch= atan2((-adGvalueXYZ[sZAxis]),
+	dPitch= atan2((-adGvalueXYZ[sXAxis]),
+								sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
+										 adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
+*/
+	dRoll = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
+	dPitch= atan2(adGvalueXYZ[sXAxis],
 								sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
 										 adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
   Serial << "Pitch, Roll " << dPitch << ", " << dRoll << endl;
