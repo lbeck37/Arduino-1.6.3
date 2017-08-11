@@ -1,5 +1,5 @@
-String acSketchName  = "BeckExercist.ino";
-String acFileDate    = "Aug 10, 2017, Ace-K";
+String acSketchName  = "Exercist.ino";
+String acFileDate    = "Aug 11, 2017, Lenny-D";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -170,6 +170,12 @@ static int         sLineCount= 0;     //Used in outputs to Serial Monitor for cl
 static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char        sz10CharString[10];
 
+//MPU6050 acceleration and pitch things
+const double			dGConvert					= 16384.0;	//MPU6050 16-bit +/- 2G Full scale
+double						adGvalueXYZ[3];
+double						dRoll;
+double						dPitch;
+
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
@@ -240,7 +246,7 @@ int sLoopI2C() {
          asGyroReading[sTemperature][sAxis]= 0;
       }  //for
 
-      Serial << "sLoopI2C(): X Accel= " << asGyroReading[sAccel][sXAxis] << endl;
+      //Serial << "sLoopI2C(): X Accel= " << asGyroReading[sAccel][sXAxis] << endl;
       //BLog("sLoopI2C(): XAcc   YAcc   ZAcc");
       //BLog("          ", asGyroReading[sAccel][sXAxis], asGyroReading[sAccel][sYAxis], asGyroReading[sAccel][sZAxis]);
 
@@ -255,12 +261,33 @@ int sLoopI2C() {
 #endif
          }  //for sDataType
       }  //for sAxis
+
+      //Convert raw accel readings into G's and correct axis
+    	//Because accel on BB is pointing down I am converting the axis
+    	//Report 	-Y for X
+    	//				+Z for Y
+    	//				-X for Z
+/*
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+      		adGvalueXYZ[sAxis]= (double)asGyroReading[sAccel][sAxis] / dGConvert;
+      }  //for sAxis
+*/
+  		adGvalueXYZ[sXAxis]= -(double)asGyroReading[sAccel][sYAxis] / dGConvert;
+  		adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
+  		adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
+
+      Serial << "G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", "
+      		   << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
+      ComputeRollPitch();
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;
-   	 //Serial << "sLoopI2C(): Set ulNextGyroTime to " << ulNextGyroTime << endl;
    }  //if (millis()>ulNextGyroTime)
    return 1;
 }  //sLoopI2C
+
+
+void ComputeRollPitch() {
+}
 
 
 int sSetupGyro() {
