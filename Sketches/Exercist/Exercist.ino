@@ -1,5 +1,5 @@
 String acSketchName  = "Exercist.ino";
-String acFileDate    = "Aug 11, 2017, Lenny-D";
+String acFileDate    = "Aug 11, 2017, Lenny-F";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -172,6 +172,7 @@ static char        sz10CharString[10];
 
 //MPU6050 acceleration and pitch things
 const double			dGConvert					= 16384.0;	//MPU6050 16-bit +/- 2G Full scale
+const double			dRadsToDeg				= 180.0/PI;
 double						adGvalueXYZ[3];
 double						dRoll;
 double						dPitch;
@@ -179,6 +180,7 @@ double						dPitch;
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
+  delay(100);
   //Serial << endl << "Exercist.ino, Aug 10, 2017 Ace-A Pro Mini" << endl;
 
   //Serial << endl << ("setup: Call BLog()" + acSketchName + ", " + acFileDate) << endl;
@@ -286,8 +288,14 @@ int sLoopI2C() {
 }  //sLoopI2C
 
 
-void ComputeRollPitch() {
-}
+void ComputeRollPitch() { //
+	dRoll = atan2(adGvalueXYZ[sYAxis], adGvalueXYZ[sZAxis]) * dRadsToDeg;
+	dPitch= atan2((-adGvalueXYZ[sZAxis]),
+								sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
+										 adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
+  Serial << "Pitch, Roll " << dPitch << ", " << dRoll << endl;
+  return;
+}	//ComputeRollPitch
 
 
 int sSetupGyro() {
