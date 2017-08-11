@@ -1,5 +1,5 @@
 String acSketchName  = "BeckExercist.ino";
-String acFileDate    = "Aug 10, 2017, Ace-G";
+String acFileDate    = "Aug 10, 2017, Ace-K";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -103,7 +103,7 @@ static const int       sMaxButtonPresses  = 10;
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
-static const unsigned long    ulGyroReadTime    = 50000;   //Gyro reads spaced by this.
+static const unsigned long    ulGyroReadTime    = 5000;   //Gyro reads spaced by this.
 
 //Constants for DOGS102 display.
 static const int       sDisplayWidth        = 102;
@@ -209,6 +209,7 @@ int sLoopI2C() {
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
    if (millis() > ulNextGyroTime) {
+  	 //Serial << "sLoopI2C(): Reading gyro, milllis()= " << millis() << endl;
       Wire.beginTransmission(MPU);
       Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
       Wire.endTransmission(false);
@@ -256,6 +257,7 @@ int sLoopI2C() {
       }  //for sAxis
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;
+   	 //Serial << "sLoopI2C(): Set ulNextGyroTime to " << ulNextGyroTime << endl;
    }  //if (millis()>ulNextGyroTime)
    return 1;
 }  //sLoopI2C
