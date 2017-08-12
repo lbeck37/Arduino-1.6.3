@@ -1,5 +1,5 @@
 String acSketchName  = "Exercist.ino";
-String acFileDate    = "Aug 11, 2017, Lenny-H";
+String acFileDate    = "Aug 12, 2017, Lenny-C";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -374,10 +374,12 @@ int sDisplayUpdate(void) {
    if (bScreenChanged()) {
       Serial << "sDisplayUpdate(): Refreshing screen" << endl;
       sDisplayClear();
-      sDisplayButtons();
-      sDisplayServoPos();
+      //sDisplayButtons();
+      sDisplayWatts();
+      sDisplayPitchRoll();
+      //sDisplayServoPos();
       sDisplayCurrentGear();
-      sDisplayOdometer();
+      //sDisplayOdometer();
    }  //if(bScreenChanged())
    return 1;
 }  //sDisplayUpdate
@@ -419,18 +421,41 @@ boolean bScreenChanged() {
 }  //bScreenChanged
 
 
+int sDisplayWatts() {
+  strcpy(szLineBuffer, "You  105W");
+  sDisplayText(0,28, sFontBig, szLineBuffer);
+
+  strcpy(szLineBuffer, "All  105W");
+  sDisplayText(2,28, sFontBig, szLineBuffer);
+
+  strcpy(szLineBuffer, "Hill-125W");
+  sDisplayText(4,28, sFontBig, szLineBuffer);
+  return 1;
+}  //sDisplayWatts
+
+
+int sDisplayPitchRoll() {
+  strcpy(szLineBuffer, "P 12.1%");
+  sDisplayText(6,28, sFontNormal, szLineBuffer);
+
+  strcpy(szLineBuffer, "R 48.2 ");
+  sDisplayText(7,28, sFontNormal, szLineBuffer);
+  return 1;
+}  //sDisplayPitchRoll
+
+
 int sDisplayButtons() {
    //Show 3 lines at right bottom for U d, D d, S d
    //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
    strcpy(szLineBuffer, "U ");
    itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   sDisplayText(5, 82, sFontNormal, szLineBuffer);	//Move this and next to lines 6 and 7
+   sDisplayText(6, 82, sFontNormal, szLineBuffer);	//Move this and next to lines 6 and 7
 
    strcpy(szLineBuffer, "D ");
    itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
-   sDisplayText(6, 82, sFontNormal, szLineBuffer);
+   sDisplayText(7, 82, sFontNormal, szLineBuffer);
 
 /*
    strcpy(szLineBuffer, "S ");
