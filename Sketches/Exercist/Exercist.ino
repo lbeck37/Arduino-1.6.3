@@ -1,5 +1,5 @@
 String acSketchName  = "Exercist.ino";
-String acFileDate    = "Aug 12, 2017, Lenny-C";
+String acFileDate    = "Aug 12, 2017, Lenny-E";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -438,7 +438,8 @@ int sDisplayPitchRoll() {
   strcpy(szLineBuffer, "P 12.1%");
   sDisplayText(6,28, sFontNormal, szLineBuffer);
 
-  strcpy(szLineBuffer, "R 48.2 ");
+  strcpy(szLineBuffer, "R 48.2");
+  strcat(szLineBuffer, (char)223);
   sDisplayText(7,28, sFontNormal, szLineBuffer);
   return 1;
 }  //sDisplayPitchRoll
