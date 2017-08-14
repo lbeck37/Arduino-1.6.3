@@ -1,5 +1,5 @@
 String acSketchName  = "Exercist.ino";
-String acFileDate    = "Aug 12, 2017, Lenny-E";
+String acFileDate    = "Aug 14, 2017, Lenny-B";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -20,6 +20,10 @@ String acFileDate    = "Aug 12, 2017, Lenny-E";
 #include <Servo.h>
 #include <Wire.h>
 #include <BeckLogLib.h>
+
+#include <string>
+//#include <iostream>
+//#include <sstream>
 
 #include <dog_1701.h>
 #include <font_16x32nums.h>
@@ -351,13 +355,13 @@ int sShowSplash(void) {
    sDisplayClear();
 
    //2 lines of big font takes lines 0-3
-   sDisplayText(0, 0, sFontBig, "PowerShift");
-   sDisplayText(2, 0, sFontBig, "  by ShiftE");
+   sDisplayText(0, 0, sFontBig, (char *)"PowerShift");
+   sDisplayText(2, 0, sFontBig, (char *)"  by ShiftE");
 
    //2 lines in normal font
-   sDisplayText(5, 0, sFontNormal, "Always ride safe!");
-   //sDisplayText(7, 0, sFontNormal, "**Larry & Candy**");
-   sDisplayText(7, 0, sFontNormal, "July 19, 2017 ");
+   sDisplayText(5, 0, sFontNormal, (char *)"Always ride safe!");
+   //sDisplayText(7, 0, sFontNormal, (char *)"**Larry & Candy**");
+   sDisplayText(7, 0, sFontNormal, (char *)"July 19, 2017 ");
    return 1;
 }  //sShowSplash
 
@@ -435,11 +439,15 @@ int sDisplayWatts() {
 
 
 int sDisplayPitchRoll() {
+/*
+	ostringstream		os;
+	os << setw(8);
+*/
+	//Serial << fixed << 1.234 << " just tried fixed" << endl;
   strcpy(szLineBuffer, "P 12.1%");
   sDisplayText(6,28, sFontNormal, szLineBuffer);
 
   strcpy(szLineBuffer, "R 48.2");
-  strcat(szLineBuffer, (char)223);
   sDisplayText(7,28, sFontNormal, szLineBuffer);
   return 1;
 }  //sDisplayPitchRoll
@@ -477,7 +485,7 @@ int sDisplayCurrentGear() {
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
-      sDisplayText(0, 4, sFontBigNum, "0");               //1st char in 4 pixels.
+      sDisplayText(0, 4, sFontBigNum, (char *)"0");               //1st char in 4 pixels.
    }  //if (sCurrentMode..else
 
    return 1;
@@ -705,8 +713,8 @@ int sCheckButtons(void) {
 
       //Check IsHold for up and down buttons.
       if (!bReturn &&
-      ((sButton == sUp)   && UpButton.IsHold  ()) ||
-      ((sButton == sDown) && DownButton.IsHold()) ) {
+      (((sButton == sUp)   && UpButton.IsHold  ()) ||
+       ((sButton == sDown) && DownButton.IsHold()) )) {
          Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
                 << " being held." << endl;
          //Set state to indicate in hold.
