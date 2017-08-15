@@ -12,6 +12,9 @@ static const char szSketchName[]  = "BeckBlynkESP.ino";
 //#define HOT_TUB
 #define HOT_TUB_V2
 
+//#include <string>
+//#include <iostream>
+
 #include <BeckLib.h>
 #include <BeckBlynk.h>
 #include <BeckControlLib.h>
