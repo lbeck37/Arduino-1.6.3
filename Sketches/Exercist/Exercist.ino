@@ -22,8 +22,9 @@ String acFileDate    = "Aug 14, 2017, Lenny-B";
 #include <BeckLogLib.h>
 
 #include <string>
-//#include <iostream>
-//#include <sstream>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include <dog_1701.h>
 #include <font_16x32nums.h>
@@ -32,6 +33,7 @@ String acFileDate    = "Aug 14, 2017, Lenny-B";
 #include <font_8x8.h>
 #include <logo_BLH.h>
 
+//using namespace std;
 
 const int MPU= 0x68;  // I2C address of the MPU-6050
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
@@ -439,10 +441,8 @@ int sDisplayWatts() {
 
 
 int sDisplayPitchRoll() {
-/*
-	ostringstream		os;
-	os << setw(8);
-*/
+	std::ostringstream		os;
+	os << std::setprecision(8);
 	//Serial << fixed << 1.234 << " just tried fixed" << endl;
   strcpy(szLineBuffer, "P 12.1%");
   sDisplayText(6,28, sFontNormal, szLineBuffer);
