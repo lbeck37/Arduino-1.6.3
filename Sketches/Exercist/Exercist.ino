@@ -1,5 +1,5 @@
 String acSketchName  = "Exercist.ino";
-String acFileDate    = "Aug 14, 2017, Lenny-c";
+String acFileDate    = "Aug 16, 2017, Lenny-E";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -381,14 +381,30 @@ int sDisplayUpdate(void) {
       Serial << "sDisplayUpdate(): Refreshing screen" << endl;
       sDisplayClear();
       //sDisplayButtons();
+      sDisplayCurrentGear();
       sDisplayWatts();
       sDisplayPitchRoll();
       //sDisplayServoPos();
-      sDisplayCurrentGear();
-      //sDisplayOdometer();
+       //sDisplayOdometer();
    }  //if(bScreenChanged())
    return 1;
 }  //sDisplayUpdate
+
+
+int sDisplayPitchRoll() {
+	//std::ostringstream		oStringStream;
+
+	//Serial << fixed << 1.234 << " just tried fixed" << endl;
+
+	//oStringStream << "P 12.3%";
+  //strcpy(szLineBuffer, oStringStream.str().c_str());
+  strcpy(szLineBuffer, "P 12.1%");
+  sDisplayText(6,28, sFontNormal, szLineBuffer);
+
+  strcpy(szLineBuffer, "R 48.2");
+  sDisplayText(7,28, sFontNormal, szLineBuffer);
+  return 1;
+}  //sDisplayPitchRoll
 
 
 int sDisplayClear() {
@@ -438,19 +454,6 @@ int sDisplayWatts() {
   sDisplayText(4,28, sFontBig, szLineBuffer);
   return 1;
 }  //sDisplayWatts
-
-
-int sDisplayPitchRoll() {
-	std::ostringstream		os;
-	os << std::setprecision(8);
-	//Serial << fixed << 1.234 << " just tried fixed" << endl;
-  strcpy(szLineBuffer, "P 12.1%");
-  sDisplayText(6,28, sFontNormal, szLineBuffer);
-
-  strcpy(szLineBuffer, "R 48.2");
-  sDisplayText(7,28, sFontNormal, szLineBuffer);
-  return 1;
-}  //sDisplayPitchRoll
 
 
 int sDisplayButtons() {
