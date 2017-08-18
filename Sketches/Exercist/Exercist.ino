@@ -1,5 +1,5 @@
-String acSketchName  = "Exercist.ino";
-String acFileDate    = "Aug 16, 2017, Lenny-E";
+static const char szSketchName[]  = "Exercist.ino";
+static const char szFileDate[]    = "Aug 18, 2017, Lenny-A";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -173,7 +173,7 @@ static boolean     bGyroChanged             = false;
 
 static int         sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
 
-static char        szLineBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
+static char        szTempBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char        sz10CharString[10];
 
 //MPU6050 acceleration and pitch things
@@ -186,12 +186,13 @@ double						dPitch;
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  delay(100);
+  //delay(500);
   //Serial << endl << "Exercist.ino, Aug 10, 2017 Ace-A Pro Mini" << endl;
-
   //Serial << endl << ("setup: Call BLog()" + acSketchName + ", " + acFileDate) << endl;
-  Serial << endl << "Begin " + acSketchName + ", " + acFileDate << endl;
   //BLog("Sketch: " + acSketchName + ", " + acFileDate);
+	//Serial << endl << "Begin " + acSketchName + ", " + acFileDate << endl;
+	//Serial << endl << "Begin " << endl;
+	Serial << endl << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
 
   Serial << "setup(): Call sSetupGyro()" << endl;
   sSetupGyro();
@@ -392,17 +393,14 @@ int sDisplayUpdate(void) {
 
 
 int sDisplayPitchRoll() {
-	//std::ostringstream		oStringStream;
+	sprintf(szTempBuffer, "P %f", 123.45);
+	Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
 
-	//Serial << fixed << 1.234 << " just tried fixed" << endl;
+  //strcpy(szTempBuffer, "P 12.1%");
+  sDisplayText(6,28, sFontNormal, szTempBuffer);
 
-	//oStringStream << "P 12.3%";
-  //strcpy(szLineBuffer, oStringStream.str().c_str());
-  strcpy(szLineBuffer, "P 12.1%");
-  sDisplayText(6,28, sFontNormal, szLineBuffer);
-
-  strcpy(szLineBuffer, "R 48.2");
-  sDisplayText(7,28, sFontNormal, szLineBuffer);
+  strcpy(szTempBuffer, "R 48.2");
+  sDisplayText(7,28, sFontNormal, szTempBuffer);
   return 1;
 }  //sDisplayPitchRoll
 
@@ -444,14 +442,14 @@ boolean bScreenChanged() {
 
 
 int sDisplayWatts() {
-  strcpy(szLineBuffer, "You  105W");
-  sDisplayText(0,28, sFontBig, szLineBuffer);
+  strcpy(szTempBuffer, "You  105W");
+  sDisplayText(0,28, sFontBig, szTempBuffer);
 
-  strcpy(szLineBuffer, "All  105W");
-  sDisplayText(2,28, sFontBig, szLineBuffer);
+  strcpy(szTempBuffer, "All  105W");
+  sDisplayText(2,28, sFontBig, szTempBuffer);
 
-  strcpy(szLineBuffer, "Hill-125W");
-  sDisplayText(4,28, sFontBig, szLineBuffer);
+  strcpy(szTempBuffer, "Hill-125W");
+  sDisplayText(4,28, sFontBig, szTempBuffer);
   return 1;
 }  //sDisplayWatts
 
@@ -459,15 +457,15 @@ int sDisplayWatts() {
 int sDisplayButtons() {
    //Show 3 lines at right bottom for U d, D d, S d
    //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
-   strcpy(szLineBuffer, "U ");
+   strcpy(szTempBuffer, "U ");
    itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   sDisplayText(6, 82, sFontNormal, szLineBuffer);	//Move this and next to lines 6 and 7
+   strcat(szTempBuffer, sz10CharString);
+   sDisplayText(6, 82, sFontNormal, szTempBuffer);	//Move this and next to lines 6 and 7
 
-   strcpy(szLineBuffer, "D ");
+   strcpy(szTempBuffer, "D ");
    itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   sDisplayText(7, 82, sFontNormal, szLineBuffer);
+   strcat(szTempBuffer, sz10CharString);
+   sDisplayText(7, 82, sFontNormal, szTempBuffer);
 
 /*
    strcpy(szLineBuffer, "S ");
@@ -497,20 +495,20 @@ int sDisplayCurrentGear() {
 
 int sDisplayServoPos() {
    itoa(sServoPosLast, sz10CharString, 10);
-   strcpy(szLineBuffer, "Servo ");
-   strcat(szLineBuffer, sz10CharString);
+   strcpy(szTempBuffer, "Servo ");
+   strcat(szTempBuffer, sz10CharString);
    //Text will end 2 pixels in from right edge when servo value is 3 digits.
-   sDisplayText(0, 28, sFontBig, szLineBuffer);
+   sDisplayText(0, 28, sFontBig, szTempBuffer);
    return 1;
 }  //sDisplayServoPos
 
 
 int sDisplayOdometer() {
-   strcpy(szLineBuffer, "21.50");
-   sDisplayText(5, 2, sFontBig, szLineBuffer);  //Start 2 pixels in.
+   strcpy(szTempBuffer, "21.50");
+   sDisplayText(5, 2, sFontBig, szTempBuffer);  //Start 2 pixels in.
 
-   strcpy(szLineBuffer, "1123.00");
-   sDisplayText(7, 2, sFontNormal, szLineBuffer);  //Start 2 pixels in.
+   strcpy(szTempBuffer, "1123.00");
+   sDisplayText(7, 2, sFontNormal, szTempBuffer);  //Start 2 pixels in.
    return 1;
 }  //sDisplayOdometer
 
