@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Exercist.ino";
-static const char szFileDate[]    = "Aug 18, 2017, Lenny-A";
+static const char szFileDate[]    = "Aug 18, 2017, Lenny-S";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -173,15 +173,17 @@ static boolean     bGyroChanged             = false;
 
 static int         sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
 
-static char        szTempBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
-static char        sz10CharString[10];
+static char       szTempBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
+static char       sz10CharString[11];
+//static char				szFloatBuffer[15];
 
 //MPU6050 acceleration and pitch things
 const double			dGConvert					= 16384.0;	//MPU6050 16-bit +/- 2G Full scale
 const double			dRadsToDeg				= 180.0/PI;
 double						adGvalueXYZ[3];
-double						dRoll;
-double						dPitch;
+double						dRollDeg_;
+double						dPitchDeg_;
+double						dPitchPercent_;
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
@@ -296,19 +298,53 @@ int sLoopI2C() {
 
 
 void ComputeRollPitch() { //
-/*
-	dRoll = atan2(adGvalueXYZ[sYAxis], adGvalueXYZ[sZAxis]) * dRadsToDeg;
-	dPitch= atan2((-adGvalueXYZ[sXAxis]),
+	dRollDeg_ = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
+	dPitchDeg_= atan2(adGvalueXYZ[sXAxis],
 								sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
 										 adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
-*/
-	dRoll = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
-	dPitch= atan2(adGvalueXYZ[sXAxis],
-								sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
-										 adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
-  Serial << "Pitch, Roll " << dPitch << ", " << dRoll << endl;
+	dPitchPercent_= dGetPitchPercent(dPitchDeg_);
+
+	//Correct for current readings being 180 degrees off
+	if (dRollDeg_ < 0.0) {
+		dRollDeg_= dRollDeg_= -180.0 - dRollDeg_;
+	}	//if(dRollDeg_<0.0)
+	else {
+		dRollDeg_= dRollDeg_= 180.0 - dRollDeg_;
+	}	//if(dRollDeg_<0.0)else
+
+  Serial << "Pitch Deg, Pitch%, Roll " << dPitchDeg_ << ", " << dPitchPercent_
+  		   << ", " << dRollDeg_<< endl;
   return;
 }	//ComputeRollPitch
+
+
+double dGetPitchPercent(double dPitchDeg) {
+	double dPitchPercent= -99.99;
+	Serial << "dGetPitchPercent(): dPitchDeg_= " << dPitchDeg_ << endl;
+	if ((dPitchDeg_ < 44.0) && (dPitchDeg_ > -44.0)) {
+		dPitchPercent= 100.0 * tan(dPitchDeg_ / dRadsToDeg);
+		Serial << "dGetPitchPercent(): dPitchPercent_= " << dPitchPercent_ << endl;
+	}	//if((dPitchDeg_<44.0)&&...
+	return dPitchPercent;
+}	//dGetPitchPercent
+
+
+int sDisplayPitchRoll() {
+	//sprintf(szTempBuffer, "P %f", 123.45);
+  strcpy(szTempBuffer, "P");
+	dtostrf( dPitchDeg_, 5, 1, sz10CharString);
+  strcat(szTempBuffer, sz10CharString);
+  strcat(szTempBuffer, "%");
+	//Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
+  sDisplayText(6,28, sFontNormal, szTempBuffer);
+
+  strcpy(szTempBuffer, "R");
+	dtostrf( dRollDeg_, 6, 1, sz10CharString);
+  strcat(szTempBuffer, sz10CharString);
+  strcat(szTempBuffer, "Deg");
+  sDisplayText(7,28, sFontNormal, szTempBuffer);
+  return 1;
+}  //sDisplayPitchRoll
 
 
 int sSetupGyro() {
@@ -390,19 +426,6 @@ int sDisplayUpdate(void) {
    }  //if(bScreenChanged())
    return 1;
 }  //sDisplayUpdate
-
-
-int sDisplayPitchRoll() {
-	sprintf(szTempBuffer, "P %f", 123.45);
-	Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
-
-  //strcpy(szTempBuffer, "P 12.1%");
-  sDisplayText(6,28, sFontNormal, szTempBuffer);
-
-  strcpy(szTempBuffer, "R 48.2");
-  sDisplayText(7,28, sFontNormal, szTempBuffer);
-  return 1;
-}  //sDisplayPitchRoll
 
 
 int sDisplayClear() {
