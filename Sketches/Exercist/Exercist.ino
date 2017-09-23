@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Exercist.ino";
-static const char szFileDate[]    = "Aug 18, 2017, Lenny-S";
+static const char szFileDate[]    = "Sep 23, 2017, Lenny-g";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -40,11 +40,12 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
 //Here come the const's
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
-static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
+//static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
+static const int asDefaultGearLocation[]= {0, 152, 137, 122, 101, 74, 68, 56, 35, 27, 20};   //9-spd cogs 3-9
 static const int       sServoMin             = 0;
 static const int       sServoMax             = 180;
 static const int       sServoMsecWait        = 15;
-static const int       sNumGears             = 7;
+static const int       sNumGears             = 10;
 static const boolean   bServoOn              = true;
 static const int       sHoldDeltaPos         = 2; //Servo move size when button held.
 static const int       sTrimDeltaPos         = 1; //Servo move size when button clicked.
@@ -419,9 +420,9 @@ int sDisplayUpdate(void) {
       sDisplayClear();
       //sDisplayButtons();
       sDisplayCurrentGear();
-      sDisplayWatts();
-      sDisplayPitchRoll();
-      //sDisplayServoPos();
+      //sDisplayWatts();
+      //sDisplayPitchRoll();
+      sDisplayServoPos();
        //sDisplayOdometer();
    }  //if(bScreenChanged())
    return 1;
@@ -502,14 +503,27 @@ int sDisplayButtons() {
 
 int sDisplayCurrentGear() {
    if (sCurrentMode == sNormalMode) {
-      itoa(sCurrentGear, sz10CharString, 10);
+       switch(sCurrentGear) {
+/*
+         case 1:
+        	  strcpy(sz10CharString, "L");
+            break;
+*/
+         case sNumGears:
+       	    strcpy(sz10CharString, "0");
+            break;
+         default:
+            itoa(sCurrentGear, sz10CharString, 10);
+            break;
+        } //switch
+      //itoa(sCurrentGear, sz10CharString, 10);
       Serial << "sDisplayCurrentGear(): Mode= " << sCurrentMode
              << ", sz10CharString= " << sz10CharString << endl;
-      sDisplayText(0, 4, sFontBigNum, sz10CharString);    //1st char in 4 pixels.
+      sDisplayText(1, 6, sFontBigNum, sz10CharString);    //1st char in 4 pixels.
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
-      sDisplayText(0, 4, sFontBigNum, (char *)"0");               //1st char in 4 pixels.
+      sDisplayText(1, 6, sFontBigNum, (char *)"0");               //1st char in 4 pixels.
    }  //if (sCurrentMode..else
 
    return 1;
@@ -521,7 +535,7 @@ int sDisplayServoPos() {
    strcpy(szTempBuffer, "Servo ");
    strcat(szTempBuffer, sz10CharString);
    //Text will end 2 pixels in from right edge when servo value is 3 digits.
-   sDisplayText(0, 28, sFontBig, szTempBuffer);
+   sDisplayText(1, 23, sFontBig, szTempBuffer);
    return 1;
 }  //sDisplayServoPos
 
