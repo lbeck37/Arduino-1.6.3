@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Exercist.ino";
-static const char szFileDate[]    = "Sep 23, 2017, Lenny-g";
+static const char szFileDate[]    = "Sep 24, 2017, Lenny-a";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -41,7 +41,8 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 //Here come the const's
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
-static const int asDefaultGearLocation[]= {0, 152, 137, 122, 101, 74, 68, 56, 35, 27, 20};   //9-spd cogs 3-9
+//static const int asDefaultGearLocation[]= {0, 152, 137, 122, 101, 74, 68, 56, 35, 27, 20};	//10-speed estimates
+static const int asDefaultGearLocation[]= {0, 168, 135, 113, 101, 79, 66, 58, 41, 29, 14};	//10-speed
 static const int       sServoMin             = 0;
 static const int       sServoMax             = 180;
 static const int       sServoMsecWait        = 15;
