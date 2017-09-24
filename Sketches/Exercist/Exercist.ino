@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Exercist.ino";
-static const char szFileDate[]    = "Sep 24, 2017, Lenny-a";
+static const char szFileDate[]    = "Sep 24, 2017, Lenny-b";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -42,11 +42,12 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
 //static const int asDefaultGearLocation[]= {0, 152, 137, 122, 101, 74, 68, 56, 35, 27, 20};	//10-speed estimates
-static const int asDefaultGearLocation[]= {0, 168, 135, 113, 101, 79, 66, 58, 41, 29, 14};	//10-speed
+//static const int asDefaultGearLocation[]= {0, 168, 135, 113, 101, 79, 66, 58, 41, 29, 14};	//10-speed
+static const int asDefaultGearLocation[]= {0, 135, 113, 101, 81, 68, 58, 41, 29, 14};	//10-speed. cogs 2-10
 static const int       sServoMin             = 0;
 static const int       sServoMax             = 180;
 static const int       sServoMsecWait        = 15;
-static const int       sNumGears             = 10;
+static const int       sNumGears             = 9;
 static const boolean   bServoOn              = true;
 static const int       sHoldDeltaPos         = 2; //Servo move size when button held.
 static const int       sTrimDeltaPos         = 1; //Servo move size when button clicked.
@@ -505,12 +506,7 @@ int sDisplayButtons() {
 int sDisplayCurrentGear() {
    if (sCurrentMode == sNormalMode) {
        switch(sCurrentGear) {
-/*
-         case 1:
-        	  strcpy(sz10CharString, "L");
-            break;
-*/
-         case sNumGears:
+         case 10:
        	    strcpy(sz10CharString, "0");
             break;
          default:
