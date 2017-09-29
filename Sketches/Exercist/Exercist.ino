@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Exercist.ino";
-static const char szFileDate[]    = "Sep 24, 2017, Lenny-b";
+static const char szFileDate[]    = "Sep 28, 2017, Lenny-a";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
