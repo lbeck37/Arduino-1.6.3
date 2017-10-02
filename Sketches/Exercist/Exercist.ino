@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "Exercist.ino";
-static const char szFileDate[]    = "Sep 28, 2017, Lenny-a";
+static const char szFileDate[]    = "Oct 1, 2017, Lenny-a";
 
 /* ShiftE_Calib.ino Arduino Sketch to run ShiftE derailer
  05/09/15- Change Gear locations for 9-spd cassette using cogs 3 to 9
@@ -14,12 +14,12 @@ static const char szFileDate[]    = "Sep 28, 2017, Lenny-a";
  04/10/15 Beck- Port from Arduino 0022 to 1.6.3
 */
 #include <Arduino.h>
-#include <SPI.h>
-#include <EasyButton.h>
 #include <Streaming.h>
-#include <Servo.h>
-#include <Wire.h>
 #include <BeckLogLib.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <EasyButton.h>
+#include <Servo.h>
 
 #include <string>
 #include <iostream>
