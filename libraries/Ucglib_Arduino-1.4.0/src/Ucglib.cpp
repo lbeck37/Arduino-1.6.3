@@ -783,37 +783,37 @@ static uint8_t u8g_data_mask[9];
 static void ucg_com_arduino_init_8bit(ucg_t *ucg)
 {
 
-  u8g_data_port[0] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D0]));
+  u8g_data_port[0] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D0]));
   u8g_data_mask[0] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_D0]);  
   
-  u8g_data_port[1] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D1]));
+  u8g_data_port[1] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D1]));
   u8g_data_mask[1] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_D1]);  
   
-  u8g_data_port[2] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D2]));
+  u8g_data_port[2] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D2]));
   u8g_data_mask[2] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_D2]);  
   
-  u8g_data_port[3] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D3]));
+  u8g_data_port[3] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D3]));
   u8g_data_mask[3] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_D3]);  
   
-  u8g_data_port[4] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D4]));
+  u8g_data_port[4] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D4]));
   u8g_data_mask[4] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_D4]);  
   
-  u8g_data_port[5] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D5]));
+  u8g_data_port[5] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D5]));
   u8g_data_mask[5] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_D5]);  
   
   if ( ucg->pin_list[UCG_PIN_D6] != UCG_PIN_VAL_NONE )
   {
-    u8g_data_port[6] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D6]));
+    u8g_data_port[6] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D6]));
     u8g_data_mask[6] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_D6]);  
   }
   
   if ( ucg->pin_list[UCG_PIN_D7] != UCG_PIN_VAL_NONE )
   {
-    u8g_data_port[7] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D7]));
+    u8g_data_port[7] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_D7]));
     u8g_data_mask[7] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_D7]);  
   }  
 
-  u8g_data_port[8] =  portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_WR]));
+  u8g_data_port[8] =  (uint8_t*)portOutputRegister(digitalPinToPort(ucg->pin_list[UCG_PIN_WR]));
   u8g_data_mask[8] =  digitalPinToBitMask(ucg->pin_list[UCG_PIN_WR]);  
   
 }
