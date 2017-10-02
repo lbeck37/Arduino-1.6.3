@@ -1,6 +1,5 @@
 static const char szSketchName[]  = "BeckESP32_GraphicsTest.ino";
-static const char szFileDate[]    = "Oct 1, 2017, Lenny-d";
-
+static const char szFileDate[]    = "Oct 2, 2017, Lenny-e";
 /*
   GraphicsTest.ino
   Generate some example graphics
@@ -45,9 +44,13 @@ static const char szFileDate[]    = "Oct 1, 2017, Lenny-d";
     ESP-WROVER-KIT sclk=19, data=23
 */
 
-Ucglib_ILI9341_18x240x320_SWSPI ucg(/*sclk=*/ 19, /*data=*/ 23, /*cd=*/ 21 , /*cs=*/ 22, /*reset=*/ 18);
+//Ucglib_ILI9341_18x240x320_SWSPI ucg(/*sclk=*/ 19, /*data=*/ 23, /*cd=*/ 21 , /*cs=*/ 22, /*reset=*/ 18);
+Ucglib_ILI9341_18x240x320_HWSPI ucg(/*cd=*/ 21 , /*cs=*/ 22, /*reset=*/ 18);
 
-uint8_t z = 127;  // start value
+//Ucglib_ILI9341_18x240x320_SWSPI ucg(/*sclk=*/ 7, /*data=*/ 6, /*cd=*/ 5 , /*cs=*/ 3, /*reset=*/ 4);
+//Ucglib_ILI9341_18x240x320_SWSPI ucg(/*sclk=*/ 13, /*data=*/ 11, /*cd=*/ 9 , /*cs=*/ 10, /*reset=*/ 8);
+//Ucglib_ILI9341_18x240x320_HWSPI ucg(/*cd=*/ 9 , /*cs=*/ 10, /*reset=*/ 8);
+//Ucglib_ILI9341_18x240x320_SWSPI ucg(/*sclk=*/ 4, /*data=*/ 3, /*cd=*/ 6 , /*cs=*/ 7, /*reset=*/ 5);	/* Elec Freaks
 
 
 void setup(void)
@@ -55,26 +58,64 @@ void setup(void)
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
   delay(1000);
-  ucg.begin(UCG_FONT_MODE_TRANSPARENT);
+  Serial << "setup(): Call ucg.begin()" << endl;
+  ucg.begin(UCG_FONT_MODE_TRANSPARENT);					//ucglib.cpp 282
+  DLY();
+  Serial << "setup(): Call ucg.setFont()" << endl;
   ucg.setFont(ucg_font_ncenR14_hr);
+  DLY();
+  Serial << "setup(): Call ucg.clearScreen()" << endl;
   ucg.clearScreen();
 } //setup
 
 
-uint32_t lcg_rnd(void) {
-  z = (uint8_t)((uint16_t)65*(uint16_t)z + (uint16_t)17);
-  return (uint32_t)z;
-} //lcg_rnd
+static uint8_t ucRotation = 0;
+void loop(void)
+{
+  switch(ucRotation & 3)
+  {
+    case 0: ucg.undoRotate(); break;
+    case 1: ucg.setRotate90(); break;
+    case 2: ucg.setRotate180(); break;
+    default: ucg.setRotate270(); break;
+  } //switch
+
+  if ( ucRotation > 3 )
+  {
+    ucg.clearScreen();
+    set_clip_range();
+  }
+  ucRotation++;
+  DLY();
+  Serial << "setup(): Call ucglib_graphics_test()" << endl;
+  ucglib_graphics_test();
+  cross();
+  pixel_and_lines();
+  color_test();
+  triangle();
+  fonts();
+  text();
+  if ( ucRotation <= 3 )
+    clip();
+  box();
+  gradient();
+  //ucg.clearScreen();
+  DLY();
+  ucg.setMaxClipRange();
+  return;
+} //loop
 
 
 void ucglib_graphics_test(void)
 {
+  Serial << "ucglib_graphics_test(): Begin" << endl;
   //ucg.setMaxClipRange();
   ucg.setColor(0, 0, 40, 80);
   ucg.setColor(1, 80, 0, 40);
   ucg.setColor(2, 255, 0, 255);
   ucg.setColor(3, 0, 255, 255);
 
+  Serial << "ucglib_graphics_test(): Call ucg.drawGradientBox()" << endl;
   ucg.drawGradientBox(0, 0, ucg.getWidth(), ucg.getHeight());
 
   ucg.setColor(255, 168, 0);
@@ -494,37 +535,9 @@ void set_clip_range(void)
 } //set_clip_range
 
 
-uint8_t r = 0;
-void loop(void)
-{
-  switch(r&3)
-  {
-    case 0: ucg.undoRotate(); break;
-    case 1: ucg.setRotate90(); break;
-    case 2: ucg.setRotate180(); break;
-    default: ucg.setRotate270(); break;
-  } //switch
-
-  if ( r > 3 )
-  {
-    ucg.clearScreen();
-    set_clip_range();
-  }
-  r++;
-  ucglib_graphics_test();
-  cross();
-  pixel_and_lines();
-  color_test();
-  triangle();
-  fonts();
-  text();
-  if ( r <= 3 )
-    clip();
-  box();
-  gradient();
-  //ucg.clearScreen();
-  DLY();
-  ucg.setMaxClipRange();
-  return;
-} //loop
+static uint8_t z = 127;  // start value
+uint32_t lcg_rnd(void) {
+  z = (uint8_t)((uint16_t)65*(uint16_t)z + (uint16_t)17);
+  return (uint32_t)z;
+} //lcg_rnd
 //Last line

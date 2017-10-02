@@ -1,25 +1,16 @@
-/*
-
-  Ucglib.h
-
+/* Ucglib.h
   ucglib = universal color graphics library
   ucglib = micro controller graphics library
-  
   Universal uC Color Graphics Library
-  
   Copyright (c) 2014, olikraus@gmail.com
   All rights reserved.
-
   Redistribution and use in source and binary forms, with or without modification, 
   are permitted provided that the following conditions are met:
-
   * Redistributions of s_t ource code must retain the above copyright notice, this list 
     of conditions and the following disclaimer.
-    
   * Redistributions in binary form must reproduce the above copyright notice, this 
     list of conditions and the following disclaimer in the documentation and/or other 
     materials provided with the distribution.
-
   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND 
   CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
   INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
@@ -45,7 +36,6 @@
   
   Ucglib4WireHWSPI
       All Arduino boards with SPI library
-  
 */
 
 #ifndef _UCGLIB_HH
@@ -436,7 +426,4 @@ class Ucglib_SEPS225_16x128x128_UNIVISION_SWSPI : public Ucglib4WireSWSPI
     Ucglib4WireSWSPI(ucg_dev_seps225_16x128x128_univision, ucg_ext_seps225_16, /*scl=*/ scl, /*sda=*/ sda, /*cd=*/ cd , /*cs=*/ cs, /*reset=*/ reset)
     { }
 };
-
-
-
 #endif /* _UCGLIB_HH */
