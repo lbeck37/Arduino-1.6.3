@@ -61,7 +61,6 @@ void setup() {
   delay(10);
 
   StartSDcard();
-  //TestLoop();
 
   Serial.println(F("Done!"));
   return;
@@ -69,29 +68,31 @@ void setup() {
 
 
 void loop(void) {
-/*
-  for(uint8_t rotation=0; rotation<4; rotation++) {
-    tft.setRotation(rotation);
-    testText();
-    delay(1000);
-  }
-*/
-	TestSDcard();
+	//TestSDcard();
+	//delay(5000);
   TestLoop();
   return;
 }	//loop
 
 
 void StartSDcard() {
+	tft.fillScreen(WROVER_BLACK);
+	tft.setCursor(0, 0);
+	tft.setTextColor(WROVER_WHITE);
+	tft.setTextSize(1);
+
 	Serial.println("StartSDcard(): Begin");
+	tft.println("StartSDcard(): Begin");
 	if(!SD_MMC.begin()){
 		Serial.println("Card Mount Failed");
+		tft.println("Card Mount Failed");
 		return;
 	}
 	uint8_t cardType= SD_MMC.cardType();
 
 	if(cardType == CARD_NONE){
 		Serial.println("No SD_MMC card attached");
+		tft.println("No SD_MMC card attached");
 	}
 	return;
 }	//StartSDcard
@@ -99,17 +100,24 @@ void StartSDcard() {
 
 void TestSDcard() {
 	Serial.println("TestSDcard(): Begin");
+	tft.println("TestSDcard(): Begin");
   Serial.print("SD_MMC Card Type: ");
+	tft.print("SD_MMC Card Type: ");
   if(cardType == CARD_MMC){
       Serial.println("MMC");
+    	tft.println("MMC");
   } else if(cardType == CARD_SD){
       Serial.println("SDSC");
+    	tft.println("SDSC");
   } else if(cardType == CARD_SDHC){
       Serial.println("SDHC");
+    	tft.println("SDHC");
   } else if(cardType == CARD_NONE){
       Serial.println("No SD_MMC card attached");
+    	tft.println("No SD_MMC card attached");
   } else {
       Serial.println("UNKNOWN");
+    	tft.println("UNKNOWN");
   }
 
   uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
@@ -131,6 +139,7 @@ void TestSDcard() {
   Serial.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
 
 	Serial.println("TestSDcard(): End");
+	tft.println("TestSDcard(): End");
 	return;
 }	//TestSDcard
 
@@ -217,18 +226,26 @@ unsigned long testText() {
   tft.fillScreen(WROVER_BLACK);
   unsigned long start = micros();
   tft.setCursor(0, 0);
-  tft.setTextColor(WROVER_WHITE);  tft.setTextSize(1);
+  tft.setTextColor(WROVER_WHITE);
+  tft.setTextSize(1);
   tft.println("Hello World!");
-  tft.setTextColor(WROVER_YELLOW); tft.setTextSize(2);
+
+  tft.setTextColor(WROVER_YELLOW);
+  tft.setTextSize(2);
   tft.println(1234.56);
-  tft.setTextColor(WROVER_RED);    tft.setTextSize(3);
+
+  tft.setTextColor(WROVER_RED);
+  tft.setTextSize(3);
   tft.println(0xDEADBEEF, HEX);
   tft.println();
+
   tft.setTextColor(WROVER_GREEN);
   tft.setTextSize(5);
   tft.println("Groop");
+
   tft.setTextSize(2);
   tft.println("I implore thee,");
+
   tft.setTextSize(1);
   tft.println("my foonting turlingdromes.");
   tft.println("And hooptiously drangle me");
@@ -238,6 +255,7 @@ unsigned long testText() {
   tft.println("in the gobberwarts");
   tft.println("with my blurglecruncheon,");
   tft.println("see if I don't!");
+
   return micros() - start;
 }	//testText
 
