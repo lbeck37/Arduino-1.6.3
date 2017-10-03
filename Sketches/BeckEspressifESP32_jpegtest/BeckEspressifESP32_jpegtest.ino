@@ -14,11 +14,20 @@ void setup() {
   tft.drawJpg(esp_wp2_jpg, esp_wp2_jpg_len);
 }
 
+static bool		bDrawPicture1= true;
 void loop() {
+/*
   if(!digitalRead(BUTTON)){
     tft.drawJpg(esp_wp1_jpg, esp_wp1_jpg_len);
   } else {
     tft.drawJpg(esp_wp2_jpg, esp_wp2_jpg_len);
   }
-  delay(1000);
+*/
+  if(bDrawPicture1){
+    tft.drawJpg(esp_wp1_jpg, esp_wp1_jpg_len);
+  } else {
+    tft.drawJpg(esp_wp2_jpg, esp_wp2_jpg_len);
+  }
+  bDrawPicture1= !bDrawPicture1;
+  delay(3000);
 }
