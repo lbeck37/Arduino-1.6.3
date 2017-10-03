@@ -53,13 +53,35 @@ void setup() {
   
   Serial.println(F("Benchmark                Time (microseconds)"));
   delay(10);
+
+  //TestLoop();
+
+  Serial.println(F("Done!"));
+  return;
+}	//setup
+
+
+void loop(void) {
+/*
+  for(uint8_t rotation=0; rotation<4; rotation++) {
+    tft.setRotation(rotation);
+    testText();
+    delay(1000);
+  }
+*/
+  TestLoop();
+  return;
+}	//loop
+
+
+void TestLoop(void) {
   Serial.print(F("Screen fill              "));
   Serial.println(testFillScreen());
   delay(500);
 
   Serial.print(F("Text                     "));
   Serial.println(testText());
-  delay(3000);
+  delay(5000);
 
   Serial.print(F("Lines                    "));
   Serial.println(testLines(WROVER_CYAN));
@@ -99,19 +121,9 @@ void setup() {
   Serial.print(F("Rounded rects (filled)   "));
   Serial.println(testFilledRoundRects());
   delay(500);
+	return;
+}	//TestLoop
 
-  Serial.println(F("Done!"));
-
-}
-
-
-void loop(void) {
-  for(uint8_t rotation=0; rotation<4; rotation++) {
-    tft.setRotation(rotation);
-    testText();
-    delay(1000);
-  }
-}
 
 unsigned long testFillScreen() {
   unsigned long start = micros();
@@ -126,7 +138,8 @@ unsigned long testFillScreen() {
   tft.fillScreen(WROVER_BLACK);
   yield();
   return micros() - start;
-}
+}	//testFillScreen
+
 
 unsigned long testText() {
   tft.fillScreen(WROVER_BLACK);
@@ -148,12 +161,14 @@ unsigned long testText() {
   tft.println("my foonting turlingdromes.");
   tft.println("And hooptiously drangle me");
   tft.println("with crinkly bindlewurdles,");
+  tft.println("Larry loves Candy");
   tft.println("Or I will rend thee");
   tft.println("in the gobberwarts");
   tft.println("with my blurglecruncheon,");
   tft.println("see if I don't!");
   return micros() - start;
-}
+}	//testText
+
 
 unsigned long testLines(uint16_t color) {
   unsigned long start, t;
@@ -212,7 +227,8 @@ unsigned long testLines(uint16_t color) {
 
   yield();
   return micros() - start;
-}
+}	//testLines
+
 
 unsigned long testFastLines(uint16_t color1, uint16_t color2) {
   unsigned long start;
@@ -224,7 +240,8 @@ unsigned long testFastLines(uint16_t color1, uint16_t color2) {
   for(x=0; x<w; x+=5) tft.drawFastVLine(x, 0, h, color2);
 
   return micros() - start;
-}
+}	//testFastLines
+
 
 unsigned long testRects(uint16_t color) {
   unsigned long start;
@@ -241,7 +258,8 @@ unsigned long testRects(uint16_t color) {
   }
 
   return micros() - start;
-}
+}	//testRects
+
 
 unsigned long testFilledRects(uint16_t color1, uint16_t color2) {
   unsigned long start, t = 0;
@@ -262,7 +280,8 @@ unsigned long testFilledRects(uint16_t color1, uint16_t color2) {
   }
 
   return t;
-}
+}	//testFilledRects
+
 
 unsigned long testFilledCircles(uint8_t radius, uint16_t color) {
   unsigned long start;
@@ -277,7 +296,8 @@ unsigned long testFilledCircles(uint8_t radius, uint16_t color) {
   }
 
   return micros() - start;
-}
+}	//testFilledCircles
+
 
 unsigned long testCircles(uint8_t radius, uint16_t color) {
   unsigned long start;
@@ -295,7 +315,8 @@ unsigned long testCircles(uint8_t radius, uint16_t color) {
   }
 
   return micros() - start;
-}
+}	//testCircles
+
 
 unsigned long testTriangles() {
   unsigned long start;
@@ -314,7 +335,8 @@ unsigned long testTriangles() {
   }
 
   return micros() - start;
-}
+}	//testTriangles
+
 
 unsigned long testFilledTriangles() {
   unsigned long start, t = 0;
@@ -332,9 +354,9 @@ unsigned long testFilledTriangles() {
       tft.color565(i*10, i*10, 0));
     yield();
   }
-
   return t;
-}
+}	//testFilledTriangles
+
 
 unsigned long testRoundRects() {
   unsigned long start;
@@ -351,7 +373,8 @@ unsigned long testRoundRects() {
   }
 
   return micros() - start;
-}
+}	//testRoundRects
+
 
 unsigned long testFilledRoundRects() {
   unsigned long start;
@@ -368,4 +391,5 @@ unsigned long testFilledRoundRects() {
   }
 
   return micros() - start;
-}
+}	//testFilledRoundRects
+//Last line
