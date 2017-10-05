@@ -1,3 +1,4 @@
+// 10/5/17 Was BeckEspressifESP32_graphicstest.ino from example graphicstest.ino in WROVER_KIT_LCD library
 /***************************************************
   This is our GFX example for the Adafruit ILI9341 Breakout and Shield
   ----> http://www.adafruit.com/products/1651
@@ -22,15 +23,15 @@
 #include "FS.h"
 #include "SD_MMC.h"
 
-#define min(X, Y) 		(((X) < (Y)) ? (X) : (Y))
-#define PAUSE_DELAY		delay(2000)
+#define min(X, Y)     (((X) < (Y)) ? (X) : (Y))
+#define PAUSE_DELAY   delay(2000)
 
-WROVER_KIT_LCD 		RoverLCD;
-static uint8_t 		cardType= SD_MMC.cardType();
+WROVER_KIT_LCD    RoverLCD;
+static uint8_t    cardType= SD_MMC.cardType();
 
 void setup() {
   Serial.begin(115200);
- 
+
   RoverLCD.begin();
   RoverLCD.setRotation(1);
 
@@ -56,7 +57,7 @@ void setup() {
   Serial.print("Image Format:    0x"); Serial.println(x, HEX);
   x = RoverLCD.readcommand8(WROVER_RDDSDR);
   Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX);
-  
+
   Serial.println(F("Benchmark                Time (microseconds)"));
   delay(10);
 
@@ -64,93 +65,93 @@ void setup() {
 
   Serial.println(F("Done!"));
   return;
-}	//setup
+} //setup
 
 
 void loop(void) {
-	//TestSDcard();
-	//delay(5000);
+  //TestSDcard();
+  //delay(5000);
   TestLoop();
   return;
-}	//loop
+} //loop
 
 
 void StartSDcard() {
-	RoverLCD.fillScreen(WROVER_BLACK);
-	RoverLCD.setCursor(0, 0);
-	RoverLCD.setTextColor(WROVER_WHITE);
-	RoverLCD.setTextSize(1);
+  RoverLCD.fillScreen(WROVER_BLACK);
+  RoverLCD.setCursor(0, 0);
+  RoverLCD.setTextColor(WROVER_WHITE);
+  RoverLCD.setTextSize(1);
 
-	Serial.println("StartSDcard(): Begin");
-	RoverLCD.println("StartSDcard(): Begin");
-	RoverLCD.println("StartSDcard(): Call SD_MMC.begin()");
-	if(!SD_MMC.begin()){
-		Serial.println("Card Mount Failed");
-		RoverLCD.println("Card Mount Failed");
-		return;
-	}
-	RoverLCD.println("StartSDcard(): SD_MMC.begin() returned OK");
-	cardType= SD_MMC.cardType();
+  Serial.println("StartSDcard(): Begin");
+  RoverLCD.println("StartSDcard(): Begin");
+  RoverLCD.println("StartSDcard(): Call SD_MMC.begin()");
+  if(!SD_MMC.begin()){
+    Serial.println("Card Mount Failed");
+    RoverLCD.println("Card Mount Failed");
+    return;
+  }
+  RoverLCD.println("StartSDcard(): SD_MMC.begin() returned OK");
+  cardType= SD_MMC.cardType();
 
-	if(cardType == CARD_NONE){
-		Serial.println("No SD_MMC card attached");
-		RoverLCD.println("No SD_MMC card attached");
-	}
-	return;
-}	//StartSDcard
+  if(cardType == CARD_NONE){
+    Serial.println("No SD_MMC card attached");
+    RoverLCD.println("No SD_MMC card attached");
+  }
+  return;
+} //StartSDcard
 
 
 void TestSDcard() {
-	bool		bOk= true;
-	Serial.println("TestSDcard(): Begin");
-	RoverLCD.println("TestSDcard(): Begin");
+  bool    bOk= true;
+  Serial.println("TestSDcard(): Begin");
+  RoverLCD.println("TestSDcard(): Begin");
   Serial.print("SD_MMC Card Type: ");
-	RoverLCD.print("SD_MMC Card Type: ");
+  RoverLCD.print("SD_MMC Card Type: ");
   if(cardType == CARD_MMC){
       Serial.println("MMC");
-    	RoverLCD.println("MMC");
+      RoverLCD.println("MMC");
   } else if(cardType == CARD_SD){
       Serial.println("SDSC");
-    	RoverLCD.println("SDSC");
+      RoverLCD.println("SDSC");
   } else if(cardType == CARD_SDHC){
       Serial.println("SDHC");
-    	RoverLCD.println("SDHC");
+      RoverLCD.println("SDHC");
   } else if(cardType == CARD_NONE){
       Serial.println("No SD_MMC card attached");
-    	RoverLCD.println("No SD_MMC card attached");
-    	bOk= false;
+      RoverLCD.println("No SD_MMC card attached");
+      bOk= false;
   } else {
       Serial.println("UNKNOWN");
-    	RoverLCD.println("UNKNOWN");
-    	bOk= false;
+      RoverLCD.println("UNKNOWN");
+      bOk= false;
   }
   if (bOk){
-  	  uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
-  	  Serial.printf("SD_MMC Card Size: %lluMB\n", cardSize);
-    	RoverLCD.printf("SD_MMC Card Size: %lluMB\n", cardSize);
+      uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
+      Serial.printf("SD_MMC Card Size: %lluMB\n", cardSize);
+      RoverLCD.printf("SD_MMC Card Size: %lluMB\n", cardSize);
 
-  	  listDir(SD_MMC, "/", 0);
-  	  createDir(SD_MMC, "/mydir");
-  	  listDir(SD_MMC, "/", 0);
-  	  removeDir(SD_MMC, "/mydir");
-  	  listDir(SD_MMC, "/", 2);
-  	  writeFile(SD_MMC, "/hello.txt", "Hello ");
-  	  appendFile(SD_MMC, "/hello.txt", "World!\n");
-  	  readFile(SD_MMC, "/hello.txt");
-  	  deleteFile(SD_MMC, "/foo.txt");
-  	  renameFile(SD_MMC, "/hello.txt", "/foo.txt");
-  	  readFile(SD_MMC, "/foo.txt");
-  	  testFileIO(SD_MMC, "/test.txt");
-  	  Serial.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
-  	  Serial.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
-  	  RoverLCD.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
-  	  RoverLCD.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
-  }	//if(bOk)
+      listDir(SD_MMC, "/", 0);
+      createDir(SD_MMC, "/mydir");
+      listDir(SD_MMC, "/", 0);
+      removeDir(SD_MMC, "/mydir");
+      listDir(SD_MMC, "/", 2);
+      writeFile(SD_MMC, "/hello.txt", "Hello ");
+      appendFile(SD_MMC, "/hello.txt", "World!\n");
+      readFile(SD_MMC, "/hello.txt");
+      deleteFile(SD_MMC, "/foo.txt");
+      renameFile(SD_MMC, "/hello.txt", "/foo.txt");
+      readFile(SD_MMC, "/foo.txt");
+      testFileIO(SD_MMC, "/test.txt");
+      Serial.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
+      Serial.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
+      RoverLCD.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
+      RoverLCD.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
+  } //if(bOk)
 
-	Serial.println("TestSDcard(): End");
-	RoverLCD.println("TestSDcard(): End");
-	return;
-}	//TestSDcard
+  Serial.println("TestSDcard(): End");
+  RoverLCD.println("TestSDcard(): End");
+  return;
+} //TestSDcard
 
 
 void TestLoop(void) {
@@ -211,8 +212,8 @@ void TestLoop(void) {
   RoverLCD.drawJpg(esp_wp2_jpg, esp_wp2_jpg_len);
   PAUSE_DELAY;
 
-	return;
-}	//TestLoop
+  return;
+} //TestLoop
 
 
 unsigned long testFillScreen() {
@@ -228,7 +229,7 @@ unsigned long testFillScreen() {
   RoverLCD.fillScreen(WROVER_BLACK);
   yield();
   return micros() - start;
-}	//testFillScreen
+} //testFillScreen
 
 
 unsigned long testText() {
@@ -266,7 +267,7 @@ unsigned long testText() {
   RoverLCD.println("see if I don't!");
 
   return micros() - start;
-}	//testText
+} //testText
 
 
 unsigned long testLines(uint16_t color) {
@@ -277,7 +278,7 @@ unsigned long testLines(uint16_t color) {
 
   RoverLCD.fillScreen(WROVER_BLACK);
   yield();
-  
+
   x1 = y1 = 0;
   y2    = h - 1;
   start = micros();
@@ -326,7 +327,7 @@ unsigned long testLines(uint16_t color) {
 
   yield();
   return micros() - start;
-}	//testLines
+} //testLines
 
 
 unsigned long testFastLines(uint16_t color1, uint16_t color2) {
@@ -339,7 +340,7 @@ unsigned long testFastLines(uint16_t color1, uint16_t color2) {
   for(x=0; x<w; x+=5) RoverLCD.drawFastVLine(x, 0, h, color2);
 
   return micros() - start;
-}	//testFastLines
+} //testFastLines
 
 
 unsigned long testRects(uint16_t color) {
@@ -357,7 +358,7 @@ unsigned long testRects(uint16_t color) {
   }
 
   return micros() - start;
-}	//testRects
+} //testRects
 
 
 unsigned long testFilledRects(uint16_t color1, uint16_t color2) {
@@ -379,7 +380,7 @@ unsigned long testFilledRects(uint16_t color1, uint16_t color2) {
   }
 
   return t;
-}	//testFilledRects
+} //testFilledRects
 
 
 unsigned long testFilledCircles(uint8_t radius, uint16_t color) {
@@ -395,7 +396,7 @@ unsigned long testFilledCircles(uint8_t radius, uint16_t color) {
   }
 
   return micros() - start;
-}	//testFilledCircles
+} //testFilledCircles
 
 
 unsigned long testCircles(uint8_t radius, uint16_t color) {
@@ -414,7 +415,7 @@ unsigned long testCircles(uint8_t radius, uint16_t color) {
   }
 
   return micros() - start;
-}	//testCircles
+} //testCircles
 
 
 unsigned long testTriangles() {
@@ -434,7 +435,7 @@ unsigned long testTriangles() {
   }
 
   return micros() - start;
-}	//testTriangles
+} //testTriangles
 
 
 unsigned long testFilledTriangles() {
@@ -454,7 +455,7 @@ unsigned long testFilledTriangles() {
     yield();
   }
   return t;
-}	//testFilledTriangles
+} //testFilledTriangles
 
 
 unsigned long testRoundRects() {
@@ -472,7 +473,7 @@ unsigned long testRoundRects() {
   }
 
   return micros() - start;
-}	//testRoundRects
+} //testRoundRects
 
 
 unsigned long testFilledRoundRects() {
@@ -490,7 +491,7 @@ unsigned long testFilledRoundRects() {
   }
 
   return micros() - start;
-}	//testFilledRoundRects
+} //testFilledRoundRects
 
 
 //SD Card tests
@@ -654,5 +655,5 @@ void testFileIO(fs::FS &fs, const char * path){
     end = millis() - start;
     Serial.printf("%u bytes written for %u ms\n", 2048 * 512, end);
     file.close();
-}	//testFileIO
+} //testFileIO
 //Last line
