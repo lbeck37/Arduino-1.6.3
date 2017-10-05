@@ -17,14 +17,14 @@
 #include "WROVER_KIT_LCD.h" // Hardware-specific library
 #include <SD_MMC.h>
 
-WROVER_KIT_LCD tft;
+WROVER_KIT_LCD RoverLCD;
 
 void setup(void) {
   Serial.begin(115200);
 
-  tft.begin();
-  tft.setRotation(1);
-  tft.fillScreen(WROVER_BLUE);
+  RoverLCD.begin();
+  RoverLCD.setRotation(1);
+  RoverLCD.fillScreen(WROVER_BLUE);
   
   Serial.print("Initializing SD card...");
   if (!SD_MMC.begin()) {
@@ -33,7 +33,7 @@ void setup(void) {
   }
   Serial.println("OK!");
 
-  tft.drawBmpFile(SD_MMC, "/purple.bmp", 0, 0);
+  RoverLCD.drawBmpFile(SD_MMC, "/purple.bmp", 0, 0);
 }
 
 void loop(void) {

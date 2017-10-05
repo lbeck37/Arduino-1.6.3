@@ -70,7 +70,7 @@ void setup() {
 void loop(void) {
 	//TestSDcard();
 	//delay(5000);
-  TestLoop();
+  //TestLoop();
   return;
 }	//loop
 
@@ -88,7 +88,7 @@ void StartSDcard() {
 		RoverLCD.println("Card Mount Failed");
 		return;
 	}
-	uint8_t cardType= SD_MMC.cardType();
+	cardType= SD_MMC.cardType();
 
 	if(cardType == CARD_NONE){
 		Serial.println("No SD_MMC card attached");
@@ -99,6 +99,7 @@ void StartSDcard() {
 
 
 void TestSDcard() {
+	bool		bOk= true;
 	Serial.println("TestSDcard(): Begin");
 	RoverLCD.println("TestSDcard(): Begin");
   Serial.print("SD_MMC Card Type: ");
@@ -115,28 +116,31 @@ void TestSDcard() {
   } else if(cardType == CARD_NONE){
       Serial.println("No SD_MMC card attached");
     	RoverLCD.println("No SD_MMC card attached");
+    	bOk= false;
   } else {
       Serial.println("UNKNOWN");
     	RoverLCD.println("UNKNOWN");
+    	bOk= false;
   }
+  if (bOk){
+  	  uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
+  	  Serial.printf("SD_MMC Card Size: %lluMB\n", cardSize);
 
-  uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
-  Serial.printf("SD_MMC Card Size: %lluMB\n", cardSize);
-
-  listDir(SD_MMC, "/", 0);
-  createDir(SD_MMC, "/mydir");
-  listDir(SD_MMC, "/", 0);
-  removeDir(SD_MMC, "/mydir");
-  listDir(SD_MMC, "/", 2);
-  writeFile(SD_MMC, "/hello.txt", "Hello ");
-  appendFile(SD_MMC, "/hello.txt", "World!\n");
-  readFile(SD_MMC, "/hello.txt");
-  deleteFile(SD_MMC, "/foo.txt");
-  renameFile(SD_MMC, "/hello.txt", "/foo.txt");
-  readFile(SD_MMC, "/foo.txt");
-  testFileIO(SD_MMC, "/test.txt");
-  Serial.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
-  Serial.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
+  	  listDir(SD_MMC, "/", 0);
+  	  createDir(SD_MMC, "/mydir");
+  	  listDir(SD_MMC, "/", 0);
+  	  removeDir(SD_MMC, "/mydir");
+  	  listDir(SD_MMC, "/", 2);
+  	  writeFile(SD_MMC, "/hello.txt", "Hello ");
+  	  appendFile(SD_MMC, "/hello.txt", "World!\n");
+  	  readFile(SD_MMC, "/hello.txt");
+  	  deleteFile(SD_MMC, "/foo.txt");
+  	  renameFile(SD_MMC, "/hello.txt", "/foo.txt");
+  	  readFile(SD_MMC, "/foo.txt");
+  	  testFileIO(SD_MMC, "/test.txt");
+  	  Serial.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
+  	  Serial.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
+  }	//if(bOk)
 
 	Serial.println("TestSDcard(): End");
 	RoverLCD.println("TestSDcard(): End");
