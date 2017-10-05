@@ -60,7 +60,7 @@ void setup() {
   Serial.println(F("Benchmark                Time (microseconds)"));
   delay(10);
 
-  StartSDcard();
+  //StartSDcard();
 
   Serial.println(F("Done!"));
   return;
@@ -70,7 +70,7 @@ void setup() {
 void loop(void) {
 	//TestSDcard();
 	//delay(5000);
-  //TestLoop();
+  TestLoop();
   return;
 }	//loop
 
@@ -83,11 +83,13 @@ void StartSDcard() {
 
 	Serial.println("StartSDcard(): Begin");
 	RoverLCD.println("StartSDcard(): Begin");
+	RoverLCD.println("StartSDcard(): Call SD_MMC.begin()");
 	if(!SD_MMC.begin()){
 		Serial.println("Card Mount Failed");
 		RoverLCD.println("Card Mount Failed");
 		return;
 	}
+	RoverLCD.println("StartSDcard(): SD_MMC.begin() returned OK");
 	cardType= SD_MMC.cardType();
 
 	if(cardType == CARD_NONE){
@@ -125,6 +127,7 @@ void TestSDcard() {
   if (bOk){
   	  uint64_t cardSize = SD_MMC.cardSize() / (1024 * 1024);
   	  Serial.printf("SD_MMC Card Size: %lluMB\n", cardSize);
+    	RoverLCD.printf("SD_MMC Card Size: %lluMB\n", cardSize);
 
   	  listDir(SD_MMC, "/", 0);
   	  createDir(SD_MMC, "/mydir");
@@ -140,6 +143,8 @@ void TestSDcard() {
   	  testFileIO(SD_MMC, "/test.txt");
   	  Serial.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
   	  Serial.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
+  	  RoverLCD.printf("Total space: %lluMB\n", SD_MMC.totalBytes() / (1024 * 1024));
+  	  RoverLCD.printf("Used space: %lluMB\n", SD_MMC.usedBytes() / (1024 * 1024));
   }	//if(bOk)
 
 	Serial.println("TestSDcard(): End");
