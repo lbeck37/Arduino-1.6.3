@@ -41,7 +41,7 @@ License (MIT license):
 #include "ESP8266mDNS.h"
 #include <functional>
 
-#include "debug.h"
+//#include "debug.h"			// 10/6/17 Beck commented out
 
 extern "C" {
     #include "osapi.h"

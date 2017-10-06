@@ -23,7 +23,10 @@
 #ifndef ESP8266WIFITYPE_H_
 #define ESP8266WIFITYPE_H_
 
+//#include <types.h>		// 10/617 Beck Added
 #include <queue.h>
+
+typedef unsigned char		uint8;
 
 #define WIFI_SCAN_RUNNING   (-1)
 #define WIFI_SCAN_FAILED    (-2)

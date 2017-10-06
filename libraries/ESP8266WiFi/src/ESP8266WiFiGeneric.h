@@ -27,6 +27,8 @@
 #include <functional>
 #include <memory>
 
+typedef unsigned int		uint32;
+
 #ifdef DEBUG_ESP_WIFI
 #ifdef DEBUG_ESP_PORT
 #define DEBUG_WIFI_GENERIC(...) DEBUG_ESP_PORT.printf( __VA_ARGS__ )
