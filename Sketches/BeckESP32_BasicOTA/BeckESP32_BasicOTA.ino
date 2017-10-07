@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckESP32_BasicOTA.ino";
-static const char szFileDate[]    = "Oct 6, 2017, Lenny-c";
+static const char szFileDate[]    = "Oct 6, 2017, Lenny-n";
 // "See https://diyprojects.io/arduinoota-esp32-wi-fi-ota-wireless-update-arduino-ide"
 #include <BeckLogLib.h>
 #include <WiFi.h>
@@ -16,7 +16,7 @@ const char* password = "Qazqaz11";
 
 void setup() {
   Serial.begin(115200);
-  //Serial.println("Booting");
+  Serial.println("Booting");
   Serial << endl << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -31,11 +31,12 @@ void setup() {
 
   // Hostname defaults to esp3232-[MAC]
   // ArduinoOTA.setHostname("myesp32");
-  ArduinoOTA.setHostname("ESP32-DevKitC");
+  //ArduinoOTA.setHostname("ESP32-DevKitC");
+  ArduinoOTA.setHostname("SF-ESP32-Thing");
 
   // No authentication by default
   // ArduinoOTA.setPassword("admin");
-  ArduinoOTA.setPassword("tuna37");
+  //ArduinoOTA.setPassword("tuna37");
 
   // Password can be set with it's md5 value as well
   // MD5(admin) = 21232f297a57a5a743894a0e4a801fc3
@@ -43,15 +44,20 @@ void setup() {
 
   ArduinoOTA.onStart([]() {
     String type;
-    if (ArduinoOTA.getCommand() == U_FLASH)
+    Serial << endl << "ArduinoOTA.onStart(): Begin " << endl;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+      Serial << "ArduinoOTA.onStart(): U_FLASH " << endl;
       type = "sketch";
-    else // U_SPIFFS
+    }
+    else { // U_SPIFFS
+      Serial << "ArduinoOTA.onStart(): U_SPIFFS " << endl;
       type = "filesystem";
-
+    }
     // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
     Serial.println("Start updating " + type);
   });
   ArduinoOTA.onEnd([]() {
+    Serial << "ArduinoOTA.onEnd(): Begin " << endl;
     Serial.println("\nEnd");
   });
   ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
@@ -70,6 +76,8 @@ void setup() {
   Serial.println("Ready");
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+  Serial << "setup(): After ArduinoOTA.begin(): " << szSketchName << ", " << szFileDate << endl;
+  Serial << "setup(): WiFi.localIP()= " << WiFi.localIP() << endl;
 
   Serial << "setup(): End " << endl;
   return;
