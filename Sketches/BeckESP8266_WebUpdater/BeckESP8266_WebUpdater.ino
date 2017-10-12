@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckESP8266_WebUpdater.ino";
-static const char szFileDate[]    = "Oct 6, 2017, Lenny-d";
+static const char szFileDate[]    = "Oct 12, 2017, Lenny-a";
 #include <BeckLogLib.h>
 /*
   To upload through terminal you can use: curl -F "image=@firmware.bin" esp8266-webupdate.local/update
@@ -44,6 +44,7 @@ void setup(void){
 
   MDNS.addService("http", "tcp", 80);
   Serial.printf("\nHTTPUpdateServer ready! Open http://%s.local/update in your browser\n", host);
+  Serial << "IP address: " << WiFi.localIP() << endl;
   Serial << "setup(): End " << endl;
   return;
 }	//setup
