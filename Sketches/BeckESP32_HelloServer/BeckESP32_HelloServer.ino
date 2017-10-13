@@ -1,19 +1,30 @@
+static const char szSketchName[]  = "BeckESP32_HelloServer.ino";
+static const char szFileDate[]    = "Oct 13, 2017, Lenny-e";
+
+//Eclipse .ino.cpp builder is putting includes in for both
+/*
 #ifdef ESP8266
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
-ESP8266WebServer server(80);
+	#include <ESP8266WiFi.h>
+	#include <WiFiClient.h>
+	#include <ESP8266WebServer.h>
+	#include <ESP8266mDNS.h>
+	ESP8266WebServer server(80);
 #else
+	#include <WiFi.h>
+	#include <WiFiClient.h>
+	#include <WebServer.h>
+	#include <ESPmDNS.h>
+	WebServer server(80);
+#endif
+*/
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
 WebServer server(80);
-#endif
 
-const char* ssid = "........";
-const char* password = "........";
+const char* ssid = "Aspot24";
+const char* password = "Qazqaz11";
 
 #ifdef LED_BUILTIN
 const int led = LED_BUILTIN;
@@ -52,6 +63,8 @@ void setup(void){
   pinMode(led, OUTPUT);
   digitalWrite(led, 0);
   Serial.begin(115200);
+  Serial.printf("setup(): Begin %s, %s\n", szSketchName, szFileDate);
+
   WiFi.begin(ssid, password);
   Serial.println("");
 
