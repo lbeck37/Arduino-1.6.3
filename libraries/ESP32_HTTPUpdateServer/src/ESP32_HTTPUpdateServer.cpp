@@ -50,41 +50,68 @@ void ESP32_HTTPUpdateServer::setup(WebServer *server, const char * path, const c
       // them through the Update object
       HTTPUpload& upload = _server->upload();
       if(upload.status == UPLOAD_FILE_START){
-        if (_serial_output)
+        if(_serial_output) {
           Serial.setDebugOutput(true);
+        }	//if(_serial_output)
 
-        _authenticated = (_username == NULL || _password == NULL || _server->authenticate(_username, _password));
+        _authenticated= (_username == NULL || _password == NULL || _server->authenticate(_username, _password));
         if(!_authenticated){
-          if (_serial_output)
+          if(_serial_output) {
             Serial.printf("Unauthenticated Update\n");
+          }	//if(_serial_output)
           return;
-        }
+        }	//if(!_authenticated)
 
         WiFiUDP::stopAll();
-        if (_serial_output)
+        if (_serial_output){
           Serial.printf("Update: %s\n", upload.filename.c_str());
+        }	//if(_serial_output)
+
         uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
         if(!Update.begin(maxSketchSpace)){//start with max available size
-          if (_serial_output) Update.printError(Serial);
-        }
-      } else if(_authenticated && upload.status == UPLOAD_FILE_WRITE){
-        if (_serial_output) Serial.printf(".");
-        if(Update.write(upload.buf, upload.currentSize) != upload.currentSize){
-          if (_serial_output) Update.printError(Serial);
+          if (_serial_output){
+          		Update.printError(Serial);
+          }	//if(_serial_output)
+        }	//if(!Update.begin(maxSketchSpace))
+      }	//if(upload.status==UPLOAD_FILE_START)
+      else {
+      	if(_authenticated && upload.status == UPLOAD_FILE_WRITE){
+					if(_serial_output) {
+							Serial.printf(".");
+					}	//if(_serial_output)
 
-        }
-      } else if(_authenticated && upload.status == UPLOAD_FILE_END){
+					if(Update.write(upload.buf, upload.currentSize) != upload.currentSize){
+						if(_serial_output) {
+								Update.printError(Serial);
+						}	//if(_serial_output)
+					}	//if(Update.write(upload.buf,...
+				} //if(_authenticated &&...
+      else
+      	if(_authenticated && upload.status == UPLOAD_FILE_END){
         if(Update.end(true)){ //true to set the size to the current progress
-          if (_serial_output) Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-        } else {
-          if (_serial_output) Update.printError(Serial);
-        }
-        if (_serial_output) Serial.setDebugOutput(false);
-      } else if(_authenticated && upload.status == UPLOAD_FILE_ABORTED){
-        Update.end();
-        if (_serial_output) Serial.println("Update was aborted");
-      }
+          if(_serial_output){
+          		Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+          }	//if(_serial_output)
+        } //if(Update.end(true))
+        else {
+          if(_serial_output){
+          	Update.printError(Serial);
+          }	//if(_serial_output)
+        }	//if(Update.end(true))else
+
+        if(_serial_output){
+        		Serial.setDebugOutput(false);
+        }	//if(_serial_output)
+      } //if(_authenticated&&upload.status==UPLOAD_FILE_END)
+      else {
+      	if(_authenticated && upload.status == UPLOAD_FILE_ABORTED){
+					Update.end();
+					if(_serial_output){
+							Serial.println("Update was aborted");
+					}	//if(_serial_output)
+				}	//if(_authenticated&&...
+      } //if(_authenticated&&upload.status==UPLOAD_FILE_END)else
       delay(0);
-    });
+    });	//if(upload.status==UPLOAD_FILE_START)
 }
 //Last line.
