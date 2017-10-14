@@ -1,24 +1,28 @@
 static const char szSketchName[]  = "BeckESP32_WebUpdater.ino";
-static const char szFileDate[]    = "Oct 13, 2017, Lenny-a";
+static const char szFileDate[]    = "Oct 13, 2017, Lenny-c";
 #include <BeckLogLib.h>
 
+/*
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPUpdateServer.h>
-
-/*
-const char* host = "esp8266-webupdate";
-const char* ssid = "........";
-const char* password = "........";
 */
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include <ESP32HTTPUpdateServer.h>
+
 const char* host = "BeckESP32_WebUpdater";
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
-ESP8266WebServer httpServer(80);
-ESP8266HTTPUpdateServer httpUpdater;
+//ESP8266WebServer 		ESP_WebServer(80);
+WebServer 		ESP_WebServer(80);
+
+ESP32HTTPUpdateServer httpUpdater;
 
 void setup(void){
 
@@ -36,8 +40,8 @@ void setup(void){
 
   MDNS.begin(host);
 
-  httpUpdater.setup(&httpServer);
-  httpServer.begin();
+  httpUpdater.setup(&ESP_WebServer);
+  ESP_WebServer.begin();
 
   MDNS.addService("http", "tcp", 80);
   Serial.printf("\nHTTPUpdateServer ready! Open http://%s.local/update in your browser\n", host);
@@ -48,7 +52,7 @@ void setup(void){
 
 
 void loop(void){
-  httpServer.handleClient();
+  ESP_WebServer.handleClient();
   return;
 }	//loop
 //Last line
