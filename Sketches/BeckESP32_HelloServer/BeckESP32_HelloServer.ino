@@ -1,5 +1,7 @@
-static const char szSketchName[]  = "BeckESP32_HelloServer.ino";
-static const char szFileDate[]    = "Oct 13, 2017, Lenny-e";
+//static const char szSketchName[]  = "BeckESP32_HelloServer.ino";
+//static const char szFileDate[]    = "Oct 13, 2017, Lenny-j";
+static const String SketchName  = "BeckESP32_HelloServer.ino";
+static const String FileDate    = "Oct 13, 2017, Lenny-k";
 
 //Eclipse .ino.cpp builder is putting includes in for both
 /*
@@ -17,6 +19,7 @@ static const char szFileDate[]    = "Oct 13, 2017, Lenny-e";
 	WebServer server(80);
 #endif
 */
+#include <BeckLogLib.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
@@ -37,7 +40,8 @@ void handleRoot() {
 #ifdef ESP8266
   server.send(200, "text/plain", "hello from esp8266!");
 #else
-  server.send(200, "text/plain", "hello from esp32!");
+  //server.send(200, "text/plain", "hello from esp32!");
+  server.send(200, "text/plain", "Hello from " + SketchName + ", " + FileDate);
 #endif
   digitalWrite(led, 0);
 }
@@ -63,7 +67,8 @@ void setup(void){
   pinMode(led, OUTPUT);
   digitalWrite(led, 0);
   Serial.begin(115200);
-  Serial.printf("setup(): Begin %s, %s\n", szSketchName, szFileDate);
+  //Serial.printf("setup(): Begin %s, %s\n", szSketchName, szFileDate);
+  Serial << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
   WiFi.begin(ssid, password);
   Serial.println("");
