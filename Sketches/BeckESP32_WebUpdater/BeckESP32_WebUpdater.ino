@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckESP32_WebUpdater.ino";
-static const char szFileDate[]    = "Oct 13, 2017, Lenny-c";
+static const char szFileDate[]    = "Oct 14, 2017, Lenny-c";
 #include <BeckLogLib.h>
 
 /*
@@ -13,7 +13,7 @@ static const char szFileDate[]    = "Oct 13, 2017, Lenny-c";
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
-#include <ESP32HTTPUpdateServer.h>
+#include <ESP32_HTTPUpdateServer.h>
 
 const char* host = "BeckESP32_WebUpdater";
 const char* ssid = "Aspot24";
@@ -22,7 +22,7 @@ const char* password = "Qazqaz11";
 //ESP8266WebServer 		ESP_WebServer(80);
 WebServer 		ESP_WebServer(80);
 
-ESP32HTTPUpdateServer httpUpdater;
+ESP32_HTTPUpdateServer httpUpdater;
 
 void setup(void){
 

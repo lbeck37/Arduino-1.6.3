@@ -3,8 +3,8 @@
 #include <WiFiServer.h>
 #include <WebServer.h>
 #include <WiFiUdp.h>
-#include "StreamString.h"
-#include "ESP32HTTPUpdateServer.h"
+#include <StreamString.h>
+#include <ESP32HTTPUpdateServer.h>
 
 
 static const char serverIndex[] PROGMEM =
@@ -25,7 +25,7 @@ ESP32HTTPUpdateServer::ESP32HTTPUpdateServer(bool serial_debug)
   _authenticated = false;
 }
 
-void ESP32HTTPUpdateServer::setup(ESP8266WebServer *server, const char * path, const char * username, const char * password)
+void ESP32HTTPUpdateServer::setup(WebServer *server, const char * path, const char * username, const char * password)
 {
     _server = server;
     _username = (char *)username;
@@ -102,3 +102,4 @@ void ESP32HTTPUpdateServer::_setUpdaterError()
   Update.printError(str);
   _updaterError = str.c_str();
 }
+//Last line
