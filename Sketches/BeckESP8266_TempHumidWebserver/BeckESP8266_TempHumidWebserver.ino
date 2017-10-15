@@ -1,5 +1,9 @@
+String SketchName  = "BeckESP8266_TempHumidWebserver.ino";
+String FileDate    = "Oct 15, 2017, Lenny-e";
+/*
 static const char szSketchName[]  = "BeckESP8266_TempHumidWebserver.ino";
-static const char szFileDate[]    = "Oct 15, 2017, Lenny-b";
+static const char szFileDate[]    = "Oct 15, 2017, Lenny-d";
+*/
 /* DHTServer - ESP8266 Webserver with a DHT sensor as an input
    Based on ESP8266Webserver, DHTexample, and BlinkWithoutDelay (thank you)
    Version 1.0  5/3/2014  Version 1.0   Mike Barela for Adafruit Industries
@@ -12,12 +16,6 @@ static const char szFileDate[]    = "Oct 15, 2017, Lenny-b";
 #define DHTTYPE DHT22
 #define DHTPIN  2
 
-/*
-const char* ssid     = "YourRouterID";
-const char* password = "YourRouterPassword";
-*/
-
-//const char* host = "BeckESP8266_WebUpdater";
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
@@ -39,22 +37,44 @@ String webString="";     // String to display
 // Generally, you should use "unsigned long" for variables that hold time
 unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
+
+String GreetString= "Hello from " + SketchName + ", " + FileDate +
+		", try page /temp or /humid";
  
-void handle_root() {
-  server.send(200, "text/plain", "Hello from the weather esp8266, read from /temp or /humidity");
+void HandleRoot() {
+  //server.send(200, "text/plain", "Hello from the weather esp8266, read from /temp or /humidity");
+  server.send(200, "text/plain", GreetString);
   delay(100);
-}
+  return;
+}	//HandleRoot
+
+
+void HandleTemp() {
+  gettemperature();       															// read sensor
+  webString="Temperature: "+String((int)temp_f)+" F";   // Arduino has a hard time with float to string
+  server.send(200, "text/plain", webString);            // send to someones browser when asked
+  return;
+}	//HandleTemp
+
+
+void HandleHumid() {
+  gettemperature();           													// read sensor
+  webString="Humidity: "+String((int)humidity)+"%";
+  server.send(200, "text/plain", webString);            // send to someones browser when asked
+  return;
+}	//HandleHumid
+
  
 void setup(void)
 {
   // You can open the Arduino IDE Serial Monitor window to see what the code is doing
   Serial.begin(115200);  // Serial connection from ESP-01 via 3.3v console cable
-  Serial << endl << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
+  Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
   dht.begin();           // initialize temperature sensor
 
   // Connect to WiFi network
   WiFi.begin(ssid, password);
-  Serial.print("\n\r \n\rWorking to connect");
+  Serial.print("Working to connect");
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
@@ -68,8 +88,11 @@ void setup(void)
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
    
-  server.on("/", handle_root);
+  server.on("/",			HandleRoot);
+  server.on("/temp",	HandleTemp);
+  server.on("/humid",	HandleHumid);
   
+/*
   server.on("/temp", [](){  // if you add this subdirectory to your webserver call, you get text below :)
     gettemperature();       // read sensor
     webString="Temperature: "+String((int)temp_f)+" F";   // Arduino has a hard time with float to string
@@ -81,15 +104,20 @@ void setup(void)
     webString="Humidity: "+String((int)humidity)+"%";
     server.send(200, "text/plain", webString);               // send to someones browser when asked
   });
+*/
   
   server.begin();
   Serial.println("HTTP server started");
-}
+  return;
+}	//setup
+
  
 void loop(void)
 {
   server.handleClient();
-} 
+  return;
+}	//loop
+
 
 void gettemperature() {
   // Wait at least 2 seconds seconds between measurements.
