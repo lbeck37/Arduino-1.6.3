@@ -1,9 +1,6 @@
 static const char szSketchName[]  = "BeckESP8266_WebUpdater.ino";
 static const char szFileDate[]    = "Oct 14, 2017, Lenny-b";
 #include <BeckLogLib.h>
-/*
-  To upload through terminal you can use: curl -F "image=@firmware.bin" esp8266-webupdate.local/update
-*/
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
