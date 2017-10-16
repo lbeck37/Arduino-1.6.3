@@ -1,5 +1,5 @@
 static const char szSketchName[]  = "BeckESP32_WebUpdater.ino";
-static const char szFileDate[]    = "Oct 14, 2017, Lenny-c";
+static const char szFileDate[]    = "Oct 15, 2017, Lenny-b";
 #include <BeckLogLib.h>
 
 /*

@@ -1,9 +1,5 @@
 String SketchName  = "BeckESP8266_TempHumidWebserver.ino";
 String FileDate    = "Oct 15, 2017, Lenny-e";
-/*
-static const char szSketchName[]  = "BeckESP8266_TempHumidWebserver.ino";
-static const char szFileDate[]    = "Oct 15, 2017, Lenny-d";
-*/
 /* DHTServer - ESP8266 Webserver with a DHT sensor as an input
    Based on ESP8266Webserver, DHTexample, and BlinkWithoutDelay (thank you)
    Version 1.0  5/3/2014  Version 1.0   Mike Barela for Adafruit Industries
@@ -20,18 +16,18 @@ const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
 ESP8266WebServer server(80);
- 
-// Initialize DHT sensor 
+
+// Initialize DHT sensor
 // NOTE: For working with a faster than ATmega328p 16 MHz Arduino chip, like an ESP8266,
 // you need to increase the threshold for cycle counts considered a 1 or 0.
 // You can do this by passing a 3rd parameter for this threshold.  It's a bit
 // of fiddling to find the right value, but in general the faster the CPU the
 // higher the value.  The default for a 16mhz AVR is a value of 6.  For an
 // Arduino Due that runs at 84mhz a value of 30 works.
-// This is for the ESP8266 processor on ESP-01 
+// This is for the ESP8266 processor on ESP-01
 
 DHT dht(DHTPIN, DHTTYPE, 11); // 11 works fine for ESP8266
- 
+
 float humidity, temp_f;  // Values read from sensor
 String webString="";     // String to display
 // Generally, you should use "unsigned long" for variables that hold time
@@ -39,32 +35,32 @@ unsigned long previousMillis = 0;        // will store last temp was read
 const long interval = 2000;              // interval at which to read sensor
 
 String GreetString= "Hello from " + SketchName + ", " + FileDate +
-		", try page /temp or /humid";
- 
+    ", try page /temp or /humid";
+
 void HandleRoot() {
   //server.send(200, "text/plain", "Hello from the weather esp8266, read from /temp or /humidity");
   server.send(200, "text/plain", GreetString);
   delay(100);
   return;
-}	//HandleRoot
+} //HandleRoot
 
 
 void HandleTemp() {
-  gettemperature();       															// read sensor
+  gettemperature();                                     // read sensor
   webString="Temperature: "+String((int)temp_f)+" F";   // Arduino has a hard time with float to string
   server.send(200, "text/plain", webString);            // send to someones browser when asked
   return;
-}	//HandleTemp
+} //HandleTemp
 
 
 void HandleHumid() {
-  gettemperature();           													// read sensor
+  gettemperature();                                     // read sensor
   webString="Humidity: "+String((int)humidity)+"%";
   server.send(200, "text/plain", webString);            // send to someones browser when asked
   return;
-}	//HandleHumid
+} //HandleHumid
 
- 
+
 void setup(void)
 {
   // You can open the Arduino IDE Serial Monitor window to see what the code is doing
@@ -87,11 +83,11 @@ void setup(void)
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-   
-  server.on("/",			HandleRoot);
-  server.on("/temp",	HandleTemp);
-  server.on("/humid",	HandleHumid);
-  
+
+  server.on("/",      HandleRoot);
+  server.on("/temp",  HandleTemp);
+  server.on("/humid", HandleHumid);
+
 /*
   server.on("/temp", [](){  // if you add this subdirectory to your webserver call, you get text below :)
     gettemperature();       // read sensor
@@ -105,18 +101,18 @@ void setup(void)
     server.send(200, "text/plain", webString);               // send to someones browser when asked
   });
 */
-  
+
   server.begin();
   Serial.println("HTTP server started");
   return;
-}	//setup
+} //setup
 
- 
+
 void loop(void)
 {
   server.handleClient();
   return;
-}	//loop
+} //loop
 
 
 void gettemperature() {
@@ -125,10 +121,10 @@ void gettemperature() {
   // the sensor is bigger than the interval you set, read the sensor
   // Works better than delay for things happening elsewhere also
   unsigned long currentMillis = millis();
- 
+
   if(currentMillis - previousMillis >= interval) {
-    // save the last time you read the sensor 
-    previousMillis = currentMillis;   
+    // save the last time you read the sensor
+    previousMillis = currentMillis;
 
     // Reading temperature for humidity takes about 250 milliseconds!
     // Sensor readings may also be up to 2 seconds 'old' (it's a very slow sensor)
