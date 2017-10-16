@@ -20,51 +20,51 @@ const char* ESP32_HTTPUpdateServer::_successResponse = "<META http-equiv=\"refre
 ESP32_HTTPUpdateServer::ESP32_HTTPUpdateServer(bool serial_debug)
 {
   _serial_output = serial_debug;
-  _server = NULL;
+  _pWebServer = NULL;
   _username = NULL;
   _password = NULL;
   _authenticated = false;
 }	//constructor
 
 
-void ESP32_HTTPUpdateServer::setup(WebServer *server, const char * path, const char * username, const char * password)
+void ESP32_HTTPUpdateServer::setup(WebServer *pWebServer, const char * path, const char * username, const char * password)
 {
-    _server = server;
+    _pWebServer = pWebServer;
     _username = (char *)username;
     _password = (char *)password;
 
     // handler for the /update form page
-    _server->on(path, HTTP_GET, [&](){
-      if(_username != NULL && _password != NULL && !_server->authenticate(_username, _password)){
-        return _server->requestAuthentication();
+    _pWebServer->on(path, HTTP_GET, [&](){
+      if(_username != NULL && _password != NULL && !_pWebServer->authenticate(_username, _password)){
+        return _pWebServer->requestAuthentication();
       }	//if(_username!=NULL&&...
-      _server->send(200, "text/html", _serverIndex);
+      _pWebServer->send(200, "text/html", _serverIndex);
     });
 
     // handler for the /update form POST (once file upload finishes)
-    _server->on(path, HTTP_POST, [&](){
+    _pWebServer->on(path, HTTP_POST, [&](){
       if(!_authenticated){
-        return _server->requestAuthentication();
+        return _pWebServer->requestAuthentication();
       }	//if(!_authenticated)
-      _server->send(200, "text/html", Update.hasError() ? _failedResponse : _successResponse);
+      _pWebServer->send(200, "text/html", Update.hasError() ? _failedResponse : _successResponse);
       ESP.restart();
     },[&](){
       // handler for the file upload, get's the sketch bytes, and writes
       // them through the Update object
 
-      HTTPUpload& upload = _server->upload();
+      HTTPUpload& stUpload = _pWebServer->upload();
 
-			switch (upload.status) {
+			switch (stUpload.status) {
 				case UPLOAD_FILE_START:
 					if(_serial_output) Serial.setDebugOutput(true);
-					_authenticated= (_username == NULL || _password == NULL || _server->authenticate(_username, _password));
+					_authenticated= (_username == NULL || _password == NULL || _pWebServer->authenticate(_username, _password));
 					if(!_authenticated){
 						if(_serial_output) Serial.printf("Unauthenticated Update\n");
 						return;
 					}	//if(!_authenticated)
 
 					//WiFiUDP::stopAll();
-					if (_serial_output) Serial.printf("Update: %s\n", upload.filename.c_str());
+					if (_serial_output) Serial.printf("Update: %s\n", stUpload.filename.c_str());
 
 					//uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
 					//if(!Update.begin(maxSketchSpace)){//start with max available size
@@ -76,7 +76,7 @@ void ESP32_HTTPUpdateServer::setup(WebServer *server, const char * path, const c
 				case UPLOAD_FILE_WRITE:
 					if(_authenticated){
 						if(_serial_output) Serial.printf(".");
-						if(Update.write(upload.buf, upload.currentSize) != upload.currentSize){
+						if(Update.write(stUpload.buf, stUpload.currentSize) != stUpload.currentSize){
 							if(_serial_output) Update.printError(Serial);
 						}	//if(Update.write(upload.buf,...
 					}	//if(_authenticated)
@@ -84,7 +84,7 @@ void ESP32_HTTPUpdateServer::setup(WebServer *server, const char * path, const c
 				case UPLOAD_FILE_END:
 					if(_authenticated){
 						if(Update.end(true)){ //true to set the size to the current progress
-							if(_serial_output) Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+							if(_serial_output) Serial.printf("Update Success: %u\nRebooting...\n", stUpload.totalSize);
 						} //if(Update.end(true))
 						else {
 							if(_serial_output) Update.printError(Serial);

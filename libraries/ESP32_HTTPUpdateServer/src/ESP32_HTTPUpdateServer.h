@@ -7,7 +7,7 @@ class ESP32_HTTPUpdateServer
 {
   private:
     bool _serial_output;
-    WebServer *_server;
+    WebServer *_pWebServer;
     static const char *_serverIndex;
     static const char *_failedResponse;
     static const char *_successResponse;
