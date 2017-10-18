@@ -1,3 +1,5 @@
+static const String SketchName  = "BeckESP32_WROVER_Test.ino";
+static const String FileDate    = "Oct 18, 2017, Lenny-d";
 // 10/5/17 Was BeckEspressifESP32_graphicstest.ino from example graphicstest.ino in WROVER_KIT_LCD library
 /***************************************************
   This is our GFX example for the Adafruit ILI9341 Breakout and Shield
@@ -163,12 +165,14 @@ void TestLoop(void) {
 
   Serial.print(F("Text                     "));
   Serial.println(testText());
+  Serial.println("Hello from " + SketchName + ", " + FileDate);
+
   delay(5000);
 
   Serial.print(F("Lines                    "));
   Serial.println(testLines(WROVER_CYAN));
   PAUSE_DELAY;
-
+#if 1
   Serial.print(F("Horiz/Vert Lines         "));
   Serial.println(testFastLines(WROVER_RED, WROVER_BLUE));
   PAUSE_DELAY;
@@ -211,7 +215,7 @@ void TestLoop(void) {
 
   RoverLCD.drawJpg(esp_wp2_jpg, esp_wp2_jpg_len);
   PAUSE_DELAY;
-
+#endif
   return;
 } //TestLoop
 
@@ -238,7 +242,9 @@ unsigned long testText() {
   RoverLCD.setCursor(0, 0);
   RoverLCD.setTextColor(WROVER_WHITE);
   RoverLCD.setTextSize(1);
-  RoverLCD.println("Hello World!");
+  //RoverLCD.println("Hello World!");
+  RoverLCD.println("Hello from " + SketchName);
+  RoverLCD.println("Built " + FileDate);
 
   RoverLCD.setTextColor(WROVER_YELLOW);
   RoverLCD.setTextSize(2);
