@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 19, 2017, Lenny-a";
+static const String FileDate    = "Oct 19, 2017, Lenny-c";
 /***************************************************
   This is our GFX example for the Adafruit ILI9341 Breakout and Shield
   ----> http://www.adafruit.com/products/1651
@@ -376,7 +376,9 @@ int sSetupGyro() {
 
 
 int sDisplayBegin() {
-	Serial << "sDisplayBegin(): Call ???" << endl;
+	Serial << "sDisplayBegin(): Call RoverLCD.begin()" << endl;
+	RoverLCD.begin();
+	RoverLCD.setRotation(1);
 /*
 	DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
 								 cSPICmdDataPin   , cBogusResetPin, DOGS102);
@@ -406,7 +408,7 @@ int sShowSplash(void) {
    //2 lines in normal font
    sDisplayText(5, 0, sFontNormal, (char *)"Always ride safe!");
    //sDisplayText(7, 0, sFontNormal, (char *)"**Larry & Candy**");
-   sDisplayText(7, 0, sFontNormal, (char *)"July 19, 2017 ");
+   sDisplayText(7, 0, sFontNormal, (char *)"October 19, 2017 ");
    return 1;
 }  //sShowSplash
 
@@ -435,29 +437,36 @@ int sDisplayUpdate(void) {
 
 
 int sDisplayClear() {
-   //DOG.clear();  //clear whole display
-   return 1;
+	//DOG.clear();  //clear whole display
+	RoverLCD.fillScreen(WROVER_BLACK);
+	return 1;
 }  //sDisplayClear
 
 
 int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
+   RoverLCD.setTextColor(WROVER_WHITE);
    switch (sFont) {
       case sFontNormal:
+         RoverLCD.setTextSize(1);
          //DOG.string(sPixelStart, sLineNumber, font_6x8, pcText);
          break;
       case sFontBig:
+         RoverLCD.setTextSize(2);
          //DOG.string(sPixelStart, sLineNumber, font_8x16, pcText);
          break;
       case sFontBigNum:
+        RoverLCD.setTextSize(3);
          //DOG.string(sPixelStart, sLineNumber, font_16x32nums, pcText);
          break;
       case sFontSquare:
+         RoverLCD.setTextSize(5);
          //DOG.string(sPixelStart, sLineNumber, font_8x8, pcText);
          break;
       default:
          Serial << "sDisplayText(): Bad case in switch()= " << sFont << endl;
          break;
    }  //switch
+   RoverLCD.println(pcText);
    return 1;
 }  //sDisplayText
 
