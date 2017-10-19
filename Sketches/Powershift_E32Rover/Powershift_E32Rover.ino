@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 19, 2017, Lenny-c";
+static const String FileDate    = "Oct 19, 2017, Lenny-d";
 /***************************************************
   This is our GFX example for the Adafruit ILI9341 Breakout and Shield
   ----> http://www.adafruit.com/products/1651
@@ -229,152 +229,6 @@ void loop() {
 }  //loop()
 
 
-int sLoopI2C() {
-   int      asGyroReading[sNumGyroTypes][sNumAxis];
-   //boolean  bApplySmoothing= APPLY_SMOOTHING;
-
-   if (millis() > ulNextGyroTime) {
-  	 //Serial << "sLoopI2C(): Reading gyro, milllis()= " << millis() << endl;
-      Wire.beginTransmission(MPU);
-      Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
-      Wire.endTransmission(false);
-      //Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
-      //bool	bTrue= true;
-      //Wire.requestFrom((uint8_t)MPU, (size_t)14, (bool)true);  // request a total of 14 registers
-      Wire.requestFrom((uint8_t)MPU, (uint8_t)14, (uint8_t)true);  // request a total of 14 registers, with a stop
-
-      // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
-      // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-      // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
-      // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
-      // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
-      // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
-      // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-      asGyroReading[sAccel][sXAxis]= Wire.read()<<8|Wire.read();
-      asGyroReading[sAccel][sYAxis]= Wire.read()<<8|Wire.read();
-      asGyroReading[sAccel][sZAxis]= Wire.read()<<8|Wire.read();
-
-      asGyroReading[sTemperature][sXAxis]= Wire.read()<<8|Wire.read();
-
-      asGyroReading[sRotation][sXAxis]=Wire.read()<<8|Wire.read();
-      asGyroReading[sRotation][sYAxis]=Wire.read()<<8|Wire.read();
-      asGyroReading[sRotation][sZAxis]=Wire.read()<<8|Wire.read();
-
-      //Initialize missing temperature fields.
-      for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
-         asGyroReading[sTemperature][sAxis]= 0;
-      }  //for
-
-      //Serial << "sLoopI2C(): X Accel= " << asGyroReading[sAccel][sXAxis] << endl;
-      //BLog("sLoopI2C(): XAcc   YAcc   ZAcc");
-      //BLog("          ", asGyroReading[sAccel][sXAxis], asGyroReading[sAccel][sYAxis], asGyroReading[sAccel][sZAxis]);
-
-      //Apply low-pass filter to data
-      for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
-         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-#if APPLY_SMOOTHING
-            asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
-                                                  pusSmoothingMemory[sDataType][sAxis]);
-#else
-            asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
-#endif
-         }  //for sDataType
-      }  //for sAxis
-
-      //Convert raw accel readings into G's and correct axis
-    	//Because accel on BB is pointing down I am converting the axis
-    	//Report 	-Y for X
-    	//				+Z for Y
-    	//				-X for Z
-/*
-      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      		adGvalueXYZ[sAxis]= (double)asGyroReading[sAccel][sAxis] / dGConvert;
-      }  //for sAxis
-*/
-  		adGvalueXYZ[sXAxis]= -(double)asGyroReading[sAccel][sYAxis] / dGConvert;
-  		adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
-  		adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
-
-      Serial << "G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", "
-      		   << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
-      ComputeRollPitch();
-      bGyroChanged= true;
-      ulNextGyroTime= millis() + ulGyroReadTime;
-   }  //if (millis()>ulNextGyroTime)
-   return 1;
-}  //sLoopI2C
-
-
-void ComputeRollPitch() { //
-	dRollDeg_ = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
-	dPitchDeg_= atan2(adGvalueXYZ[sXAxis],
-								sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
-										 adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
-	dPitchPercent_= dGetPitchPercent(dPitchDeg_);
-
-	//Correct for current readings being 180 degrees off
-	if (dRollDeg_ < 0.0) {
-		dRollDeg_= dRollDeg_= -180.0 - dRollDeg_;
-	}	//if(dRollDeg_<0.0)
-	else {
-		dRollDeg_= dRollDeg_= 180.0 - dRollDeg_;
-	}	//if(dRollDeg_<0.0)else
-
-  Serial << "Pitch Deg, Pitch%, Roll " << dPitchDeg_ << ", " << dPitchPercent_
-  		   << ", " << dRollDeg_<< endl;
-  return;
-}	//ComputeRollPitch
-
-
-double dGetPitchPercent(double dPitchDeg) {
-	double dPitchPercent= -99.99;
-	Serial << "dGetPitchPercent(): dPitchDeg_= " << dPitchDeg_ << endl;
-	if ((dPitchDeg_ < 44.0) && (dPitchDeg_ > -44.0)) {
-		dPitchPercent= 100.0 * tan(dPitchDeg_ / dRadsToDeg);
-		Serial << "dGetPitchPercent(): dPitchPercent_= " << dPitchPercent_ << endl;
-	}	//if((dPitchDeg_<44.0)&&...
-	return dPitchPercent;
-}	//dGetPitchPercent
-
-
-int sDisplayPitchRoll() {
-	//sprintf(szTempBuffer, "P %f", 123.45);
-  strcpy(szTempBuffer, "P");
-	dtostrf( dPitchDeg_, 5, 1, sz10CharString);
-  strcat(szTempBuffer, sz10CharString);
-  strcat(szTempBuffer, "%");
-	//Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
-  sDisplayText(6,28, sFontNormal, szTempBuffer);
-
-  strcpy(szTempBuffer, "R");
-	dtostrf( dRollDeg_, 6, 1, sz10CharString);
-  strcat(szTempBuffer, sz10CharString);
-  strcat(szTempBuffer, "Deg");
-  sDisplayText(7,28, sFontNormal, szTempBuffer);
-  return 1;
-}  //sDisplayPitchRoll
-
-
-int sSetupGyro() {
-   Serial << "sSetupGyro(): Begin"<< endl;
-   //BLog("sSetupGyro(): Begin");
-   //Set up the I2C bus.
-   //Wire.begin();
-   Wire.begin(sI2C_SDA, sI2C_SCL);
-   Wire.beginTransmission(MPU);
-   Wire.write(0x6B);  // PWR_MGMT_1 register
-   Wire.write(0);     // set to zero (wakes up the MPU-6050)
-   Wire.endTransmission(true);
-   //Initialize the data array.
-   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
-      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-         asGyro[sDataType][sAxis]= 0;
-      }  //for sDataType
-   }  //for sAxis
-   return 1;
-}  //sSetupGyro
-
-
 int sDisplayBegin() {
 	Serial << "sDisplayBegin(): Call RoverLCD.begin()" << endl;
 	RoverLCD.begin();
@@ -565,6 +419,152 @@ int sFillGearLocations(void) {
    }  //for
    return 1;
 }  //sFillGearLocations
+
+
+int sLoopI2C() {
+   int      asGyroReading[sNumGyroTypes][sNumAxis];
+   //boolean  bApplySmoothing= APPLY_SMOOTHING;
+
+   if (millis() > ulNextGyroTime) {
+  	 //Serial << "sLoopI2C(): Reading gyro, milllis()= " << millis() << endl;
+      Wire.beginTransmission(MPU);
+      Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
+      Wire.endTransmission(false);
+      //Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
+      //bool	bTrue= true;
+      //Wire.requestFrom((uint8_t)MPU, (size_t)14, (bool)true);  // request a total of 14 registers
+      Wire.requestFrom((uint8_t)MPU, (uint8_t)14, (uint8_t)true);  // request a total of 14 registers, with a stop
+
+      // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
+      // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
+      // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
+      // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
+      // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
+      // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
+      // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+      asGyroReading[sAccel][sXAxis]= Wire.read()<<8|Wire.read();
+      asGyroReading[sAccel][sYAxis]= Wire.read()<<8|Wire.read();
+      asGyroReading[sAccel][sZAxis]= Wire.read()<<8|Wire.read();
+
+      asGyroReading[sTemperature][sXAxis]= Wire.read()<<8|Wire.read();
+
+      asGyroReading[sRotation][sXAxis]=Wire.read()<<8|Wire.read();
+      asGyroReading[sRotation][sYAxis]=Wire.read()<<8|Wire.read();
+      asGyroReading[sRotation][sZAxis]=Wire.read()<<8|Wire.read();
+
+      //Initialize missing temperature fields.
+      for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
+         asGyroReading[sTemperature][sAxis]= 0;
+      }  //for
+
+      //Serial << "sLoopI2C(): X Accel= " << asGyroReading[sAccel][sXAxis] << endl;
+      //BLog("sLoopI2C(): XAcc   YAcc   ZAcc");
+      //BLog("          ", asGyroReading[sAccel][sXAxis], asGyroReading[sAccel][sYAxis], asGyroReading[sAccel][sZAxis]);
+
+      //Apply low-pass filter to data
+      for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
+         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+#if APPLY_SMOOTHING
+            asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
+                                                  pusSmoothingMemory[sDataType][sAxis]);
+#else
+            asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
+#endif
+         }  //for sDataType
+      }  //for sAxis
+
+      //Convert raw accel readings into G's and correct axis
+    	//Because accel on BB is pointing down I am converting the axis
+    	//Report 	-Y for X
+    	//				+Z for Y
+    	//				-X for Z
+/*
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+      		adGvalueXYZ[sAxis]= (double)asGyroReading[sAccel][sAxis] / dGConvert;
+      }  //for sAxis
+*/
+  		adGvalueXYZ[sXAxis]= -(double)asGyroReading[sAccel][sYAxis] / dGConvert;
+  		adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
+  		adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
+
+      Serial << "G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", "
+      		   << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
+      ComputeRollPitch();
+      bGyroChanged= true;
+      ulNextGyroTime= millis() + ulGyroReadTime;
+   }  //if (millis()>ulNextGyroTime)
+   return 1;
+}  //sLoopI2C
+
+
+void ComputeRollPitch() { //
+	dRollDeg_ = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
+	dPitchDeg_= atan2(adGvalueXYZ[sXAxis],
+								sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
+										 adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
+	dPitchPercent_= dGetPitchPercent(dPitchDeg_);
+
+	//Correct for current readings being 180 degrees off
+	if (dRollDeg_ < 0.0) {
+		dRollDeg_= dRollDeg_= -180.0 - dRollDeg_;
+	}	//if(dRollDeg_<0.0)
+	else {
+		dRollDeg_= dRollDeg_= 180.0 - dRollDeg_;
+	}	//if(dRollDeg_<0.0)else
+
+  Serial << "Pitch Deg, Pitch%, Roll " << dPitchDeg_ << ", " << dPitchPercent_
+  		   << ", " << dRollDeg_<< endl;
+  return;
+}	//ComputeRollPitch
+
+
+double dGetPitchPercent(double dPitchDeg) {
+	double dPitchPercent= -99.99;
+	Serial << "dGetPitchPercent(): dPitchDeg_= " << dPitchDeg_ << endl;
+	if ((dPitchDeg_ < 44.0) && (dPitchDeg_ > -44.0)) {
+		dPitchPercent= 100.0 * tan(dPitchDeg_ / dRadsToDeg);
+		Serial << "dGetPitchPercent(): dPitchPercent_= " << dPitchPercent_ << endl;
+	}	//if((dPitchDeg_<44.0)&&...
+	return dPitchPercent;
+}	//dGetPitchPercent
+
+
+int sDisplayPitchRoll() {
+	//sprintf(szTempBuffer, "P %f", 123.45);
+  strcpy(szTempBuffer, "P");
+	dtostrf( dPitchDeg_, 5, 1, sz10CharString);
+  strcat(szTempBuffer, sz10CharString);
+  strcat(szTempBuffer, "%");
+	//Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
+  sDisplayText(6,28, sFontNormal, szTempBuffer);
+
+  strcpy(szTempBuffer, "R");
+	dtostrf( dRollDeg_, 6, 1, sz10CharString);
+  strcat(szTempBuffer, sz10CharString);
+  strcat(szTempBuffer, "Deg");
+  sDisplayText(7,28, sFontNormal, szTempBuffer);
+  return 1;
+}  //sDisplayPitchRoll
+
+
+int sSetupGyro() {
+   Serial << "sSetupGyro(): Begin"<< endl;
+   //BLog("sSetupGyro(): Begin");
+   //Set up the I2C bus.
+   //Wire.begin();
+   Wire.begin(sI2C_SDA, sI2C_SCL);
+   Wire.beginTransmission(MPU);
+   Wire.write(0x6B);  // PWR_MGMT_1 register
+   Wire.write(0);     // set to zero (wakes up the MPU-6050)
+   Wire.endTransmission(true);
+   //Initialize the data array.
+   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+         asGyro[sDataType][sAxis]= 0;
+      }  //for sDataType
+   }  //for sAxis
+   return 1;
+}  //sSetupGyro
 
 
 int sHandleButtons(void) {
