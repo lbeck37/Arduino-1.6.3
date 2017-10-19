@@ -9,11 +9,16 @@ static const String FileDate    = "Oct 18, 2017, Lenny-c";
   interface (RST is optional)
  ****************************************************/
 
+#include <Arduino.h>
+#include <BeckLogLib.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <WROVER_KIT_LCD.h>
 #include <esp_wp1.h>
 #include <esp_wp2.h>
+#include <Wire.h>
+#include <EasyButton.h>
+#include <Servo.h>
 
 #define min(X, Y)     (((X) < (Y)) ? (X) : (Y))
 #define PAUSE_DELAY   delay(2000)
