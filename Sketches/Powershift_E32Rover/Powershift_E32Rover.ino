@@ -18,7 +18,7 @@ static const String FileDate    = "Oct 19, 2017, Lenny-a";
 #include <esp_wp2.h>
 #include <Wire.h>
 #include <EasyButton.h>
-#include <Servo.h>
+#include <ESP32_Servo.h>
 
 #include <string>
 #include <iostream>
