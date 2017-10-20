@@ -1,13 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 19, 2017, Lenny-k";
-/***************************************************
-  This is our GFX example for the Adafruit ILI9341 Breakout and Shield
-  ----> http://www.adafruit.com/products/1651
-
-  Check out the links above for our tutorials and wiring diagrams
-  These displays use SPI to communicate, 4 or 5 pins are required to
-  interface (RST is optional)
- ****************************************************/
+static const String FileDate    = "Oct 20, 2017, Lenny-d";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -39,9 +31,9 @@ int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 //Here come the const's
 //static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
-//static const int asDefaultGearLocation[]= {0, 152, 137, 122, 101, 74, 68, 56, 35, 27, 20};	//10-speed estimates
-//static const int asDefaultGearLocation[]= {0, 168, 135, 113, 101, 79, 66, 58, 41, 29, 14};	//10-speed
-static const int asDefaultGearLocation[]= {0, 135, 113, 101, 81, 68, 58, 41, 29, 14};	//10-speed. cogs 2-10
+//static const int asDefaultGearLocation[]= {0, 152, 137, 122, 101, 74, 68, 56, 35, 27, 20};  //10-speed estimates
+//static const int asDefaultGearLocation[]= {0, 168, 135, 113, 101, 79, 66, 58, 41, 29, 14};  //10-speed
+static const int asDefaultGearLocation[]= {0, 135, 113, 101, 81, 68, 58, 41, 29, 14}; //10-speed. cogs 2-10
 static const int       sServoMin             = 0;
 static const int       sServoMax             = 180;
 static const int       sServoMsecWait        = 15;
@@ -66,8 +58,8 @@ static const boolean   bButtonPullUp         = true;
 static const int       sServoPin             = 34;
 static const int       sUpButton             = 35;
 static const int       sDownButton           = 36;
-static const int       sI2C_SDA           	 = 21;
-static const int       sI2C_SCL           	 = 22;
+static const int       sI2C_SDA              = 21;
+static const int       sI2C_SCL              = 22;
 #endif
 
 #if 0   //Pro Mini
@@ -81,18 +73,18 @@ static const byte      cSPIChipSelectPin     = 10;
 #endif
 
 #if 0   //NodeMCU
-//static const int       sServoPin             =  9;		//Pin 9, SD2
-//static const int       sServoPin             =  4;		//Pin 4, D2, I2C SDA
-//static const int       sServoPin             =  1;		//Pin 1, D10, TXD0
-static const int       sServoPin             =  3;		//Pin 3, D9, RXD0
-static const int       sDownButton           =  2;		//Pin 2, D4
-static const int       sUpButton             =  0;		//Pin 0, D3
-static const byte      cSPICmdDataPin        = 16;		//Pin 16, D0
-//static const byte      cSPICmdDataPin        =  5;		//Pin 5, D1, ILI9341 display article
-static const byte      cSPIChipSelectPin     = 15;		//Pin 15, D8
-//static const byte      cSPIChipSelectPin     =  4;		//Pin 4, D2, ILI9341 display article
-static const byte      cSPI_MOSI_Pin         = 13;		//Pin 13, D7
-static const byte      cSPI_CLK_Pin          = 14;		//Pin 14, D5
+//static const int       sServoPin             =  9;    //Pin 9, SD2
+//static const int       sServoPin             =  4;    //Pin 4, D2, I2C SDA
+//static const int       sServoPin             =  1;    //Pin 1, D10, TXD0
+static const int       sServoPin             =  3;    //Pin 3, D9, RXD0
+static const int       sDownButton           =  2;    //Pin 2, D4
+static const int       sUpButton             =  0;    //Pin 0, D3
+static const byte      cSPICmdDataPin        = 16;    //Pin 16, D0
+//static const byte      cSPICmdDataPin        =  5;    //Pin 5, D1, ILI9341 display article
+static const byte      cSPIChipSelectPin     = 15;    //Pin 15, D8
+//static const byte      cSPIChipSelectPin     =  4;    //Pin 4, D2, ILI9341 display article
+static const byte      cSPI_MOSI_Pin         = 13;    //Pin 13, D7
+static const byte      cSPI_CLK_Pin          = 14;    //Pin 14, D5
 #endif
 
 //Gyro defines
@@ -190,15 +182,15 @@ static int         sLineCount= 0;     //Used in outputs to Serial Monitor for cl
 
 static char       szTempBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char       sz10CharString[11];
-//static char				szFloatBuffer[15];
+//static char       szFloatBuffer[15];
 
 //MPU6050 acceleration and pitch things
-const double			dGConvert					= 16384.0;	//MPU6050 16-bit +/- 2G Full scale
-const double			dRadsToDeg				= 180.0/PI;
-double						adGvalueXYZ[3];
-double						dRollDeg_;
-double						dPitchDeg_;
-double						dPitchPercent_;
+const double      dGConvert         = 16384.0;  //MPU6050 16-bit +/- 2G Full scale
+const double      dRadsToDeg        = 180.0/PI;
+double            adGvalueXYZ[3];
+double            dRollDeg_;
+double            dPitchDeg_;
+double            dPitchPercent_;
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
@@ -207,17 +199,17 @@ void setup()   {
   //Serial << endl << "Exercist.ino, Aug 10, 2017 Ace-A Pro Mini" << endl;
   //Serial << endl << ("setup: Call BLog()" + acSketchName + ", " + acFileDate) << endl;
   //BLog("Sketch: " + acSketchName + ", " + acFileDate);
-	//Serial << endl << "Begin " + acSketchName + ", " + acFileDate << endl;
-	//Serial << endl << "Begin " << endl;
-	Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
+  //Serial << endl << "Begin " + acSketchName + ", " + acFileDate << endl;
+  //Serial << endl << "Begin " << endl;
+  Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
   Serial << "setup(): Call sSetupGyro()" << endl;
   //sSetupGyro();
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
-	Serial << "setup(): Call sServoInit()" << endl;
+  Serial << "setup(): Call sServoInit()" << endl;
   sServoInit();
-	Serial << "setup(): Call sShowStartScreen()" << endl;
+  Serial << "setup(): Call sShowStartScreen()" << endl;
   sShowStartScreen();
 
   //Dither the servo once so it's position shows on the LCD.
@@ -230,32 +222,32 @@ void setup()   {
 void loop() {
   //sCheckButtons();
   //sLoopI2C();
-  sDisplayUpdate();
+  DisplayUpdate();
   //sHandleButtons();
   return;
 }  //loop()
 
 
 int sDisplayBegin() {
-	Serial << "sDisplayBegin(): Call RoverLCD.begin()" << endl;
-	RoverLCD.begin();
-	RoverLCD.setRotation(1);
+  Serial << "sDisplayBegin(): Call RoverLCD.begin()" << endl;
+  RoverLCD.begin();
+  RoverLCD.setRotation(1);
 /*
-	DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
-								 cSPICmdDataPin   , cBogusResetPin, DOGS102);
-	DOG.view(sDisplayNormal);  //View screen Normal or Flipped
+  DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
+                 cSPICmdDataPin   , cBogusResetPin, DOGS102);
+  DOG.view(sDisplayNormal);  //View screen Normal or Flipped
 */
-	return 1;
+  return 1;
 }  //sDisplayBegin
 
 
 int sShowStartScreen(void) {
-	Serial << "sShowStartScreen(): Call sDisplayBegin()" << endl;
-	sDisplayBegin();
-	Serial << "sShowStartScreen(): Call sShowSplash()" << endl;
-	sShowSplash();
-	delay(3000);
-	return 1;
+  Serial << "sShowStartScreen(): Call sDisplayBegin()" << endl;
+  sDisplayBegin();
+  Serial << "sShowStartScreen(): Call sShowSplash()" << endl;
+  sShowSplash();
+  delay(3000);
+  return 1;
 }  //sShowStartScreen
 
 
@@ -277,15 +269,15 @@ int sShowSplash(void) {
    //sDisplayText(7, 0, sFontSize2, (char *)FileDate);
 */
    RoverLCD.setTextColor(WROVER_YELLOW);
-   sDisplayText(0, 0, sFontSize1, (char *)"Size 1");
+   sDisplayTextOrig(0, 0, sFontSize1, (char *)"Size 1");
    RoverLCD.setTextColor(WROVER_GREEN);
-   sDisplayText(0, 0, sFontSize2, (char *)"Size 2");
+   sDisplayTextOrig(0, 0, sFontSize2, (char *)"Size 2");
    RoverLCD.setTextColor(WROVER_BLUE);
-   sDisplayText(0, 0, sFontSize3, (char *)"Size 3");
+   sDisplayTextOrig(0, 0, sFontSize3, (char *)"Size 3");
    RoverLCD.setTextColor(WROVER_GREEN);
-   sDisplayText(0, 0, sFontSize4, (char *)"Size 4");
+   sDisplayTextOrig(0, 0, sFontSize4, (char *)"Size 4");
    RoverLCD.setTextColor(WROVER_WHITE);
-   sDisplayText(0, 0, sFontSize5, (char *)"Size 5");
+   sDisplayTextOrig(0, 0, sFontSize5, (char *)"Size 5");
 
    RoverLCD.setTextColor(WROVER_WHITE);
    return 1;
@@ -300,29 +292,30 @@ int sDisplaySetBrightness(int sBrightness){
 */
 
 
-int sDisplayUpdate(void) {
+void DisplayUpdate(void) {
    if (bScreenChanged()) {
       Serial << "sDisplayUpdate(): Refreshing screen" << endl;
       sDisplayClear();
       //sDisplayButtons();
-      sDisplayCurrentGear();
+      DisplayCurrentGear();
+      //DisplayServoPos();
+
       //sDisplayWatts();
       //sDisplayPitchRoll();
-      sDisplayServoPos();
-       //sDisplayOdometer();
-   }  //if(bScreenChanged())
-   return 1;
-}  //sDisplayUpdate
+      //sDisplayOdometer();
+   } //if(bScreenChanged())
+   return;
+}  //DisplayUpdate
 
 
 int sDisplayClear() {
-	//DOG.clear();  //clear whole display
-	RoverLCD.fillScreen(WROVER_BLACK);
-	return 1;
+  //DOG.clear();  //clear whole display
+  RoverLCD.fillScreen(WROVER_BLACK);
+  return 1;
 }  //sDisplayClear
 
 
-int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
+int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
    //RoverLCD.setTextColor(WROVER_WHITE);
    switch (sFont) {
      //case sFontNormal:
@@ -354,7 +347,21 @@ int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
    }  //switch
    RoverLCD.println(pcText);
    return 1;
-}  //sDisplayText
+}  //sDisplayTextOrig
+
+
+void DisplayText(UINT16 usCursorX, UINT16 usCursorY, String TextString,
+                 const GFXfont *pFont, UINT8 ucSize, UINT16 usColor) {
+  //Pass pFont as NULL for default text font.
+  //240x320 3.2", 10 lines => 24 pixels/line
+  RoverLCD.setFont(pFont);
+  RoverLCD.setTextColor(usColor);
+  RoverLCD.setTextSize(ucSize);
+  RoverLCD.setCursor(usCursorX, usCursorY);
+  RoverLCD.setTextWrap(false);
+  RoverLCD.println(TextString);
+  return;
+}  //DisplayText
 
 
 boolean bScreenChanged() {
@@ -367,13 +374,13 @@ boolean bScreenChanged() {
 
 int sDisplayWatts() {
   strcpy(szTempBuffer, "You  105W");
-  sDisplayText(0,28, sFontBig, szTempBuffer);
+  sDisplayTextOrig(0,28, sFontBig, szTempBuffer);
 
   strcpy(szTempBuffer, "All  105W");
-  sDisplayText(2,28, sFontBig, szTempBuffer);
+  sDisplayTextOrig(2,28, sFontBig, szTempBuffer);
 
   strcpy(szTempBuffer, "Hill-125W");
-  sDisplayText(4,28, sFontBig, szTempBuffer);
+  sDisplayTextOrig(4,28, sFontBig, szTempBuffer);
   return 1;
 }  //sDisplayWatts
 
@@ -384,12 +391,12 @@ int sDisplayButtons() {
    strcpy(szTempBuffer, "U ");
    itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
    strcat(szTempBuffer, sz10CharString);
-   sDisplayText(6, 82, sFontNormal, szTempBuffer);	//Move this and next to lines 6 and 7
+   sDisplayTextOrig(6, 82, sFontNormal, szTempBuffer);  //Move this and next to lines 6 and 7
 
    strcpy(szTempBuffer, "D ");
    itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
    strcat(szTempBuffer, sz10CharString);
-   sDisplayText(7, 82, sFontNormal, szTempBuffer);
+   sDisplayTextOrig(7, 82, sFontNormal, szTempBuffer);
 
 /*
    strcpy(szLineBuffer, "S ");
@@ -401,46 +408,49 @@ int sDisplayButtons() {
 }  //sDisplayButtons
 
 
-int sDisplayCurrentGear() {
-   if (sCurrentMode == sNormalMode) {
-       switch(sCurrentGear) {
-         case 10:
-       	    strcpy(sz10CharString, "0");
-            break;
-         default:
-            itoa(sCurrentGear, sz10CharString, 10);
-            break;
-        } //switch
-      //itoa(sCurrentGear, sz10CharString, 10);
+void DisplayCurrentGear() {
+  UINT16          usCursorX = 1;
+  UINT16          usCursorY = 2*24;
+  UINT8           ucSize    = 1;
+  UINT16          usColor   = WROVER_YELLOW;
+  const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+  String          TextString;
+  if (sCurrentMode == sNormalMode) {
+      TextString= "Gear " + sCurrentGear;
       Serial << "sDisplayCurrentGear(): Mode= " << sCurrentMode
-             << ", sz10CharString= " << sz10CharString << endl;
-      sDisplayText(1, 6, sFontBigNum, sz10CharString);    //1st char in 4 pixels.
+             << ", TextString= " << TextString << endl;
+      DisplayText( usCursorX, usCursorY, TextString, pFont, ucSize, usColor);
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
-      sDisplayText(1, 6, sFontBigNum, (char *)"0");               //1st char in 4 pixels.
+      TextString= "Gear 0";
+      DisplayText( usCursorX, usCursorY, TextString, pFont, ucSize, usColor);
    }  //if (sCurrentMode..else
+   return;
+}  //DisplayCurrentGear
 
-   return 1;
-}  //sDisplayCurrentGear
 
+void DisplayServoPos() {
+  UINT16          usCursorX = 1;
+  UINT16          usCursorY = 3*24;
+  UINT8           ucSize    = 1;
+  UINT16          usColor   = WROVER_YELLOW;
+  const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+  String          TextString;
 
-int sDisplayServoPos() {
-   itoa(sServoPosLast, sz10CharString, 10);
-   strcpy(szTempBuffer, "Servo ");
-   strcat(szTempBuffer, sz10CharString);
-   //Text will end 2 pixels in from right edge when servo value is 3 digits.
-   sDisplayText(1, 23, sFontBig, szTempBuffer);
-   return 1;
-}  //sDisplayServoPos
+  TextString= "Servo " + sServoPosLast;
+  Serial << "sDisplayServoPos(): Display " << TextString << endl;
+  DisplayText( usCursorX, usCursorY, TextString, pFont, ucSize, usColor);
+  return;
+}  //DisplayServoPos
 
 
 int sDisplayOdometer() {
    strcpy(szTempBuffer, "21.50");
-   sDisplayText(5, 2, sFontBig, szTempBuffer);  //Start 2 pixels in.
+   sDisplayTextOrig(5, 2, sFontBig, szTempBuffer);  //Start 2 pixels in.
 
    strcpy(szTempBuffer, "1123.00");
-   sDisplayText(7, 2, sFontNormal, szTempBuffer);  //Start 2 pixels in.
+   sDisplayTextOrig(7, 2, sFontNormal, szTempBuffer);  //Start 2 pixels in.
    return 1;
 }  //sDisplayOdometer
 
@@ -458,12 +468,12 @@ int sLoopI2C() {
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
    if (millis() > ulNextGyroTime) {
-  	 //Serial << "sLoopI2C(): Reading gyro, milllis()= " << millis() << endl;
+     //Serial << "sLoopI2C(): Reading gyro, milllis()= " << millis() << endl;
       Wire.beginTransmission(MPU);
       Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
       Wire.endTransmission(false);
       //Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
-      //bool	bTrue= true;
+      //bool  bTrue= true;
       //Wire.requestFrom((uint8_t)MPU, (size_t)14, (bool)true);  // request a total of 14 registers
       Wire.requestFrom((uint8_t)MPU, (uint8_t)14, (uint8_t)true);  // request a total of 14 registers, with a stop
 
@@ -506,21 +516,21 @@ int sLoopI2C() {
       }  //for sAxis
 
       //Convert raw accel readings into G's and correct axis
-    	//Because accel on BB is pointing down I am converting the axis
-    	//Report 	-Y for X
-    	//				+Z for Y
-    	//				-X for Z
+      //Because accel on BB is pointing down I am converting the axis
+      //Report  -Y for X
+      //        +Z for Y
+      //        -X for Z
 /*
       for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-      		adGvalueXYZ[sAxis]= (double)asGyroReading[sAccel][sAxis] / dGConvert;
+          adGvalueXYZ[sAxis]= (double)asGyroReading[sAccel][sAxis] / dGConvert;
       }  //for sAxis
 */
-  		adGvalueXYZ[sXAxis]= -(double)asGyroReading[sAccel][sYAxis] / dGConvert;
-  		adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
-  		adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
+      adGvalueXYZ[sXAxis]= -(double)asGyroReading[sAccel][sYAxis] / dGConvert;
+      adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
+      adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
 
       Serial << "G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", "
-      		   << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
+             << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
       ComputeRollPitch();
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;
@@ -530,51 +540,51 @@ int sLoopI2C() {
 
 
 void ComputeRollPitch() { //
-	dRollDeg_ = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
-	dPitchDeg_= atan2(adGvalueXYZ[sXAxis],
-								sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
-										 adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
-	dPitchPercent_= dGetPitchPercent(dPitchDeg_);
+  dRollDeg_ = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
+  dPitchDeg_= atan2(adGvalueXYZ[sXAxis],
+                sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
+                     adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
+  dPitchPercent_= dGetPitchPercent(dPitchDeg_);
 
-	//Correct for current readings being 180 degrees off
-	if (dRollDeg_ < 0.0) {
-		dRollDeg_= dRollDeg_= -180.0 - dRollDeg_;
-	}	//if(dRollDeg_<0.0)
-	else {
-		dRollDeg_= dRollDeg_= 180.0 - dRollDeg_;
-	}	//if(dRollDeg_<0.0)else
+  //Correct for current readings being 180 degrees off
+  if (dRollDeg_ < 0.0) {
+    dRollDeg_= dRollDeg_= -180.0 - dRollDeg_;
+  } //if(dRollDeg_<0.0)
+  else {
+    dRollDeg_= dRollDeg_= 180.0 - dRollDeg_;
+  } //if(dRollDeg_<0.0)else
 
   Serial << "Pitch Deg, Pitch%, Roll " << dPitchDeg_ << ", " << dPitchPercent_
-  		   << ", " << dRollDeg_<< endl;
+         << ", " << dRollDeg_<< endl;
   return;
-}	//ComputeRollPitch
+} //ComputeRollPitch
 
 
 double dGetPitchPercent(double dPitchDeg) {
-	double dPitchPercent= -99.99;
-	Serial << "dGetPitchPercent(): dPitchDeg_= " << dPitchDeg_ << endl;
-	if ((dPitchDeg_ < 44.0) && (dPitchDeg_ > -44.0)) {
-		dPitchPercent= 100.0 * tan(dPitchDeg_ / dRadsToDeg);
-		Serial << "dGetPitchPercent(): dPitchPercent_= " << dPitchPercent_ << endl;
-	}	//if((dPitchDeg_<44.0)&&...
-	return dPitchPercent;
-}	//dGetPitchPercent
+  double dPitchPercent= -99.99;
+  Serial << "dGetPitchPercent(): dPitchDeg_= " << dPitchDeg_ << endl;
+  if ((dPitchDeg_ < 44.0) && (dPitchDeg_ > -44.0)) {
+    dPitchPercent= 100.0 * tan(dPitchDeg_ / dRadsToDeg);
+    Serial << "dGetPitchPercent(): dPitchPercent_= " << dPitchPercent_ << endl;
+  } //if((dPitchDeg_<44.0)&&...
+  return dPitchPercent;
+} //dGetPitchPercent
 
 
 int sDisplayPitchRoll() {
-	//sprintf(szTempBuffer, "P %f", 123.45);
+  //sprintf(szTempBuffer, "P %f", 123.45);
   strcpy(szTempBuffer, "P");
-	dtostrf( dPitchDeg_, 5, 1, sz10CharString);
+  dtostrf( dPitchDeg_, 5, 1, sz10CharString);
   strcat(szTempBuffer, sz10CharString);
   strcat(szTempBuffer, "%");
-	//Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
-  sDisplayText(6,28, sFontNormal, szTempBuffer);
+  //Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
+  sDisplayTextOrig(6,28, sFontNormal, szTempBuffer);
 
   strcpy(szTempBuffer, "R");
-	dtostrf( dRollDeg_, 6, 1, sz10CharString);
+  dtostrf( dRollDeg_, 6, 1, sz10CharString);
   strcat(szTempBuffer, sz10CharString);
   strcat(szTempBuffer, "Deg");
-  sDisplayText(7,28, sFontNormal, szTempBuffer);
+  sDisplayTextOrig(7,28, sFontNormal, szTempBuffer);
   return 1;
 }  //sDisplayPitchRoll
 
@@ -810,14 +820,14 @@ int sCheckButtons(void) {
 
 
 int sServoInit() {
-	Serial << "sServoInit(): Check bServoOn" << endl;
-	if (bServoOn) {
-		Serial << "sServoInit(): Call myservo.attach() for pin " << sServoPin << endl;
-		myservo.attach(sServoPin);
-	}  //if(bServoOn)
-	Serial << "sServoInit(): Call sServoMove()" << endl;
-	sServoMove(asGearLocation[sCurrentGear]);
-	return 1;
+  Serial << "sServoInit(): Check bServoOn" << endl;
+  if (bServoOn) {
+    Serial << "sServoInit(): Call myservo.attach() for pin " << sServoPin << endl;
+    myservo.attach(sServoPin);
+  }  //if(bServoOn)
+  Serial << "sServoInit(): Call sServoMove()" << endl;
+  sServoMove(asGearLocation[sCurrentGear]);
+  return 1;
 } //sServoInit
 
 int sServoMove(int sServoPos) {
