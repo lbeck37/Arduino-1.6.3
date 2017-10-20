@@ -17,7 +17,7 @@ static const String FileDate    = "Oct 18, 2017, Lenny-d";
  ****************************************************/
 
 #include "SPI.h"
-#include "Adafruit_GFX.h"
+#include <Adafruit_GFX.h>
 #include "WROVER_KIT_LCD.h"
 #include "esp_wp1.h"
 #include "esp_wp2.h"

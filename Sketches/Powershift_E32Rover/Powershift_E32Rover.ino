@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 19, 2017, Lenny-d";
+static const String FileDate    = "Oct 19, 2017, Lenny-k";
 /***************************************************
   This is our GFX example for the Adafruit ILI9341 Breakout and Shield
   ----> http://www.adafruit.com/products/1651
@@ -138,6 +138,12 @@ static const int       sFontBig            =   2;     //8x16
 static const int       sFontBigNum         =   3;     //16x32nums
 static const int       sFontSquare         =   4;     //8x8
 
+static const int       sFontSize1          =   1;
+static const int       sFontSize2          =   2;
+static const int       sFontSize3          =   3;
+static const int       sFontSize4          =   4;
+static const int       sFontSize5          =   5;
+
 static const byte       cBogusResetPin      = 4;
 static const byte       cHW_SPI             = 0;      //This is what their demo used.
 //static const byte       cDisplayType        = DOGS102;
@@ -205,7 +211,7 @@ void setup()   {
 	Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
   Serial << "setup(): Call sSetupGyro()" << endl;
-  sSetupGyro();
+  //sSetupGyro();
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
 	Serial << "setup(): Call sServoInit()" << endl;
@@ -221,10 +227,10 @@ void setup()   {
 
 // The Arduino loop() method gets called over and over.
 void loop() {
-  sCheckButtons();
-  sLoopI2C();
+  //sCheckButtons();
+  //sLoopI2C();
   sDisplayUpdate();
-  sHandleButtons();
+  //sHandleButtons();
   return;
 }  //loop()
 
@@ -255,14 +261,32 @@ int sShowStartScreen(void) {
 int sShowSplash(void) {
    sDisplayClear();
 
+/*
    //2 lines of big font takes lines 0-3
-   sDisplayText(0, 0, sFontBig, (char *)"PowerShift");
-   sDisplayText(2, 0, sFontBig, (char *)"  by ShiftE");
+   RoverLCD.setTextColor(WROVER_YELLOW);
+   sDisplayText(0, 0, sFontSize3, (char *)"PowerShift");
+   RoverLCD.setTextColor(WROVER_GREEN);
+   sDisplayText(2, 0, sFontSize3, (char *)"  by ShiftE");
 
    //2 lines in normal font
-   sDisplayText(5, 0, sFontNormal, (char *)"Always ride safe!");
+   RoverLCD.setTextColor(WROVER_RED);
+   sDisplayText(5, 0, sFontSize2, (char *)"\nAlways ride safe!");
    //sDisplayText(7, 0, sFontNormal, (char *)"**Larry & Candy**");
-   sDisplayText(7, 0, sFontNormal, (char *)"October 19, 2017 ");
+   sDisplayText(7, 0, sFontSize2, (char *)"October 19, 2017J ");
+   //sDisplayText(7, 0, sFontSize2, (char *)FileDate);
+*/
+   RoverLCD.setTextColor(WROVER_YELLOW);
+   sDisplayText(0, 0, sFontSize1, (char *)"Size 1");
+   RoverLCD.setTextColor(WROVER_GREEN);
+   sDisplayText(0, 0, sFontSize2, (char *)"Size 2");
+   RoverLCD.setTextColor(WROVER_BLUE);
+   sDisplayText(0, 0, sFontSize3, (char *)"Size 3");
+   RoverLCD.setTextColor(WROVER_GREEN);
+   sDisplayText(0, 0, sFontSize4, (char *)"Size 4");
+   RoverLCD.setTextColor(WROVER_WHITE);
+   sDisplayText(0, 0, sFontSize5, (char *)"Size 5");
+
+   RoverLCD.setTextColor(WROVER_WHITE);
    return 1;
 }  //sShowSplash
 
@@ -298,21 +322,28 @@ int sDisplayClear() {
 
 
 int sDisplayText(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
-   RoverLCD.setTextColor(WROVER_WHITE);
+   //RoverLCD.setTextColor(WROVER_WHITE);
    switch (sFont) {
-      case sFontNormal:
+     //case sFontNormal:
+     case sFontSize1:
          RoverLCD.setTextSize(1);
          //DOG.string(sPixelStart, sLineNumber, font_6x8, pcText);
          break;
-      case sFontBig:
+      //case sFontBig:
+      case sFontSize2:
          RoverLCD.setTextSize(2);
          //DOG.string(sPixelStart, sLineNumber, font_8x16, pcText);
          break;
-      case sFontBigNum:
+      //case sFontBigNum:
+      case sFontSize3:
         RoverLCD.setTextSize(3);
          //DOG.string(sPixelStart, sLineNumber, font_16x32nums, pcText);
          break;
-      case sFontSquare:
+      case sFontSize4:
+         RoverLCD.setTextSize(4);
+         break;
+      //case sFontSquare:
+      case sFontSize5:
          RoverLCD.setTextSize(5);
          //DOG.string(sPixelStart, sLineNumber, font_8x8, pcText);
          break;
@@ -829,26 +860,4 @@ int sServoSetPosition(int sServoPos) {
    delay(sServoMsecWait);
    return 1;
 }  //sServoSetPosition
-
-/*
-void setup() {
-  Serial.begin(115200);
-  Serial.println("setup(): Begin");
-
-  RoverLCD.begin();
-  RoverLCD.setRotation(1);
-
-  uint32_t uwRoverID = RoverLCD.readId();
-  if(uwRoverID){
-      Serial.println("======= WROVER ST7789V Display Test ========");
-  } else {
-      Serial.println("======= WROVER ILI9341 Display Test ========");
-  }
-  Serial.println("============================================");
-  Serial.printf("Display ID:      0x%06X\n", uwRoverID);
-
-  Serial.println("setup(): End");
-  return;
-} //setup
-*/
 //Last line
