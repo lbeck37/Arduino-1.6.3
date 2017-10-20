@@ -19,6 +19,7 @@ static const String FileDate    = "Oct 19, 2017, Lenny-k";
 #include <Wire.h>
 #include <EasyButton.h>
 #include <ESP32_Servo.h>
+#include <Fonts/FreeSansBoldOblique24pt7b.h>
 
 #include <string>
 #include <iostream>
