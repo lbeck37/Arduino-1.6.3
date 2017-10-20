@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 20, 2017, Lenny-d";
+static const String FileDate    = "Oct 20, 2017, Lenny-m";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -17,6 +17,8 @@ static const String FileDate    = "Oct 20, 2017, Lenny-d";
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+
+//using namespace std;
 
 #define min(X, Y)     (((X) < (Y)) ? (X) : (Y))
 #define PAUSE_DELAY   delay(2000)
@@ -180,7 +182,7 @@ static boolean     bGyroChanged             = false;
 
 static int         sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
 
-static char       szTempBuffer[25];   //DOGS102 line is 17 chars with 6x8 normal font.
+static char       szTempBuffer[100];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char       sz10CharString[11];
 //static char       szFloatBuffer[15];
 
@@ -252,7 +254,7 @@ int sShowStartScreen(void) {
 
 
 int sShowSplash(void) {
-   sDisplayClear();
+   DisplayClear();
 
 /*
    //2 lines of big font takes lines 0-3
@@ -295,10 +297,12 @@ int sDisplaySetBrightness(int sBrightness){
 void DisplayUpdate(void) {
    if (bScreenChanged()) {
       Serial << "sDisplayUpdate(): Refreshing screen" << endl;
-      sDisplayClear();
+      DisplayClear();
+    	FillScreen(WROVER_RED);
       //sDisplayButtons();
       DisplayCurrentGear();
       //DisplayServoPos();
+      //DisplayTextTest();
 
       //sDisplayWatts();
       //sDisplayPitchRoll();
@@ -308,11 +312,16 @@ void DisplayUpdate(void) {
 }  //DisplayUpdate
 
 
-int sDisplayClear() {
-  //DOG.clear();  //clear whole display
-  RoverLCD.fillScreen(WROVER_BLACK);
-  return 1;
-}  //sDisplayClear
+void DisplayClear() {
+	FillScreen(WROVER_BLACK);
+  return;
+}  //DisplayClear
+
+
+void FillScreen(UINT16 usColor) {
+  RoverLCD.fillScreen(usColor);
+  return;
+}  //FillScreen
 
 
 int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
@@ -350,7 +359,7 @@ int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) 
 }  //sDisplayTextOrig
 
 
-void DisplayText(UINT16 usCursorX, UINT16 usCursorY, String TextString,
+void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
                  const GFXfont *pFont, UINT8 ucSize, UINT16 usColor) {
   //Pass pFont as NULL for default text font.
   //240x320 3.2", 10 lines => 24 pixels/line
@@ -359,7 +368,7 @@ void DisplayText(UINT16 usCursorX, UINT16 usCursorY, String TextString,
   RoverLCD.setTextSize(ucSize);
   RoverLCD.setCursor(usCursorX, usCursorY);
   RoverLCD.setTextWrap(false);
-  RoverLCD.println(TextString);
+  RoverLCD.println(pcText);
   return;
 }  //DisplayText
 
@@ -370,6 +379,90 @@ boolean bScreenChanged() {
    bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= false;
    return bChanged;
 }  //bScreenChanged
+
+
+void DisplayCurrentGear() {
+	//FreeSansBoldOblique24pt7b font
+	// Place gear number (1 to 10) at right side 2x sized
+	const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
+	UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
+  UINT16          usCursorX = 0;
+  //UINT16          usCursorY = usLine1Baseline;
+  UINT16          usCursorY = 2 * usLine1Baseline;
+  UINT8           ucSize    = 2;
+  UINT16          usColor   = WROVER_YELLOW;
+
+  INT16						sStartX		= 0;
+  INT16						sStartY		= (2 * usLine1Baseline);
+  INT16						sUpperLeftX;
+  INT16						sUpperLeftY;
+  UINT16					usWidth;
+  UINT16					usHeight;
+  itoa(sCurrentGear, sz10CharString  , 10);
+  Serial << "sDisplayCurrentGear(): Call getTextBounds(" << sz10CharString << ", " <<
+  		sStartX << ", " << sStartY << ", ..." << endl;
+  RoverLCD.getTextBounds(sz10CharString, sStartX, sStartY, &sUpperLeftX, &sUpperLeftY, &usWidth, &usHeight);
+  Serial << "sDisplayCurrentGear(): sUpperLeftX= " << sUpperLeftX << ", sUpperLeftY= " << sUpperLeftY << endl;
+  Serial << "sDisplayCurrentGear(): usWidth= " << usWidth << ", usHeight= " << usHeight << endl;
+  if (sCurrentMode == sNormalMode) {
+      strcpy(szTempBuffer, "Gear ");
+      itoa(sCurrentGear  ,sz10CharString  , 10);
+      strcat(szTempBuffer, sz10CharString);
+      DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+   }  //if (sCurrentMode..
+   else {
+      //We're in Calib mode so let's put a zero for the gear.
+      strcpy(szTempBuffer, "Gear 0");
+      DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+   }  //if (sCurrentMode..else
+   return;
+}  //DisplayCurrentGear
+
+
+void DisplayServoPos() {
+	//FreeSansBoldOblique24pt7b font
+	const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
+	//UINT16					usLineSpacing	= 36;	//No spacing between lines (240 pixels is 6.7 lines)
+	UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
+  UINT16          usCursorX = 0;
+  UINT16          usCursorY = usLine1Baseline + 1*usLineSpacing;
+  UINT8           ucSize    = 1;
+  UINT16          usColor   = WROVER_YELLOW;
+
+  strcpy(szTempBuffer, "G2Servo ");
+  itoa(sServoPosLast  ,sz10CharString  , 10);
+  strcat(szTempBuffer, sz10CharString);
+  Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
+  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  return;
+}  //DisplayServoPos
+
+
+void DisplayTextTest() {
+	//FreeSansBoldOblique24pt7b font
+	const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
+	//UINT16					usLineSpacing	= 36;	//No spacing between lines (240 pixels is 6.7 lines)
+	//UINT16					usLineSpacing	= 39;	//3 pixel spacing between lines (234 pixels is 6 lines)
+	UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines
+  UINT16          usCursorX = 0;
+  UINT16          usCursorY;
+  UINT8           ucSize    = 1;
+  UINT16          usColor   = WROVER_YELLOW;
+
+  strcpy(szTempBuffer, "G2Servo ");
+  itoa(sServoPosLast  ,sz10CharString  , 10);
+  strcat(szTempBuffer, sz10CharString);
+  Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
+  for (int wLine= 0; wLine < 6; wLine++) {
+  	usCursorY = usLine1Baseline + (wLine * usLineSpacing);
+  	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  }
+  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  return;
+}  //DisplayTextTest
 
 
 int sDisplayWatts() {
@@ -406,43 +499,6 @@ int sDisplayButtons() {
 */
    return 1;
 }  //sDisplayButtons
-
-
-void DisplayCurrentGear() {
-  UINT16          usCursorX = 1;
-  UINT16          usCursorY = 2*24;
-  UINT8           ucSize    = 1;
-  UINT16          usColor   = WROVER_YELLOW;
-  const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
-  String          TextString;
-  if (sCurrentMode == sNormalMode) {
-      TextString= "Gear " + sCurrentGear;
-      Serial << "sDisplayCurrentGear(): Mode= " << sCurrentMode
-             << ", TextString= " << TextString << endl;
-      DisplayText( usCursorX, usCursorY, TextString, pFont, ucSize, usColor);
-   }  //if (sCurrentMode..
-   else {
-      //We're in Calib mode so let's put a zero for the gear.
-      TextString= "Gear 0";
-      DisplayText( usCursorX, usCursorY, TextString, pFont, ucSize, usColor);
-   }  //if (sCurrentMode..else
-   return;
-}  //DisplayCurrentGear
-
-
-void DisplayServoPos() {
-  UINT16          usCursorX = 1;
-  UINT16          usCursorY = 3*24;
-  UINT8           ucSize    = 1;
-  UINT16          usColor   = WROVER_YELLOW;
-  const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
-  String          TextString;
-
-  TextString= "Servo " + sServoPosLast;
-  Serial << "sDisplayServoPos(): Display " << TextString << endl;
-  DisplayText( usCursorX, usCursorY, TextString, pFont, ucSize, usColor);
-  return;
-}  //DisplayServoPos
 
 
 int sDisplayOdometer() {
