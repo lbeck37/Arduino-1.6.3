@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 21, 2017, Lenny-p";
+static const String FileDate    = "Oct 21, 2017, Lenny-t";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -379,14 +379,14 @@ void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
 		INT16						sUpperLeftY;
 		UINT16					usWidth;
 		UINT16					usHeight;
-		UINT16					usExtra				= 2;		//Extra space to get right justify calculation work
+		UINT16					usExtra				= 0;		//Extra space to get right justify calculation work
 		Serial << "DisplayText(): Call getTextBounds(" << pcText << ", " << usBoundsX << ", " << usBoundsY << ", ..." << endl;
 		RoverLCD.getTextBounds(pcText, usBoundsX, usBoundsY, &sUpperLeftX, &sUpperLeftY, &usWidth, &usHeight);
 		Serial << "DisplayText(): getTextBounds() returned: sUpperLeftX= " << sUpperLeftX << ", sUpperLeftY= " << sUpperLeftY << endl;
 		Serial << "DisplayText(): getTextBounds() returned: usWidth= " << usWidth << ", usHeight= " << usHeight << endl;
-		Serial << "DisplayText(): usCursorX= " << usCursorX << endl;
+		//Serial << "DisplayText(): usCursorX= " << usCursorX << endl;
 		Serial << "DisplayText(): WROVER_HEIGHT= " << WROVER_HEIGHT << endl;
-		usCursorX= WROVER_HEIGHT - usCursorX - usWidth - usExtra;
+		usCursorX= WROVER_HEIGHT - usCursorX - (usWidth * ucSize) - usExtra;
 		Serial << "DisplayText(): usCursorX set to " << usCursorX << endl;
   }	//if (bRightJustify)
   RoverLCD.setCursor(usCursorX, usCursorY);
@@ -408,7 +408,7 @@ void DisplayCurrentGear() {
 	//FreeSansBoldOblique24pt7b font
 	// Place gear number (1 to 10) at right side 2x sized
 	const GFXfont   *pFont    			= &FreeSansBoldOblique24pt7b;
-	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
+	UINT16					usLine1Baseline	= 36;	//Puts TopOfChar 2 pixels below screen top
 	UINT16					usLineSpacing		= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
   UINT16          usCursorX 			= 2;
   UINT16          usCursorY 			= 2 * usLine1Baseline;
@@ -418,10 +418,16 @@ void DisplayCurrentGear() {
   bool						bRightJustify		= true;
 
   if (sCurrentMode == sNormalMode) {
-      //strcpy(szTempBuffer, "Gear ");
-      itoa(sCurrentGear  ,sz100CharString, RADIX_10);
-      //strcat(szTempBuffer, sz100CharString);
+  		//sCurrentGear= 10;
+      itoa(sCurrentGear, sz100CharString, RADIX_10);
+      if (sCurrentGear < 10){
+      	usCursorX= 248;
+      }
+      else{
+      	usCursorX= 208;		//2 pixels to right
+      }
       DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
+      //DisplayText( usCursorX, usCursorY, "10", pFont, ucSize, usColor, bRightJustify);
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
