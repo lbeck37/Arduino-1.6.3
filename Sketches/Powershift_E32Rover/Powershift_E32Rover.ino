@@ -11,8 +11,12 @@ static const String FileDate    = "Oct 21, 2017, Lenny-x+";
 #include <Wire.h>
 #include <EasyButton.h>
 #include <ESP32_Servo.h>
-#include <Fonts/FreeSansBoldOblique24pt7b.h>
+#include <Fonts/FreeMonoBold12pt7b.h>
+#include <Fonts/FreeMonoBold24pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
+//#include <Fonts/FreeMonoBoldOblique24pt7b.h>
+//#include <Fonts/FreeSansBoldOblique12pt7b.h>
+//#include <Fonts/FreeSansBoldOblique24pt7b.h>
 
 #include <string>
 #include <iostream>
@@ -195,7 +199,7 @@ const double      dRadsToDeg        = 180.0/PI;
 double            adGvalueXYZ[3];
 double            dRollDeg_;
 double            dPitchDeg_;
-double            dPitchPercent_;
+double            dPitchPercent_		= 37.0;
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
@@ -304,7 +308,7 @@ void DisplayUpdate(void) {
     	FillScreen(WROVER_RED);
       //sDisplayButtons();
       DisplayCurrentGear();
-      //DisplayServoPos();
+      DisplayServoPos();
       //DisplayTextTest();
 
       //sDisplayWatts();
@@ -406,9 +410,10 @@ boolean bScreenChanged() {
 
 
 void DisplayCurrentGear() {
-	//FreeSansBoldOblique24pt7b font
 	// Place gear number (1 to 10) at right side 2x sized
-	const GFXfont   *pFont    			= &FreeSansBoldOblique24pt7b;
+	//const GFXfont   *pFont    			= &FreeSansBoldOblique24pt7b;
+	const GFXfont   *pFont    			= &FreeMonoBold24pt7b;
+	//const GFXfont   *pFont    			= &FreeMonoBoldOblique24pt7b;
 	UINT16					usLine1Baseline	= 36;	//Puts TopOfChar 2 pixels below screen top
 	UINT16					usLineSpacing		= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
   UINT16          usCursorX 			= 2;
@@ -447,28 +452,36 @@ void DisplayCurrentGear() {
 
 
 void DisplayServoPos() {
-	//FreeSansBoldOblique24pt7b font
-	const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
-	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
-	//UINT16					usLineSpacing	= 36;	//No spacing between lines (240 pixels is 6.7 lines)
-	UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
-  UINT16          usCursorX = 0;
-  UINT16          usCursorY = usLine1Baseline + 1*usLineSpacing;
+	//50, 25
+	//const GFXfont   *pFont    = &FreeSansBoldOblique12pt7b;
+	const GFXfont   *pFont    = &FreeMonoBold12pt7b;
+	//UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
+	//UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
+  UINT16          usCursorX = 260;
+  UINT16          usCursorY = 125;
   UINT8           ucSize    = 1;
   UINT16          usColor   = WROVER_YELLOW;
 
-  strcpy(szTempBuffer, "G2Servo ");
-  itoa(sServoPosLast  ,sz100CharString  , 10);
+  //strcpy(szTempBuffer, "G2Servo ");
+  itoa(sServoPosLast, sz100CharString, RADIX_10);
   strcat(szTempBuffer, sz100CharString);
   Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
   DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
+
+	//Set to smallest normal Sans font for label under servo position
+	usCursorX= 255;
+	usCursorY= 140;
+	ucSize= 1;
+	pFont= &FreeSans9pt7b;
+	DisplayText( usCursorX, usCursorY, "Servo", pFont, ucSize, usColor, false);
+
   return;
 }  //DisplayServoPos
 
 
 void DisplayTextTest() {
-	//FreeSansBoldOblique24pt7b font
-	const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+	//const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+	const GFXfont   *pFont    = &FreeMonoBold24pt7b;
 	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
 	//UINT16					usLineSpacing	= 36;	//No spacing between lines (240 pixels is 6.7 lines)
 	//UINT16					usLineSpacing	= 39;	//3 pixel spacing between lines (234 pixels is 6 lines)
