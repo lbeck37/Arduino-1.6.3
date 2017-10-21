@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 21, 2017, Lenny-t";
+static const String FileDate    = "Oct 21, 2017, Lenny-x+";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -12,6 +12,7 @@ static const String FileDate    = "Oct 21, 2017, Lenny-t";
 #include <EasyButton.h>
 #include <ESP32_Servo.h>
 #include <Fonts/FreeSansBoldOblique24pt7b.h>
+#include <Fonts/FreeSans9pt7b.h>
 
 #include <string>
 #include <iostream>
@@ -411,30 +412,37 @@ void DisplayCurrentGear() {
 	UINT16					usLine1Baseline	= 36;	//Puts TopOfChar 2 pixels below screen top
 	UINT16					usLineSpacing		= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
   UINT16          usCursorX 			= 2;
-  UINT16          usCursorY 			= 2 * usLine1Baseline;
+  UINT16          usCursorY 			= 72;
   UINT8           ucSize    			= 2;
   UINT16          usColor   			= WROVER_YELLOW;
   UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
-  bool						bRightJustify		= true;
+  bool						bRightJustify		= false;
 
-  if (sCurrentMode == sNormalMode) {
-  		//sCurrentGear= 10;
-      itoa(sCurrentGear, sz100CharString, RADIX_10);
-      if (sCurrentGear < 10){
-      	usCursorX= 248;
-      }
-      else{
-      	usCursorX= 208;		//2 pixels to right
-      }
-      DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
-      //DisplayText( usCursorX, usCursorY, "10", pFont, ucSize, usColor, bRightJustify);
-   }  //if (sCurrentMode..
-   else {
-      //We're in Calib mode so let's put a zero for the gear.
-      strcpy(sz100CharString, "0");
-      DisplayText( usRightInset, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
-   }  //if (sCurrentMode..else
-   return;
+	if (sCurrentMode == sNormalMode) {
+		//sCurrentGear= 10;	//For testing
+		itoa(sCurrentGear, sz100CharString, RADIX_10);
+		if (sCurrentGear < 10){
+			usCursorX= 250;		//Gears 1-9
+		}
+		else{
+			usCursorX= 200;		//Gear 10
+		}
+		DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
+	}  //if (sCurrentMode..
+	else {
+		usCursorX= 220;		//Same as gears 1-9
+		//We're in Calib mode so let's put a zero for the gear.
+		strcpy(sz100CharString, "0");
+		DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
+	}  //if (sCurrentMode..else
+
+	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
+	usCursorX= 255;
+	usCursorY= 90;
+	ucSize= 1;
+	pFont= &FreeSans9pt7b;
+	DisplayText( usCursorX, usCursorY, "Gear", pFont, ucSize, usColor, bRightJustify);
+  return;
 }  //DisplayCurrentGear
 
 
