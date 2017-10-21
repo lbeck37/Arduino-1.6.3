@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 20, 2017, Lenny-m";
+static const String FileDate    = "Oct 21, 2017, Lenny-p";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -22,6 +22,8 @@ static const String FileDate    = "Oct 20, 2017, Lenny-m";
 
 #define min(X, Y)     (((X) < (Y)) ? (X) : (Y))
 #define PAUSE_DELAY   delay(2000)
+
+#define RADIX_10			10
 
 WROVER_KIT_LCD    RoverLCD;
 
@@ -183,7 +185,7 @@ static boolean     bGyroChanged             = false;
 static int         sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
 
 static char       szTempBuffer[100];   //DOGS102 line is 17 chars with 6x8 normal font.
-static char       sz10CharString[11];
+static char       sz100CharString[101];
 //static char       szFloatBuffer[15];
 
 //MPU6050 acceleration and pitch things
@@ -360,14 +362,35 @@ int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) 
 
 
 void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
-                 const GFXfont *pFont, UINT8 ucSize, UINT16 usColor) {
+                 const GFXfont *pFont, UINT8 ucSize, UINT16 usColor, bool bRightJustify) {
   //Pass pFont as NULL for default text font.
+	//If bRightJustify is true then usCursorX is number of pixels text is in from right side
   //240x320 3.2", 10 lines => 24 pixels/line
+
   RoverLCD.setFont(pFont);
   RoverLCD.setTextColor(usColor);
   RoverLCD.setTextSize(ucSize);
-  RoverLCD.setCursor(usCursorX, usCursorY);
   RoverLCD.setTextWrap(false);
+  if (bRightJustify) {
+  	// 10/21/17 Justification calculation does not work
+    UINT16					usBoundsX			= 0;
+    UINT16					usBoundsY			= usCursorY;
+		INT16						sUpperLeftX;
+		INT16						sUpperLeftY;
+		UINT16					usWidth;
+		UINT16					usHeight;
+		UINT16					usExtra				= 2;		//Extra space to get right justify calculation work
+		Serial << "DisplayText(): Call getTextBounds(" << pcText << ", " << usBoundsX << ", " << usBoundsY << ", ..." << endl;
+		RoverLCD.getTextBounds(pcText, usBoundsX, usBoundsY, &sUpperLeftX, &sUpperLeftY, &usWidth, &usHeight);
+		Serial << "DisplayText(): getTextBounds() returned: sUpperLeftX= " << sUpperLeftX << ", sUpperLeftY= " << sUpperLeftY << endl;
+		Serial << "DisplayText(): getTextBounds() returned: usWidth= " << usWidth << ", usHeight= " << usHeight << endl;
+		Serial << "DisplayText(): usCursorX= " << usCursorX << endl;
+		Serial << "DisplayText(): WROVER_HEIGHT= " << WROVER_HEIGHT << endl;
+		usCursorX= WROVER_HEIGHT - usCursorX - usWidth - usExtra;
+		Serial << "DisplayText(): usCursorX set to " << usCursorX << endl;
+  }	//if (bRightJustify)
+  RoverLCD.setCursor(usCursorX, usCursorY);
+	Serial << "DisplayText(): Call RoverLCD.println() with usCursorX= " << usCursorX << ", usCursorY= " << usCursorY << endl;
   RoverLCD.println(pcText);
   return;
 }  //DisplayText
@@ -384,37 +407,26 @@ boolean bScreenChanged() {
 void DisplayCurrentGear() {
 	//FreeSansBoldOblique24pt7b font
 	// Place gear number (1 to 10) at right side 2x sized
-	const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+	const GFXfont   *pFont    			= &FreeSansBoldOblique24pt7b;
 	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
-	UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
-  UINT16          usCursorX = 0;
-  //UINT16          usCursorY = usLine1Baseline;
-  UINT16          usCursorY = 2 * usLine1Baseline;
-  UINT8           ucSize    = 2;
-  UINT16          usColor   = WROVER_YELLOW;
+	UINT16					usLineSpacing		= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
+  UINT16          usCursorX 			= 2;
+  UINT16          usCursorY 			= 2 * usLine1Baseline;
+  UINT8           ucSize    			= 2;
+  UINT16          usColor   			= WROVER_YELLOW;
+  UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
+  bool						bRightJustify		= true;
 
-  INT16						sStartX		= 0;
-  INT16						sStartY		= (2 * usLine1Baseline);
-  INT16						sUpperLeftX;
-  INT16						sUpperLeftY;
-  UINT16					usWidth;
-  UINT16					usHeight;
-  itoa(sCurrentGear, sz10CharString  , 10);
-  Serial << "sDisplayCurrentGear(): Call getTextBounds(" << sz10CharString << ", " <<
-  		sStartX << ", " << sStartY << ", ..." << endl;
-  RoverLCD.getTextBounds(sz10CharString, sStartX, sStartY, &sUpperLeftX, &sUpperLeftY, &usWidth, &usHeight);
-  Serial << "sDisplayCurrentGear(): sUpperLeftX= " << sUpperLeftX << ", sUpperLeftY= " << sUpperLeftY << endl;
-  Serial << "sDisplayCurrentGear(): usWidth= " << usWidth << ", usHeight= " << usHeight << endl;
   if (sCurrentMode == sNormalMode) {
-      strcpy(szTempBuffer, "Gear ");
-      itoa(sCurrentGear  ,sz10CharString  , 10);
-      strcat(szTempBuffer, sz10CharString);
-      DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+      //strcpy(szTempBuffer, "Gear ");
+      itoa(sCurrentGear  ,sz100CharString, RADIX_10);
+      //strcat(szTempBuffer, sz100CharString);
+      DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
    }  //if (sCurrentMode..
    else {
       //We're in Calib mode so let's put a zero for the gear.
-      strcpy(szTempBuffer, "Gear 0");
-      DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+      strcpy(sz100CharString, "0");
+      DisplayText( usRightInset, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
    }  //if (sCurrentMode..else
    return;
 }  //DisplayCurrentGear
@@ -432,10 +444,10 @@ void DisplayServoPos() {
   UINT16          usColor   = WROVER_YELLOW;
 
   strcpy(szTempBuffer, "G2Servo ");
-  itoa(sServoPosLast  ,sz10CharString  , 10);
-  strcat(szTempBuffer, sz10CharString);
+  itoa(sServoPosLast  ,sz100CharString  , 10);
+  strcat(szTempBuffer, sz100CharString);
   Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
-  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
   return;
 }  //DisplayServoPos
 
@@ -453,14 +465,14 @@ void DisplayTextTest() {
   UINT16          usColor   = WROVER_YELLOW;
 
   strcpy(szTempBuffer, "G2Servo ");
-  itoa(sServoPosLast  ,sz10CharString  , 10);
-  strcat(szTempBuffer, sz10CharString);
+  itoa(sServoPosLast  ,sz100CharString  , 10);
+  strcat(szTempBuffer, sz100CharString);
   Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
   for (int wLine= 0; wLine < 6; wLine++) {
   	usCursorY = usLine1Baseline + (wLine * usLineSpacing);
-  	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
   }
-  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
   return;
 }  //DisplayTextTest
 
@@ -482,18 +494,18 @@ int sDisplayButtons() {
    //Show 3 lines at right bottom for U d, D d, S d
    //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
    strcpy(szTempBuffer, "U ");
-   itoa(sButtonCount[sUp]  ,sz10CharString  , 10);
-   strcat(szTempBuffer, sz10CharString);
+   itoa(sButtonCount[sUp]  ,sz100CharString  , 10);
+   strcat(szTempBuffer, sz100CharString);
    sDisplayTextOrig(6, 82, sFontNormal, szTempBuffer);  //Move this and next to lines 6 and 7
 
    strcpy(szTempBuffer, "D ");
-   itoa(sButtonCount[sDown]  ,sz10CharString  , 10);
-   strcat(szTempBuffer, sz10CharString);
+   itoa(sButtonCount[sDown]  ,sz100CharString  , 10);
+   strcat(szTempBuffer, sz100CharString);
    sDisplayTextOrig(7, 82, sFontNormal, szTempBuffer);
 
 /*
    strcpy(szLineBuffer, "S ");
-   itoa(sButtonCount[sSelect]  ,sz10CharString  , 10);
+   itoa(sButtonCount[sSelect]  ,sz100CharString  , 10);
    strcat(szLineBuffer, sz10CharString);
    sDisplayText(7, 82, sFontNormal, szLineBuffer);
 */
@@ -630,15 +642,15 @@ double dGetPitchPercent(double dPitchDeg) {
 int sDisplayPitchRoll() {
   //sprintf(szTempBuffer, "P %f", 123.45);
   strcpy(szTempBuffer, "P");
-  dtostrf( dPitchDeg_, 5, 1, sz10CharString);
-  strcat(szTempBuffer, sz10CharString);
+  dtostrf( dPitchDeg_, 5, 1, sz100CharString);
+  strcat(szTempBuffer, sz100CharString);
   strcat(szTempBuffer, "%");
   //Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
   sDisplayTextOrig(6,28, sFontNormal, szTempBuffer);
 
   strcpy(szTempBuffer, "R");
-  dtostrf( dRollDeg_, 6, 1, sz10CharString);
-  strcat(szTempBuffer, sz10CharString);
+  dtostrf( dRollDeg_, 6, 1, sz100CharString);
+  strcat(szTempBuffer, sz100CharString);
   strcat(szTempBuffer, "Deg");
   sDisplayTextOrig(7,28, sFontNormal, szTempBuffer);
   return 1;
