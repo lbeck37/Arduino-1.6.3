@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 22, 2017, Lenny-b";
+static const String FileDate    = "Oct 22, 2017, Lenny-c";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -29,6 +29,8 @@ static const String FileDate    = "Oct 22, 2017, Lenny-b";
 #define PAUSE_DELAY   delay(2000)
 
 #define RADIX_10			10
+
+#define DO_BUTTONS		false
 
 WROVER_KIT_LCD    RoverLCD;
 
@@ -64,11 +66,11 @@ static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
 #if 1   //ESP32
-static const int       sServoPin             = 34;
+static const int       sServoPin             = 32;
 static const int       sUpButton             = 35;
 static const int       sDownButton           = 36;
-static const int       sI2C_SDA              = 21;
-static const int       sI2C_SCL              = 22;
+static const int       sI2C_SDA              = 26;
+static const int       sI2C_SCL              = 27;
 #endif
 
 #if 0   //Pro Mini
@@ -161,12 +163,12 @@ static int sServoPosLast                  = 0;
 
 //Create servo object to control the servo
 Servo myservo;
-
+#if DO_BUTTONS
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
 EasyButton DownButton   (sDownButton,   NULL, CALL_NONE, bButtonPullUp);
 //EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
-
+#endif	//DO_BUTTONS
 
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
@@ -206,24 +208,53 @@ void setup()   {
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
-  Serial << "setup(): Call sSetupGyro()" << endl;
+  Serial << "setup(): Call SetupPins()" << endl;
+  SetupPins();
+  //Serial << "setup(): Call sSetupGyro()" << endl;
   //sSetupGyro();
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
-  Serial << "setup(): Call sServoInit()" << endl;
-  sServoInit();
+  //Serial << "setup(): Call sServoInit()" << endl;
+  //sServoInit();
   Serial << "setup(): Call sShowStartScreen()" << endl;
   sShowStartScreen();
 
   //Dither the servo once so it's position shows on the LCD.
-  sServoDither(1, 1); // +/- 1 degree, once
+  //sServoDither(1, 1); // +/- 1 degree, once
+  bButtonsChanged= true;	//Make the display show up during debugging.
   return;
 }  //setup
 
 
+void SetupPins() {
+/*
+  Serial << "SetupPins(): Call pinMode(" << sUpButton << ", INPUT_PULLUP)" << endl;
+	pinMode(sUpButton, INPUT_PULLUP);
+  Serial << "SetupPins(): Call pinMode(" << sDownButton << ", INPUT_PULLUP)" << endl;
+	pinMode(sDownButton, INPUT_PULLUP);
+*/
+  Serial << "SetupPins(): Call pinMode(" << sUpButton << ", INPUT)" << endl;
+	pinMode(sUpButton, INPUT);
+	digitalWrite(sUpButton, HIGH);	//Turn on pullup
+  Serial << "SetupPins(): Call pinMode(" << sDownButton << ", INPUT)" << endl;
+	pinMode(sDownButton, INPUT);
+	digitalWrite(sDownButton, HIGH);	//Turn on pullup
+	int sValueUp;
+	int sValueDown;
+	for (int i= 0; i<10; i++){
+		 Serial << "SetupPins(): Read buttons, Try= " << i << endl;
+		sValueUp= digitalRead(sUpButton);
+		sValueDown= digitalRead(sDownButton);
+	  Serial << "SetupPins(): Read buttons, Up= " << sValueUp << ", Down= " << sValueDown << endl;
+	  delay(1000);
+	}
+  return;
+}  //SetupPins
+
+
 // The Arduino loop() method gets called over and over.
 void loop() {
-  sCheckButtons();
+  //sCheckButtons();
   //sLoopI2C();
   DisplayUpdate();
   //sHandleButtons();
@@ -842,7 +873,7 @@ int sHandleCalibMode(void) {
 
 
 int sCheckButtons(void) {
-/* Algorithm to determine when a button has been pressed or held.
+/*Algorithm to determine when a button has been pressed or held.
  * Use IsRelease() to indicate the button has been pressed
  * Use IsHold() to indicate the button has been held down
  * States (Initial idea, not sure how close method is to this 4/25/15)
@@ -858,11 +889,12 @@ int sCheckButtons(void) {
  *    0   Nothing to be done
  *   99   Button was held and not yet released
  *   1-10 Number of button presses not yet handled, max 10
-*/
+ */
   //static int   sLocalButtonState[]  = {0, 0};
   boolean      bReturn              = false;
   int          sButton;
 
+#if DO_BUTTONS
   UpButton.update();
   DownButton.update();
   //SelectButton.update();
@@ -910,6 +942,7 @@ int sCheckButtons(void) {
       }   //if(!bReturn&&UpButton.IsHold()
       bReturn= false;
    } //for (sButton= sUp...
+#endif	//DO_BUTTONS
   return 1;
 }  //sCheckButtons
 
