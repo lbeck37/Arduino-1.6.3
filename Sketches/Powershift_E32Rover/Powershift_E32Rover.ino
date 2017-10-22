@@ -148,7 +148,6 @@ static const int       sFontSize5          =   5;
 
 static const byte       cBogusResetPin      = 4;
 static const byte       cHW_SPI             = 0;      //This is what their demo used.
-//static const byte       cDisplayType        = DOGS102;
 
 //End of the const's
 
@@ -162,9 +161,6 @@ static int sServoPosLast                  = 0;
 
 //Create servo object to control the servo
 Servo myservo;
-
-//Create display object fot the DOGS102-6 (102x64) display
-//dog_1701 DOG;
 
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
@@ -206,12 +202,6 @@ double            dWatts_		= 237.0;
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
-  //delay(500);
-  //Serial << endl << "Exercist.ino, Aug 10, 2017 Ace-A Pro Mini" << endl;
-  //Serial << endl << ("setup: Call BLog()" + acSketchName + ", " + acFileDate) << endl;
-  //BLog("Sketch: " + acSketchName + ", " + acFileDate);
-  //Serial << endl << "Begin " + acSketchName + ", " + acFileDate << endl;
-  //Serial << endl << "Begin " << endl;
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
   Serial << "setup(): Call sSetupGyro()" << endl;
@@ -293,14 +283,6 @@ int sShowSplash(void) {
    RoverLCD.setTextColor(WROVER_WHITE);
    return 1;
 }  //sShowSplash
-
-
-/*
-int sDisplaySetBrightness(int sBrightness){
-   analogWrite(sBacklightPin, sBrightness);
-   return 1;
-}  //sDisplaySetBrightness
-*/
 
 
 void DisplayUpdate(void) {
@@ -437,7 +419,6 @@ void DisplayCurrentGear() {
 
 	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
 	usCursorX= 255;
-	//usCursorY= 80;
 	usCursorY= usCursorY + 20;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
@@ -450,27 +431,21 @@ void DisplayServoPos() {
 	//50, 25
 	//const GFXfont   *pFont    = &FreeSansBoldOblique12pt7b;
 	const GFXfont   *pFont    = &FreeMonoBold12pt7b;
-	//UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
-	//UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
   UINT16          usCursorX = 260;
   UINT16          usCursorY = 115;
   UINT8           ucSize    = 1;
   UINT16          usColor   = WROVER_YELLOW;
 
-  //strcpy(szTempBuffer, "G2Servo ");
   itoa(sServoPosLast, sz100CharString, RADIX_10);
   strcat(szTempBuffer, sz100CharString);
   Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
   DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
 
 	//Set to smallest normal Sans font for label under servo position
-	//usCursorX= 255;
-	//usCursorY= 130;
 	usCursorY= usCursorY + 15;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
 	DisplayText( usCursorX, usCursorY, "Servo", pFont, ucSize, usColor, false);
-
   return;
 }  //DisplayServoPos
 
@@ -491,9 +466,8 @@ void DisplayWatts() {
 	//usCursorX= 10;		//Gears 1-9
 	DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
 
-	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
+	//Set to smallest normal Sans font to label
 	usCursorX= 50;
-	//usCursorY= 80;
 	usCursorY= usCursorY + 20;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
@@ -509,7 +483,6 @@ void DisplayPitchRoll() {
   UINT16          usCursorY 			= 170;	//Was 62
   UINT8           ucSize    			= 2;
   UINT16          usColor   			= WROVER_YELLOW;
-  //UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
   bool						bRightJustify		= false;
   //sprintf(szTempBuffer, "P %f", 123.45);
   //strcpy(szTempBuffer, "P");
@@ -517,13 +490,10 @@ void DisplayPitchRoll() {
 	itoa((INT16)dPitchPercent_, sz100CharString, RADIX_10);
   strcpy(szTempBuffer, sz100CharString);
   strcat(szTempBuffer, "%");
-  //Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
-  //sDisplayTextOrig(6,28, sFontNormal, szTempBuffer);
 	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
 
 	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
 	usCursorX= 50;
-	//usCursorY= 168;	//Was 80
 	usCursorY= usCursorY + 20;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
@@ -547,12 +517,10 @@ void DisplayButtons() {
   UINT16          usColor   			= WROVER_YELLOW;
   bool						bRightJustify		= false;
 
-  //Show 3 lines at right bottom for U d, D d, S d
-  //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
+  //Show 2 lines at right bottom for U d, D d
   strcpy(szTempBuffer, "U ");
   itoa(sButtonCount[sUp]  ,sz100CharString  , 10);
   strcat(szTempBuffer, sz100CharString);
-  //sDisplayTextOrig(6, 82, sFontNormal, szTempBuffer);  //Move this and next to lines 6 and 7
 	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
 
 	strcpy(szTempBuffer, "D ");
@@ -560,7 +528,7 @@ void DisplayButtons() {
 	strcat(szTempBuffer, sz100CharString);
 	usCursorY= usCursorY + 20;
 	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
-   return;
+  return;
 }  //DisplayButtons
 
 
