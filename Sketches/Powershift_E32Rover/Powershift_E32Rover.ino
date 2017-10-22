@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 21, 2017, Lenny-ab";
+static const String FileDate    = "Oct 22, 2017, Lenny-b";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -197,7 +197,9 @@ double            dRollDeg_;
 double            dPitchDeg_;
 double            dPitchPercent_		= 16.0;
 
-double            dWatts_		= 237.0;
+double            dVolts_		= 37.7;
+double            dAmps_		= 10.0;
+double            dWatts_		= dVolts_ * dAmps_;
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
@@ -221,7 +223,7 @@ void setup()   {
 
 // The Arduino loop() method gets called over and over.
 void loop() {
-  //sCheckButtons();
+  sCheckButtons();
   //sLoopI2C();
   DisplayUpdate();
   //sHandleButtons();
@@ -289,7 +291,7 @@ void DisplayUpdate(void) {
    if (bScreenChanged()) {
       Serial << "sDisplayUpdate(): Refreshing screen" << endl;
       DisplayClear();
-    	FillScreen(WROVER_RED);
+    	//FillScreen(WROVER_RED);
       DisplayCurrentGear();
       DisplayServoPos();
       DisplayButtons();
@@ -395,7 +397,7 @@ void DisplayCurrentGear() {
   UINT16          usCursorX 			= 2;
   UINT16          usCursorY 			= 62;		//Was 72
   UINT8           ucSize    			= 2;
-  UINT16          usColor   			= WROVER_YELLOW;
+  UINT16          usColor   			= WROVER_WHITE;
   UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
   bool						bRightJustify		= false;
 
@@ -434,11 +436,10 @@ void DisplayServoPos() {
   UINT16          usCursorX = 260;
   UINT16          usCursorY = 115;
   UINT8           ucSize    = 1;
-  UINT16          usColor   = WROVER_YELLOW;
+  UINT16          usColor   = WROVER_ORANGE;
 
   itoa(sServoPosLast, sz100CharString, RADIX_10);
-  strcat(szTempBuffer, sz100CharString);
-  Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
+  strcpy(szTempBuffer, sz100CharString);
   DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
 
 	//Set to smallest normal Sans font for label under servo position
@@ -472,6 +473,18 @@ void DisplayWatts() {
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
 	DisplayText( usCursorX, usCursorY, "Watts", pFont, ucSize, usColor, bRightJustify);
+
+	//Show Volts and Amps in 12pt Mono
+	usCursorX= 10;
+	usCursorY= usCursorY + 20;
+	pFont= &FreeMonoBold12pt7b;
+  strcpy(szTempBuffer, "V: ");
+  itoa((INT16)dVolts_, sz100CharString, RADIX_10);
+  strcat(szTempBuffer, sz100CharString);
+  strcat(szTempBuffer, "   A: ");
+	itoa((INT16)dAmps_, sz100CharString, RADIX_10);
+	strcat(szTempBuffer, sz100CharString);
+  DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
   return;
 }  //DisplayWatts
 
@@ -480,9 +493,9 @@ void DisplayPitchRoll() {
 	// Place at left side 2x sized
 	const GFXfont   *pFont    			= &FreeMonoBold24pt7b;
   UINT16          usCursorX 			= 10;
-  UINT16          usCursorY 			= 170;	//Was 62
+  UINT16          usCursorY 			= 180;	//Was 62
   UINT8           ucSize    			= 2;
-  UINT16          usColor   			= WROVER_YELLOW;
+  UINT16          usColor   			= WROVER_GREEN;
   bool						bRightJustify		= false;
   //sprintf(szTempBuffer, "P %f", 123.45);
   //strcpy(szTempBuffer, "P");
@@ -514,7 +527,7 @@ void DisplayButtons() {
   UINT16          usCursorX 			= 260;
   UINT16          usCursorY 			= 160;
   UINT8           ucSize    			= 1;
-  UINT16          usColor   			= WROVER_YELLOW;
+  UINT16          usColor   			= WROVER_MAGENTA;
   bool						bRightJustify		= false;
 
   //Show 2 lines at right bottom for U d, D d
