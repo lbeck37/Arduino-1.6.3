@@ -308,11 +308,9 @@ void DisplayUpdate(void) {
       Serial << "sDisplayUpdate(): Refreshing screen" << endl;
       DisplayClear();
     	FillScreen(WROVER_RED);
-      //sDisplayButtons();
       DisplayCurrentGear();
       DisplayServoPos();
-      //DisplayTextTest();
-
+      DisplayButtons();
       DisplayWatts();
       DisplayPitchRoll();
       //sDisplayOdometer();
@@ -337,17 +335,12 @@ void FillScreen(UINT16 usColor) {
 int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
    //RoverLCD.setTextColor(WROVER_WHITE);
    switch (sFont) {
-     //case sFontNormal:
      case sFontSize1:
          RoverLCD.setTextSize(1);
-         //DOG.string(sPixelStart, sLineNumber, font_6x8, pcText);
          break;
-      //case sFontBig:
       case sFontSize2:
          RoverLCD.setTextSize(2);
-         //DOG.string(sPixelStart, sLineNumber, font_8x16, pcText);
          break;
-      //case sFontBigNum:
       case sFontSize3:
         RoverLCD.setTextSize(3);
          //DOG.string(sPixelStart, sLineNumber, font_16x32nums, pcText);
@@ -355,8 +348,7 @@ int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) 
       case sFontSize4:
          RoverLCD.setTextSize(4);
          break;
-      //case sFontSquare:
-      case sFontSize5:
+       case sFontSize5:
          RoverLCD.setTextSize(5);
          //DOG.string(sPixelStart, sLineNumber, font_8x8, pcText);
          break;
@@ -374,7 +366,6 @@ void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
   //Pass pFont as NULL for default text font.
 	//If bRightJustify is true then usCursorX is number of pixels text is in from right side
   //240x320 3.2", 10 lines => 24 pixels/line
-
   RoverLCD.setFont(pFont);
   RoverLCD.setTextColor(usColor);
   RoverLCD.setTextSize(ucSize);
@@ -398,7 +389,7 @@ void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
 		Serial << "DisplayText(): usCursorX set to " << usCursorX << endl;
   }	//if (bRightJustify)
   RoverLCD.setCursor(usCursorX, usCursorY);
-	Serial << "DisplayText(): Call RoverLCD.println() with usCursorX= " << usCursorX << ", usCursorY= " << usCursorY << endl;
+	//Serial << "DisplayText(): Call RoverLCD.println() with usCursorX= " << usCursorX << ", usCursorY= " << usCursorY << endl;
   RoverLCD.println(pcText);
   return;
 }  //DisplayText
@@ -410,19 +401,6 @@ boolean bScreenChanged() {
    bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= false;
    return bChanged;
 }  //bScreenChanged
-
-
-void DisplayLowerBanner(){
-	const GFXfont   *pFont    			= &FreeSansOblique18pt7b;
-  UINT16          usCursorX 			= 2;
-  UINT16          usCursorY 			= 235;		//Was 72
-  UINT8           ucSize    			= 1;
-  UINT16          usColor   			= WROVER_CYAN;
-  bool						bRightJustify		= false;
-
-	DisplayText( usCursorX, usCursorY, "PowerShift Coach", pFont, ucSize, usColor, bRightJustify);
-	return;
-}	//DisplayLowerBanner
 
 
 void DisplayCurrentGear() {
@@ -483,42 +461,18 @@ void DisplayServoPos() {
   itoa(sServoPosLast, sz100CharString, RADIX_10);
   strcat(szTempBuffer, sz100CharString);
   Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
-  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
+  DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
 
 	//Set to smallest normal Sans font for label under servo position
-	usCursorX= 255;
-	usCursorY= 130;
+	//usCursorX= 255;
+	//usCursorY= 130;
+	usCursorY= usCursorY + 15;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
 	DisplayText( usCursorX, usCursorY, "Servo", pFont, ucSize, usColor, false);
 
   return;
 }  //DisplayServoPos
-
-
-void DisplayTextTest() {
-	//const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
-	const GFXfont   *pFont    = &FreeMonoBold24pt7b;
-	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
-	//UINT16					usLineSpacing	= 36;	//No spacing between lines (240 pixels is 6.7 lines)
-	//UINT16					usLineSpacing	= 39;	//3 pixel spacing between lines (234 pixels is 6 lines)
-	UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines
-  UINT16          usCursorX = 0;
-  UINT16          usCursorY;
-  UINT8           ucSize    = 1;
-  UINT16          usColor   = WROVER_YELLOW;
-
-  strcpy(szTempBuffer, "G2Servo ");
-  itoa(sServoPosLast  ,sz100CharString  , 10);
-  strcat(szTempBuffer, sz100CharString);
-  Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
-  for (int wLine= 0; wLine < 6; wLine++) {
-  	usCursorY = usLine1Baseline + (wLine * usLineSpacing);
-  	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
-  }
-  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
-  return;
-}  //DisplayTextTest
 
 
 void DisplayWatts() {
@@ -585,27 +539,42 @@ void DisplayPitchRoll() {
 }  //DisplayPitchRoll
 
 
-int sDisplayButtons() {
-   //Show 3 lines at right bottom for U d, D d, S d
-   //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
-   strcpy(szTempBuffer, "U ");
-   itoa(sButtonCount[sUp]  ,sz100CharString  , 10);
-   strcat(szTempBuffer, sz100CharString);
-   sDisplayTextOrig(6, 82, sFontNormal, szTempBuffer);  //Move this and next to lines 6 and 7
+void DisplayButtons() {
+	const GFXfont   *pFont    			= &FreeSans9pt7b;
+  UINT16          usCursorX 			= 260;
+  UINT16          usCursorY 			= 160;
+  UINT8           ucSize    			= 1;
+  UINT16          usColor   			= WROVER_YELLOW;
+  bool						bRightJustify		= false;
 
-   strcpy(szTempBuffer, "D ");
-   itoa(sButtonCount[sDown]  ,sz100CharString  , 10);
-   strcat(szTempBuffer, sz100CharString);
-   sDisplayTextOrig(7, 82, sFontNormal, szTempBuffer);
+  //Show 3 lines at right bottom for U d, D d, S d
+  //String will be 3 char long => 18 pixels, start so 2 pixels remain on right
+  strcpy(szTempBuffer, "U ");
+  itoa(sButtonCount[sUp]  ,sz100CharString  , 10);
+  strcat(szTempBuffer, sz100CharString);
+  //sDisplayTextOrig(6, 82, sFontNormal, szTempBuffer);  //Move this and next to lines 6 and 7
+	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
 
-/*
-   strcpy(szLineBuffer, "S ");
-   itoa(sButtonCount[sSelect]  ,sz100CharString  , 10);
-   strcat(szLineBuffer, sz10CharString);
-   sDisplayText(7, 82, sFontNormal, szLineBuffer);
-*/
-   return 1;
-}  //sDisplayButtons
+	strcpy(szTempBuffer, "D ");
+	itoa(sButtonCount[sDown]  ,sz100CharString  , 10);
+	strcat(szTempBuffer, sz100CharString);
+	usCursorY= usCursorY + 20;
+	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
+   return;
+}  //DisplayButtons
+
+
+void DisplayLowerBanner(){
+	const GFXfont   *pFont    			= &FreeSansOblique18pt7b;
+  UINT16          usCursorX 			= 20;
+  UINT16          usCursorY 			= 235;		//Was 72
+  UINT8           ucSize    			= 1;
+  UINT16          usColor   			= WROVER_CYAN;
+  bool						bRightJustify		= false;
+
+	DisplayText( usCursorX, usCursorY, "PowerShift Coach", pFont, ucSize, usColor, bRightJustify);
+	return;
+}	//DisplayLowerBanner
 
 
 int sDisplayOdometer() {
@@ -1016,4 +985,31 @@ int sServoSetPosition(int sServoPos) {
    delay(sServoMsecWait);
    return 1;
 }  //sServoSetPosition
+
+
+/*
+void DisplayTextTest() {
+	//const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
+	const GFXfont   *pFont    = &FreeMonoBold24pt7b;
+	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
+	//UINT16					usLineSpacing	= 36;	//No spacing between lines (240 pixels is 6.7 lines)
+	//UINT16					usLineSpacing	= 39;	//3 pixel spacing between lines (234 pixels is 6 lines)
+	UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines
+  UINT16          usCursorX = 0;
+  UINT16          usCursorY;
+  UINT8           ucSize    = 1;
+  UINT16          usColor   = WROVER_YELLOW;
+
+  strcpy(szTempBuffer, "G2Servo ");
+  itoa(sServoPosLast  ,sz100CharString  , 10);
+  strcat(szTempBuffer, sz100CharString);
+  Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
+  for (int wLine= 0; wLine < 6; wLine++) {
+  	usCursorY = usLine1Baseline + (wLine * usLineSpacing);
+  	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
+  }
+  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
+  return;
+}  //DisplayTextTest
+*/
 //Last line
