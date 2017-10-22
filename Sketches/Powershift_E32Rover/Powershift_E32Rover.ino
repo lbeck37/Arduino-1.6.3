@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 21, 2017, Lenny-x+";
+static const String FileDate    = "Oct 21, 2017, Lenny-ab";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -14,9 +14,9 @@ static const String FileDate    = "Oct 21, 2017, Lenny-x+";
 #include <Fonts/FreeMonoBold12pt7b.h>
 #include <Fonts/FreeMonoBold24pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSansOblique18pt7b.h>
 //#include <Fonts/FreeMonoBoldOblique24pt7b.h>
 //#include <Fonts/FreeSansBoldOblique12pt7b.h>
-//#include <Fonts/FreeSansBoldOblique24pt7b.h>
 
 #include <string>
 #include <iostream>
@@ -199,7 +199,9 @@ const double      dRadsToDeg        = 180.0/PI;
 double            adGvalueXYZ[3];
 double            dRollDeg_;
 double            dPitchDeg_;
-double            dPitchPercent_		= 37.0;
+double            dPitchPercent_		= 16.0;
+
+double            dWatts_		= 237.0;
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
@@ -311,9 +313,10 @@ void DisplayUpdate(void) {
       DisplayServoPos();
       //DisplayTextTest();
 
-      //sDisplayWatts();
-      //sDisplayPitchRoll();
+      DisplayWatts();
+      DisplayPitchRoll();
       //sDisplayOdometer();
+      DisplayLowerBanner();
    } //if(bScreenChanged())
    return;
 }  //DisplayUpdate
@@ -409,6 +412,19 @@ boolean bScreenChanged() {
 }  //bScreenChanged
 
 
+void DisplayLowerBanner(){
+	const GFXfont   *pFont    			= &FreeSansOblique18pt7b;
+  UINT16          usCursorX 			= 2;
+  UINT16          usCursorY 			= 235;		//Was 72
+  UINT8           ucSize    			= 1;
+  UINT16          usColor   			= WROVER_CYAN;
+  bool						bRightJustify		= false;
+
+	DisplayText( usCursorX, usCursorY, "PowerShift Coach", pFont, ucSize, usColor, bRightJustify);
+	return;
+}	//DisplayLowerBanner
+
+
 void DisplayCurrentGear() {
 	// Place gear number (1 to 10) at right side 2x sized
 	//const GFXfont   *pFont    			= &FreeSansBoldOblique24pt7b;
@@ -417,7 +433,7 @@ void DisplayCurrentGear() {
 	UINT16					usLine1Baseline	= 36;	//Puts TopOfChar 2 pixels below screen top
 	UINT16					usLineSpacing		= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
   UINT16          usCursorX 			= 2;
-  UINT16          usCursorY 			= 72;
+  UINT16          usCursorY 			= 62;		//Was 72
   UINT8           ucSize    			= 2;
   UINT16          usColor   			= WROVER_YELLOW;
   UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
@@ -443,7 +459,8 @@ void DisplayCurrentGear() {
 
 	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
 	usCursorX= 255;
-	usCursorY= 90;
+	//usCursorY= 80;
+	usCursorY= usCursorY + 20;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
 	DisplayText( usCursorX, usCursorY, "Gear", pFont, ucSize, usColor, bRightJustify);
@@ -458,7 +475,7 @@ void DisplayServoPos() {
 	//UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
 	//UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines (240 pixels is 6 lines)
   UINT16          usCursorX = 260;
-  UINT16          usCursorY = 125;
+  UINT16          usCursorY = 115;
   UINT8           ucSize    = 1;
   UINT16          usColor   = WROVER_YELLOW;
 
@@ -470,7 +487,7 @@ void DisplayServoPos() {
 
 	//Set to smallest normal Sans font for label under servo position
 	usCursorX= 255;
-	usCursorY= 140;
+	usCursorY= 130;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
 	DisplayText( usCursorX, usCursorY, "Servo", pFont, ucSize, usColor, false);
@@ -504,17 +521,68 @@ void DisplayTextTest() {
 }  //DisplayTextTest
 
 
-int sDisplayWatts() {
-  strcpy(szTempBuffer, "You  105W");
-  sDisplayTextOrig(0,28, sFontBig, szTempBuffer);
+void DisplayWatts() {
+	// Place at left side 2x sized
+	//const GFXfont   *pFont    			= &FreeSansBoldOblique24pt7b;
+	const GFXfont   *pFont    			= &FreeMonoBold24pt7b;
+	//const GFXfont   *pFont    			= &FreeMonoBoldOblique24pt7b;
+  UINT16          usCursorX 			= 10;
+  UINT16          usCursorY 			= 62;
+  UINT8           ucSize    			= 2;
+  UINT16          usColor   			= WROVER_YELLOW;
+  //UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
+  bool						bRightJustify		= false;
 
-  strcpy(szTempBuffer, "All  105W");
-  sDisplayTextOrig(2,28, sFontBig, szTempBuffer);
+	itoa((INT16)dWatts_, sz100CharString, RADIX_10);
+	//usCursorX= 10;		//Gears 1-9
+	DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
 
-  strcpy(szTempBuffer, "Hill-125W");
-  sDisplayTextOrig(4,28, sFontBig, szTempBuffer);
-  return 1;
-}  //sDisplayWatts
+	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
+	usCursorX= 50;
+	//usCursorY= 80;
+	usCursorY= usCursorY + 20;
+	ucSize= 1;
+	pFont= &FreeSans9pt7b;
+	DisplayText( usCursorX, usCursorY, "Watts", pFont, ucSize, usColor, bRightJustify);
+  return;
+}  //DisplayWatts
+
+
+void DisplayPitchRoll() {
+	// Place at left side 2x sized
+	const GFXfont   *pFont    			= &FreeMonoBold24pt7b;
+  UINT16          usCursorX 			= 10;
+  UINT16          usCursorY 			= 170;	//Was 62
+  UINT8           ucSize    			= 2;
+  UINT16          usColor   			= WROVER_YELLOW;
+  //UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
+  bool						bRightJustify		= false;
+  //sprintf(szTempBuffer, "P %f", 123.45);
+  //strcpy(szTempBuffer, "P");
+  //dtostrf( dPitchPercent_, 5, 1, sz100CharString);
+	itoa((INT16)dPitchPercent_, sz100CharString, RADIX_10);
+  strcpy(szTempBuffer, sz100CharString);
+  strcat(szTempBuffer, "%");
+  //Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
+  //sDisplayTextOrig(6,28, sFontNormal, szTempBuffer);
+	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
+
+	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
+	usCursorX= 50;
+	//usCursorY= 168;	//Was 80
+	usCursorY= usCursorY + 20;
+	ucSize= 1;
+	pFont= &FreeSans9pt7b;
+	DisplayText( usCursorX, usCursorY, "Pitch", pFont, ucSize, usColor, bRightJustify);
+/*
+  strcpy(szTempBuffer, "R");
+  dtostrf( dRollDeg_, 6, 1, sz100CharString);
+  strcat(szTempBuffer, sz100CharString);
+  strcat(szTempBuffer, "Deg");
+  sDisplayTextOrig(7,28, sFontNormal, szTempBuffer);
+*/
+  return;
+}  //DisplayPitchRoll
 
 
 int sDisplayButtons() {
@@ -664,24 +732,6 @@ double dGetPitchPercent(double dPitchDeg) {
   } //if((dPitchDeg_<44.0)&&...
   return dPitchPercent;
 } //dGetPitchPercent
-
-
-int sDisplayPitchRoll() {
-  //sprintf(szTempBuffer, "P %f", 123.45);
-  strcpy(szTempBuffer, "P");
-  dtostrf( dPitchDeg_, 5, 1, sz100CharString);
-  strcat(szTempBuffer, sz100CharString);
-  strcat(szTempBuffer, "%");
-  //Serial << "sDisplayPitchRoll(): szTempBuffer= " << szTempBuffer << endl;
-  sDisplayTextOrig(6,28, sFontNormal, szTempBuffer);
-
-  strcpy(szTempBuffer, "R");
-  dtostrf( dRollDeg_, 6, 1, sz100CharString);
-  strcat(szTempBuffer, sz100CharString);
-  strcat(szTempBuffer, "Deg");
-  sDisplayTextOrig(7,28, sFontNormal, szTempBuffer);
-  return 1;
-}  //sDisplayPitchRoll
 
 
 int sSetupGyro() {
