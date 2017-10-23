@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 22, 2017, Lenny-c";
+static const String FileDate    = "Oct 23, 2017, Lenny-b";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -67,8 +67,10 @@ static const boolean   bButtonPullUp         = true;
 //Digital Pins
 #if 1   //ESP32
 static const int       sServoPin             = 32;
-static const int       sUpButton             = 35;
-static const int       sDownButton           = 36;
+//static const int       sUpButton             = 35;
+//static const int       sDownButton           = 36;
+static int       sUpButton             = 35;
+static int       sDownButton           = 36;
 static const int       sI2C_SDA              = 26;
 static const int       sI2C_SCL              = 27;
 #endif
@@ -209,7 +211,7 @@ void setup()   {
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
   Serial << "setup(): Call SetupPins()" << endl;
-  SetupPins();
+  TestButtonPins();
   //Serial << "setup(): Call sSetupGyro()" << endl;
   //sSetupGyro();
   Serial << "setup(): Call sFillGearLocations()" << endl;
@@ -226,30 +228,33 @@ void setup()   {
 }  //setup
 
 
-void SetupPins() {
+void TestButtonPins() {
 /*
   Serial << "SetupPins(): Call pinMode(" << sUpButton << ", INPUT_PULLUP)" << endl;
 	pinMode(sUpButton, INPUT_PULLUP);
   Serial << "SetupPins(): Call pinMode(" << sDownButton << ", INPUT_PULLUP)" << endl;
 	pinMode(sDownButton, INPUT_PULLUP);
 */
-  Serial << "SetupPins(): Call pinMode(" << sUpButton << ", INPUT)" << endl;
-	pinMode(sUpButton, INPUT);
-	digitalWrite(sUpButton, HIGH);	//Turn on pullup
-  Serial << "SetupPins(): Call pinMode(" << sDownButton << ", INPUT)" << endl;
-	pinMode(sDownButton, INPUT);
-	digitalWrite(sDownButton, HIGH);	//Turn on pullup
+	sUpButton		= 2;
+	sDownButton	= 4;
+  Serial << "SetupPins(): Call pinMode(" << sUpButton << ", INPUT_PULLUP) for Up" << endl;
+	pinMode(sUpButton, INPUT_PULLUP);
+
+  Serial << "SetupPins(): Call pinMode(" << sDownButton << ", INPUT_PULLUP) for Down" << endl;
+	pinMode(sDownButton, INPUT_PULLUP);
+
 	int sValueUp;
 	int sValueDown;
 	for (int i= 0; i<10; i++){
-		 Serial << "SetupPins(): Read buttons, Try= " << i << endl;
+		Serial << "SetupPins(): Read buttons, Try= " << i << endl;
 		sValueUp= digitalRead(sUpButton);
 		sValueDown= digitalRead(sDownButton);
-	  Serial << "SetupPins(): Read buttons, Up= " << sValueUp << ", Down= " << sValueDown << endl;
+	  Serial << "SetupPins(): Read buttons, Pin "
+	  		<< sUpButton << "= " << sValueUp << ", Pin " << sDownButton <<  "= " << sValueDown << endl;
 	  delay(1000);
-	}
+	}	//for(inti= 0;...
   return;
-}  //SetupPins
+}  //TestButtonPins
 
 
 // The Arduino loop() method gets called over and over.
