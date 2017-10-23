@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 23, 2017, Lenny-b";
+static const String FileDate    = "Oct 23, 2017, Lenny-e";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -30,7 +30,8 @@ static const String FileDate    = "Oct 23, 2017, Lenny-b";
 
 #define RADIX_10			10
 
-#define DO_BUTTONS		false
+#define DO_BUTTONS		true
+#define DO_SERVO			false
 
 WROVER_KIT_LCD    RoverLCD;
 
@@ -66,11 +67,9 @@ static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
 #if 1   //ESP32
-static const int       sServoPin             = 32;
-//static const int       sUpButton             = 35;
-//static const int       sDownButton           = 36;
-static int       sUpButton             = 35;
-static int       sDownButton           = 36;
+static const int       sServoPin             = 12;
+static const int       sUpButton             =  2;
+static const int       sDownButton           =  4;
 static const int       sI2C_SDA              = 26;
 static const int       sI2C_SCL              = 27;
 #endif
@@ -211,7 +210,7 @@ void setup()   {
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
   Serial << "setup(): Call SetupPins()" << endl;
-  TestButtonPins();
+  //TestButtonPins();
   //Serial << "setup(): Call sSetupGyro()" << endl;
   //sSetupGyro();
   Serial << "setup(): Call sFillGearLocations()" << endl;
@@ -228,54 +227,74 @@ void setup()   {
 }  //setup
 
 
-void TestButtonPins() {
-/*
-  Serial << "SetupPins(): Call pinMode(" << sUpButton << ", INPUT_PULLUP)" << endl;
-	pinMode(sUpButton, INPUT_PULLUP);
-  Serial << "SetupPins(): Call pinMode(" << sDownButton << ", INPUT_PULLUP)" << endl;
-	pinMode(sDownButton, INPUT_PULLUP);
-*/
-	sUpButton		= 2;
-	sDownButton	= 4;
-  Serial << "SetupPins(): Call pinMode(" << sUpButton << ", INPUT_PULLUP) for Up" << endl;
-	pinMode(sUpButton, INPUT_PULLUP);
-
-  Serial << "SetupPins(): Call pinMode(" << sDownButton << ", INPUT_PULLUP) for Down" << endl;
-	pinMode(sDownButton, INPUT_PULLUP);
-
-	int sValueUp;
-	int sValueDown;
-	for (int i= 0; i<10; i++){
-		Serial << "SetupPins(): Read buttons, Try= " << i << endl;
-		sValueUp= digitalRead(sUpButton);
-		sValueDown= digitalRead(sDownButton);
-	  Serial << "SetupPins(): Read buttons, Pin "
-	  		<< sUpButton << "= " << sValueUp << ", Pin " << sDownButton <<  "= " << sValueDown << endl;
-	  delay(1000);
-	}	//for(inti= 0;...
-  return;
-}  //TestButtonPins
-
-
 // The Arduino loop() method gets called over and over.
 void loop() {
-  //sCheckButtons();
+  sCheckButtons();
   //sLoopI2C();
   DisplayUpdate();
-  //sHandleButtons();
+  sHandleButtons();
   return;
 }  //loop()
+
+
+int sServoInit() {
+  Serial << "sServoInit(): Check bServoOn" << endl;
+  if (bServoOn) {
+    Serial << "sServoInit(): Call myservo.attach() for pin " << sServoPin << endl;
+    myservo.attach(sServoPin);
+  }  //if(bServoOn)
+  Serial << "sServoInit(): Call sServoMove()" << endl;
+  sServoMove(asGearLocation[sCurrentGear]);
+  return 1;
+} //sServoInit
+
+int sServoMove(int sServoPos) {
+  if (sServoPos != sServoPosLast) {
+      sServoPos= constrain(sServoPos, sServoMin, sServoMax);
+      Serial << "sServoMove(): Move to " << sServoPos << endl;
+      sServoPosLast= sServoPos;
+      sServoSetPosition(sServoPos);
+      bServoChanged= true;
+  }  //if(sServoPos...
+  return 1;
+} //sServoMove
+
+
+//sServoDither() moves the servo back and forth and back to where it started.
+int sServoDither(int sDitherSize, int sNumTimes){
+   int sStartPosition = sServoPosLast;
+   int sFirstPosition = sStartPosition + sDitherSize;
+   int sSecondPosition= sStartPosition - sDitherSize;
+   int sCycle;
+
+   for (sCycle= 0; sCycle < sNumTimes; sCycle++){
+      sServoMove(sFirstPosition);
+      sServoMove(sSecondPosition);
+   }  //for(sCycle...
+   sServoMove(sStartPosition);
+   bServoChanged= true;
+   return 1;
+}  //sServoDither
+
+
+int sServoSetPosition(int sServoPos) {
+   //Note that values of sServoPos less than 200 are considered degrees and
+   //values greater are uSec pulse width by myservo.write().
+   if (bServoOn) {
+      myservo.write(sServoPos);
+   }
+   else {
+     Serial << "sServoSetPosition():bServoOn is false, skip move to " << sServoPos << endl;
+   }
+   delay(sServoMsecWait);
+   return 1;
+}  //sServoSetPosition
 
 
 int sDisplayBegin() {
   Serial << "sDisplayBegin(): Call RoverLCD.begin()" << endl;
   RoverLCD.begin();
   RoverLCD.setRotation(1);
-/*
-  DOG.initialize(cSPIChipSelectPin, cHW_SPI       , cHW_SPI,
-                 cSPICmdDataPin   , cBogusResetPin, DOGS102);
-  DOG.view(sDisplayNormal);  //View screen Normal or Flipped
-*/
   return 1;
 }  //sDisplayBegin
 
@@ -292,7 +311,6 @@ int sShowStartScreen(void) {
 
 int sShowSplash(void) {
    DisplayClear();
-
 /*
    //2 lines of big font takes lines 0-3
    RoverLCD.setTextColor(WROVER_YELLOW);
@@ -350,35 +368,6 @@ void FillScreen(UINT16 usColor) {
   RoverLCD.fillScreen(usColor);
   return;
 }  //FillScreen
-
-
-int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
-   //RoverLCD.setTextColor(WROVER_WHITE);
-   switch (sFont) {
-     case sFontSize1:
-         RoverLCD.setTextSize(1);
-         break;
-      case sFontSize2:
-         RoverLCD.setTextSize(2);
-         break;
-      case sFontSize3:
-        RoverLCD.setTextSize(3);
-         //DOG.string(sPixelStart, sLineNumber, font_16x32nums, pcText);
-         break;
-      case sFontSize4:
-         RoverLCD.setTextSize(4);
-         break;
-       case sFontSize5:
-         RoverLCD.setTextSize(5);
-         //DOG.string(sPixelStart, sLineNumber, font_8x8, pcText);
-         break;
-      default:
-         Serial << "sDisplayText(): Bad case in switch()= " << sFont << endl;
-         break;
-   }  //switch
-   RoverLCD.println(pcText);
-   return 1;
-}  //sDisplayTextOrig
 
 
 void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
@@ -836,7 +825,9 @@ int sHandleNormalMode(void) {
     sTargetLocation= asGearLocation[sCurrentGear];
 
     //Make the actual shift
+#if DO_SERVO
     sServoMove(sTargetLocation);
+#endif	//DO_SERVO
    }  //if(!bReturn)
    return 1;
 }  //sHandleNormalMode
@@ -952,58 +943,56 @@ int sCheckButtons(void) {
 }  //sCheckButtons
 
 
-int sServoInit() {
-  Serial << "sServoInit(): Check bServoOn" << endl;
-  if (bServoOn) {
-    Serial << "sServoInit(): Call myservo.attach() for pin " << sServoPin << endl;
-    myservo.attach(sServoPin);
-  }  //if(bServoOn)
-  Serial << "sServoInit(): Call sServoMove()" << endl;
-  sServoMove(asGearLocation[sCurrentGear]);
-  return 1;
-} //sServoInit
+void TestButtonPins() {
+	int sUpButtonLocal		= 2;
+	int sDownButtonLocal	= 4;
+  Serial << "SetupPins(): Call pinMode(" << sUpButtonLocal << ", INPUT_PULLUP) for Up" << endl;
+	pinMode(sUpButtonLocal, INPUT_PULLUP);
 
-int sServoMove(int sServoPos) {
-  if (sServoPos != sServoPosLast) {
-      sServoPos= constrain(sServoPos, sServoMin, sServoMax);
-      Serial << "sServoMove(): Move to " << sServoPos << endl;
-      sServoPosLast= sServoPos;
-      sServoSetPosition(sServoPos);
-      bServoChanged= true;
-  }  //if(sServoPos...
-  return 1;
-} //sServoMove
+  Serial << "SetupPins(): Call pinMode(" << sDownButtonLocal << ", INPUT_PULLUP) for Down" << endl;
+	pinMode(sDownButtonLocal, INPUT_PULLUP);
+
+	int sValueUp;
+	int sValueDown;
+	for (int i= 0; i<10; i++){
+		Serial << "SetupPins(): Read buttons, Try= " << i << endl;
+		sValueUp= digitalRead(sUpButtonLocal);
+		sValueDown= digitalRead(sDownButtonLocal);
+	  Serial << "SetupPins(): Read buttons, Pin "
+	  		<< sUpButtonLocal << "= " << sValueUp << ", Pin " << sDownButtonLocal <<  "= " << sValueDown << endl;
+	  delay(1000);
+	}	//for(inti= 0;...
+  return;
+}  //TestButtonPins
 
 
-//sServoDither() moves the servo back and forth and back to where it started.
-int sServoDither(int sDitherSize, int sNumTimes){
-   int sStartPosition = sServoPosLast;
-   int sFirstPosition = sStartPosition + sDitherSize;
-   int sSecondPosition= sStartPosition - sDitherSize;
-   int sCycle;
-
-   for (sCycle= 0; sCycle < sNumTimes; sCycle++){
-      sServoMove(sFirstPosition);
-      sServoMove(sSecondPosition);
-   }  //for(sCycle...
-   sServoMove(sStartPosition);
-   bServoChanged= true;
+int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
+   //RoverLCD.setTextColor(WROVER_WHITE);
+   switch (sFont) {
+     case sFontSize1:
+         RoverLCD.setTextSize(1);
+         break;
+      case sFontSize2:
+         RoverLCD.setTextSize(2);
+         break;
+      case sFontSize3:
+        RoverLCD.setTextSize(3);
+         //DOG.string(sPixelStart, sLineNumber, font_16x32nums, pcText);
+         break;
+      case sFontSize4:
+         RoverLCD.setTextSize(4);
+         break;
+       case sFontSize5:
+         RoverLCD.setTextSize(5);
+         //DOG.string(sPixelStart, sLineNumber, font_8x8, pcText);
+         break;
+      default:
+         Serial << "sDisplayText(): Bad case in switch()= " << sFont << endl;
+         break;
+   }  //switch
+   RoverLCD.println(pcText);
    return 1;
-}  //sServoDither
-
-
-int sServoSetPosition(int sServoPos) {
-   //Note that values of sServoPos less than 200 are considered degrees and
-   //values greater are uSec pulse width by myservo.write().
-   if (bServoOn) {
-      myservo.write(sServoPos);
-   }
-   else {
-     Serial << "sServoSetPosition():bServoOn is false, skip move to " << sServoPos << endl;
-   }
-   delay(sServoMsecWait);
-   return 1;
-}  //sServoSetPosition
+}  //sDisplayTextOrig
 
 
 /*
