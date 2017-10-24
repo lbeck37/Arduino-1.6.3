@@ -1,8 +1,9 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 23, 2017, Lenny-e";
+static const String FileDate    = "Oct 23, 2017, Lenny-h";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
+//#include <BeckMathLib.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <WROVER_KIT_LCD.h>
@@ -31,9 +32,7 @@ static const String FileDate    = "Oct 23, 2017, Lenny-e";
 #define RADIX_10			10
 
 #define DO_BUTTONS		true
-#define DO_SERVO			false
-
-WROVER_KIT_LCD    RoverLCD;
+#define DO_SERVO			true
 
 //using namespace std;
 
@@ -138,20 +137,19 @@ static const int       sBrightness25        =  64;
 static const int       sBrightness0         =   0;
 static const int       sDefaultBrightness   = sBrightness100;
 
-static const int       sFontNormal         =   1;     //6x8
-static const int       sFontBig            =   2;     //8x16
-static const int       sFontBigNum         =   3;     //16x32nums
-static const int       sFontSquare         =   4;     //8x8
+static const int       sFontNormal         	=   1;     //6x8
+static const int       sFontBig            	=   2;     //8x16
+static const int       sFontBigNum         	=   3;     //16x32nums
+static const int       sFontSquare         	=   4;     //8x8
 
-static const int       sFontSize1          =   1;
-static const int       sFontSize2          =   2;
-static const int       sFontSize3          =   3;
-static const int       sFontSize4          =   4;
-static const int       sFontSize5          =   5;
+static const int       sFontSize1          	=   1;
+static const int       sFontSize2          	=   2;
+static const int       sFontSize3          	=   3;
+static const int       sFontSize4          	=   4;
+static const int       sFontSize5          	=   5;
 
 static const byte       cBogusResetPin      = 4;
 static const byte       cHW_SPI             = 0;      //This is what their demo used.
-
 //End of the const's
 
 static int asGearLocation[sNumGears + 1];
@@ -162,8 +160,11 @@ static int asGyro[sNumGyroTypes][sNumAxis];
 static int sCurrentMode                   = sNormalMode;
 static int sServoPosLast                  = 0;
 
+WROVER_KIT_LCD    RoverLCD;
+
 //Create servo object to control the servo
-Servo myservo;
+Servo 						myservo;
+
 #if DO_BUTTONS
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
@@ -215,8 +216,8 @@ void setup()   {
   //sSetupGyro();
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
-  //Serial << "setup(): Call sServoInit()" << endl;
-  //sServoInit();
+  Serial << "setup(): Call sServoInit()" << endl;
+  sServoInit();
   Serial << "setup(): Call sShowStartScreen()" << endl;
   sShowStartScreen();
 
@@ -248,12 +249,14 @@ int sServoInit() {
   return 1;
 } //sServoInit
 
+
 int sServoMove(int sServoPos) {
   if (sServoPos != sServoPosLast) {
       sServoPos= constrain(sServoPos, sServoMin, sServoMax);
-      Serial << "sServoMove(): Move to " << sServoPos << endl;
+      //Serial << "sServoMove(): Move to " << sServoPos << endl;
       sServoPosLast= sServoPos;
       sServoSetPosition(sServoPos);
+      //Serial << "sServoMove(): sServoSetPosition() returned" << endl;
       bServoChanged= true;
   }  //if(sServoPos...
   return 1;
@@ -281,6 +284,7 @@ int sServoSetPosition(int sServoPos) {
    //Note that values of sServoPos less than 200 are considered degrees and
    //values greater are uSec pulse width by myservo.write().
    if (bServoOn) {
+  	  //Serial << "sServoSetPosition(): Call myservo.write() " << sServoPos << endl;
       myservo.write(sServoPos);
    }
    else {
@@ -737,7 +741,6 @@ int sHandleButtons(void) {
    int          sTargetLocation;
    int          sTargetChange= 0;
 */
-
   if (!bHandleBothHeld()) {
      if (millis() > ulModeReadyTime) {
        switch(sCurrentMode) {
@@ -813,8 +816,7 @@ int sHandleNormalMode(void) {
       //Compute net gear change by handling at most one request from each button
       if (sButtonCount[sButton] > 0) {
          sTargetChange += sGearChange;
-         Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= "
-                << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
+         //Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= " << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
          sButtonCount[sButton]--;
          bButtonsChanged= true;
       }  //if((sButtonCount[sButton]!=sHoldCode)...
@@ -907,8 +909,7 @@ int sCheckButtons(void) {
          if ( !abButtonBeingHeld[sButton]) {
             if (sButtonCount[sButton] < sMaxButtonPresses) {
                //Increment the count of button presses to be handled.
-               Serial << sLineCount++ << " sCheckButtons(): Button " << sButton
-                      << " count incremented." << endl;
+               //Serial << sLineCount++ << " sCheckButtons(): Button " << sButton << " count incremented." << endl;
                sButtonCount[sButton]++;
                bButtonsChanged= true;
             } //if(sLocalUpButtonState!=sButtonHeld)
