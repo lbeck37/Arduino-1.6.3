@@ -26,13 +26,15 @@
 // This sketch tests the standard 7-bit addresses
 // Devices with higher bit address might not be seen properly.
 //
-
 #include <Wire.h>
 
+static const int       sI2C_SDA              = 26;
+static const int       sI2C_SCL              = 27;
 
 void setup()
 {
-  Wire.begin();
+  //Wire.begin();
+  Wire.begin(sI2C_SDA, sI2C_SCL);
 
   Serial.begin(115200);
   while (!Serial);             // Leonardo: wait for serial monitor

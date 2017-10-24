@@ -80,6 +80,7 @@ int					 sProjectType_;		//Different from local variable sProjectType in BeckBly
 
 bool            bDebugLog= true;   //Used to limit number of printouts.
 
+/*
 //U8glibs constructor for DOGS102-6 (sometimes called 1701) display
 //U8GLIB_DOGS102 u8g(13, 11, 10, 9, 8); // Pro Mini SPI: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 #ifndef NO_DISPLAY
@@ -90,6 +91,7 @@ bool            bDebugLog= true;   //Used to limit number of printouts.
 		dog_1701 DOG;
 	#endif	//USE_U8GLIB
 #endif
+*/
 
 
 #ifdef ESP8266

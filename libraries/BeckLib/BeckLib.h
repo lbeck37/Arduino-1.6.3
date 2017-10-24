@@ -19,10 +19,13 @@
 #endif  //USE_U8GLIB
 */
 
+/*
 #ifndef USE_U8GLIB
   #define USE_U8GLIB
 #endif  //USE_U8GLIB
+*/
 
+/*
 #ifdef ESP8266
 	#ifndef OTA_SERVER
   	#define OTA_SERVER
@@ -45,7 +48,9 @@
   #include <WiFiClient.h>
   //#include <BlynkSimpleEsp32.h>
 #endif  //ESP32
+*/
 
+/*
 //#define NO_DISPLAY
 #ifndef NO_DISPLAY
 	#ifdef USE_U8GLIB
@@ -59,6 +64,7 @@
 		#include <logo_BLH.h>
 	#endif	//USE_U8GLIB
 #endif	//NO_DISPLAY
+*/
 
 #define INT8        int8_t
 #define UINT8       uint8_t
@@ -125,6 +131,7 @@ extern bool                     bWiFiOn;
 extern bool                     bFirebaseOn;
 extern bool                     bStartedOTA;
 
+/*
 #ifdef OTA_SERVER
   extern ESP8266WebServer         oHttpServer;
   extern ESP8266HTTPUpdateServer  oHttpUpdateServer;
@@ -138,6 +145,7 @@ extern bool                     bStartedOTA;
 		extern dog_1701 DOG;
 	#endif	//USE_U8GLIB
 #endif
+*/
 
   extern void LogToBoth(String szLogString);
   extern void LogToBoth(String szLogString, String szLogValue);

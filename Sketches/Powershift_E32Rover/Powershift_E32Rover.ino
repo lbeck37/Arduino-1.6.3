@@ -1,8 +1,9 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 24, 2017, Lenny-c";
+static const String FileDate    = "Oct 24, 2017, Lenny-f";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
+#include <BeckMPU6050_Gyro.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <WROVER_KIT_LCD.h>
@@ -17,7 +18,6 @@ static const String FileDate    = "Oct 24, 2017, Lenny-c";
 #include <Fonts/FreeSansOblique18pt7b.h>
 //#include <Fonts/FreeMonoBoldOblique24pt7b.h>
 //#include <Fonts/FreeSansBoldOblique12pt7b.h>
-
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -36,7 +36,8 @@ static const String FileDate    = "Oct 24, 2017, Lenny-c";
 
 //using namespace std;
 
-const int MPU= 0x68;  // I2C address of the MPU-6050
+//const int MPU6050= 0x68;  // I2C address of the MPU-6050
+
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
 //Here come the const's
@@ -195,8 +196,8 @@ static char       szTempBuffer[100];   //DOGS102 line is 17 chars with 6x8 norma
 static char       sz100CharString[101];
 //static char       szFloatBuffer[15];
 
-//MPU6050 acceleration and pitch things
-const double      dGConvert         = 16384.0;  //MPU6050 16-bit +/- 2G Full scale
+//wMPU6050 acceleration and pitch things
+const double      dGConvert         = 16384.0;  //wMPU6050 16-bit +/- 2G Full scale
 const double      dRadsToDeg        = 180.0/PI;
 double            adGvalueXYZ[3];
 double            dRollDeg_;
@@ -218,7 +219,7 @@ void setup()   {
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
 #if DO_GYRO
-  //sSetupGyro();
+  sSetupGyro();
 #endif
 #if DO_SERVO
   Serial << "setup(): Call sServoInit()" << endl;
@@ -619,13 +620,13 @@ int sLoopI2C() {
 
    if (millis() > ulNextGyroTime) {
      //Serial << "sLoopI2C(): Reading gyro, milllis()= " << millis() << endl;
-      Wire.beginTransmission(MPU);
+      Wire.beginTransmission(wMPU6050);
       Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
       Wire.endTransmission(false);
       //Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
       //bool  bTrue= true;
       //Wire.requestFrom((uint8_t)MPU, (size_t)14, (bool)true);  // request a total of 14 registers
-      Wire.requestFrom((uint8_t)MPU, (uint8_t)14, (uint8_t)true);  // request a total of 14 registers, with a stop
+      Wire.requestFrom((uint8_t)wMPU6050, (uint8_t)14, (uint8_t)true);  // request a total of 14 registers, with a stop
 
       // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
       // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
@@ -736,9 +737,15 @@ int sSetupGyro() {
    //Set up the I2C bus.
    //Wire.begin();
    Wire.begin(sI2C_SDA, sI2C_SCL);
-   Wire.beginTransmission(MPU);
+   Wire.beginTransmission(wMPU6050);
+   Serial << "sSetupGyro(): Call MPU6050_PrintName()"<< endl;
+   MPU6050_PrintName();
+/*
    Wire.write(0x6B);  // PWR_MGMT_1 register
    Wire.write(0);     // set to zero (wakes up the MPU-6050)
+*/
+   // Clear the 'sleep' bit to start the sensor.
+   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
    Wire.endTransmission(true);
    //Initialize the data array.
    for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
