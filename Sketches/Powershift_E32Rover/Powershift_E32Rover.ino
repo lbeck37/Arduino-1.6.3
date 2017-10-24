@@ -1,9 +1,8 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 23, 2017, Lenny-j";
+static const String FileDate    = "Oct 24, 2017, Lenny-c";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
-//#include <BeckMathLib.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <WROVER_KIT_LCD.h>
@@ -33,6 +32,7 @@ static const String FileDate    = "Oct 23, 2017, Lenny-j";
 
 #define DO_BUTTONS		true
 #define DO_SERVO			true
+#define DO_GYRO				true
 
 //using namespace std;
 
@@ -162,8 +162,10 @@ static int sServoPosLast                  = 0;
 
 WROVER_KIT_LCD    RoverLCD;
 
+#if DO_SERVO
 //Create servo object to control the servo
 Servo 						myservo;
+#endif	//DO_SERVO
 
 #if DO_BUTTONS
 //Create EasyButton objects to handle button presses.
@@ -213,11 +215,15 @@ void setup()   {
   Serial << "setup(): Call SetupPins()" << endl;
   //TestButtonPins();
   //Serial << "setup(): Call sSetupGyro()" << endl;
-  //sSetupGyro();
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
+#if DO_GYRO
+  //sSetupGyro();
+#endif
+#if DO_SERVO
   Serial << "setup(): Call sServoInit()" << endl;
   sServoInit();
+#endif
   Serial << "setup(): Call sShowStartScreen()" << endl;
   sShowStartScreen();
 
@@ -231,7 +237,9 @@ void setup()   {
 // The Arduino loop() method gets called over and over.
 void loop() {
   sCheckButtons();
-  //sLoopI2C();
+#if DO_GYRO
+  sLoopI2C();
+#endif
   DisplayUpdate();
   sHandleButtons();
   return;
@@ -640,6 +648,15 @@ int sLoopI2C() {
       for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
          asGyroReading[sTemperature][sAxis]= 0;
       }  //for
+#if 1
+      for (int sType= sAccel; sType < sNumGyroTypes; sType++) {
+      	Serial << "sLoopI2C(): sType= " << sType;
+        for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+          Serial << "  " << asGyro[sType][sAxis];
+         }  //for sAxis
+        Serial << endl;
+      }  //for sType
+#endif
 
       //Serial << "sLoopI2C(): X Accel= " << asGyroReading[sAccel][sXAxis] << endl;
       //BLog("sLoopI2C(): XAcc   YAcc   ZAcc");
@@ -654,8 +671,8 @@ int sLoopI2C() {
 #else
             asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
 #endif
-         }  //for sDataType
-      }  //for sAxis
+         }  //for sAxis
+      }  //for sDataType
 
       //Convert raw accel readings into G's and correct axis
       //Because accel on BB is pointing down I am converting the axis
@@ -671,7 +688,7 @@ int sLoopI2C() {
       adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
       adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
 
-      Serial << "G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", "
+      Serial << "sLoopI2C(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", "
              << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
       ComputeRollPitch();
       bGyroChanged= true;
@@ -829,7 +846,7 @@ int sHandleNormalMode(void) {
     //Make the actual shift
 #if DO_SERVO
     sServoMove(sTargetLocation);
-#endif	//DO_SERVO
+#endif
    }  //if(!bReturn)
    return 1;
 }  //sHandleNormalMode
