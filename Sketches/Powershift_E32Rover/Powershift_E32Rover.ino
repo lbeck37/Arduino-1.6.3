@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 28, 2017, Lenny-a";
+static const String FileDate    = "Oct 28, 2017, Lenny-c";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -374,6 +374,7 @@ void DisplayUpdate(void) {
 void DisplayClear() {
 	//FillScreen(WROVER_BLACK);
 	FillScreen(WROVER_RED);
+	//FillScreen(WROVER_GREEN);
   return;
 }  //DisplayClear
 
