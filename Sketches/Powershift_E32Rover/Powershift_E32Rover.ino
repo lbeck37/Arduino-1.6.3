@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 24, 2017, Lenny-f";
+static const String FileDate    = "Oct 27, 2017, Lenny-a";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
