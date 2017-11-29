@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Nov 28, 2017, Lenny-h";
+static const String FileDate    = "Nov 29, 2017, Lenny-a";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -210,7 +210,7 @@ double            dVolts_		= 37.7;
 double            dAmps_		= 10.0;
 double            dWatts_		= dVolts_ * dAmps_;
 
-void(* resetFunc)(void)= 0;				//Hopefully system crashes and reset when this is called.
+void(* ResetESP32)(void)= 0;				//Hopefully system crashes and reset when this is called.
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
@@ -323,7 +323,7 @@ void CheckKeyboard() {
     switch (cChar) {
       case 'r':
       case 'R':
-      	resetFunc();
+      	ResetESP32();
         break;
       case 'u':
       case 'U':
