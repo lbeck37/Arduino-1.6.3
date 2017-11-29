@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Nov 29, 2017, Lenny-a";
+static const String FileDate    = "Nov 29, 2017, Lenny-c";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -230,7 +230,7 @@ void setup()   {
   sServoInit();
 #endif
   Serial << "setup(): Call sShowStartScreen()" << endl;
-  sShowStartScreen();
+  ShowStartScreen();
 
   //Dither the servo once so it's position shows on the LCD.
   //sServoDither(1, 1); // +/- 1 degree, once
@@ -349,14 +349,15 @@ int sDisplayBegin() {
 }  //sDisplayBegin
 
 
-int sShowStartScreen(void) {
-  Serial << "sShowStartScreen(): Call sDisplayBegin()" << endl;
+int ShowStartScreen(void) {
+  Serial << "ShowStartScreen(): Call sDisplayBegin()" << endl;
   sDisplayBegin();
-  Serial << "sShowStartScreen(): Call sShowSplash()" << endl;
+  Serial << "ShowStartScreen(): Call sShowSplash()" << endl;
   sShowSplash();
   delay(3000);
+  DisplayClear();
   return 1;
-}  //sShowStartScreen
+}  //ShowStartScreen
 
 
 int sShowSplash(void) {
@@ -393,8 +394,8 @@ int sShowSplash(void) {
 
 void DisplayUpdate(void) {
    if (bScreenChanged()) {
-      Serial << "sDisplayUpdate(): Refreshing screen" << endl;
-      DisplayClear();
+      //Serial << "sDisplayUpdate(): Refreshing screen" << endl;
+      //DisplayClear();
     	//FillScreen(WROVER_RED);
       DisplayCurrentGear();
       DisplayServoPos();
