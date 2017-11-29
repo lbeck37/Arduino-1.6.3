@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Oct 28, 2017, Lenny-c";
+static const String FileDate    = "Nov 28, 2017, Lenny-h";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -18,6 +18,8 @@ static const String FileDate    = "Oct 28, 2017, Lenny-c";
 #include <Fonts/FreeSansOblique18pt7b.h>
 //#include <Fonts/FreeMonoBoldOblique24pt7b.h>
 //#include <Fonts/FreeSansBoldOblique12pt7b.h>
+//#include <avr/wdt.h>
+
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -208,6 +210,8 @@ double            dVolts_		= 37.7;
 double            dAmps_		= 10.0;
 double            dWatts_		= dVolts_ * dAmps_;
 
+void(* resetFunc)(void)= 0;				//Hopefully system crashes and reset when this is called.
+
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
   Serial.begin(115200);
@@ -243,6 +247,7 @@ void loop() {
 #endif
   DisplayUpdate();
   sHandleButtons();
+  CheckKeyboard();
   return;
 }  //loop()
 
@@ -302,6 +307,38 @@ int sServoSetPosition(int sServoPos) {
    delay(sServoMsecWait);
    return 1;
 }  //sServoSetPosition
+
+
+void CheckKeyboard() {
+  if (Serial.available()) {
+    Serial <<" CheckKeyboard(): Character available, call Serial.read()" << endl;
+    char cChar= Serial.read();
+    int sChar= cChar;
+    if (sChar != 13) {
+      Serial <<" CheckKeyboard(): Character read= "<< cChar <<", "<< sChar << endl;
+    }
+    else {
+      Serial <<" CheckKeyboard(): Character read= CR" << endl;
+    }
+    switch (cChar) {
+      case 'r':
+      case 'R':
+      	resetFunc();
+        break;
+      case 'u':
+      case 'U':
+        sButtonCount[sUp]++;
+        break;
+      case 'd':
+      case 'D':
+        sButtonCount[sDown]++;
+        break;
+      default:
+        break;
+    } //switch
+  } //if(Serial.available()
+  return;
+}  //CheckKeyboard
 
 
 int sDisplayBegin() {
@@ -372,8 +409,8 @@ void DisplayUpdate(void) {
 
 
 void DisplayClear() {
-	//FillScreen(WROVER_BLACK);
-	FillScreen(WROVER_RED);
+	FillScreen(WROVER_BLACK);
+	//FillScreen(WROVER_RED);
 	//FillScreen(WROVER_GREEN);
   return;
 }  //DisplayClear
@@ -628,7 +665,8 @@ int sLoopI2C() {
       //Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
       //bool  bTrue= true;
       //Wire.requestFrom((uint8_t)MPU, (size_t)14, (bool)true);  // request a total of 14 registers
-      Wire.requestFrom((uint8_t)wMPU6050, (uint8_t)14, (uint8_t)true);  // request a total of 14 registers, with a stop
+
+      //Wire.requestFrom((uint8_t)wMPU6050, (uint8_t)14, (uint8_t)true);  // request a total of 14 registers, with a stop
 
       // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
       // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
@@ -651,7 +689,7 @@ int sLoopI2C() {
       for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
          asGyroReading[sTemperature][sAxis]= 0;
       }  //for
-#if 1
+#if 0
       for (int sType= sAccel; sType < sNumGyroTypes; sType++) {
       	Serial << "sLoopI2C(): sType= " << sType;
         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
@@ -691,9 +729,11 @@ int sLoopI2C() {
       adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
       adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
 
+/*
       Serial << "sLoopI2C(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", "
              << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
-      ComputeRollPitch();
+*/
+      ComputePitchAndRoll();
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;
    }  //if (millis()>ulNextGyroTime)
@@ -701,7 +741,7 @@ int sLoopI2C() {
 }  //sLoopI2C
 
 
-void ComputeRollPitch() { //
+void ComputePitchAndRoll() {
   dRollDeg_ = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
   dPitchDeg_= atan2(adGvalueXYZ[sXAxis],
                 sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
@@ -716,18 +756,17 @@ void ComputeRollPitch() { //
     dRollDeg_= dRollDeg_= 180.0 - dRollDeg_;
   } //if(dRollDeg_<0.0)else
 
-  Serial << "Pitch Deg, Pitch%, Roll " << dPitchDeg_ << ", " << dPitchPercent_
-         << ", " << dRollDeg_<< endl;
+  Serial << "ComputePitchAndRoll(): Pitch Deg, Pitch%, Roll " << dPitchDeg_ << ", " << dPitchPercent_ << ", " << dRollDeg_<< endl;
   return;
-} //ComputeRollPitch
+} //ComputePitchAndRoll
 
 
 double dGetPitchPercent(double dPitchDeg) {
   double dPitchPercent= -99.99;
-  Serial << "dGetPitchPercent(): dPitchDeg_= " << dPitchDeg_ << endl;
+  //Serial << "dGetPitchPercent(): dPitchDeg_= " << dPitchDeg_ << endl;
   if ((dPitchDeg_ < 44.0) && (dPitchDeg_ > -44.0)) {
     dPitchPercent= 100.0 * tan(dPitchDeg_ / dRadsToDeg);
-    Serial << "dGetPitchPercent(): dPitchPercent_= " << dPitchPercent_ << endl;
+    //Serial << "dGetPitchPercent(): dPitchPercent_= " << dPitchPercent_ << endl;
   } //if((dPitchDeg_<44.0)&&...
   return dPitchPercent;
 } //dGetPitchPercent
