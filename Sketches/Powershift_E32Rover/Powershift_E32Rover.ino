@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Nov 29, 2017, Lenny-s";
+static const String FileDate    = "Nov 29, 2017, Lenny-ad";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -230,8 +230,10 @@ void setup()   {
   Serial << "setup(): Call sServoInit()" << endl;
   sServoInit();
 #endif
-  Serial << "setup(): Call sShowStartScreen()" << endl;
-  ShowStartScreen();
+  Serial << "setup(): Call sDisplayBegin()" << endl;
+  sDisplayBegin();
+  //Serial << "setup(): Call sShowStartScreen()" << endl;
+  //ShowStartScreen();
 
   //Dither the servo once so it's position shows on the LCD.
   //sServoDither(1, 1); // +/- 1 degree, once
@@ -346,6 +348,7 @@ int sDisplayBegin() {
   Serial << "sDisplayBegin(): Call RoverLCD.begin()" << endl;
   RoverLCD.begin();
   RoverLCD.setRotation(1);
+  DisplayClear();
   return 1;
 }  //sDisplayBegin
 
@@ -400,7 +403,7 @@ void DisplayUpdate(void) {
     	//FillScreen(WROVER_RED);
       DisplayCurrentGear();
       DisplayServoPos();
-      DisplayButtons();
+      //DisplayButtons();
       DisplayWatts();
       DisplayPitchRoll();
       //sDisplayOdometer();
@@ -462,12 +465,12 @@ void DisplayCurrentGear() {
   UINT8           ucSize    			= 2;
   UINT16          usColor   			= WROVER_WHITE;
   UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
-  bool						bRightJustify		= false;
+  INT16						sClearXstart		= 200;
+  INT16						sClearYstart		= 0;
+  UINT16					usClearWidth		= 120;
+  UINT16					usClearHeight		= usCursorY + 8;
 
-  Serial << "DisplayCurrentGear(): Call ClearTextBackground()" << endl;
-  //ClearTextBackground(0, 0, 100, 100);
-  ClearTextBackground(200, 0, 120, 70);
-  //ClearTextBackground(200, 0, 40, 36);
+  ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
 	if (sCurrentMode == sNormalMode) {
 		//sCurrentGear= 10;	//For testing
 		itoa(sCurrentGear, sz100CharString, RADIX_10);
@@ -500,11 +503,16 @@ void DisplayServoPos() {
 	//50, 25
 	//const GFXfont   *pFont    = &FreeSansBoldOblique12pt7b;
 	const GFXfont   *pFont    = &FreeMonoBold12pt7b;
-  UINT16          usCursorX = 260;
+  UINT16          usCursorX = 250;	//Was 260
   UINT16          usCursorY = 115;
   UINT8           ucSize    = 1;
   UINT16          usColor   = WROVER_ORANGE;
+  INT16						sClearXstart		= usCursorX - 10;
+  INT16						sClearYstart		= usCursorY - 20;
+  UINT16					usClearWidth		= 320 - sClearXstart;
+  UINT16					usClearHeight		= 25;
 
+  ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
   itoa(sServoPosLast, sz100CharString, RADIX_10);
   strcpy(szTempBuffer, sz100CharString);
   DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor);
@@ -594,7 +602,7 @@ void DisplayButtons() {
   UINT16          usCursorX 			= 260;
   UINT16          usCursorY 			= 160;
   UINT8           ucSize    			= 1;
-  UINT16          usColor   			= WROVER_MAGENTA;
+  UINT16          usColor   			= WROVER_ORANGE;
   bool						bRightJustify		= false;
 
   //Show 2 lines at right bottom for U d, D d
@@ -615,7 +623,7 @@ void DisplayButtons() {
 void DisplayLowerBanner(){
 	const GFXfont   *pFont    			= &FreeSansOblique18pt7b;
   UINT16          usCursorX 			= 20;
-  UINT16          usCursorY 			= 235;		//Was 72
+  UINT16          usCursorY 			= 232;		//Was 72
   UINT8           ucSize    			= 1;
   UINT16          usColor   			= WROVER_CYAN;
   bool						bRightJustify		= false;
