@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Nov 29, 2017, Lenny-c";
+static const String FileDate    = "Nov 29, 2017, Lenny-s";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -151,8 +151,9 @@ static const int       sFontSize3          	=   3;
 static const int       sFontSize4          	=   4;
 static const int       sFontSize5          	=   5;
 
-static const byte       cBogusResetPin      = 4;
-static const byte       cHW_SPI             = 0;      //This is what their demo used.
+static const byte      cBogusResetPin       = 4;
+static const byte      cHW_SPI              = 0;      //This is what their demo used.
+static const uint16_t	 usBackgroundColor		= WROVER_BLACK;
 //End of the const's
 
 static int asGearLocation[sNumGears + 1];
@@ -410,9 +411,7 @@ void DisplayUpdate(void) {
 
 
 void DisplayClear() {
-	FillScreen(WROVER_BLACK);
-	//FillScreen(WROVER_RED);
-	//FillScreen(WROVER_GREEN);
+	FillScreen(usBackgroundColor);
   return;
 }  //DisplayClear
 
@@ -424,37 +423,23 @@ void FillScreen(UINT16 usColor) {
 
 
 void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
-                 const GFXfont *pFont, UINT8 ucSize, UINT16 usColor, bool bRightJustify) {
-  //Pass pFont as NULL for default text font.
-	//If bRightJustify is true then usCursorX is number of pixels text is in from right side
+                 const GFXfont *pFont, UINT8 ucSize, UINT16 usColor) {
   //240x320 3.2", 10 lines => 24 pixels/line
   RoverLCD.setFont(pFont);
   RoverLCD.setTextColor(usColor);
   RoverLCD.setTextSize(ucSize);
   RoverLCD.setTextWrap(false);
-  if (bRightJustify) {
-  	// 10/21/17 Justification calculation does not work
-    UINT16					usBoundsX			= 0;
-    UINT16					usBoundsY			= usCursorY;
-		INT16						sUpperLeftX;
-		INT16						sUpperLeftY;
-		UINT16					usWidth;
-		UINT16					usHeight;
-		UINT16					usExtra				= 0;		//Extra space to get right justify calculation work
-		Serial << "DisplayText(): Call getTextBounds(" << pcText << ", " << usBoundsX << ", " << usBoundsY << ", ..." << endl;
-		RoverLCD.getTextBounds(pcText, usBoundsX, usBoundsY, &sUpperLeftX, &sUpperLeftY, &usWidth, &usHeight);
-		Serial << "DisplayText(): getTextBounds() returned: sUpperLeftX= " << sUpperLeftX << ", sUpperLeftY= " << sUpperLeftY << endl;
-		Serial << "DisplayText(): getTextBounds() returned: usWidth= " << usWidth << ", usHeight= " << usHeight << endl;
-		//Serial << "DisplayText(): usCursorX= " << usCursorX << endl;
-		Serial << "DisplayText(): WROVER_HEIGHT= " << WROVER_HEIGHT << endl;
-		usCursorX= WROVER_HEIGHT - usCursorX - (usWidth * ucSize) - usExtra;
-		Serial << "DisplayText(): usCursorX set to " << usCursorX << endl;
-  }	//if (bRightJustify)
   RoverLCD.setCursor(usCursorX, usCursorY);
-	//Serial << "DisplayText(): Call RoverLCD.println() with usCursorX= " << usCursorX << ", usCursorY= " << usCursorY << endl;
   RoverLCD.println(pcText);
   return;
 }  //DisplayText
+
+
+void ClearTextBackground(INT16 sUpperLeftX, INT16 sUpperLeftY, UINT16 usWidth, UINT16 usHeight){
+  Serial << "ClearTextBackground(): Call fillRect()" << endl;
+	RoverLCD.fillRect(sUpperLeftX, sUpperLeftY, usWidth, usHeight, usBackgroundColor);
+	return;
+}	//ClearTextBackground
 
 
 boolean bScreenChanged() {
@@ -479,6 +464,10 @@ void DisplayCurrentGear() {
   UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
   bool						bRightJustify		= false;
 
+  Serial << "DisplayCurrentGear(): Call ClearTextBackground()" << endl;
+  //ClearTextBackground(0, 0, 100, 100);
+  ClearTextBackground(200, 0, 120, 70);
+  //ClearTextBackground(200, 0, 40, 36);
 	if (sCurrentMode == sNormalMode) {
 		//sCurrentGear= 10;	//For testing
 		itoa(sCurrentGear, sz100CharString, RADIX_10);
@@ -488,13 +477,13 @@ void DisplayCurrentGear() {
 		else{
 			usCursorX= 200;		//Gear 10
 		}
-		DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
+		DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor);
 	}  //if (sCurrentMode..
 	else {
 		usCursorX= 220;		//Same as gears 1-9
 		//We're in Calib mode so let's put a zero for the gear.
 		strcpy(sz100CharString, "0");
-		DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
+		DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor);
 	}  //if (sCurrentMode..else
 
 	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
@@ -502,7 +491,7 @@ void DisplayCurrentGear() {
 	usCursorY= usCursorY + 20;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
-	DisplayText( usCursorX, usCursorY, "Gear", pFont, ucSize, usColor, bRightJustify);
+	DisplayText( usCursorX, usCursorY, "Gear", pFont, ucSize, usColor);
   return;
 }  //DisplayCurrentGear
 
@@ -518,13 +507,13 @@ void DisplayServoPos() {
 
   itoa(sServoPosLast, sz100CharString, RADIX_10);
   strcpy(szTempBuffer, sz100CharString);
-  DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
+  DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor);
 
 	//Set to smallest normal Sans font for label under servo position
 	usCursorY= usCursorY + 15;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
-	DisplayText( usCursorX, usCursorY, "Servo", pFont, ucSize, usColor, false);
+	DisplayText( usCursorX, usCursorY, "Servo", pFont, ucSize, usColor);
   return;
 }  //DisplayServoPos
 
@@ -543,14 +532,14 @@ void DisplayWatts() {
 
 	itoa((INT16)dWatts_, sz100CharString, RADIX_10);
 	//usCursorX= 10;		//Gears 1-9
-	DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor, bRightJustify);
+	DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor);
 
 	//Set to smallest normal Sans font to label
 	usCursorX= 50;
 	usCursorY= usCursorY + 20;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
-	DisplayText( usCursorX, usCursorY, "Watts", pFont, ucSize, usColor, bRightJustify);
+	DisplayText( usCursorX, usCursorY, "Watts", pFont, ucSize, usColor);
 
 	//Show Volts and Amps in 12pt Mono
 	usCursorX= 10;
@@ -562,7 +551,7 @@ void DisplayWatts() {
   strcat(szTempBuffer, "   A: ");
 	itoa((INT16)dAmps_, sz100CharString, RADIX_10);
 	strcat(szTempBuffer, sz100CharString);
-  DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
+  DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor);
   return;
 }  //DisplayWatts
 
@@ -581,14 +570,14 @@ void DisplayPitchRoll() {
 	itoa((INT16)dPitchPercent_, sz100CharString, RADIX_10);
   strcpy(szTempBuffer, sz100CharString);
   strcat(szTempBuffer, "%");
-	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
+	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
 
 	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
 	usCursorX= 50;
 	usCursorY= usCursorY + 20;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
-	DisplayText( usCursorX, usCursorY, "Pitch", pFont, ucSize, usColor, bRightJustify);
+	DisplayText( usCursorX, usCursorY, "Pitch", pFont, ucSize, usColor);
 /*
   strcpy(szTempBuffer, "R");
   dtostrf( dRollDeg_, 6, 1, sz100CharString);
@@ -612,13 +601,13 @@ void DisplayButtons() {
   strcpy(szTempBuffer, "U ");
   itoa(sButtonCount[sUp]  ,sz100CharString  , 10);
   strcat(szTempBuffer, sz100CharString);
-	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
+	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
 
 	strcpy(szTempBuffer, "D ");
 	itoa(sButtonCount[sDown]  ,sz100CharString  , 10);
 	strcat(szTempBuffer, sz100CharString);
 	usCursorY= usCursorY + 20;
-	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, bRightJustify);
+	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
   return;
 }  //DisplayButtons
 
@@ -631,7 +620,7 @@ void DisplayLowerBanner(){
   UINT16          usColor   			= WROVER_CYAN;
   bool						bRightJustify		= false;
 
-	DisplayText( usCursorX, usCursorY, "PowerShift Coach", pFont, ucSize, usColor, bRightJustify);
+	DisplayText( usCursorX, usCursorY, "PowerShift Coach", pFont, ucSize, usColor);
 	return;
 }	//DisplayLowerBanner
 
