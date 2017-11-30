@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Nov 29, 2017, Lenny-ad";
+static const String FileDate    = "Nov 29, 2017, Lenny-ah";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -246,7 +246,7 @@ void setup()   {
 void loop() {
   sCheckButtons();
 #if DO_GYRO
-  sLoopI2C();
+  LoopI2C();
 #endif
   DisplayUpdate();
   sHandleButtons();
@@ -439,7 +439,7 @@ void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
 
 
 void ClearTextBackground(INT16 sUpperLeftX, INT16 sUpperLeftY, UINT16 usWidth, UINT16 usHeight){
-  Serial << "ClearTextBackground(): Call fillRect()" << endl;
+  //Serial << "ClearTextBackground(): Call fillRect()" << endl;
 	RoverLCD.fillRect(sUpperLeftX, sUpperLeftY, usWidth, usHeight, usBackgroundColor);
 	return;
 }	//ClearTextBackground
@@ -651,7 +651,7 @@ int sFillGearLocations(void) {
 }  //sFillGearLocations
 
 
-int sLoopI2C() {
+int LoopI2C() {
    int      asGyroReading[sNumGyroTypes][sNumAxis];
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
@@ -673,32 +673,32 @@ int sLoopI2C() {
       // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
       // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
       // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-      asGyroReading[sAccel][sXAxis]= Wire.read()<<8|Wire.read();
-      asGyroReading[sAccel][sYAxis]= Wire.read()<<8|Wire.read();
-      asGyroReading[sAccel][sZAxis]= Wire.read()<<8|Wire.read();
+      asGyroReading[sAccel][sXAxis]= (Wire.read() << 8) | Wire.read();
+      asGyroReading[sAccel][sYAxis]= (Wire.read() << 8) | Wire.read();
+      asGyroReading[sAccel][sZAxis]= (Wire.read() << 8) | Wire.read();
 
-      asGyroReading[sTemperature][sXAxis]= Wire.read()<<8|Wire.read();
+      asGyroReading[sTemperature][sXAxis]= (Wire.read() << 8) | Wire.read();
 
-      asGyroReading[sRotation][sXAxis]=Wire.read()<<8|Wire.read();
-      asGyroReading[sRotation][sYAxis]=Wire.read()<<8|Wire.read();
-      asGyroReading[sRotation][sZAxis]=Wire.read()<<8|Wire.read();
+      asGyroReading[sRotation][sXAxis]= (Wire.read() << 8) | Wire.read();
+      asGyroReading[sRotation][sYAxis]= (Wire.read() << 8) | Wire.read();
+      asGyroReading[sRotation][sZAxis]= (Wire.read() << 8) | Wire.read();
 
       //Initialize missing temperature fields.
       for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
          asGyroReading[sTemperature][sAxis]= 0;
       }  //for
-#if 0
+#if 1
       for (int sType= sAccel; sType < sNumGyroTypes; sType++) {
-      	Serial << "sLoopI2C(): sType= " << sType;
+      	Serial << "LoopI2C(): sType= " << sType;
         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-          Serial << "  " << asGyro[sType][sAxis];
+          Serial << "  " << asGyroReading[sType][sAxis];
          }  //for sAxis
         Serial << endl;
       }  //for sType
 #endif
 
-      //Serial << "sLoopI2C(): X Accel= " << asGyroReading[sAccel][sXAxis] << endl;
-      //BLog("sLoopI2C(): XAcc   YAcc   ZAcc");
+      //Serial << "LoopI2C(): X Accel= " << asGyroReading[sAccel][sXAxis] << endl;
+      //BLog("LoopI2C(): XAcc   YAcc   ZAcc");
       //BLog("          ", asGyroReading[sAccel][sXAxis], asGyroReading[sAccel][sYAxis], asGyroReading[sAccel][sZAxis]);
 
       //Apply low-pass filter to data
@@ -727,16 +727,15 @@ int sLoopI2C() {
       adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
       adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
 
-/*
-      Serial << "sLoopI2C(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", "
-             << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
-*/
+
+      Serial << "LoopI2C(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
+
       ComputePitchAndRoll();
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;
    }  //if (millis()>ulNextGyroTime)
    return 1;
-}  //sLoopI2C
+}  //LoopI2C
 
 
 void ComputePitchAndRoll() {
