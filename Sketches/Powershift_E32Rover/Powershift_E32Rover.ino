@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 6, 2017, Lenny-e";
+static const String FileDate    = "Dec 6, 2017, Lenny-g";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -222,8 +222,6 @@ void setup()   {
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
   Serial << "setup(): Call SetupPins()" << endl;
-  //TestButtonPins();
-  //Serial << "setup(): Call sSetupGyro()" << endl;
   Serial << "setup(): Call sFillGearLocations()" << endl;
   sFillGearLocations();
 #if DO_GYRO
@@ -235,11 +233,6 @@ void setup()   {
 #endif
   Serial << "setup(): Call sDisplayBegin()" << endl;
   sDisplayBegin();
-  //Serial << "setup(): Call sShowStartScreen()" << endl;
-  //ShowStartScreen();
-
-  //Dither the servo once so it's position shows on the LCD.
-  //sServoDither(1, 1); // +/- 1 degree, once
   bButtonsChanged= true;	//Make the display show up during debugging.
   return;
 }  //setup
@@ -249,9 +242,7 @@ void setup()   {
 void loop() {
   sCheckButtons();
 #if DO_GYRO
-  //ReadGyro();
   if (millis() > ulNextGyroTime) {
-  	//MPU6050_ReadTest();
   	ReadAccel();
     ulNextGyroTime= millis() + ulGyroReadTime;
   }	//if (millis()>ulNextGyroTime)
@@ -406,9 +397,6 @@ int sShowSplash(void) {
 
 void DisplayUpdate(void) {
    if (bScreenChanged()) {
-      //Serial << "sDisplayUpdate(): Refreshing screen" << endl;
-      //DisplayClear();
-    	//FillScreen(WROVER_RED);
       DisplayCurrentGear();
       DisplayServoPos();
       //DisplayButtons();
@@ -580,9 +568,7 @@ void DisplayPitchRoll() {
   UINT8           ucSize    			= 2;
   UINT16          usColor   			= WROVER_GREEN;
   bool						bRightJustify		= false;
-  //sprintf(szTempBuffer, "P %f", 123.45);
-  //strcpy(szTempBuffer, "P");
-  //dtostrf( dPitchPercent_, 5, 1, sz100CharString);
+
 	itoa((INT16)dPitchPercent_, sz100CharString, RADIX_10);
   strcpy(szTempBuffer, sz100CharString);
   strcat(szTempBuffer, "%");
@@ -594,13 +580,6 @@ void DisplayPitchRoll() {
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
 	DisplayText( usCursorX, usCursorY, "Pitch", pFont, ucSize, usColor);
-/*
-  strcpy(szTempBuffer, "R");
-  dtostrf( dRollDeg_, 6, 1, sz100CharString);
-  strcat(szTempBuffer, sz100CharString);
-  strcat(szTempBuffer, "Deg");
-  sDisplayTextOrig(7,28, sFontNormal, szTempBuffer);
-*/
   return;
 }  //DisplayPitchRoll
 
@@ -660,111 +639,13 @@ int sFillGearLocations(void) {
 
 
 void ReadAccel() {
-/*
-      //Convert raw accel readings into G's and correct axis
-      //Because accel on BB is pointing down I am converting the axis
-      //Report  -Y for X
-      //        +Z for Y
-      //        -X for Z
-      adGvalueXYZ[sXAxis]= -(double)asGyroReading[sAccel][sYAxis] / dGConvert;
-      adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
-      adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
-*/
+	MPU6050_ReadGs(adGvalueXYZ, dGConvert);
+	Serial << "ReadAccel(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
 
-			MPU6050_ReadGs(adGvalueXYZ, dGConvert);
-      Serial << "ReadAccel(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
-
-      ComputePitchAndRoll();
-      bGyroChanged= true;
-   return;
+	ComputePitchAndRoll();
+	bGyroChanged= true;
+	return;
 }  //ReadAccel
-
-
-int ReadAccelOld() {
-   int      asGyroReading[sNumGyroTypes][sNumAxis];
-   //boolean  bApplySmoothing= APPLY_SMOOTHING;
-
-   if (millis() > ulNextGyroTime) {
-     //Serial << "sLoopI2C(): Reading gyro, milllis()= " << millis() << endl;
-      Wire.beginTransmission(wMPU6050);
-      Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
-      Wire.endTransmission(false);
-      //Wire.requestFrom(MPU,14,true);  // request a total of 14 registers
-      //bool  bTrue= true;
-      //Wire.requestFrom((uint8_t)MPU, (size_t)14, (bool)true);  // request a total of 14 registers
-
-      //Wire.requestFrom((uint8_t)wMPU6050, (uint8_t)14, (uint8_t)true);  // request a total of 14 registers, with a stop
-
-      // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)
-      // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
-      // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
-      // 0x41 (TEMP_OUT_H) & 0x42 (TEMP_OUT_L)
-      // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
-      // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
-      // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-      asGyroReading[sAccel][sXAxis]= (Wire.read() << 8) | Wire.read();
-      asGyroReading[sAccel][sYAxis]= (Wire.read() << 8) | Wire.read();
-      asGyroReading[sAccel][sZAxis]= (Wire.read() << 8) | Wire.read();
-
-      asGyroReading[sTemperature][sXAxis]= (Wire.read() << 8) | Wire.read();
-
-      asGyroReading[sRotation][sXAxis]= (Wire.read() << 8) | Wire.read();
-      asGyroReading[sRotation][sYAxis]= (Wire.read() << 8) | Wire.read();
-      asGyroReading[sRotation][sZAxis]= (Wire.read() << 8) | Wire.read();
-
-      //Initialize missing temperature fields.
-      for (int sAxis= sYAxis; sAxis < sNumAxis; sAxis++) {
-         asGyroReading[sTemperature][sAxis]= 0;
-      }  //for
-#if 1
-      for (int sType= sAccel; sType < sNumGyroTypes; sType++) {
-      	Serial << "ReadGyro(): sType= " << sType;
-        for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-          Serial << "  " << asGyroReading[sType][sAxis];
-         }  //for sAxis
-        Serial << endl;
-      }  //for sType
-#endif
-
-      //Serial << "LoopI2C(): X Accel= " << asGyroReading[sAccel][sXAxis] << endl;
-      //BLog("LoopI2C(): XAcc   YAcc   ZAcc");
-      //BLog("          ", asGyroReading[sAccel][sXAxis], asGyroReading[sAccel][sYAxis], asGyroReading[sAccel][sZAxis]);
-
-      //Apply low-pass filter to data
-      for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
-         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-#if APPLY_SMOOTHING
-            asGyro[sDataType][sAxis]= FILTER_FUNC(asGyroReading[sDataType][sAxis],
-                                                  pusSmoothingMemory[sDataType][sAxis]);
-#else
-            asGyro[sDataType][sAxis]= asGyroReading[sDataType][sAxis];
-#endif
-         }  //for sAxis
-      }  //for sDataType
-
-      //Convert raw accel readings into G's and correct axis
-      //Because accel on BB is pointing down I am converting the axis
-      //Report  -Y for X
-      //        +Z for Y
-      //        -X for Z
-/*
-      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
-          adGvalueXYZ[sAxis]= (double)asGyroReading[sAccel][sAxis] / dGConvert;
-      }  //for sAxis
-*/
-      adGvalueXYZ[sXAxis]= -(double)asGyroReading[sAccel][sYAxis] / dGConvert;
-      adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
-      adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
-
-
-      Serial << "ReadGyro(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
-
-      ComputePitchAndRoll();
-      bGyroChanged= true;
-      ulNextGyroTime= millis() + ulGyroReadTime;
-   }  //if (millis()>ulNextGyroTime)
-   return 1;
-}  //ReadAccelOld
 
 
 void ComputePitchAndRoll() {
@@ -801,19 +682,15 @@ double dGetPitchPercent(double dPitchDeg) {
 int sSetupGyro() {
    Serial << "sSetupGyro(): Begin"<< endl;
    //BLog("sSetupGyro(): Begin");
-   //Set up the I2C bus.
-   //Wire.begin();
    Wire.begin(sI2C_SDA, sI2C_SCL);
    Wire.beginTransmission(wMPU6050);
    Serial << "sSetupGyro(): Call MPU6050_PrintName()"<< endl;
    MPU6050_PrintName();
-/*
-   Wire.write(0x6B);  // PWR_MGMT_1 register
-   Wire.write(0);     // set to zero (wakes up the MPU-6050)
-*/
+
    // Clear the 'sleep' bit to start the sensor.
    MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
    Wire.endTransmission(true);
+
    //Initialize the data array.
    for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
       for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
@@ -825,13 +702,6 @@ int sSetupGyro() {
 
 
 int sHandleButtons(void) {
-/*
-   int          sButton;
-   int          sGearChange;
-   int          sNewGear;
-   int          sTargetLocation;
-   int          sTargetChange= 0;
-*/
   if (!bHandleBothHeld()) {
      if (millis() > ulModeReadyTime) {
        switch(sCurrentMode) {
@@ -1085,31 +955,4 @@ int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) 
    RoverLCD.println(pcText);
    return 1;
 }  //sDisplayTextOrig
-
-
-/*
-void DisplayTextTest() {
-	//const GFXfont   *pFont    = &FreeSansBoldOblique24pt7b;
-	const GFXfont   *pFont    = &FreeMonoBold24pt7b;
-	UINT16					usLine1Baseline	= 36;	//Puts TOC 2 pixels below screen top
-	//UINT16					usLineSpacing	= 36;	//No spacing between lines (240 pixels is 6.7 lines)
-	//UINT16					usLineSpacing	= 39;	//3 pixel spacing between lines (234 pixels is 6 lines)
-	UINT16					usLineSpacing	= 40;	//4 pixel spacing between lines
-  UINT16          usCursorX = 0;
-  UINT16          usCursorY;
-  UINT8           ucSize    = 1;
-  UINT16          usColor   = WROVER_YELLOW;
-
-  strcpy(szTempBuffer, "G2Servo ");
-  itoa(sServoPosLast  ,sz100CharString  , 10);
-  strcat(szTempBuffer, sz100CharString);
-  Serial << "DisplayServoPos(): Display text: " << szTempBuffer << endl;
-  for (int wLine= 0; wLine < 6; wLine++) {
-  	usCursorY = usLine1Baseline + (wLine * usLineSpacing);
-  	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
-  }
-  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor, false);
-  return;
-}  //DisplayTextTest
-*/
 //Last line
