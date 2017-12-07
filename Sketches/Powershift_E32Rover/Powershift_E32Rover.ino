@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 7, 2017, Lenny-p";
+static const String FileDate    = "Dec 7, 2017, Lenny-z";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -16,16 +16,11 @@ static const String FileDate    = "Dec 7, 2017, Lenny-p";
 #include <Fonts/FreeMonoBold24pt7b.h>
 #include <Fonts/FreeSans9pt7b.h>
 #include <Fonts/FreeSansOblique18pt7b.h>
-//#include <Fonts/FreeMonoBoldOblique24pt7b.h>
-//#include <Fonts/FreeSansBoldOblique12pt7b.h>
-//#include <avr/wdt.h>
 
 #include <string>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-
-//using namespace std;
 
 #define min(X, Y)     (((X) < (Y)) ? (X) : (Y))
 #define PAUSE_DELAY   delay(2000)
@@ -35,10 +30,6 @@ static const String FileDate    = "Dec 7, 2017, Lenny-p";
 #define DO_BUTTONS		true
 #define DO_SERVO			true
 #define DO_GYRO				true
-
-//using namespace std;
-
-//const int MPU6050= 0x68;  // I2C address of the MPU-6050
 
 int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
@@ -52,7 +43,7 @@ static const int       sServoMin             = 0;
 static const int       sServoMax             = 180;
 static const int       sServoMsecWait        = 15;
 static const int       sNumGears             = 9;
-static const boolean   bServoOn              = true;
+static const bool      bServoOn              = true;
 static const int       sHoldDeltaPos         = 2; //Servo move size when button held.
 static const int       sTrimDeltaPos         = 1; //Servo move size when button clicked.
 
@@ -100,14 +91,6 @@ static const byte      cSPIChipSelectPin     = 15;    //Pin 15, D8
 static const byte      cSPI_MOSI_Pin         = 13;    //Pin 13, D7
 static const byte      cSPI_CLK_Pin          = 14;    //Pin 14, D5
 #endif
-
-/*
-//Gyro defines
-static const int       sXAxis             = 0;
-static const int       sYAxis             = 1;
-static const int       sZAxis             = 2;
-static const int       sNumAxis           = 3;
-*/
 
 static const int       sAccel             = 0;
 static const int       sRotation          = 1;
@@ -183,7 +166,6 @@ EasyButton DownButton   (sDownButton,   NULL, CALL_NONE, bButtonPullUp);
 
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
-//static int              sButtonCountLast[]   = { 0, 0, 0};
 static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
@@ -200,7 +182,6 @@ static int         sLineCount= 0;     //Used in outputs to Serial Monitor for cl
 
 static char       szTempBuffer[100];   //DOGS102 line is 17 chars with 6x8 normal font.
 static char       sz100CharString[101];
-//static char       szFloatBuffer[15];
 
 //wMPU6050 acceleration and pitch things
 //const double      dGConvert         = 16384.0;  //wMPU6050 16-bit +/- 2G Full scale
@@ -398,7 +379,7 @@ int sShowSplash(void) {
 
 void DisplayUpdate(void) {
    if (bScreenChanged()) {
-      DisplayCurrentGear();
+      DisplayCurrentGearNew();
       DisplayServoPos();
       DisplayGs();
       //DisplayButtons();
@@ -431,6 +412,7 @@ boolean bScreenChanged() {
 }  //bScreenChanged
 
 
+/*
 void DisplayCurrentGear() {
 	// Place gear number (1 to 10) at right side 2x sized
 	//const GFXfont   *pFont    			= &FreeSansBoldOblique24pt7b;
@@ -475,6 +457,7 @@ void DisplayCurrentGear() {
 	DisplayText( usCursorX, usCursorY, "Gear", pFont, ucSize, usColor);
   return;
 }  //DisplayCurrentGear
+*/
 
 
 void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
@@ -491,60 +474,82 @@ void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
 
 
 void ClearTextBackground(INT16 sUpperLeftX, INT16 sUpperLeftY, UINT16 usWidth, UINT16 usHeight){
-  //Serial << "ClearTextBackground(): Call fillRect()" << endl;
 	RoverLCD.fillRect(sUpperLeftX, sUpperLeftY, usWidth, usHeight, usBackgroundColor);
 	return;
 }	//ClearTextBackground
 
 
-/*
-void DisplayLine(UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
-										 char szLine1[], bool bClearText= true) {
-	//If szLabel is non-NULL then print on line below.
-	const GFXfont   *pFont;
-  UINT8           ucSize    = 1;
-  UINT16          usColor   = WROVER_WHITE;
+void DisplayLine(const GFXfont stFont, UINT16 usColor, UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
+										 char szText[], bool bClearText= true, UINT8 ucSize= 1) {
+  //UINT8           ucSize    = 1;
   INT16						sClearXstart		= usCursorX - 10;
   INT16						sClearYstart		= usCursorY - 18;
 
-	//Display szLine1 on one line and szLine2 (if non-NULL) on line below.
   if(bClearText){
+/*
+  	Serial << "DisplayLine(): Call ClearTextBackground() Xstart, Ystart, Width, Height: "
+  			<< sClearXstart << ", " << sClearYstart << ", " << usClearWidth << ", " << usClearHeight << endl;
+*/
   	ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
   }
-	pFont= &FreeMonoBold12pt7b;
-	DisplayText( usCursorX, usCursorY, szLine1, pFont, ucSize, usColor);
-
-
-	if(szLine2) {
-		//Set to smallest normal Sans font for label under servo position
-		usCursorY= usCursorY + 15;
-		ucSize= 1;
-		pFont= &FreeSans9pt7b;
-		DisplayText( usCursorX, usCursorY, szLine2, pFont, ucSize, usColor);
-	}	//if(szLine2)
-
+	DisplayText( usCursorX, usCursorY, szText, &stFont, ucSize, usColor);
   return;
 } //DisplayLine
+
+
+void DisplayCurrentGearNew() {
+	// Place gear number (1 to 10) at right side 2x sized
+	//const GFXfont   *pFont    			= &FreeMonoBold24pt7b;
+	UINT16					usCharWidth		  = 120;
+  UINT16          usCursorX 			= 200;
+  UINT16          usCursorY 			= 62;		//GFX fonts Y is bottom
+  UINT8           ucSize    			= 2;
+  UINT16          usColor   			= WROVER_WHITE;
+  UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
+  INT16						sClearLeftX		  = usCursorX;
+  INT16						sClearTopY		  = 0;
+  UINT16					usClearWidth		= 120;
+  UINT16					usClearHeight		= usCursorY + 10;
+
+  Serial << "DisplayCurrentGear(): Begin" << endl;
+	if (sCurrentMode == sNormalMode) {
+		sprintf(szTempBuffer, "%2d", sCurrentGear);
+	  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  	ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+	  DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+	}  //if (sCurrentMode..
+	else {
+/*
+		//We're in Calib mode so let's put a zero for the gear.
+		strcpy(sz100CharString, "0");
+		DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor);
+*/
+		//usCursorX= 220;		//Same as gears 1-9
+		//sprintf(szTempBuffer, "0");
+		sprintf(szTempBuffer, "%2d", 0);
+	  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  	ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+	  DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+	}  //if (sCurrentMode..else
+
+	//Set to smallest normal Sans font to label Gear under the gear number, 45mm,20mm
+/*
+	usCursorX= 255;
+	usCursorY= usCursorY + 20;
+	ucSize= 1;
+	pFont= &FreeSans9pt7b;
+	DisplayText( usCursorX, usCursorY, "Gear", pFont, ucSize, usColor);
 */
 
+	//usCursorX= 255;		//Same as gears 1-9
+	usCursorX= 255;
+	usCursorY += 25;
+	sprintf(szTempBuffer, "Gear");
+  //usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
-void DisplayLine(const GFXfont stFont, UINT16 usColor, UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
-										 char szLine1[], bool bClearText= true) {
-	//If szLabel is non-NULL then print on line below.
-	//const GFXfont   *pFont;
-  UINT8           ucSize    = 1;
-  //UINT16          usColor   = WROVER_WHITE;
-  INT16						sClearXstart		= usCursorX - 10;
-  INT16						sClearYstart		= usCursorY - 18;
-
-	//Display szLine1 on one line and szLine2 (if non-NULL) on line below.
-  if(bClearText){
-  	ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
-  }
-  //pFont= &stFont;
-	DisplayText( usCursorX, usCursorY, szLine1, &stFont, ucSize, usColor);
   return;
-} //DisplayLine
+}  //DisplayCurrentGearNew
 
 
 void DisplayGs() {
@@ -555,6 +560,7 @@ void DisplayGs() {
 	UINT16					usClearWidth;
 	UINT16					usClearHeight = 22;
 
+  Serial << "DisplayGs(): Begin" << endl;
   sprintf(szTempBuffer, "G Accel");
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
@@ -581,33 +587,20 @@ void DisplayGs() {
 void DisplayServoPos() {
 	const UINT16		usCharWidth		= 17;
 	const UINT16		usLineHeight	= 20;
-  UINT16          usCursorX 		= 250;
+  UINT16          usCursorX 		= 255;
   UINT16          usCursorY 		= 115;
   UINT16					usClearWidth	= 70;
 	UINT16					usClearHeight = 22;
 
-/*
-  itoa(sServoPosLast, sz100CharString, RADIX_10);
-  strcpy(szTempBuffer, sz100CharString);
-*/
+  Serial << "DisplayServoPos(): Begin" << endl;
   sprintf(szTempBuffer, "%3d", sServoPosLast);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  //usCursorY += usLineHeight;
   DisplayLine(FreeMonoBold12pt7b, WROVER_WHITE, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
   sprintf(szTempBuffer, "Servo");
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   usCursorY += usLineHeight;
-  DisplayLine(FreeSans9pt7b, WROVER_WHITE, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
-
-/*
-  sprintf(szTempBuffer, "%3d", sServoPosLast);
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  usCursorY += usLineHeight;
-  DisplayLine(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL);
-	  First line &FreeMonoBold12pt7b;
-		Second line &FreeSans9pt7b;
-*/
+  DisplayLine(FreeSans9pt7b, WROVER_WHITE, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
   return;
 }  //DisplayServoPos
@@ -615,9 +608,7 @@ void DisplayServoPos() {
 
 void DisplayWatts() {
 	// Place at left side 2x sized
-	//const GFXfont   *pFont    			= &FreeSansBoldOblique24pt7b;
 	const GFXfont   *pFont    			= &FreeMonoBold24pt7b;
-	//const GFXfont   *pFont    			= &FreeMonoBoldOblique24pt7b;
   UINT16          usCursorX 			= 10;
   UINT16          usCursorY 			= 62;
   UINT8           ucSize    			= 2;
