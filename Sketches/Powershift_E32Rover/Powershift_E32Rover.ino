@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 6, 2017, Lenny-u";
+static const String FileDate    = "Dec 7, 2017, Lenny-n";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -156,6 +156,7 @@ static const int       sFontSize5          	=   5;
 static const byte      cBogusResetPin       = 4;
 static const byte      cHW_SPI              = 0;      //This is what their demo used.
 static const uint16_t	 usBackgroundColor		= WROVER_BLACK;
+static const UINT16	 	 usAccelTop						= 120;
 //End of the const's
 
 static int asGearLocation[sNumGears + 1];
@@ -422,26 +423,6 @@ void FillScreen(UINT16 usColor) {
 }  //FillScreen
 
 
-void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
-                 const GFXfont *pFont, UINT8 ucSize, UINT16 usColor) {
-  //240x320 3.2", 10 lines => 24 pixels/line
-  RoverLCD.setFont(pFont);
-  RoverLCD.setTextColor(usColor);
-  RoverLCD.setTextSize(ucSize);
-  RoverLCD.setTextWrap(false);
-  RoverLCD.setCursor(usCursorX, usCursorY);
-  RoverLCD.println(pcText);
-  return;
-}  //DisplayText
-
-
-void ClearTextBackground(INT16 sUpperLeftX, INT16 sUpperLeftY, UINT16 usWidth, UINT16 usHeight){
-  //Serial << "ClearTextBackground(): Call fillRect()" << endl;
-	RoverLCD.fillRect(sUpperLeftX, sUpperLeftY, usWidth, usHeight, usBackgroundColor);
-	return;
-}	//ClearTextBackground
-
-
 boolean bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
    boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged;
@@ -496,37 +477,83 @@ void DisplayCurrentGear() {
 }  //DisplayCurrentGear
 
 
-void DisplayValue(UINT16 usCursorX, UINT16 usCursorY, UINT16 usWidth, char szValue[], char szLabel[]) {
+void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
+                 const GFXfont *pFont, UINT8 ucSize, UINT16 usColor) {
+  //240x320 3.2", 10 lines => 24 pixels/line
+  RoverLCD.setFont(pFont);
+  RoverLCD.setTextColor(usColor);
+  RoverLCD.setTextSize(ucSize);
+  RoverLCD.setTextWrap(false);
+  RoverLCD.setCursor(usCursorX, usCursorY);
+  //RoverLCD.println(pcText);
+  RoverLCD.print(pcText);
+  return;
+}  //DisplayText
+
+
+void ClearTextBackground(INT16 sUpperLeftX, INT16 sUpperLeftY, UINT16 usWidth, UINT16 usHeight){
+  //Serial << "ClearTextBackground(): Call fillRect()" << endl;
+	RoverLCD.fillRect(sUpperLeftX, sUpperLeftY, usWidth, usHeight, usBackgroundColor);
+	return;
+}	//ClearTextBackground
+
+
+void DisplayTwoLines(UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
+										 char szLine1[], char szLine2[], bool bClearText= true) {
+	//If szLabel is non-NULL then print on line below.
 	const GFXfont   *pFont;
   UINT8           ucSize    = 1;
   UINT16          usColor   = WROVER_WHITE;
   INT16						sClearXstart		= usCursorX - 10;
-  INT16						sClearYstart		= usCursorY - 20;
-  UINT16					usClearWidth		= usWidth;
-  UINT16					usClearHeight		= 25;
+  INT16						sClearYstart		= usCursorY - 18;
+  //UINT16					usClearWidth		= usWidth;
+  //UINT16					usClearHeight		= 25;
 
-  ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
+	//Display szLine1 on one line and szLine2 (if non-NULL) on line below.
+  if(bClearText){
+  	ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
+  }
 	pFont= &FreeMonoBold12pt7b;
-  DisplayText( usCursorX + 6, usCursorY, szValue, pFont, ucSize, usColor);
+	DisplayText( usCursorX, usCursorY, szLine1, pFont, ucSize, usColor);
 
-	//Set to smallest normal Sans font for label under servo position
-	usCursorY= usCursorY + 15;
-	ucSize= 1;
-	pFont= &FreeSans9pt7b;
-	DisplayText( usCursorX, usCursorY, szLabel, pFont, ucSize, usColor);
+	if(szLine2) {
+		//Set to smallest normal Sans font for label under servo position
+		usCursorY= usCursorY + 15;
+		ucSize= 1;
+		pFont= &FreeSans9pt7b;
+		DisplayText( usCursorX, usCursorY, szLine2, pFont, ucSize, usColor);
+	}	//if(szLine2)
   return;
-}  //DisplayValue
+} //DisplayTwoLines
 
 
 void DisplayGs() {
-  UINT16          usCursorX 		= 5;
-  UINT16          usCursorY 		= 115;
-  UINT16					usClearWidth	= 90;
+	const UINT16		usCharWidth		= 17;
+	const UINT16		usLineHeight	= 20;
+	UINT16          usCursorX 		= 0;
+	UINT16          usCursorY 		= usAccelTop;
+	UINT16					usClearWidth;
+	UINT16					usClearHeight = 22;
 
-  //itoa(adGvalueXYZ[sXAxis], sz100CharString, RADIX_10);
-  //strcpy(szTempBuffer, sz100CharString);
-  sprintf(szTempBuffer, "%04.2f", -adGvalueXYZ[sXAxis]);
-  DisplayValue(usCursorX, usCursorY, usClearWidth, szTempBuffer, "X G's");
+  sprintf(szTempBuffer, "G Accel", -adGvalueXYZ[sXAxis]);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL, false);
+
+  sprintf(szTempBuffer, "X %+05.2f", -adGvalueXYZ[sXAxis]);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL);
+
+  sprintf(szTempBuffer, "Y %+05.2f", -adGvalueXYZ[sYAxis]);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL);
+
+  sprintf(szTempBuffer, "Z %+05.2f", -adGvalueXYZ[sZAxis]);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL);
+
   return;
 }  //DisplayGs
 
@@ -535,10 +562,11 @@ void DisplayServoPos() {
   UINT16          usCursorX 		= 250;
   UINT16          usCursorY 		= 115;
   UINT16					usClearWidth	= 70;
+	UINT16					usClearHeight = 22;
 
   itoa(sServoPosLast, sz100CharString, RADIX_10);
   strcpy(szTempBuffer, sz100CharString);
-  DisplayValue(usCursorX, usCursorY, usClearWidth, szTempBuffer, "Servo");
+  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, "Servo");
   return;
 }  //DisplayServoPos
 
@@ -630,7 +658,7 @@ void DisplayButtons() {
 
 void DisplayLowerBanner(){
 	const GFXfont   *pFont    			= &FreeSansOblique18pt7b;
-  UINT16          usCursorX 			= 20;
+  UINT16          usCursorX 			= 7;
   UINT16          usCursorY 			= 232;		//Was 72
   UINT8           ucSize    			= 1;
   UINT16          usColor   			= WROVER_CYAN;
