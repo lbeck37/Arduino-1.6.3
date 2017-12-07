@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 7, 2017, Lenny-n";
+static const String FileDate    = "Dec 7, 2017, Lenny-p";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -485,7 +485,6 @@ void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
   RoverLCD.setTextSize(ucSize);
   RoverLCD.setTextWrap(false);
   RoverLCD.setCursor(usCursorX, usCursorY);
-  //RoverLCD.println(pcText);
   RoverLCD.print(pcText);
   return;
 }  //DisplayText
@@ -498,16 +497,15 @@ void ClearTextBackground(INT16 sUpperLeftX, INT16 sUpperLeftY, UINT16 usWidth, U
 }	//ClearTextBackground
 
 
-void DisplayTwoLines(UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
-										 char szLine1[], char szLine2[], bool bClearText= true) {
+/*
+void DisplayLine(UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
+										 char szLine1[], bool bClearText= true) {
 	//If szLabel is non-NULL then print on line below.
 	const GFXfont   *pFont;
   UINT8           ucSize    = 1;
   UINT16          usColor   = WROVER_WHITE;
   INT16						sClearXstart		= usCursorX - 10;
   INT16						sClearYstart		= usCursorY - 18;
-  //UINT16					usClearWidth		= usWidth;
-  //UINT16					usClearHeight		= 25;
 
 	//Display szLine1 on one line and szLine2 (if non-NULL) on line below.
   if(bClearText){
@@ -516,6 +514,7 @@ void DisplayTwoLines(UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UI
 	pFont= &FreeMonoBold12pt7b;
 	DisplayText( usCursorX, usCursorY, szLine1, pFont, ucSize, usColor);
 
+
 	if(szLine2) {
 		//Set to smallest normal Sans font for label under servo position
 		usCursorY= usCursorY + 15;
@@ -523,8 +522,29 @@ void DisplayTwoLines(UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UI
 		pFont= &FreeSans9pt7b;
 		DisplayText( usCursorX, usCursorY, szLine2, pFont, ucSize, usColor);
 	}	//if(szLine2)
+
   return;
-} //DisplayTwoLines
+} //DisplayLine
+*/
+
+
+void DisplayLine(const GFXfont stFont, UINT16 usColor, UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
+										 char szLine1[], bool bClearText= true) {
+	//If szLabel is non-NULL then print on line below.
+	//const GFXfont   *pFont;
+  UINT8           ucSize    = 1;
+  //UINT16          usColor   = WROVER_WHITE;
+  INT16						sClearXstart		= usCursorX - 10;
+  INT16						sClearYstart		= usCursorY - 18;
+
+	//Display szLine1 on one line and szLine2 (if non-NULL) on line below.
+  if(bClearText){
+  	ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
+  }
+  //pFont= &stFont;
+	DisplayText( usCursorX, usCursorY, szLine1, &stFont, ucSize, usColor);
+  return;
+} //DisplayLine
 
 
 void DisplayGs() {
@@ -535,38 +555,60 @@ void DisplayGs() {
 	UINT16					usClearWidth;
 	UINT16					usClearHeight = 22;
 
-  sprintf(szTempBuffer, "G Accel", -adGvalueXYZ[sXAxis]);
+  sprintf(szTempBuffer, "G Accel");
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL, false);
+  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
-  sprintf(szTempBuffer, "X %+05.2f", -adGvalueXYZ[sXAxis]);
+  sprintf(szTempBuffer, "X %+05.2f", adGvalueXYZ[sXAxis]);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   usCursorY += usLineHeight;
-  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL);
+  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-  sprintf(szTempBuffer, "Y %+05.2f", -adGvalueXYZ[sYAxis]);
+  sprintf(szTempBuffer, "Y %+05.2f", adGvalueXYZ[sYAxis]);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   usCursorY += usLineHeight;
-  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL);
+  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-  sprintf(szTempBuffer, "Z %+05.2f", -adGvalueXYZ[sZAxis]);
+  sprintf(szTempBuffer, "Z %+05.2f", adGvalueXYZ[sZAxis]);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   usCursorY += usLineHeight;
-  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL);
+  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
   return;
 }  //DisplayGs
 
 
 void DisplayServoPos() {
+	const UINT16		usCharWidth		= 17;
+	const UINT16		usLineHeight	= 20;
   UINT16          usCursorX 		= 250;
   UINT16          usCursorY 		= 115;
   UINT16					usClearWidth	= 70;
 	UINT16					usClearHeight = 22;
 
+/*
   itoa(sServoPosLast, sz100CharString, RADIX_10);
   strcpy(szTempBuffer, sz100CharString);
-  DisplayTwoLines(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, "Servo");
+*/
+  sprintf(szTempBuffer, "%3d", sServoPosLast);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  //usCursorY += usLineHeight;
+  DisplayLine(FreeMonoBold12pt7b, WROVER_WHITE, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+
+  sprintf(szTempBuffer, "Servo");
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayLine(FreeSans9pt7b, WROVER_WHITE, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+
+/*
+  sprintf(szTempBuffer, "%3d", sServoPosLast);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayLine(usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, NULL);
+	  First line &FreeMonoBold12pt7b;
+		Second line &FreeSans9pt7b;
+*/
+
   return;
 }  //DisplayServoPos
 
