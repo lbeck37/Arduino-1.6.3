@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 6, 2017, Lenny-g";
+static const String FileDate    = "Dec 6, 2017, Lenny-u";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -399,9 +399,10 @@ void DisplayUpdate(void) {
    if (bScreenChanged()) {
       DisplayCurrentGear();
       DisplayServoPos();
+      DisplayGs();
       //DisplayButtons();
-      DisplayWatts();
-      DisplayPitchRoll();
+      //DisplayWatts();
+      //DisplayPitchRoll();
       //sDisplayOdometer();
       DisplayLowerBanner();
    } //if(bScreenChanged())
@@ -495,29 +496,49 @@ void DisplayCurrentGear() {
 }  //DisplayCurrentGear
 
 
-void DisplayServoPos() {
-	//50, 25
-	//const GFXfont   *pFont    = &FreeSansBoldOblique12pt7b;
-	const GFXfont   *pFont    = &FreeMonoBold12pt7b;
-  UINT16          usCursorX = 250;	//Was 260
-  UINT16          usCursorY = 115;
+void DisplayValue(UINT16 usCursorX, UINT16 usCursorY, UINT16 usWidth, char szValue[], char szLabel[]) {
+	const GFXfont   *pFont;
   UINT8           ucSize    = 1;
-  UINT16          usColor   = WROVER_ORANGE;
+  UINT16          usColor   = WROVER_WHITE;
   INT16						sClearXstart		= usCursorX - 10;
   INT16						sClearYstart		= usCursorY - 20;
-  UINT16					usClearWidth		= 320 - sClearXstart;
+  UINT16					usClearWidth		= usWidth;
   UINT16					usClearHeight		= 25;
 
   ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
-  itoa(sServoPosLast, sz100CharString, RADIX_10);
-  strcpy(szTempBuffer, sz100CharString);
-  DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+	pFont= &FreeMonoBold12pt7b;
+  DisplayText( usCursorX + 6, usCursorY, szValue, pFont, ucSize, usColor);
 
 	//Set to smallest normal Sans font for label under servo position
 	usCursorY= usCursorY + 15;
 	ucSize= 1;
 	pFont= &FreeSans9pt7b;
-	DisplayText( usCursorX, usCursorY, "Servo", pFont, ucSize, usColor);
+	DisplayText( usCursorX, usCursorY, szLabel, pFont, ucSize, usColor);
+  return;
+}  //DisplayValue
+
+
+void DisplayGs() {
+  UINT16          usCursorX 		= 5;
+  UINT16          usCursorY 		= 115;
+  UINT16					usClearWidth	= 90;
+
+  //itoa(adGvalueXYZ[sXAxis], sz100CharString, RADIX_10);
+  //strcpy(szTempBuffer, sz100CharString);
+  sprintf(szTempBuffer, "%04.2f", -adGvalueXYZ[sXAxis]);
+  DisplayValue(usCursorX, usCursorY, usClearWidth, szTempBuffer, "X G's");
+  return;
+}  //DisplayGs
+
+
+void DisplayServoPos() {
+  UINT16          usCursorX 		= 250;
+  UINT16          usCursorY 		= 115;
+  UINT16					usClearWidth	= 70;
+
+  itoa(sServoPosLast, sz100CharString, RADIX_10);
+  strcpy(szTempBuffer, sz100CharString);
+  DisplayValue(usCursorX, usCursorY, usClearWidth, szTempBuffer, "Servo");
   return;
 }  //DisplayServoPos
 
