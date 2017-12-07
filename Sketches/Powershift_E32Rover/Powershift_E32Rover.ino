@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Nov 29, 2017, Lenny-ah";
+static const String FileDate    = "Dec 6, 2017, Lenny-e";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -101,11 +101,13 @@ static const byte      cSPI_MOSI_Pin         = 13;    //Pin 13, D7
 static const byte      cSPI_CLK_Pin          = 14;    //Pin 14, D5
 #endif
 
+/*
 //Gyro defines
 static const int       sXAxis             = 0;
 static const int       sYAxis             = 1;
 static const int       sZAxis             = 2;
 static const int       sNumAxis           = 3;
+*/
 
 static const int       sAccel             = 0;
 static const int       sRotation          = 1;
@@ -124,7 +126,7 @@ static const int       sMaxButtonPresses  = 10;
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
-static const unsigned long    ulGyroReadTime    = 5000;   //Gyro reads spaced by this.
+static const unsigned long    ulGyroReadTime    = 1000;   //Gyro reads spaced by this.
 
 //Constants for DOGS102 display.
 static const int       sDisplayWidth        = 102;
@@ -200,7 +202,8 @@ static char       sz100CharString[101];
 //static char       szFloatBuffer[15];
 
 //wMPU6050 acceleration and pitch things
-const double      dGConvert         = 16384.0;  //wMPU6050 16-bit +/- 2G Full scale
+//const double      dGConvert         = 16384.0;  //wMPU6050 16-bit +/- 2G Full scale
+const double      dGConvert         = 16383.0;  // 12/06/17 I'm seeing values up to -16,580 with a vertical orientation, 0x3FFF = 16,383
 const double      dRadsToDeg        = 180.0/PI;
 double            adGvalueXYZ[3];
 double            dRollDeg_;
@@ -246,8 +249,13 @@ void setup()   {
 void loop() {
   sCheckButtons();
 #if DO_GYRO
-  LoopI2C();
-#endif
+  //ReadGyro();
+  if (millis() > ulNextGyroTime) {
+  	//MPU6050_ReadTest();
+  	ReadAccel();
+    ulNextGyroTime= millis() + ulGyroReadTime;
+  }	//if (millis()>ulNextGyroTime)
+#endif	//DO_GYRO
   DisplayUpdate();
   sHandleButtons();
   CheckKeyboard();
@@ -651,7 +659,28 @@ int sFillGearLocations(void) {
 }  //sFillGearLocations
 
 
-int LoopI2C() {
+void ReadAccel() {
+/*
+      //Convert raw accel readings into G's and correct axis
+      //Because accel on BB is pointing down I am converting the axis
+      //Report  -Y for X
+      //        +Z for Y
+      //        -X for Z
+      adGvalueXYZ[sXAxis]= -(double)asGyroReading[sAccel][sYAxis] / dGConvert;
+      adGvalueXYZ[sYAxis]=  (double)asGyroReading[sAccel][sZAxis] / dGConvert;
+      adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
+*/
+
+			MPU6050_ReadGs(adGvalueXYZ, dGConvert);
+      Serial << "ReadAccel(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
+
+      ComputePitchAndRoll();
+      bGyroChanged= true;
+   return;
+}  //ReadAccel
+
+
+int ReadAccelOld() {
    int      asGyroReading[sNumGyroTypes][sNumAxis];
    //boolean  bApplySmoothing= APPLY_SMOOTHING;
 
@@ -689,7 +718,7 @@ int LoopI2C() {
       }  //for
 #if 1
       for (int sType= sAccel; sType < sNumGyroTypes; sType++) {
-      	Serial << "LoopI2C(): sType= " << sType;
+      	Serial << "ReadGyro(): sType= " << sType;
         for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
           Serial << "  " << asGyroReading[sType][sAxis];
          }  //for sAxis
@@ -728,14 +757,14 @@ int LoopI2C() {
       adGvalueXYZ[sZAxis]= -(double)asGyroReading[sAccel][sXAxis] / dGConvert;
 
 
-      Serial << "LoopI2C(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
+      Serial << "ReadGyro(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
 
       ComputePitchAndRoll();
       bGyroChanged= true;
       ulNextGyroTime= millis() + ulGyroReadTime;
    }  //if (millis()>ulNextGyroTime)
    return 1;
-}  //LoopI2C
+}  //ReadAccelOld
 
 
 void ComputePitchAndRoll() {
