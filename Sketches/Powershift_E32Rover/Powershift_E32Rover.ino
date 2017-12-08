@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 7, 2017, Lenny-ad";
+static const String FileDate    = "Dec 7, 2017, Lenny-agh";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -139,7 +139,9 @@ static const int       sFontSize5          	=   5;
 static const byte      cBogusResetPin       = 4;
 static const byte      cHW_SPI              = 0;      //This is what their demo used.
 static const uint16_t	 usBackgroundColor		= WROVER_BLACK;
-static const UINT16	 	 usAccelTop						= 120;
+static const UINT16	 	 usBoostTop						= 90;
+static const UINT16	 	 usAccelMotorTop			= 135;
+static const UINT16	 	 usMotorLeft					= 130;
 //End of the const's
 
 static int asGearLocation[sNumGears + 1];
@@ -188,13 +190,14 @@ static char       sz100CharString[101];
 const double      dGConvert         = 16383.0;  // 12/06/17 I'm seeing values up to -16,580 with a vertical orientation, 0x3FFF = 16,383
 const double      dRadsToDeg        = 180.0/PI;
 double            adGvalueXYZ[3];
-double            dRollDeg_;
-double            dPitchDeg_;
-double            dPitchPercent_		= 16.0;
+double            dRollDeg;
+double            dPitchDeg;
+double            dPitchPercent		= 16.0;
+double            dBoostWatts			= 0.0;
 
-double            dVolts_		= 37.7;
-double            dAmps_		= 10.0;
-double            dWatts_		= dVolts_ * dAmps_;
+double            dMotorVolts			= 0.0;
+double            dMotorAmps			= 0.0;
+double            dMotorWatts			= dMotorVolts * dMotorAmps;
 
 void(* ResetESP32)(void)= 0;				//Hopefully system crashes and reset when this is called.
 
@@ -383,9 +386,9 @@ void DisplayUpdate(void) {
       DisplayServoPos();
       DisplayGs();
       DisplayPitch();
+      DisplayBoost();
+      DisplayMotor();
       //DisplayButtons();
-      //DisplayWatts();
-      //sDisplayOdometer();
       DisplayLowerBanner();
    } //if(bScreenChanged())
    return;
@@ -445,7 +448,7 @@ void DisplayLine(const GFXfont stFont, UINT16 usColor, UINT16 usCursorX, UINT16 
 
 
 void DisplayPitch() {
-	UINT16					usCharWidth		  = 20;
+	UINT16					usCharWidth		  = 25;
   UINT16          usCursorX 			= 0;
   UINT16          usCursorY 			= 30;		//GFX fonts Y is bottom
   UINT8           ucSize    			= 1;
@@ -454,22 +457,59 @@ void DisplayPitch() {
   INT16						sClearLeftX		  = usCursorX;
   INT16						sClearTopY		  = 0;
   UINT16					usClearWidth		= 120;
-  UINT16					usClearHeight		= usCursorY + 10;
+  UINT16					usClearHeight		= 35;
+  static UINT16		usLastClearWidth= 0;
 
   Serial << "DisplayPitch(): Begin" << endl;
-	//sprintf(szTempBuffer, "%2d", dPitchPercent_);
-	sprintf(szTempBuffer, "%+4.1f%%", dPitchPercent_);
-	usClearWidth= strlen(szTempBuffer) * usCharWidth + 10;
+	sprintf(szTempBuffer, "%+4.1f%%", dPitchPercent);
+	//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
+	usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
+	usClearWidth= std::max(usClearWidth, usLastClearWidth);
+	usLastClearWidth= usClearWidth;
 	ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
 	DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
 
 	usCursorX= 50;
-	usCursorY += 25;
+	usCursorY += 20;
 	sprintf(szTempBuffer, "Pitch");
   DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
   return;
 }  //DisplayPitch
+
+
+void DisplayBoost() {
+	UINT16					usCharWidth		  = 25;
+  UINT16          usCursorX 			= 0;
+  UINT16          usCursorY 			= usBoostTop;		//GFX fonts Y is bottom 90
+  UINT8           ucSize    			= 1;
+  UINT16          usColor   			= WROVER_WHITE;
+  UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
+  INT16						sClearLeftX		  = usCursorX;
+  INT16						sClearTopY		  = usCursorY - 32;
+  UINT16					usClearWidth		= 120;
+  UINT16					usClearHeight		= 40;
+  static UINT16		usLastClearWidth= 0;
+  //static double		dLastBoostWatts	= 37;	//This is for testing display w/o actual value
+
+  Serial << "DisplayBoost(): Begin" << endl;
+  //dBoostWatts= dLastBoostWatts + 3;
+  //dLastBoostWatts= dBoostWatts;
+	sprintf(szTempBuffer, "%3.0f W", dBoostWatts);
+	//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
+	usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
+	usClearWidth= std::max(usClearWidth, usLastClearWidth);
+	usLastClearWidth= usClearWidth;
+	ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+	DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+
+	usCursorX= 50;
+	usCursorY += 20;
+	sprintf(szTempBuffer, "Boost");
+  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+
+  return;
+}  //DisplayBoost
 
 
 void DisplayCurrentGear() {
@@ -499,7 +539,7 @@ void DisplayCurrentGear() {
 	}  //if (sCurrentMode..else
 
 	usCursorX= 255;
-	usCursorY += 25;
+	usCursorY += 20;
 	sprintf(szTempBuffer, "Gear");
   DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
@@ -511,7 +551,7 @@ void DisplayGs() {
 	const UINT16		usCharWidth		= 17;
 	const UINT16		usLineHeight	= 20;
 	UINT16          usCursorX 		= 0;
-	UINT16          usCursorY 		= usAccelTop;
+	UINT16          usCursorY 		= usAccelMotorTop;
 	UINT16					usClearWidth;
 	UINT16					usClearHeight = 22;
 
@@ -561,40 +601,36 @@ void DisplayServoPos() {
 }  //DisplayServoPos
 
 
-void DisplayWatts() {
-	// Place at left side 2x sized
-	const GFXfont   *pFont    			= &FreeMonoBold24pt7b;
-  UINT16          usCursorX 			= 10;
-  UINT16          usCursorY 			= 62;
-  UINT8           ucSize    			= 2;
-  UINT16          usColor   			= WROVER_YELLOW;
-  //UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
-  bool						bRightJustify		= false;
+void DisplayMotor() {
+	const UINT16		usCharWidth		= 17;
+	const UINT16		usLineHeight	= 20;
+	UINT16          usCursorX 		= usMotorLeft;
+	UINT16          usCursorY 		= usAccelMotorTop;
+	UINT16					usClearWidth;
+	UINT16					usClearHeight = 22;
 
-	itoa((INT16)dWatts_, sz100CharString, RADIX_10);
-	//usCursorX= 10;		//Gears 1-9
-	DisplayText( usCursorX, usCursorY, sz100CharString, pFont, ucSize, usColor);
+  Serial << "DisplayMotor(): Begin" << endl;
+  sprintf(szTempBuffer, "Motor");
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
-	//Set to smallest normal Sans font to label
-	usCursorX= 50;
-	usCursorY= usCursorY + 20;
-	ucSize= 1;
-	pFont= &FreeSans9pt7b;
-	DisplayText( usCursorX, usCursorY, "Watts", pFont, ucSize, usColor);
+  sprintf(szTempBuffer, "V  %4.1f", dMotorVolts);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-	//Show Volts and Amps in 12pt Mono
-	usCursorX= 10;
-	usCursorY= usCursorY + 20;
-	pFont= &FreeMonoBold12pt7b;
-  strcpy(szTempBuffer, "V: ");
-  itoa((INT16)dVolts_, sz100CharString, RADIX_10);
-  strcat(szTempBuffer, sz100CharString);
-  strcat(szTempBuffer, "   A: ");
-	itoa((INT16)dAmps_, sz100CharString, RADIX_10);
-	strcat(szTempBuffer, sz100CharString);
-  DisplayText( usCursorX + 6, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  sprintf(szTempBuffer, "A  %4.1f", dMotorAmps);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+
+  sprintf(szTempBuffer, "W %3.0f", dMotorWatts);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+
   return;
-}  //DisplayWatts
+}  //DisplayMotor
 
 
 void DisplayButtons() {
@@ -662,21 +698,21 @@ void ReadAccel() {
 
 
 void ComputePitchAndRoll() {
-  dRollDeg_ = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
-  dPitchDeg_= atan2(adGvalueXYZ[sXAxis],
+  dRollDeg = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
+  dPitchDeg= atan2(adGvalueXYZ[sXAxis],
                 sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
                      adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
-  dPitchPercent_= dGetPitchPercent(dPitchDeg_);
+  dPitchPercent= dGetPitchPercent(dPitchDeg);
 
   //Correct for current readings being 180 degrees off
-  if (dRollDeg_ < 0.0) {
-    dRollDeg_= dRollDeg_= -180.0 - dRollDeg_;
+  if (dRollDeg < 0.0) {
+    dRollDeg= dRollDeg= -180.0 - dRollDeg;
   } //if(dRollDeg_<0.0)
   else {
-    dRollDeg_= dRollDeg_= 180.0 - dRollDeg_;
+    dRollDeg= dRollDeg= 180.0 - dRollDeg;
   } //if(dRollDeg_<0.0)else
 
-  Serial << "ComputePitchAndRoll(): Pitch Deg, Pitch%, Roll " << dPitchDeg_ << ", " << dPitchPercent_ << ", " << dRollDeg_<< endl;
+  Serial << "ComputePitchAndRoll(): Pitch Deg, Pitch%, Roll " << dPitchDeg << ", " << dPitchPercent << ", " << dRollDeg<< endl;
   return;
 } //ComputePitchAndRoll
 
@@ -684,8 +720,8 @@ void ComputePitchAndRoll() {
 double dGetPitchPercent(double dPitchDeg) {
   double dPitchPercent= -99.99;
   //Serial << "dGetPitchPercent(): dPitchDeg_= " << dPitchDeg_ << endl;
-  if ((dPitchDeg_ < 44.0) && (dPitchDeg_ > -44.0)) {
-    dPitchPercent= 100.0 * tan(dPitchDeg_ / dRadsToDeg);
+  if ((dPitchDeg < 44.0) && (dPitchDeg > -44.0)) {
+    dPitchPercent= 100.0 * tan(dPitchDeg / dRadsToDeg);
     //Serial << "dGetPitchPercent(): dPitchPercent_= " << dPitchPercent_ << endl;
   } //if((dPitchDeg_<44.0)&&...
   return dPitchPercent;
