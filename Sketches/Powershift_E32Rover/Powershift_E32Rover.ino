@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 7, 2017, Lenny-agh";
+static const String FileDate    = "Dec 7, 2017, Lenny-an";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -24,17 +24,10 @@ static const String FileDate    = "Dec 7, 2017, Lenny-agh";
 
 #define min(X, Y)     (((X) < (Y)) ? (X) : (Y))
 #define PAUSE_DELAY   delay(2000)
-
 #define RADIX_10			10
-
 #define DO_BUTTONS		true
-#define DO_SERVO			true
-#define DO_GYRO				true
-
-int16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 
 //Here come the const's
-//static const int  asDefaultGearLocation[]= {0, 150, 119, 92, 74, 64, 48, 17};
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
 //static const int asDefaultGearLocation[]= {0, 152, 137, 122, 101, 74, 68, 56, 35, 27, 20};  //10-speed estimates
 //static const int asDefaultGearLocation[]= {0, 168, 135, 113, 101, 79, 66, 58, 41, 29, 14};  //10-speed
@@ -53,8 +46,8 @@ static const int       sCalibMode            = 1;
 static const int       sUp                   = 0;
 static const int       sDown                 = 1;
 //static const int       sSelect               = 2;
-static const int       sFirstButton          = sUp;
-static const int       sLastButton           = sDown;
+//static const int       sFirstButton          = sUp;
+//static const int       sLastButton           = sDown;
 
 static const boolean   bButtonPullUp         = true;
 
@@ -71,7 +64,6 @@ static const int       sI2C_SCL              = 27;
 //static const int       sSelectButton         = A3;
 static const int       sDownButton           = A2;
 static const int       sUpButton             = A1;
-//static const int       sBacklightPin         =  6;
 static const int       sServoPin             =  7;
 static const byte      cSPICmdDataPin        =  9;
 static const byte      cSPIChipSelectPin     = 10;
@@ -154,10 +146,8 @@ static int sServoPosLast                  = 0;
 
 WROVER_KIT_LCD    RoverLCD;
 
-#if DO_SERVO
 //Create servo object to control the servo
 Servo 						myservo;
-#endif	//DO_SERVO
 
 #if DO_BUTTONS
 //Create EasyButton objects to handle button presses.
@@ -192,9 +182,9 @@ const double      dRadsToDeg        = 180.0/PI;
 double            adGvalueXYZ[3];
 double            dRollDeg;
 double            dPitchDeg;
-double            dPitchPercent		= 16.0;
+double            dPitchPercent		= 0.0;
 double            dBoostWatts			= 0.0;
-
+double            dMPH						= 0.0;
 double            dMotorVolts			= 0.0;
 double            dMotorAmps			= 0.0;
 double            dMotorWatts			= dMotorVolts * dMotorAmps;
@@ -205,19 +195,12 @@ void(* ResetESP32)(void)= 0;				//Hopefully system crashes and reset when this i
 void setup()   {
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
-
   Serial << "setup(): Call SetupPins()" << endl;
   Serial << "setup(): Call sFillGearLocations()" << endl;
-  sFillGearLocations();
-#if DO_GYRO
-  sSetupGyro();
-#endif
-#if DO_SERVO
-  Serial << "setup(): Call sServoInit()" << endl;
-  sServoInit();
-#endif
-  Serial << "setup(): Call sDisplayBegin()" << endl;
-  sDisplayBegin();
+  FillGearLocations();
+  SetupGyro();
+  ServoInit();
+  DisplayBegin();
   bButtonsChanged= true;	//Make the display show up during debugging.
   return;
 }  //setup
@@ -225,75 +208,70 @@ void setup()   {
 
 // The Arduino loop() method gets called over and over.
 void loop() {
-  sCheckButtons();
-#if DO_GYRO
+  CheckButtons();
   if (millis() > ulNextGyroTime) {
   	ReadAccel();
     ulNextGyroTime= millis() + ulGyroReadTime;
   }	//if (millis()>ulNextGyroTime)
-#endif	//DO_GYRO
   DisplayUpdate();
-  sHandleButtons();
+  HandleButtons();
   CheckKeyboard();
   return;
 }  //loop()
 
 
-int sServoInit() {
-  Serial << "sServoInit(): Check bServoOn" << endl;
+void ServoInit() {
+  Serial << "ServoInit(): Check bServoOn" << endl;
   if (bServoOn) {
-    Serial << "sServoInit(): Call myservo.attach() for pin " << sServoPin << endl;
+    Serial << "ServoInit(): Call myservo.attach() for pin " << sServoPin << endl;
     myservo.attach(sServoPin);
   }  //if(bServoOn)
-  Serial << "sServoInit(): Call sServoMove()" << endl;
-  sServoMove(asGearLocation[sCurrentGear]);
-  return 1;
-} //sServoInit
+  Serial << "ServoInit(): Call sServoMove()" << endl;
+  ServoMove(asGearLocation[sCurrentGear]);
+  return;
+} //ServoInit
 
 
-int sServoMove(int sServoPos) {
+void ServoMove(int sServoPos) {
   if (sServoPos != sServoPosLast) {
       sServoPos= constrain(sServoPos, sServoMin, sServoMax);
-      //Serial << "sServoMove(): Move to " << sServoPos << endl;
       sServoPosLast= sServoPos;
-      sServoSetPosition(sServoPos);
-      //Serial << "sServoMove(): sServoSetPosition() returned" << endl;
+      ServoSetPosition(sServoPos);
       bServoChanged= true;
   }  //if(sServoPos...
-  return 1;
-} //sServoMove
+  return;
+} //ServoMove
 
 
-//sServoDither() moves the servo back and forth and back to where it started.
-int sServoDither(int sDitherSize, int sNumTimes){
+//ServoDither() moves the servo back and forth and back to where it started.
+void ServoDither(int sDitherSize, int sNumTimes){
    int sStartPosition = sServoPosLast;
    int sFirstPosition = sStartPosition + sDitherSize;
    int sSecondPosition= sStartPosition - sDitherSize;
    int sCycle;
 
    for (sCycle= 0; sCycle < sNumTimes; sCycle++){
-      sServoMove(sFirstPosition);
-      sServoMove(sSecondPosition);
+      ServoMove(sFirstPosition);
+      ServoMove(sSecondPosition);
    }  //for(sCycle...
-   sServoMove(sStartPosition);
+   ServoMove(sStartPosition);
    bServoChanged= true;
-   return 1;
-}  //sServoDither
+   return;
+}  //ServoDither
 
 
-int sServoSetPosition(int sServoPos) {
+void ServoSetPosition(int sServoPos) {
    //Note that values of sServoPos less than 200 are considered degrees and
    //values greater are uSec pulse width by myservo.write().
    if (bServoOn) {
-  	  //Serial << "sServoSetPosition(): Call myservo.write() " << sServoPos << endl;
       myservo.write(sServoPos);
    }
    else {
      Serial << "sServoSetPosition():bServoOn is false, skip move to " << sServoPos << endl;
    }
    delay(sServoMsecWait);
-   return 1;
-}  //sServoSetPosition
+   return;
+}  //ServoSetPosition
 
 
 void CheckKeyboard() {
@@ -328,27 +306,27 @@ void CheckKeyboard() {
 }  //CheckKeyboard
 
 
-int sDisplayBegin() {
-  Serial << "sDisplayBegin(): Call RoverLCD.begin()" << endl;
+void DisplayBegin() {
+  Serial << "DisplayBegin(): Call RoverLCD.begin()" << endl;
   RoverLCD.begin();
   RoverLCD.setRotation(1);
   DisplayClear();
-  return 1;
-}  //sDisplayBegin
+  return;
+}  //DisplayBegin
 
 
-int ShowStartScreen(void) {
-  Serial << "ShowStartScreen(): Call sDisplayBegin()" << endl;
-  sDisplayBegin();
+void ShowStartScreen(void) {
+  Serial << "ShowStartScreen(): Call DisplayBegin()" << endl;
+  DisplayBegin();
   Serial << "ShowStartScreen(): Call sShowSplash()" << endl;
-  sShowSplash();
+  ShowSplash();
   delay(3000);
   DisplayClear();
-  return 1;
+  return;
 }  //ShowStartScreen
 
 
-int sShowSplash(void) {
+void ShowSplash(void) {
    DisplayClear();
 /*
    //2 lines of big font takes lines 0-3
@@ -364,20 +342,8 @@ int sShowSplash(void) {
    sDisplayText(7, 0, sFontSize2, (char *)"October 19, 2017J ");
    //sDisplayText(7, 0, sFontSize2, (char *)FileDate);
 */
-   RoverLCD.setTextColor(WROVER_YELLOW);
-   sDisplayTextOrig(0, 0, sFontSize1, (char *)"Size 1");
-   RoverLCD.setTextColor(WROVER_GREEN);
-   sDisplayTextOrig(0, 0, sFontSize2, (char *)"Size 2");
-   RoverLCD.setTextColor(WROVER_BLUE);
-   sDisplayTextOrig(0, 0, sFontSize3, (char *)"Size 3");
-   RoverLCD.setTextColor(WROVER_GREEN);
-   sDisplayTextOrig(0, 0, sFontSize4, (char *)"Size 4");
-   RoverLCD.setTextColor(WROVER_WHITE);
-   sDisplayTextOrig(0, 0, sFontSize5, (char *)"Size 5");
-
-   RoverLCD.setTextColor(WROVER_WHITE);
-   return 1;
-}  //sShowSplash
+   return;
+}  //ShowSplash
 
 
 void DisplayUpdate(void) {
@@ -388,6 +354,7 @@ void DisplayUpdate(void) {
       DisplayPitch();
       DisplayBoost();
       DisplayMotor();
+      DisplayMPH();
       //DisplayButtons();
       DisplayLowerBanner();
    } //if(bScreenChanged())
@@ -407,9 +374,9 @@ void FillScreen(UINT16 usColor) {
 }  //FillScreen
 
 
-boolean bScreenChanged() {
+bool bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
-   boolean bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged;
+   bool bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged;
    bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= false;
    return bChanged;
 }  //bScreenChanged
@@ -435,7 +402,7 @@ void ClearTextBackground(INT16 sUpperLeftX, INT16 sUpperLeftY, UINT16 usWidth, U
 
 
 void DisplayLine(const GFXfont stFont, UINT16 usColor, UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
-										 char szText[], bool bClearText= true, UINT8 ucSize= 1) {
+								 char szText[], bool bClearText= true, UINT8 ucSize= 1) {
   INT16						sClearXstart		= usCursorX - 10;
   INT16						sClearYstart		= usCursorY - 18;
 
@@ -473,7 +440,6 @@ void DisplayPitch() {
 	usCursorY += 20;
 	sprintf(szTempBuffer, "Pitch");
   DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-
   return;
 }  //DisplayPitch
 
@@ -490,11 +456,8 @@ void DisplayBoost() {
   UINT16					usClearWidth		= 120;
   UINT16					usClearHeight		= 40;
   static UINT16		usLastClearWidth= 0;
-  //static double		dLastBoostWatts	= 37;	//This is for testing display w/o actual value
 
   Serial << "DisplayBoost(): Begin" << endl;
-  //dBoostWatts= dLastBoostWatts + 3;
-  //dLastBoostWatts= dBoostWatts;
 	sprintf(szTempBuffer, "%3.0f W", dBoostWatts);
 	//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
 	usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
@@ -507,7 +470,6 @@ void DisplayBoost() {
 	usCursorY += 20;
 	sprintf(szTempBuffer, "Boost");
   DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-
   return;
 }  //DisplayBoost
 
@@ -517,12 +479,12 @@ void DisplayCurrentGear() {
   UINT16          usCursorX 			= 200;
   UINT16          usCursorY 			= 62;		//GFX fonts Y is bottom
   UINT8           ucSize    			= 2;
-  UINT16          usColor   			= WROVER_WHITE;
   UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
   INT16						sClearLeftX		  = usCursorX;
   INT16						sClearTopY		  = 0;
   UINT16					usClearWidth		= 120;
   UINT16					usClearHeight		= usCursorY + 10;
+  UINT16          usColor   			= WROVER_WHITE;
 
   Serial << "DisplayCurrentGear(): Begin" << endl;
 	if (sCurrentMode == sNormalMode) {
@@ -542,7 +504,6 @@ void DisplayCurrentGear() {
 	usCursorY += 20;
 	sprintf(szTempBuffer, "Gear");
   DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-
   return;
 }  //DisplayCurrentGear
 
@@ -554,27 +515,27 @@ void DisplayGs() {
 	UINT16          usCursorY 		= usAccelMotorTop;
 	UINT16					usClearWidth;
 	UINT16					usClearHeight = 22;
+	UINT16 					usColor 			= WROVER_YELLOW;
 
   Serial << "DisplayGs(): Begin" << endl;
   sprintf(szTempBuffer, "G Accel");
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
   sprintf(szTempBuffer, "X %+05.2f", adGvalueXYZ[sXAxis]);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   usCursorY += usLineHeight;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+  DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
   sprintf(szTempBuffer, "Y %+05.2f", adGvalueXYZ[sYAxis]);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   usCursorY += usLineHeight;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+  DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
   sprintf(szTempBuffer, "Z %+05.2f", adGvalueXYZ[sZAxis]);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   usCursorY += usLineHeight;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
-
+  DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
   return;
 }  //DisplayGs
 
@@ -582,23 +543,46 @@ void DisplayGs() {
 void DisplayServoPos() {
 	const UINT16		usCharWidth		= 17;
 	const UINT16		usLineHeight	= 20;
-  UINT16          usCursorX 		= 255;
+  UINT16          usCursorX 		= 252;
   UINT16          usCursorY 		= 115;
   UINT16					usClearWidth	= 70;
 	UINT16					usClearHeight = 22;
+	UINT16 					usColor 			= WROVER_WHITE;
 
   Serial << "DisplayServoPos(): Begin" << endl;
   sprintf(szTempBuffer, "%3d", sServoPosLast);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_WHITE, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+  DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX + 15, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
   sprintf(szTempBuffer, "Servo");
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   usCursorY += usLineHeight;
-  DisplayLine(FreeSans9pt7b, WROVER_WHITE, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-
+  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
   return;
 }  //DisplayServoPos
+
+
+void DisplayMPH() {
+	const UINT16		usCharWidth		= 17;
+	const UINT16		usLineHeight	= 20;
+  UINT16          usCursorX 		= 252;
+  UINT16          usCursorY 		= 175;
+  UINT16					usClearWidth	= 70;
+	UINT16					usClearHeight = 22;
+  UINT16          usColor   		= WROVER_YELLOW;
+
+  Serial << "DisplayMPH(): Begin" << endl;
+  sprintf(szTempBuffer, "%4.1f", dMPH);
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+
+  sprintf(szTempBuffer, "MPH");
+  usClearWidth= strlen(szTempBuffer) * usCharWidth;
+  usCursorY += usLineHeight;
+  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+
+  return;
+}  //DisplayMPH
 
 
 void DisplayMotor() {
@@ -669,21 +653,11 @@ void DisplayLowerBanner(){
 }	//DisplayLowerBanner
 
 
-int sDisplayOdometer() {
-   strcpy(szTempBuffer, "21.50");
-   sDisplayTextOrig(5, 2, sFontBig, szTempBuffer);  //Start 2 pixels in.
-
-   strcpy(szTempBuffer, "1123.00");
-   sDisplayTextOrig(7, 2, sFontNormal, szTempBuffer);  //Start 2 pixels in.
-   return 1;
-}  //sDisplayOdometer
-
-
-int sFillGearLocations(void) {
+void FillGearLocations(void) {
    for (int sGear=0; sGear <= sNumGears; sGear++) {
       asGearLocation[sGear]= asDefaultGearLocation[sGear];
    }  //for
-   return 1;
+   return;
 }  //sFillGearLocations
 
 
@@ -728,12 +702,12 @@ double dGetPitchPercent(double dPitchDeg) {
 } //dGetPitchPercent
 
 
-int sSetupGyro() {
+void SetupGyro() {
    Serial << "sSetupGyro(): Begin"<< endl;
-   //BLog("sSetupGyro(): Begin");
+   //BLog("SetupGyro(): Begin");
    Wire.begin(sI2C_SDA, sI2C_SCL);
    Wire.beginTransmission(wMPU6050);
-   Serial << "sSetupGyro(): Call MPU6050_PrintName()"<< endl;
+   Serial << "SetupGyro(): Call MPU6050_PrintName()"<< endl;
    MPU6050_PrintName();
 
    // Clear the 'sleep' bit to start the sensor.
@@ -746,28 +720,28 @@ int sSetupGyro() {
          asGyro[sDataType][sAxis]= 0;
       }  //for sDataType
    }  //for sAxis
-   return 1;
-}  //sSetupGyro
+   return;
+}  //SetupGyro
 
 
-int sHandleButtons(void) {
+void HandleButtons(void) {
   if (!bHandleBothHeld()) {
      if (millis() > ulModeReadyTime) {
        switch(sCurrentMode) {
          case sNormalMode:
-            sHandleNormalMode();
+            HandleNormalMode();
             break;   //sNormalMode
          case sCalibMode:
-            sHandleCalibMode();
+            HandleCalibMode();
             break;   //sCalibMode
          default:
-            Serial << "sHandleButtons(): Unexpected switch value." << endl;
+            Serial << "HandleButtons(): Unexpected switch value." << endl;
             break;
         } //switch
      }   //if(millis()...
    }  //if(!bHandleBothHeld())
-   return 1;
-}  //sHandleButtons
+   return;
+}  //HandleButtons
 
 
 boolean bHandleBothHeld(void) {
@@ -807,7 +781,7 @@ boolean bHandleBothHeld(void) {
 }  //bHandleBothHeld
 
 
-int sHandleNormalMode(void) {
+void HandleNormalMode(void) {
    int          sButton;
    int          sGearChange;
    int          sNewGear;
@@ -837,15 +811,13 @@ int sHandleNormalMode(void) {
     sTargetLocation= asGearLocation[sCurrentGear];
 
     //Make the actual shift
-#if DO_SERVO
-    sServoMove(sTargetLocation);
-#endif
+    ServoMove(sTargetLocation);
    }  //if(!bReturn)
-   return 1;
-}  //sHandleNormalMode
+   return;
+}  //HandleNormalMode
 
 
-int sHandleCalibMode(void) {
+void HandleCalibMode(void) {
    int          sButton;
    int          sDirection;
    int          sTarget;
@@ -862,7 +834,7 @@ int sHandleCalibMode(void) {
          sTarget= sServoPosLast + sDirection * sHoldDeltaPos;
          Serial << sLineCount++ << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
-         sServoMove(sTarget);
+         ServoMove(sTarget);
          bServoChanged= true;
       }  //if(sButtonCount[sButton]==sHoldCode)
 
@@ -871,16 +843,16 @@ int sHandleCalibMode(void) {
          sTarget= sServoPosLast + sDirection * sTrimDeltaPos;
          Serial << sLineCount++ << " sHandleCalibMode(): Button" << sButton
                 << ", Count= " << sButtonCount[sButton] << ", Target= " << sTarget << endl;
-         sServoMove(sTarget);
+         ServoMove(sTarget);
          bServoChanged= true;
          sButtonCount[sButton]--;
       }  //if((sButtonCount[sButton]!=sHoldCode)...
     } //for
- return 1;
-}  //sHandleCalibMode
+ return;
+}  //HandleCalibMode
 
 
-int sCheckButtons(void) {
+void CheckButtons(void) {
 /*Algorithm to determine when a button has been pressed or held.
  * Use IsRelease() to indicate the button has been pressed
  * Use IsHold() to indicate the button has been held down
@@ -950,8 +922,8 @@ int sCheckButtons(void) {
       bReturn= false;
    } //for (sButton= sUp...
 #endif	//DO_BUTTONS
-  return 1;
-}  //sCheckButtons
+  return;
+}  //CheckButtons
 
 
 void TestButtonPins() {
@@ -975,33 +947,4 @@ void TestButtonPins() {
 	}	//for(inti= 0;...
   return;
 }  //TestButtonPins
-
-
-int sDisplayTextOrig(int sLineNumber, int sPixelStart, int sFont, char *pcText) {
-   //RoverLCD.setTextColor(WROVER_WHITE);
-   switch (sFont) {
-     case sFontSize1:
-         RoverLCD.setTextSize(1);
-         break;
-      case sFontSize2:
-         RoverLCD.setTextSize(2);
-         break;
-      case sFontSize3:
-        RoverLCD.setTextSize(3);
-         //DOG.string(sPixelStart, sLineNumber, font_16x32nums, pcText);
-         break;
-      case sFontSize4:
-         RoverLCD.setTextSize(4);
-         break;
-       case sFontSize5:
-         RoverLCD.setTextSize(5);
-         //DOG.string(sPixelStart, sLineNumber, font_8x8, pcText);
-         break;
-      default:
-         Serial << "sDisplayText(): Bad case in switch()= " << sFont << endl;
-         break;
-   }  //switch
-   RoverLCD.println(pcText);
-   return 1;
-}  //sDisplayTextOrig
 //Last line
