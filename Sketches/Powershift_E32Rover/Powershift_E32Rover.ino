@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 7, 2017, Lenny-an";
+static const String FileDate    = "Dec 9, 2017, Lenny-f";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -427,8 +427,9 @@ void DisplayPitch() {
   UINT16					usClearHeight		= 35;
   static UINT16		usLastClearWidth= 0;
 
-  Serial << "DisplayPitch(): Begin" << endl;
+  //Serial << "DisplayPitch(): Begin" << endl;
 	sprintf(szTempBuffer, "%+4.1f%%", dPitchPercent);
+	//sprintf(szTempBuffer, "%+4.1f %+03.0f", dPitchPercent, dPitchDeg);
 	//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
 	usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
 	usClearWidth= std::max(usClearWidth, usLastClearWidth);
@@ -457,7 +458,7 @@ void DisplayBoost() {
   UINT16					usClearHeight		= 40;
   static UINT16		usLastClearWidth= 0;
 
-  Serial << "DisplayBoost(): Begin" << endl;
+  //Serial << "DisplayBoost(): Begin" << endl;
 	sprintf(szTempBuffer, "%3.0f W", dBoostWatts);
 	//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
 	usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
@@ -486,7 +487,7 @@ void DisplayCurrentGear() {
   UINT16					usClearHeight		= usCursorY + 10;
   UINT16          usColor   			= WROVER_WHITE;
 
-  Serial << "DisplayCurrentGear(): Begin" << endl;
+  //Serial << "DisplayCurrentGear(): Begin" << endl;
 	if (sCurrentMode == sNormalMode) {
 		sprintf(szTempBuffer, "%2d", sCurrentGear);
 	  usClearWidth= strlen(szTempBuffer) * usCharWidth;
@@ -517,7 +518,7 @@ void DisplayGs() {
 	UINT16					usClearHeight = 22;
 	UINT16 					usColor 			= WROVER_YELLOW;
 
-  Serial << "DisplayGs(): Begin" << endl;
+  //Serial << "DisplayGs(): Begin" << endl;
   sprintf(szTempBuffer, "G Accel");
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
@@ -549,7 +550,7 @@ void DisplayServoPos() {
 	UINT16					usClearHeight = 22;
 	UINT16 					usColor 			= WROVER_WHITE;
 
-  Serial << "DisplayServoPos(): Begin" << endl;
+  //Serial << "DisplayServoPos(): Begin" << endl;
   sprintf(szTempBuffer, "%3d", sServoPosLast);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX + 15, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
@@ -571,7 +572,7 @@ void DisplayMPH() {
 	UINT16					usClearHeight = 22;
   UINT16          usColor   		= WROVER_YELLOW;
 
-  Serial << "DisplayMPH(): Begin" << endl;
+  //Serial << "DisplayMPH(): Begin" << endl;
   sprintf(szTempBuffer, "%4.1f", dMPH);
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
@@ -593,7 +594,7 @@ void DisplayMotor() {
 	UINT16					usClearWidth;
 	UINT16					usClearHeight = 22;
 
-  Serial << "DisplayMotor(): Begin" << endl;
+  //Serial << "DisplayMotor(): Begin" << endl;
   sprintf(szTempBuffer, "Motor");
   usClearWidth= strlen(szTempBuffer) * usCharWidth;
   DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
@@ -672,10 +673,15 @@ void ReadAccel() {
 
 
 void ComputePitchAndRoll() {
-  dRollDeg = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg;
+  dRollDeg = atan2((-adGvalueXYZ[sYAxis]), adGvalueXYZ[sZAxis]) * dRadsToDeg; //Probably has axis mixed up
+/*
   dPitchDeg= atan2(adGvalueXYZ[sXAxis],
                 sqrt(adGvalueXYZ[sYAxis] * adGvalueXYZ[sYAxis] +
                      adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
+*/
+  dPitchDeg= atan2(-adGvalueXYZ[sYAxis],
+                   sqrt(adGvalueXYZ[sXAxis] * adGvalueXYZ[sXAxis] +
+                        adGvalueXYZ[sZAxis] * adGvalueXYZ[sZAxis])) * dRadsToDeg;
   dPitchPercent= dGetPitchPercent(dPitchDeg);
 
   //Correct for current readings being 180 degrees off
