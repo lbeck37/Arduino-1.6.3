@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 9, 2017, Lenny-f";
+static const String FileDate    = "Dec 10, 2017, Lenny-g";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -101,7 +101,7 @@ static const int       sMaxButtonPresses  = 10;
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
-static const unsigned long    ulGyroReadTime    = 1000;   //Gyro reads spaced by this.
+static const unsigned long    ulGyroReadTime    = 500;   //Gyro reads spaced by this.
 
 //Constants for DOGS102 display.
 static const int       sDisplayWidth        = 102;
@@ -164,11 +164,15 @@ static unsigned long    ulModeReadyTime      = 0;  //msec when button presses ca
 static unsigned long    ulNextGyroTime       = 0;  //msec when the gyro will be read
 
 //State of display items being changed and needing refresh.
-static boolean     bButtonsChanged          = false;
-static boolean     bGearChanged             = false;
-static boolean     bServoChanged            = false;
-static boolean     bModeChanged             = false;
-static boolean     bGyroChanged             = false;
+static boolean     bButtonsChanged          = true;
+static boolean     bGearChanged             = true;
+static boolean     bServoChanged            = true;
+static boolean     bModeChanged             = true;
+static boolean     bGyroChanged             = true;
+static boolean     bPitchChanged            = true;
+static boolean     bBoostChanged            = true;
+static boolean     bMotorChanged            = true;
+static boolean     bMPHChanged              = true;
 
 static int         sLineCount= 0;     //Used in outputs to Serial Monitor for clarity.
 
@@ -347,16 +351,17 @@ void ShowSplash(void) {
 
 
 void DisplayUpdate(void) {
-   if (bScreenChanged()) {
-      DisplayCurrentGear();
-      DisplayServoPos();
-      DisplayGs();
-      DisplayPitch();
-      DisplayBoost();
-      DisplayMotor();
-      DisplayMPH();
-      //DisplayButtons();
-      DisplayLowerBanner();
+ if (bScreenChanged()) {
+		DisplayCurrentGear();
+		DisplayServoPos();
+		DisplayGs();
+		DisplayPitch();
+		DisplayBoost();
+		DisplayMotor();
+		DisplayMPH();
+		//DisplayButtons();
+		DisplayLowerBanner();
+		ClearChangeFlags();
    } //if(bScreenChanged())
    return;
 }  //DisplayUpdate
@@ -376,10 +381,17 @@ void FillScreen(UINT16 usColor) {
 
 bool bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
-   bool bChanged= bGearChanged || bButtonsChanged || bServoChanged || bModeChanged;
-   bGearChanged= bButtonsChanged= bServoChanged= bModeChanged= false;
+   bool bChanged= bGyroChanged  || bPitchChanged || bGearChanged  || bButtonsChanged || bServoChanged || bModeChanged ||
+  								bBoostChanged || bMotorChanged || bMPHChanged;
    return bChanged;
 }  //bScreenChanged
+
+
+void ClearChangeFlags(){
+  bGyroChanged= bPitchChanged= bGearChanged  = bButtonsChanged= bServoChanged= bModeChanged=
+ 		            bBoostChanged= bMotorChanged = bMPHChanged= false;
+	return;
+}	//ClearChangeFlags
 
 
 void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
@@ -428,19 +440,21 @@ void DisplayPitch() {
   static UINT16		usLastClearWidth= 0;
 
   //Serial << "DisplayPitch(): Begin" << endl;
-	sprintf(szTempBuffer, "%+4.1f%%", dPitchPercent);
-	//sprintf(szTempBuffer, "%+4.1f %+03.0f", dPitchPercent, dPitchDeg);
-	//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
-	usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
-	usClearWidth= std::max(usClearWidth, usLastClearWidth);
-	usLastClearWidth= usClearWidth;
-	ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
-	DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+  if(bPitchChanged) {
+		sprintf(szTempBuffer, "%+4.1f%%", dPitchPercent);
+		//sprintf(szTempBuffer, "%+4.1f %+03.0f", dPitchPercent, dPitchDeg);
+		//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
+		usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
+		usClearWidth= std::max(usClearWidth, usLastClearWidth);
+		usLastClearWidth= usClearWidth;
+		ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+		DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
 
-	usCursorX= 50;
-	usCursorY += 20;
-	sprintf(szTempBuffer, "Pitch");
-  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+		usCursorX= 50;
+		usCursorY += 20;
+		sprintf(szTempBuffer, "Pitch");
+		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  }	//if(bPitchChanged)
   return;
 }  //DisplayPitch
 
@@ -459,18 +473,20 @@ void DisplayBoost() {
   static UINT16		usLastClearWidth= 0;
 
   //Serial << "DisplayBoost(): Begin" << endl;
-	sprintf(szTempBuffer, "%3.0f W", dBoostWatts);
-	//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
-	usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
-	usClearWidth= std::max(usClearWidth, usLastClearWidth);
-	usLastClearWidth= usClearWidth;
-	ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
-	DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+  if(bBoostChanged) {
+		sprintf(szTempBuffer, "%3.0f W", dBoostWatts);
+		//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
+		usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
+		usClearWidth= std::max(usClearWidth, usLastClearWidth);
+		usLastClearWidth= usClearWidth;
+		ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+		DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
 
-	usCursorX= 50;
-	usCursorY += 20;
-	sprintf(szTempBuffer, "Boost");
-  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+		usCursorX= 50;
+		usCursorY += 20;
+		sprintf(szTempBuffer, "Boost");
+		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  }	//if(bBoostChanged)
   return;
 }  //DisplayBoost
 
@@ -488,23 +504,25 @@ void DisplayCurrentGear() {
   UINT16          usColor   			= WROVER_WHITE;
 
   //Serial << "DisplayCurrentGear(): Begin" << endl;
-	if (sCurrentMode == sNormalMode) {
-		sprintf(szTempBuffer, "%2d", sCurrentGear);
-	  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  	ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
-	  DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
-	}  //if (sCurrentMode..
-	else {
-		sprintf(szTempBuffer, "%2d", 0);
-	  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  	ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
-	  DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
-	}  //if (sCurrentMode..else
+  if(bGearChanged) {
+		if (sCurrentMode == sNormalMode) {
+			sprintf(szTempBuffer, "%2d", sCurrentGear);
+			usClearWidth= strlen(szTempBuffer) * usCharWidth;
+			ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+			DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+		}  //if (sCurrentMode..
+		else {
+			sprintf(szTempBuffer, "%2d", 0);
+			usClearWidth= strlen(szTempBuffer) * usCharWidth;
+			ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+			DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+		}  //if (sCurrentMode..else
 
-	usCursorX= 255;
-	usCursorY += 20;
-	sprintf(szTempBuffer, "Gear");
-  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+		usCursorX= 255;
+		usCursorY += 20;
+		sprintf(szTempBuffer, "Gear");
+		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  }	//if(bGearChanged)
   return;
 }  //DisplayCurrentGear
 
@@ -551,14 +569,16 @@ void DisplayServoPos() {
 	UINT16 					usColor 			= WROVER_WHITE;
 
   //Serial << "DisplayServoPos(): Begin" << endl;
-  sprintf(szTempBuffer, "%3d", sServoPosLast);
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX + 15, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+  if(bServoChanged) {
+		sprintf(szTempBuffer, "%3d", sServoPosLast);
+		usClearWidth= strlen(szTempBuffer) * usCharWidth;
+		DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX + 15, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-  sprintf(szTempBuffer, "Servo");
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  usCursorY += usLineHeight;
-  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+		sprintf(szTempBuffer, "Servo");
+		usClearWidth= strlen(szTempBuffer) * usCharWidth;
+		usCursorY += usLineHeight;
+		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  }	//if(bServoChanged)
   return;
 }  //DisplayServoPos
 
@@ -573,15 +593,16 @@ void DisplayMPH() {
   UINT16          usColor   		= WROVER_YELLOW;
 
   //Serial << "DisplayMPH(): Begin" << endl;
-  sprintf(szTempBuffer, "%4.1f", dMPH);
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+  if(bMPHChanged) {
+		sprintf(szTempBuffer, "%4.1f", dMPH);
+		usClearWidth= strlen(szTempBuffer) * usCharWidth;
+		DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-  sprintf(szTempBuffer, "MPH");
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  usCursorY += usLineHeight;
-  DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-
+		sprintf(szTempBuffer, "MPH");
+		usClearWidth= strlen(szTempBuffer) * usCharWidth;
+		usCursorY += usLineHeight;
+		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  }	//if(bMPHChanged)
   return;
 }  //DisplayMPH
 
@@ -596,24 +617,25 @@ void DisplayMotor() {
 
   //Serial << "DisplayMotor(): Begin" << endl;
   sprintf(szTempBuffer, "Motor");
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  if(bMotorChanged) {
+		usClearWidth= strlen(szTempBuffer) * usCharWidth;
+		DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
-  sprintf(szTempBuffer, "V  %4.1f", dMotorVolts);
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  usCursorY += usLineHeight;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+		sprintf(szTempBuffer, "V  %4.1f", dMotorVolts);
+		usClearWidth= strlen(szTempBuffer) * usCharWidth;
+		usCursorY += usLineHeight;
+		DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-  sprintf(szTempBuffer, "A  %4.1f", dMotorAmps);
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  usCursorY += usLineHeight;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+		sprintf(szTempBuffer, "A  %4.1f", dMotorAmps);
+		usClearWidth= strlen(szTempBuffer) * usCharWidth;
+		usCursorY += usLineHeight;
+		DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-  sprintf(szTempBuffer, "W %3.0f", dMotorWatts);
-  usClearWidth= strlen(szTempBuffer) * usCharWidth;
-  usCursorY += usLineHeight;
-  DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
-
+		sprintf(szTempBuffer, "W %3.0f", dMotorWatts);
+		usClearWidth= strlen(szTempBuffer) * usCharWidth;
+		usCursorY += usLineHeight;
+		DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+  }	//if(bMotorChanged)
   return;
 }  //DisplayMotor
 
@@ -691,7 +713,7 @@ void ComputePitchAndRoll() {
   else {
     dRollDeg= dRollDeg= 180.0 - dRollDeg;
   } //if(dRollDeg_<0.0)else
-
+  bPitchChanged= true;
   Serial << "ComputePitchAndRoll(): Pitch Deg, Pitch%, Roll " << dPitchDeg << ", " << dPitchPercent << ", " << dRollDeg<< endl;
   return;
 } //ComputePitchAndRoll
@@ -793,33 +815,34 @@ void HandleNormalMode(void) {
    int          sNewGear;
    int          sTargetLocation;
    int          sTargetChange= 0;
-   boolean      bReturn= false;
+   //boolean      bReturn= false;
 
-   if (!bReturn) {
-     for (sButton= sUp; sButton <= sDown; sButton++) {
-      if (sButton == sUp) {
-         sGearChange= 1;
-      }
-      else {
-         sGearChange= -1;
-      }
-      //Compute net gear change by handling at most one request from each button
-      if (sButtonCount[sButton] > 0) {
-         sTargetChange += sGearChange;
-         //Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= " << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
-         sButtonCount[sButton]--;
-         bButtonsChanged= true;
-      }  //if((sButtonCount[sButton]!=sHoldCode)...
-    } //for
+	 for (sButton= sUp; sButton <= sDown; sButton++) {
+		if (sButton == sUp) {
+			 sGearChange= 1;
+		}
+		else {
+			 sGearChange= -1;
+		}
+		//Compute net gear change by handling at most one request from each button
+		if (sButtonCount[sButton] > 0) {
+			 sTargetChange += sGearChange;
+			 //Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= " << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
+			 sButtonCount[sButton]--;
+			 bButtonsChanged= true;
+		}  //if((sButtonCount[sButton]!=sHoldCode)...
+	} //for
 
-    sNewGear= constrain(sCurrentGear + sTargetChange, 1, sNumGears);
-    sCurrentGear= sNewGear;
-    sTargetLocation= asGearLocation[sCurrentGear];
+	sNewGear= constrain(sCurrentGear + sTargetChange, 1, sNumGears);
+	if (sNewGear != sCurrentGear){
+		sCurrentGear= sNewGear;
+		sTargetLocation= asGearLocation[sCurrentGear];
 
-    //Make the actual shift
-    ServoMove(sTargetLocation);
-   }  //if(!bReturn)
-   return;
+		//Make the actual shift
+		ServoMove(sTargetLocation);
+		bGearChanged= true;
+	}	//if(sNewGear!=sCurrentGear)
+  return;
 }  //HandleNormalMode
 
 
