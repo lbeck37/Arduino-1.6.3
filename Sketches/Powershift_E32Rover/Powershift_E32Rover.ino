@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 10, 2017, Lenny-g";
+static const String FileDate    = "Dec 12, 2017, Lenny-a";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -26,6 +26,7 @@ static const String FileDate    = "Dec 10, 2017, Lenny-g";
 #define PAUSE_DELAY   delay(2000)
 #define RADIX_10			10
 #define DO_BUTTONS		true
+#define TEST_PCF8591	true
 
 //Here come the const's
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
@@ -134,6 +135,7 @@ static const uint16_t	 usBackgroundColor		= WROVER_BLACK;
 static const UINT16	 	 usBoostTop						= 90;
 static const UINT16	 	 usAccelMotorTop			= 135;
 static const UINT16	 	 usMotorLeft					= 130;
+static const INT16 		 wPCF8591             = 0x48;  // I2C address of the PCF8591 A/D DAC
 //End of the const's
 
 static int asGearLocation[sNumGears + 1];
@@ -202,7 +204,11 @@ void setup()   {
   Serial << "setup(): Call SetupPins()" << endl;
   Serial << "setup(): Call sFillGearLocations()" << endl;
   FillGearLocations();
+#ifndef TEST_PCF8591
   SetupGyro();
+#else
+  SetupPCF8591();
+#endif	//TEST_PCF8591
   ServoInit();
   DisplayBegin();
   bButtonsChanged= true;	//Make the display show up during debugging.
@@ -728,6 +734,27 @@ double dGetPitchPercent(double dPitchDeg) {
   } //if((dPitchDeg_<44.0)&&...
   return dPitchPercent;
 } //dGetPitchPercent
+
+
+void SetupPCF8591() {
+   Serial << "SetupPCF8591(): Begin"<< endl;
+   Wire.begin(sI2C_SDA, sI2C_SCL);
+   Wire.beginTransmission(wPCF8591);
+   Serial << "SetupGyro(): Call MPU6050_PrintName()"<< endl;
+   MPU6050_PrintName();
+
+   // Clear the 'sleep' bit to start the sensor.
+   MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
+   Wire.endTransmission(true);
+
+   //Initialize the data array.
+   for (int sDataType= sAccel; sDataType < sNumGyroTypes; sDataType++) {
+      for (int sAxis= sXAxis; sAxis < sNumAxis; sAxis++) {
+         asGyro[sDataType][sAxis]= 0;
+      }  //for sDataType
+   }  //for sAxis
+   return;
+}  //SetupPCF8591
 
 
 void SetupGyro() {
