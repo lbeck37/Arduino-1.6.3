@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 12, 2017, Lenny-a";
+static const String FileDate    = "Dec 14, 2017, Lenny-a";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -26,7 +26,6 @@ static const String FileDate    = "Dec 12, 2017, Lenny-a";
 #define PAUSE_DELAY   delay(2000)
 #define RADIX_10			10
 #define DO_BUTTONS		true
-#define TEST_PCF8591	true
 
 //Here come the const's
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
@@ -102,7 +101,7 @@ static const int       sMaxButtonPresses  = 10;
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
-static const unsigned long    ulGyroReadTime    = 500;   //Gyro reads spaced by this.
+static const unsigned long    ulReadTimeSpacing    = 500;   //Gyro reads spaced by this.
 
 //Constants for DOGS102 display.
 static const int       sDisplayWidth        = 102;
@@ -135,8 +134,18 @@ static const uint16_t	 usBackgroundColor		= WROVER_BLACK;
 static const UINT16	 	 usBoostTop						= 90;
 static const UINT16	 	 usAccelMotorTop			= 135;
 static const UINT16	 	 usMotorLeft					= 130;
-static const INT16 		 wPCF8591             = 0x48;  // I2C address of the PCF8591 A/D DAC
+static const INT16 		 sPCF8591             = 0x48;  // I2C address of the PCF8591 A/D DAC
 //End of the const's
+
+enum AnalogIndex {
+	eBatteryVolts= 0,
+	eThermistor,
+	eBatteryAmps,
+	eThumbThrottle,
+	eLastAnalogIndex
+};
+
+static byte acRawAnalogValue[eLastAnalogIndex];
 
 static int asGearLocation[sNumGears + 1];
 static int sCurrentGear                   = 2;
@@ -163,7 +172,7 @@ static int              sButtonCount[]       = { 0, 0, 0};
 static boolean          abButtonBeingHeld[]  = { false, false, false};
 static unsigned long    ulNextModeTime       = 0;  //msec when a mode switch can take place
 static unsigned long    ulModeReadyTime      = 0;  //msec when button presses can be handled
-static unsigned long    ulNextGyroTime       = 0;  //msec when the gyro will be read
+static unsigned long    ulNextReadTime       = 0;  //msec when the gyro will be read
 
 //State of display items being changed and needing refresh.
 static boolean     bButtonsChanged          = true;
@@ -201,14 +210,10 @@ void(* ResetESP32)(void)= 0;				//Hopefully system crashes and reset when this i
 void setup()   {
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
-  Serial << "setup(): Call SetupPins()" << endl;
-  Serial << "setup(): Call sFillGearLocations()" << endl;
+  Wire.begin(sI2C_SDA, sI2C_SCL);
   FillGearLocations();
-#ifndef TEST_PCF8591
   SetupGyro();
-#else
-  SetupPCF8591();
-#endif	//TEST_PCF8591
+  //SetupPCF8591();
   ServoInit();
   DisplayBegin();
   bButtonsChanged= true;	//Make the display show up during debugging.
@@ -219,9 +224,9 @@ void setup()   {
 // The Arduino loop() method gets called over and over.
 void loop() {
   CheckButtons();
-  if (millis() > ulNextGyroTime) {
+  if (millis() > ulNextReadTime) {
   	ReadAccel();
-    ulNextGyroTime= millis() + ulGyroReadTime;
+    ulNextReadTime= millis() + ulReadTimeSpacing;
   }	//if (millis()>ulNextGyroTime)
   DisplayUpdate();
   HandleButtons();
@@ -690,6 +695,35 @@ void FillGearLocations(void) {
 }  //sFillGearLocations
 
 
+void ReadAtoD() {
+	Wire.beginTransmission(sPCF8591);
+	//Serial << "ReadAtoD(): Call Wire.write(0x04), turn on A/D"  << endl;
+	Wire.write(0x04);
+	Wire.endTransmission();
+	//Serial << "ReadAtoD(): Call Wire.requestFrom(PCF8591, 5, stream 4 values"  << endl;
+	Wire.requestFrom(sPCF8591, 5);
+
+	acRawAnalogValue[eBatteryVolts]= Wire.read();
+	acRawAnalogValue[eThermistor]= Wire.read();
+	acRawAnalogValue[eBatteryAmps]= Wire.read();
+	acRawAnalogValue[eThumbThrottle]= Wire.read();
+
+	//Compute actual battery volts.
+	double dAtoDFullScale= 255.0;
+	double dVoltsFullScale= 3.3;
+	double dScaleVolts= 2.0;			//Reading is pulled off the middle of a even voltage divider
+	double dVoltsPerAmp= 0.100;
+	double dVoltsAtZeroAmps= 2.2;
+	double dAmpsFullScale= (dVoltsFullScale - dVoltsAtZeroAmps) /  dVoltsPerAmp;
+	dMotorVolts= (((double)acRawAnalogValue[eBatteryVolts] / dAtoDFullScale) * dVoltsFullScale) * dScaleVolts;
+
+	//ACS712 current sense, 20A full scale
+	dMotorAmps= ((double)acRawAnalogValue[eBatteryAmps] / dAtoDFullScale) ;
+	bMotorChanged= true;
+	return;
+}  //ReadAtoD
+
+
 void ReadAccel() {
 	MPU6050_ReadGs(adGvalueXYZ, dGConvert);
 	Serial << "ReadAccel(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
@@ -736,10 +770,11 @@ double dGetPitchPercent(double dPitchDeg) {
 } //dGetPitchPercent
 
 
+/*
 void SetupPCF8591() {
    Serial << "SetupPCF8591(): Begin"<< endl;
-   Wire.begin(sI2C_SDA, sI2C_SCL);
-   Wire.beginTransmission(wPCF8591);
+   //Wire.begin(sI2C_SDA, sI2C_SCL);
+   Wire.beginTransmission(sPCF8591);
    Serial << "SetupGyro(): Call MPU6050_PrintName()"<< endl;
    MPU6050_PrintName();
 
@@ -755,12 +790,13 @@ void SetupPCF8591() {
    }  //for sAxis
    return;
 }  //SetupPCF8591
+*/
 
 
 void SetupGyro() {
    Serial << "sSetupGyro(): Begin"<< endl;
    //BLog("SetupGyro(): Begin");
-   Wire.begin(sI2C_SDA, sI2C_SCL);
+   //Wire.begin(sI2C_SDA, sI2C_SCL);
    Wire.beginTransmission(wMPU6050);
    Serial << "SetupGyro(): Call MPU6050_PrintName()"<< endl;
    MPU6050_PrintName();
