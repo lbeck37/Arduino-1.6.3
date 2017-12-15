@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 14, 2017, Lenny-a";
+static const String FileDate    = "Dec 15, 2017, Lenny-d";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -24,8 +24,8 @@ static const String FileDate    = "Dec 14, 2017, Lenny-a";
 
 #define min(X, Y)     (((X) < (Y)) ? (X) : (Y))
 #define PAUSE_DELAY   delay(2000)
-#define RADIX_10			10
-#define DO_BUTTONS		true
+#define RADIX_10      10
+#define DO_BUTTONS    true
 
 //Here come the const's
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
@@ -101,7 +101,8 @@ static const int       sMaxButtonPresses  = 10;
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
 static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before mode is on
-static const unsigned long    ulReadTimeSpacing    = 500;   //Gyro reads spaced by this.
+//static const unsigned long    ulReadTimeSpacing    = 500;   //Gyro and ADC reads spaced by this.
+static const unsigned long    ulReadTimeSpacing    = 2000;   //Gyro and ADC reads spaced by this.
 
 //Constants for DOGS102 display.
 static const int       sDisplayWidth        = 102;
@@ -117,32 +118,32 @@ static const int       sBrightness25        =  64;
 static const int       sBrightness0         =   0;
 static const int       sDefaultBrightness   = sBrightness100;
 
-static const int       sFontNormal         	=   1;     //6x8
-static const int       sFontBig            	=   2;     //8x16
-static const int       sFontBigNum         	=   3;     //16x32nums
-static const int       sFontSquare         	=   4;     //8x8
+static const int       sFontNormal          =   1;     //6x8
+static const int       sFontBig             =   2;     //8x16
+static const int       sFontBigNum          =   3;     //16x32nums
+static const int       sFontSquare          =   4;     //8x8
 
-static const int       sFontSize1          	=   1;
-static const int       sFontSize2          	=   2;
-static const int       sFontSize3          	=   3;
-static const int       sFontSize4          	=   4;
-static const int       sFontSize5          	=   5;
+static const int       sFontSize1           =   1;
+static const int       sFontSize2           =   2;
+static const int       sFontSize3           =   3;
+static const int       sFontSize4           =   4;
+static const int       sFontSize5           =   5;
 
 static const byte      cBogusResetPin       = 4;
 static const byte      cHW_SPI              = 0;      //This is what their demo used.
-static const uint16_t	 usBackgroundColor		= WROVER_BLACK;
-static const UINT16	 	 usBoostTop						= 90;
-static const UINT16	 	 usAccelMotorTop			= 135;
-static const UINT16	 	 usMotorLeft					= 130;
-static const INT16 		 sPCF8591             = 0x48;  // I2C address of the PCF8591 A/D DAC
+static const uint16_t  usBackgroundColor    = WROVER_BLACK;
+static const UINT16    usBoostTop           = 90;
+static const UINT16    usAccelMotorTop      = 135;
+static const UINT16    usMotorLeft          = 130;
+static const INT16     sPCF8591             = 0x48;  // I2C address of the PCF8591 A/D DAC
 //End of the const's
 
 enum AnalogIndex {
-	eBatteryVolts= 0,
-	eThermistor,
-	eBatteryAmps,
-	eThumbThrottle,
-	eLastAnalogIndex
+  eBatteryVolts= 0,
+  eThermistor,
+  eBatteryAmps,
+  eThumbThrottle,
+  eLastAnalogIndex
 };
 
 static byte acRawAnalogValue[eLastAnalogIndex];
@@ -158,14 +159,14 @@ static int sServoPosLast                  = 0;
 WROVER_KIT_LCD    RoverLCD;
 
 //Create servo object to control the servo
-Servo 						myservo;
+Servo             myservo;
 
 #if DO_BUTTONS
 //Create EasyButton objects to handle button presses.
 EasyButton UpButton     (sUpButton,     NULL, CALL_NONE, bButtonPullUp);
 EasyButton DownButton   (sDownButton,   NULL, CALL_NONE, bButtonPullUp);
 //EasyButton SelectButton (sSelectButton, NULL, CALL_NONE, bButtonPullUp);
-#endif	//DO_BUTTONS
+#endif  //DO_BUTTONS
 
 //Number of unhandled presses, up to sMaxButtonPresses
 static int              sButtonCount[]       = { 0, 0, 0};
@@ -197,14 +198,14 @@ const double      dRadsToDeg        = 180.0/PI;
 double            adGvalueXYZ[3];
 double            dRollDeg;
 double            dPitchDeg;
-double            dPitchPercent		= 0.0;
-double            dBoostWatts			= 0.0;
-double            dMPH						= 0.0;
-double            dMotorVolts			= 0.0;
-double            dMotorAmps			= 0.0;
-double            dMotorWatts			= dMotorVolts * dMotorAmps;
+double            dPitchPercent   = 0.0;
+double            dBoostWatts     = 0.0;
+double            dMPH            = 0.0;
+double            dMotorVolts     = 0.0;
+double            dMotorAmps      = 0.0;
+double            dMotorWatts     = 0.0;
 
-void(* ResetESP32)(void)= 0;				//Hopefully system crashes and reset when this is called.
+void(* ResetESP32)(void)= 0;        //Hopefully system crashes and reset when this is called.
 
 // The Arduino setup() method runs once, when the sketch starts
 void setup()   {
@@ -216,7 +217,7 @@ void setup()   {
   //SetupPCF8591();
   ServoInit();
   DisplayBegin();
-  bButtonsChanged= true;	//Make the display show up during debugging.
+  bButtonsChanged= true;  //Make the display show up during debugging.
   return;
 }  //setup
 
@@ -225,9 +226,10 @@ void setup()   {
 void loop() {
   CheckButtons();
   if (millis() > ulNextReadTime) {
-  	ReadAccel();
+  	ReadAtoD();
+    ReadAccel();
     ulNextReadTime= millis() + ulReadTimeSpacing;
-  }	//if (millis()>ulNextGyroTime)
+  } //if (millis()>ulNextGyroTime)
   DisplayUpdate();
   HandleButtons();
   CheckKeyboard();
@@ -303,7 +305,7 @@ void CheckKeyboard() {
     switch (cChar) {
       case 'r':
       case 'R':
-      	ResetESP32();
+        ResetESP32();
         break;
       case 'u':
       case 'U':
@@ -363,23 +365,23 @@ void ShowSplash(void) {
 
 void DisplayUpdate(void) {
  if (bScreenChanged()) {
-		DisplayCurrentGear();
-		DisplayServoPos();
-		DisplayGs();
-		DisplayPitch();
-		DisplayBoost();
-		DisplayMotor();
-		DisplayMPH();
-		//DisplayButtons();
-		DisplayLowerBanner();
-		ClearChangeFlags();
+    DisplayCurrentGear();
+    DisplayServoPos();
+    DisplayGs();
+    DisplayPitch();
+    DisplayBoost();
+    DisplayMotor();
+    DisplayMPH();
+    //DisplayButtons();
+    DisplayLowerBanner();
+    ClearChangeFlags();
    } //if(bScreenChanged())
    return;
 }  //DisplayUpdate
 
 
 void DisplayClear() {
-	FillScreen(usBackgroundColor);
+  FillScreen(usBackgroundColor);
   return;
 }  //DisplayClear
 
@@ -393,16 +395,16 @@ void FillScreen(UINT16 usColor) {
 bool bScreenChanged() {
    //Determine if something being displayed has changed & clear the flags.
    bool bChanged= bGyroChanged  || bPitchChanged || bGearChanged  || bButtonsChanged || bServoChanged || bModeChanged ||
-  								bBoostChanged || bMotorChanged || bMPHChanged;
+                  bBoostChanged || bMotorChanged || bMPHChanged;
    return bChanged;
 }  //bScreenChanged
 
 
 void ClearChangeFlags(){
   bGyroChanged= bPitchChanged= bGearChanged  = bButtonsChanged= bServoChanged= bModeChanged=
- 		            bBoostChanged= bMotorChanged = bMPHChanged= false;
-	return;
-}	//ClearChangeFlags
+                bBoostChanged= bMotorChanged = bMPHChanged= false;
+  return;
+} //ClearChangeFlags
 
 
 void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
@@ -419,133 +421,133 @@ void DisplayText(UINT16 usCursorX, UINT16 usCursorY, char *pcText,
 
 
 void ClearTextBackground(INT16 sUpperLeftX, INT16 sUpperLeftY, UINT16 usWidth, UINT16 usHeight){
-	RoverLCD.fillRect(sUpperLeftX, sUpperLeftY, usWidth, usHeight, usBackgroundColor);
-	return;
-}	//ClearTextBackground
+  RoverLCD.fillRect(sUpperLeftX, sUpperLeftY, usWidth, usHeight, usBackgroundColor);
+  return;
+} //ClearTextBackground
 
 
 void DisplayLine(const GFXfont stFont, UINT16 usColor, UINT16 usCursorX, UINT16 usCursorY, UINT16 usClearWidth, UINT16 usClearHeight,
-								 char szText[], bool bClearText= true, UINT8 ucSize= 1) {
-  INT16						sClearXstart		= usCursorX - 10;
-  INT16						sClearYstart		= usCursorY - 18;
+                 char szText[], bool bClearText= true, UINT8 ucSize= 1) {
+  INT16           sClearXstart    = usCursorX - 10;
+  INT16           sClearYstart    = usCursorY - 18;
 
   if(bClearText){
-  	ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
+    ClearTextBackground(sClearXstart, sClearYstart, usClearWidth, usClearHeight);
   }
-	DisplayText( usCursorX, usCursorY, szText, &stFont, ucSize, usColor);
+  DisplayText( usCursorX, usCursorY, szText, &stFont, ucSize, usColor);
   return;
 } //DisplayLine
 
 
 void DisplayPitch() {
-	UINT16					usCharWidth		  = 25;
-  UINT16          usCursorX 			= 0;
-  UINT16          usCursorY 			= 30;		//GFX fonts Y is bottom
-  UINT8           ucSize    			= 1;
-  UINT16          usColor   			= WROVER_WHITE;
-  UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
-  INT16						sClearLeftX		  = usCursorX;
-  INT16						sClearTopY		  = 0;
-  UINT16					usClearWidth		= 120;
-  UINT16					usClearHeight		= 35;
-  static UINT16		usLastClearWidth= 0;
+  UINT16          usCharWidth     = 25;
+  UINT16          usCursorX       = 0;
+  UINT16          usCursorY       = 30;   //GFX fonts Y is bottom
+  UINT8           ucSize          = 1;
+  UINT16          usColor         = WROVER_WHITE;
+  UINT16          usRightInset    = 2;  //Number of pixels to right of justified text
+  INT16           sClearLeftX     = usCursorX;
+  INT16           sClearTopY      = 0;
+  UINT16          usClearWidth    = 120;
+  UINT16          usClearHeight   = 35;
+  static UINT16   usLastClearWidth= 0;
 
   //Serial << "DisplayPitch(): Begin" << endl;
   if(bPitchChanged) {
-		sprintf(szTempBuffer, "%+4.1f%%", dPitchPercent);
-		//sprintf(szTempBuffer, "%+4.1f %+03.0f", dPitchPercent, dPitchDeg);
-		//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
-		usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
-		usClearWidth= std::max(usClearWidth, usLastClearWidth);
-		usLastClearWidth= usClearWidth;
-		ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
-		DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+    sprintf(szTempBuffer, "%+4.1f%%", dPitchPercent);
+    //sprintf(szTempBuffer, "%+4.1f %+03.0f", dPitchPercent, dPitchDeg);
+    //Calculate width to clear based on number of characters + 2, use that unless last width was bigger
+    usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
+    usClearWidth= std::max(usClearWidth, usLastClearWidth);
+    usLastClearWidth= usClearWidth;
+    ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+    DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
 
-		usCursorX= 50;
-		usCursorY += 20;
-		sprintf(szTempBuffer, "Pitch");
-		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-  }	//if(bPitchChanged)
+    usCursorX= 50;
+    usCursorY += 20;
+    sprintf(szTempBuffer, "Pitch");
+    DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  } //if(bPitchChanged)
   return;
 }  //DisplayPitch
 
 
 void DisplayBoost() {
-	UINT16					usCharWidth		  = 25;
-  UINT16          usCursorX 			= 0;
-  UINT16          usCursorY 			= usBoostTop;		//GFX fonts Y is bottom 90
-  UINT8           ucSize    			= 1;
-  UINT16          usColor   			= WROVER_WHITE;
-  UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
-  INT16						sClearLeftX		  = usCursorX;
-  INT16						sClearTopY		  = usCursorY - 32;
-  UINT16					usClearWidth		= 120;
-  UINT16					usClearHeight		= 40;
-  static UINT16		usLastClearWidth= 0;
+  UINT16          usCharWidth     = 25;
+  UINT16          usCursorX       = 0;
+  UINT16          usCursorY       = usBoostTop;   //GFX fonts Y is bottom 90
+  UINT8           ucSize          = 1;
+  UINT16          usColor         = WROVER_WHITE;
+  UINT16          usRightInset    = 2;  //Number of pixels to right of justified text
+  INT16           sClearLeftX     = usCursorX;
+  INT16           sClearTopY      = usCursorY - 32;
+  UINT16          usClearWidth    = 120;
+  UINT16          usClearHeight   = 40;
+  static UINT16   usLastClearWidth= 0;
 
   //Serial << "DisplayBoost(): Begin" << endl;
   if(bBoostChanged) {
-		sprintf(szTempBuffer, "%3.0f W", dBoostWatts);
-		//Calculate width to clear based on number of characters + 2, use that unless last width was bigger
-		usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
-		usClearWidth= std::max(usClearWidth, usLastClearWidth);
-		usLastClearWidth= usClearWidth;
-		ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
-		DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+    sprintf(szTempBuffer, "%3.0f W", dBoostWatts);
+    //Calculate width to clear based on number of characters + 2, use that unless last width was bigger
+    usClearWidth= (strlen(szTempBuffer) + 2) * usCharWidth;
+    usClearWidth= std::max(usClearWidth, usLastClearWidth);
+    usLastClearWidth= usClearWidth;
+    ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+    DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
 
-		usCursorX= 50;
-		usCursorY += 20;
-		sprintf(szTempBuffer, "Boost");
-		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-  }	//if(bBoostChanged)
+    usCursorX= 50;
+    usCursorY += 20;
+    sprintf(szTempBuffer, "Boost");
+    DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  } //if(bBoostChanged)
   return;
 }  //DisplayBoost
 
 
 void DisplayCurrentGear() {
-	UINT16					usCharWidth		  = 120;
-  UINT16          usCursorX 			= 200;
-  UINT16          usCursorY 			= 62;		//GFX fonts Y is bottom
-  UINT8           ucSize    			= 2;
-  UINT16					usRightInset		= 2;	//Number of pixels to right of justified text
-  INT16						sClearLeftX		  = usCursorX;
-  INT16						sClearTopY		  = 0;
-  UINT16					usClearWidth		= 120;
-  UINT16					usClearHeight		= usCursorY + 10;
-  UINT16          usColor   			= WROVER_WHITE;
+  UINT16          usCharWidth     = 120;
+  UINT16          usCursorX       = 200;
+  UINT16          usCursorY       = 62;   //GFX fonts Y is bottom
+  UINT8           ucSize          = 2;
+  UINT16          usRightInset    = 2;  //Number of pixels to right of justified text
+  INT16           sClearLeftX     = usCursorX;
+  INT16           sClearTopY      = 0;
+  UINT16          usClearWidth    = 120;
+  UINT16          usClearHeight   = usCursorY + 10;
+  UINT16          usColor         = WROVER_WHITE;
 
   //Serial << "DisplayCurrentGear(): Begin" << endl;
   if(bGearChanged) {
-		if (sCurrentMode == sNormalMode) {
-			sprintf(szTempBuffer, "%2d", sCurrentGear);
-			usClearWidth= strlen(szTempBuffer) * usCharWidth;
-			ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
-			DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
-		}  //if (sCurrentMode..
-		else {
-			sprintf(szTempBuffer, "%2d", 0);
-			usClearWidth= strlen(szTempBuffer) * usCharWidth;
-			ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
-			DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
-		}  //if (sCurrentMode..else
+    if (sCurrentMode == sNormalMode) {
+      sprintf(szTempBuffer, "%2d", sCurrentGear);
+      usClearWidth= strlen(szTempBuffer) * usCharWidth;
+      ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+      DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+    }  //if (sCurrentMode..
+    else {
+      sprintf(szTempBuffer, "%2d", 0);
+      usClearWidth= strlen(szTempBuffer) * usCharWidth;
+      ClearTextBackground(sClearLeftX, sClearTopY, usClearWidth, usClearHeight);
+      DisplayLine(FreeMonoBold24pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false, ucSize);
+    }  //if (sCurrentMode..else
 
-		usCursorX= 255;
-		usCursorY += 20;
-		sprintf(szTempBuffer, "Gear");
-		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-  }	//if(bGearChanged)
+    usCursorX= 255;
+    usCursorY += 20;
+    sprintf(szTempBuffer, "Gear");
+    DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  } //if(bGearChanged)
   return;
 }  //DisplayCurrentGear
 
 
 void DisplayGs() {
-	const UINT16		usCharWidth		= 17;
-	const UINT16		usLineHeight	= 20;
-	UINT16          usCursorX 		= 0;
-	UINT16          usCursorY 		= usAccelMotorTop;
-	UINT16					usClearWidth;
-	UINT16					usClearHeight = 22;
-	UINT16 					usColor 			= WROVER_YELLOW;
+  const UINT16    usCharWidth   = 17;
+  const UINT16    usLineHeight  = 20;
+  UINT16          usCursorX     = 0;
+  UINT16          usCursorY     = usAccelMotorTop;
+  UINT16          usClearWidth;
+  UINT16          usClearHeight = 22;
+  UINT16          usColor       = WROVER_YELLOW;
 
   //Serial << "DisplayGs(): Begin" << endl;
   sprintf(szTempBuffer, "G Accel");
@@ -571,120 +573,121 @@ void DisplayGs() {
 
 
 void DisplayServoPos() {
-	const UINT16		usCharWidth		= 17;
-	const UINT16		usLineHeight	= 20;
-  UINT16          usCursorX 		= 252;
-  UINT16          usCursorY 		= 115;
-  UINT16					usClearWidth	= 70;
-	UINT16					usClearHeight = 22;
-	UINT16 					usColor 			= WROVER_WHITE;
+  const UINT16    usCharWidth   = 17;
+  const UINT16    usLineHeight  = 20;
+  UINT16          usCursorX     = 252;
+  UINT16          usCursorY     = 115;
+  UINT16          usClearWidth  = 70;
+  UINT16          usClearHeight = 22;
+  UINT16          usColor       = WROVER_WHITE;
 
   //Serial << "DisplayServoPos(): Begin" << endl;
   if(bServoChanged) {
-		sprintf(szTempBuffer, "%3d", sServoPosLast);
-		usClearWidth= strlen(szTempBuffer) * usCharWidth;
-		DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX + 15, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+    sprintf(szTempBuffer, "%3d", sServoPosLast);
+    usClearWidth= strlen(szTempBuffer) * usCharWidth;
+    DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX + 15, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-		sprintf(szTempBuffer, "Servo");
-		usClearWidth= strlen(szTempBuffer) * usCharWidth;
-		usCursorY += usLineHeight;
-		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-  }	//if(bServoChanged)
+    sprintf(szTempBuffer, "Servo");
+    usClearWidth= strlen(szTempBuffer) * usCharWidth;
+    usCursorY += usLineHeight;
+    DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  } //if(bServoChanged)
   return;
 }  //DisplayServoPos
 
 
 void DisplayMPH() {
-	const UINT16		usCharWidth		= 17;
-	const UINT16		usLineHeight	= 20;
-  UINT16          usCursorX 		= 252;
-  UINT16          usCursorY 		= 175;
-  UINT16					usClearWidth	= 70;
-	UINT16					usClearHeight = 22;
-  UINT16          usColor   		= WROVER_YELLOW;
+  const UINT16    usCharWidth   = 17;
+  const UINT16    usLineHeight  = 20;
+  UINT16          usCursorX     = 252;
+  UINT16          usCursorY     = 175;
+  UINT16          usClearWidth  = 70;
+  UINT16          usClearHeight = 22;
+  UINT16          usColor       = WROVER_YELLOW;
 
   //Serial << "DisplayMPH(): Begin" << endl;
   if(bMPHChanged) {
-		sprintf(szTempBuffer, "%4.1f", dMPH);
-		usClearWidth= strlen(szTempBuffer) * usCharWidth;
-		DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+    sprintf(szTempBuffer, "%4.1f", dMPH);
+    usClearWidth= strlen(szTempBuffer) * usCharWidth;
+    DisplayLine(FreeMonoBold12pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-		sprintf(szTempBuffer, "MPH");
-		usClearWidth= strlen(szTempBuffer) * usCharWidth;
-		usCursorY += usLineHeight;
-		DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
-  }	//if(bMPHChanged)
+    sprintf(szTempBuffer, "MPH");
+    usClearWidth= strlen(szTempBuffer) * usCharWidth;
+    usCursorY += usLineHeight;
+    DisplayLine(FreeSans9pt7b, usColor, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+  } //if(bMPHChanged)
   return;
 }  //DisplayMPH
 
 
 void DisplayMotor() {
-	const UINT16		usCharWidth		= 17;
-	const UINT16		usLineHeight	= 20;
-	UINT16          usCursorX 		= usMotorLeft;
-	UINT16          usCursorY 		= usAccelMotorTop;
-	UINT16					usClearWidth;
-	UINT16					usClearHeight = 22;
+  const UINT16    usCharWidth   = 17;
+  const UINT16    usLineHeight  = 20;
+  UINT16          usCursorX     = usMotorLeft;
+  UINT16          usCursorY     = usAccelMotorTop;
+  UINT16          usClearWidth;
+  UINT16          usClearHeight = 22;
 
   //Serial << "DisplayMotor(): Begin" << endl;
   sprintf(szTempBuffer, "Motor");
   if(bMotorChanged) {
-		usClearWidth= strlen(szTempBuffer) * usCharWidth;
-		DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
+    usClearWidth= strlen(szTempBuffer) * usCharWidth;
+    DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer, false);
 
-		sprintf(szTempBuffer, "V  %4.1f", dMotorVolts);
-		usClearWidth= strlen(szTempBuffer) * usCharWidth;
-		usCursorY += usLineHeight;
-		DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+    sprintf(szTempBuffer, "V  %4.1f", dMotorVolts);
+    usClearWidth= strlen(szTempBuffer) * usCharWidth;
+    usCursorY += usLineHeight;
+    DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-		sprintf(szTempBuffer, "A  %4.1f", dMotorAmps);
-		usClearWidth= strlen(szTempBuffer) * usCharWidth;
-		usCursorY += usLineHeight;
-		DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+    sprintf(szTempBuffer, "A  %4.1f", dMotorAmps);
+    usClearWidth= strlen(szTempBuffer) * usCharWidth;
+    usCursorY += usLineHeight;
+    DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
 
-		sprintf(szTempBuffer, "W %3.0f", dMotorWatts);
-		usClearWidth= strlen(szTempBuffer) * usCharWidth;
-		usCursorY += usLineHeight;
-		DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
-  }	//if(bMotorChanged)
+    //sprintf(szTempBuffer, "W %3.0f", dMotorWatts);
+    sprintf(szTempBuffer, "W %4.1f", dMotorWatts);
+    usClearWidth= strlen(szTempBuffer) * usCharWidth;
+    usCursorY += usLineHeight;
+    DisplayLine(FreeMonoBold12pt7b, WROVER_YELLOW, usCursorX, usCursorY, usClearWidth, usClearHeight, szTempBuffer);
+  } //if(bMotorChanged)
   return;
 }  //DisplayMotor
 
 
 void DisplayButtons() {
-	const GFXfont   *pFont    			= &FreeSans9pt7b;
-  UINT16          usCursorX 			= 260;
-  UINT16          usCursorY 			= 160;
-  UINT8           ucSize    			= 1;
-  UINT16          usColor   			= WROVER_ORANGE;
-  bool						bRightJustify		= false;
+  const GFXfont   *pFont          = &FreeSans9pt7b;
+  UINT16          usCursorX       = 260;
+  UINT16          usCursorY       = 160;
+  UINT8           ucSize          = 1;
+  UINT16          usColor         = WROVER_ORANGE;
+  bool            bRightJustify   = false;
 
   //Show 2 lines at right bottom for U d, D d
   strcpy(szTempBuffer, "U ");
   itoa(sButtonCount[sUp]  ,sz100CharString  , 10);
   strcat(szTempBuffer, sz100CharString);
-	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
 
-	strcpy(szTempBuffer, "D ");
-	itoa(sButtonCount[sDown]  ,sz100CharString  , 10);
-	strcat(szTempBuffer, sz100CharString);
-	usCursorY= usCursorY + 20;
-	DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
+  strcpy(szTempBuffer, "D ");
+  itoa(sButtonCount[sDown]  ,sz100CharString  , 10);
+  strcat(szTempBuffer, sz100CharString);
+  usCursorY= usCursorY + 20;
+  DisplayText( usCursorX, usCursorY, szTempBuffer, pFont, ucSize, usColor);
   return;
 }  //DisplayButtons
 
 
 void DisplayLowerBanner(){
-	const GFXfont   *pFont    			= &FreeSansOblique18pt7b;
-  UINT16          usCursorX 			= 7;
-  UINT16          usCursorY 			= 232;		//Was 72
-  UINT8           ucSize    			= 1;
-  UINT16          usColor   			= WROVER_CYAN;
-  bool						bRightJustify		= false;
+  const GFXfont   *pFont          = &FreeSansOblique18pt7b;
+  UINT16          usCursorX       = 7;
+  UINT16          usCursorY       = 232;    //Was 72
+  UINT8           ucSize          = 1;
+  UINT16          usColor         = WROVER_CYAN;
+  bool            bRightJustify   = false;
 
-	DisplayText( usCursorX, usCursorY, "PowerShift Coach", pFont, ucSize, usColor);
-	return;
-}	//DisplayLowerBanner
+  DisplayText( usCursorX, usCursorY, "PowerShift Coach", pFont, ucSize, usColor);
+  return;
+} //DisplayLowerBanner
 
 
 void FillGearLocations(void) {
@@ -696,41 +699,58 @@ void FillGearLocations(void) {
 
 
 void ReadAtoD() {
-	Wire.beginTransmission(sPCF8591);
-	//Serial << "ReadAtoD(): Call Wire.write(0x04), turn on A/D"  << endl;
-	Wire.write(0x04);
-	Wire.endTransmission();
-	//Serial << "ReadAtoD(): Call Wire.requestFrom(PCF8591, 5, stream 4 values"  << endl;
-	Wire.requestFrom(sPCF8591, 5);
+  Wire.beginTransmission(sPCF8591);
+  Serial << "ReadAtoD(): Begin"  << endl;
+  Wire.write(0x04);
+  Wire.endTransmission();
+  //Serial << "ReadAtoD(): Call Wire.requestFrom(PCF8591, 5, stream 4 values"  << endl;
+  Wire.requestFrom(sPCF8591, 5);
 
-	acRawAnalogValue[eBatteryVolts]= Wire.read();
-	acRawAnalogValue[eThermistor]= Wire.read();
-	acRawAnalogValue[eBatteryAmps]= Wire.read();
-	acRawAnalogValue[eThumbThrottle]= Wire.read();
+  acRawAnalogValue[eBatteryVolts]= Wire.read();
+  acRawAnalogValue[eThermistor]= Wire.read();
+  acRawAnalogValue[eBatteryAmps]= Wire.read();
+  acRawAnalogValue[eThumbThrottle]= Wire.read();
+  Serial << "ReadAtoD(): RawValues eBatteryVolts, eThermistor, eBatteryAmps, eThumbThrottle" << endl;
+  for (int i= eBatteryVolts; i <= eThumbThrottle; i++){
+  	Serial << "   ReadAtoD(): Index, RawAnalogVolts" << i << ", " << dMotorVolts << endl;
+  }//for
 
-	//Compute actual battery volts.
-	double dAtoDFullScale= 255.0;
-	double dVoltsFullScale= 3.3;
-	double dScaleVolts= 2.0;			//Reading is pulled off the middle of a even voltage divider
-	double dVoltsPerAmp= 0.100;
-	double dVoltsAtZeroAmps= 2.2;
-	double dAmpsFullScale= (dVoltsFullScale - dVoltsAtZeroAmps) /  dVoltsPerAmp;
-	dMotorVolts= (((double)acRawAnalogValue[eBatteryVolts] / dAtoDFullScale) * dVoltsFullScale) * dScaleVolts;
+  //Compute battery volts and amps.
+  // ACS712 current sense, 20A full scale, 2.5V +/-2.0V =  +/-20.0A, 0.5-4.5V
+  // PCF8581 8bits, 0-3.3V
+  // Amps= ((10.0 * CurrentSenseVolts) - 25.0)
+  double dAtoDFullScale= 255.0;
+  double dVoltsFullScale= 3.3;
+  double dScaleVolts= 2.0;      //Reading is pulled off the middle of a even voltage divider
+  double dCurrentSenseVoltsPerAmp= 0.100;
+  double dCurrentSenseVoltsAtZeroAmps= 2.5;
+  double dSlopeAmpsPerVolt= 10.0;
+  double dZeroVoltsAmpOffset= -25.0;
+  double dCurrentSenseVolts;
+  //double dAmpsFullScale= (dVoltsFullScale - dCurrentSenseVoltsAtZeroAmps) /  dCurrentSenseVoltsPerAmp;
 
-	//ACS712 current sense, 20A full scale
-	dMotorAmps= ((double)acRawAnalogValue[eBatteryAmps] / dAtoDFullScale) ;
-	bMotorChanged= true;
-	return;
+  //Compute actual battery volts.
+  dMotorVolts= (((double)acRawAnalogValue[eBatteryVolts] / dAtoDFullScale) * dVoltsFullScale) * dScaleVolts;
+
+  //Compute battery amps.
+  dCurrentSenseVolts= ((double)acRawAnalogValue[eBatteryAmps] / dAtoDFullScale) * dVoltsFullScale;
+  dMotorAmps= (dSlopeAmpsPerVolt * dCurrentSenseVolts) + dZeroVoltsAmpOffset;
+  dMotorWatts= dMotorVolts * dMotorAmps;
+  Serial << "ReadAtoD(): dMotorVolts= " << dMotorVolts << endl;
+  Serial << "ReadAtoD(): dMotorAmps= " << dMotorAmps << endl;
+  Serial << "ReadAtoD(): dMotorWatts= " << dMotorWatts << endl;
+  bMotorChanged= true;
+  return;
 }  //ReadAtoD
 
 
 void ReadAccel() {
-	MPU6050_ReadGs(adGvalueXYZ, dGConvert);
-	Serial << "ReadAccel(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
+  MPU6050_ReadGs(adGvalueXYZ, dGConvert);
+  Serial << "ReadAccel(): G's X, Y, Z " << adGvalueXYZ[sXAxis] << ", " << adGvalueXYZ[sYAxis] << ", " << adGvalueXYZ[sZAxis] << endl;
 
-	ComputePitchAndRoll();
-	bGyroChanged= true;
-	return;
+  ComputePitchAndRoll();
+  bGyroChanged= true;
+  return;
 }  //ReadAccel
 
 
@@ -880,31 +900,31 @@ void HandleNormalMode(void) {
    int          sTargetChange= 0;
    //boolean      bReturn= false;
 
-	 for (sButton= sUp; sButton <= sDown; sButton++) {
-		if (sButton == sUp) {
-			 sGearChange= 1;
-		}
-		else {
-			 sGearChange= -1;
-		}
-		//Compute net gear change by handling at most one request from each button
-		if (sButtonCount[sButton] > 0) {
-			 sTargetChange += sGearChange;
-			 //Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= " << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
-			 sButtonCount[sButton]--;
-			 bButtonsChanged= true;
-		}  //if((sButtonCount[sButton]!=sHoldCode)...
-	} //for
+   for (sButton= sUp; sButton <= sDown; sButton++) {
+    if (sButton == sUp) {
+       sGearChange= 1;
+    }
+    else {
+       sGearChange= -1;
+    }
+    //Compute net gear change by handling at most one request from each button
+    if (sButtonCount[sButton] > 0) {
+       sTargetChange += sGearChange;
+       //Serial << sLineCount++ << " sHandleNormalMode(): Button" << sButton << ", Count= " << sButtonCount[sButton] << ", sTargetChange= " << sTargetChange << endl;
+       sButtonCount[sButton]--;
+       bButtonsChanged= true;
+    }  //if((sButtonCount[sButton]!=sHoldCode)...
+  } //for
 
-	sNewGear= constrain(sCurrentGear + sTargetChange, 1, sNumGears);
-	if (sNewGear != sCurrentGear){
-		sCurrentGear= sNewGear;
-		sTargetLocation= asGearLocation[sCurrentGear];
+  sNewGear= constrain(sCurrentGear + sTargetChange, 1, sNumGears);
+  if (sNewGear != sCurrentGear){
+    sCurrentGear= sNewGear;
+    sTargetLocation= asGearLocation[sCurrentGear];
 
-		//Make the actual shift
-		ServoMove(sTargetLocation);
-		bGearChanged= true;
-	}	//if(sNewGear!=sCurrentGear)
+    //Make the actual shift
+    ServoMove(sTargetLocation);
+    bGearChanged= true;
+  } //if(sNewGear!=sCurrentGear)
   return;
 }  //HandleNormalMode
 
@@ -1013,30 +1033,30 @@ void CheckButtons(void) {
       }   //if(!bReturn&&UpButton.IsHold()
       bReturn= false;
    } //for (sButton= sUp...
-#endif	//DO_BUTTONS
+#endif  //DO_BUTTONS
   return;
 }  //CheckButtons
 
 
 void TestButtonPins() {
-	int sUpButtonLocal		= 2;
-	int sDownButtonLocal	= 4;
+  int sUpButtonLocal    = 2;
+  int sDownButtonLocal  = 4;
   Serial << "SetupPins(): Call pinMode(" << sUpButtonLocal << ", INPUT_PULLUP) for Up" << endl;
-	pinMode(sUpButtonLocal, INPUT_PULLUP);
+  pinMode(sUpButtonLocal, INPUT_PULLUP);
 
   Serial << "SetupPins(): Call pinMode(" << sDownButtonLocal << ", INPUT_PULLUP) for Down" << endl;
-	pinMode(sDownButtonLocal, INPUT_PULLUP);
+  pinMode(sDownButtonLocal, INPUT_PULLUP);
 
-	int sValueUp;
-	int sValueDown;
-	for (int i= 0; i<10; i++){
-		Serial << "SetupPins(): Read buttons, Try= " << i << endl;
-		sValueUp= digitalRead(sUpButtonLocal);
-		sValueDown= digitalRead(sDownButtonLocal);
-	  Serial << "SetupPins(): Read buttons, Pin "
-	  		<< sUpButtonLocal << "= " << sValueUp << ", Pin " << sDownButtonLocal <<  "= " << sValueDown << endl;
-	  delay(1000);
-	}	//for(inti= 0;...
+  int sValueUp;
+  int sValueDown;
+  for (int i= 0; i<10; i++){
+    Serial << "SetupPins(): Read buttons, Try= " << i << endl;
+    sValueUp= digitalRead(sUpButtonLocal);
+    sValueDown= digitalRead(sDownButtonLocal);
+    Serial << "SetupPins(): Read buttons, Pin "
+        << sUpButtonLocal << "= " << sValueUp << ", Pin " << sDownButtonLocal <<  "= " << sValueDown << endl;
+    delay(1000);
+  } //for(inti= 0;...
   return;
 }  //TestButtonPins
 //Last line
