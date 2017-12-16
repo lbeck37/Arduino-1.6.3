@@ -19,11 +19,12 @@ String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
   szHeader += " ";
-  szHeader += szGetTime(millis());
+  //szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
 
 
+/*
 String szGetTime(long lMsec){
   String  szString;
   int sDays    =    lMsec                                               / lMsecPerDay ;
@@ -38,6 +39,7 @@ String szGetTime(long lMsec){
   szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
   return szString;
 } //szGetTime
+*/
 
 
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).

@@ -1,9 +1,10 @@
 static const String SketchName  = "BeckAtoD.ino";
-static const String FileDate    = "Dec 15, 2017, Lenny-a";
+static const String FileDate    = "Dec 16, 2017, Lenny-a";
 
 //Beck 1/27/17
 #include <Wire.h>
-#include <Adafruit_ADS1015.h>
+//#include <Adafruit_ADS1015.h>
+#include <BeckAtoD.h>
 #include <Streaming.h>
 
 static const int       sI2C_SDA              = 26;

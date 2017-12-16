@@ -2,7 +2,8 @@ static const String SketchName  = "Powershift_E32Rover.ino";
 static const String FileDate    = "Dec 15, 2017, Lenny-f";
 
 #include <Arduino.h>
-#include <BeckLogLib.h>
+//#include <BeckLogLib.h>
+#include <BeckMiniLib.h>
 #include <BeckMPU6050_Gyro.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
@@ -53,7 +54,7 @@ static const boolean   bButtonPullUp         = true;
 
 //Digital Pins
 #if 1   //ESP32
-static const int       sServoPin             = 12;
+//static const int       sServoPin             = 12;
 static const int       sUpButton             =  2;
 static const int       sDownButton           =  4;
 static const int       sI2C_SDA              = 26;
@@ -129,8 +130,8 @@ static const int       sFontSize3           =   3;
 static const int       sFontSize4           =   4;
 static const int       sFontSize5           =   5;
 
-static const byte      cBogusResetPin       = 4;
-static const byte      cHW_SPI              = 0;      //This is what their demo used.
+//static const byte      cBogusResetPin       = 4;
+//static const byte      cHW_SPI              = 0;      //This is what their demo used.
 static const uint16_t  usBackgroundColor    = WROVER_BLACK;
 static const UINT16    usBoostTop           = 90;
 static const UINT16    usAccelMotorTop      = 135;

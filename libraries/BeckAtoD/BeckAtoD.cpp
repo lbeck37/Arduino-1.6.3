@@ -2,12 +2,13 @@
 #include <BeckAtoD.h>
 
 //BeckAtoD class methods
-BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType) {
+//BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType) {
+BeckAtoD::BeckAtoD(AtoD_t eType) {
   String szLogString="BeckAtoD Constructor: Begin";
-  LogToSerial(szLogString);
-  pBeckI2C_= pBeckI2C;
+  //LogToSerial(szLogString);
+  //pBeckI2C_= pBeckI2C;
   eType_= eType;
-  bDevicePresent_= pBeckI2C_->bDevicePresent(eAtoD);
+  //bDevicePresent_= pBeckI2C_->bDevicePresent(eAtoD);
   return;
 } //Constructor
 
@@ -19,7 +20,7 @@ double BeckAtoD::dRead(INT16 sChan, adsGain_t eGain) {
 	else {
 		double dReturn= 3.737;
 		String szLogString="BeckAtoD::dRead(): I2C AtoD not present, returning";
-		LogToSerial(szLogString, dReturn);
+		//LogToSerial(szLogString, dReturn);
 		return (dReturn);
 	}
 } //dRead
@@ -47,7 +48,7 @@ double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
       break;
     default:
       szLogString="dRead_ADS1115(): Bad switch";
-      LogToBoth(szLogString, sChannel);
+      //LogToBoth(szLogString, sChannel);
       break;
   } //switch
 
@@ -55,7 +56,7 @@ double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
   delay(50);      //Adafruit code only delays for 8.
   INT16 sVoltCount= pBeckI2C_->ReadI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONVERT);
   szLogString="BeckAtoD:dRead_ADS1115() sVoltCount=";
-  LogToSerial(szLogString, sVoltCount);
+  //LogToSerial(szLogString, sVoltCount);
 
   double dVoltsRead= (sVoltCount * 4.096) / 32768.0;
   return(dVoltsRead);

@@ -1,7 +1,7 @@
 //BeckI2C.h
 #ifndef BECKI2C_H
 #define BECKI2C_H
-#include <BeckLib.h>
+#include <BeckMiniLib.h>
 //#include <map>
 
 using namespace std;

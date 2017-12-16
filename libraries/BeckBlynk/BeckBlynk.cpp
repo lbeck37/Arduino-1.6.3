@@ -3,12 +3,15 @@
 #include <BeckBlynk.h>
 #include <BeckControlLib.h>
 //#include <BeckESP32AtoDLib.h>
+
+/*
 #ifdef ESP8266
   #include <BlynkSimpleEsp8266.h>
 #endif  //ESP8266
 #ifdef ESP32
   #include <BlynkSimpleEsp32.h>
 #endif  //ESP32
+*/
 
 //Define Virtual Pin names (V0 - V127)
 //DS18B20 OneWire temp sensors

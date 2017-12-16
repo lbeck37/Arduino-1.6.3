@@ -87,7 +87,7 @@ void BeckI2C::TestI2C(void) {
 
 
 UINT8 BeckI2C::ucTestI2C(UINT8 ucAddress) {
-	UINT8 		ucError;
+	UINT8 		ucError			= 0;
   String 		szLogString;
   if (!bSkipTestI2c_) {
 		Wire.beginTransmission(ucAddress);

@@ -1,10 +1,16 @@
+//static const String SketchName  = "BeckLib.cpp";
+//static const String FileDate    = "Dec 16, 2017, Lenny-a";
+
+static const char SketchName[]  = "BeckLib.cpp";
+static const char FileDate[]    = "Dec 16, 2017, Lenny-a";
+
 //BeckLib.cpp, April 14, 2017
 //#define OTA_SERVER
 #include <BeckLib.h>
 #include <BeckBlynk.h>
 //#define DEBUG_LOGGING
 //#define NO_FIREBASE
-const char szVersionDate[]    = "May 4, 2017 -CC- Lenny";
+//const char szVersionDate[]    = "May 4, 2017 -CC- Lenny";
 
 //Global variables
 long                  lLineCount      = 0;  //Serial Monitor uses for clarity.
@@ -42,8 +48,8 @@ int					 sProjectType_;		//Different from local variable sProjectType in BeckBly
   //static const int       sBacklightPin;
   const int       sUpButtonPin       =  0;
   const int       sDownButtonPin     =  2;
-  const byte      cI2C_SDA_Pin       =  4;
-  const byte      cI2C_SCL_Pin       =  5;
+  const byte      cI2C_SDA_Pin       =  26;
+  const byte      cI2C_SCL_Pin       =  27;
   const byte      cSPI_A0CmdData_Pin =  4;
   const byte      cSPI_MISO_Pin      = 12;
   const byte      cSPI_MOSI_Pin      = 13;
