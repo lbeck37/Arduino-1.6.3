@@ -3,10 +3,11 @@
 
 //BeckAtoD class methods
 //BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType) {
-BeckAtoD::BeckAtoD(AtoD_t eType) {
+//BeckAtoD::BeckAtoD(AtoD_t eType) {
+BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType){
   String szLogString="BeckAtoD Constructor: Begin";
-  //LogToSerial(szLogString);
-  //pBeckI2C_= pBeckI2C;
+  LogToSerial(szLogString);
+  pBeckI2C_= pBeckI2C;
   eType_= eType;
   //bDevicePresent_= pBeckI2C_->bDevicePresent(eAtoD);
   return;
