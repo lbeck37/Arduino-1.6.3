@@ -1,15 +1,25 @@
-//Beck 1/27/17
-//#include <Wire.h>
-#include <Adafruit_ADS1015.h>
+static const String SketchName  = "BeckAtoD.ino";
+static const String FileDate    = "Dec 15, 2017, Lenny-a";
 
-Adafruit_ADS1115 ads(0x48);
+//Beck 1/27/17
+#include <Wire.h>
+#include <Adafruit_ADS1015.h>
+#include <Streaming.h>
+
+static const int       sI2C_SDA              = 26;
+static const int       sI2C_SCL              = 27;
+
+Adafruit_ADS1115 	ads(0x48);
 float Voltage = 0.0;
 
 void setup(void)
 {
   //Serial.begin(9600);
   Serial.begin(115200);
-  Serial.println("\nBeckAtoD.ino 1/27/17B HP7");
+  //Serial.println("\nBeckAtoD.ino 12/15/17A Lenny");
+  Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
+  Serial << "setup(): Call Wire.begin(sI2C_SDA, sI2C_SCL) " << sI2C_SDA << ", " << sI2C_SCL << endl;
+  Wire.begin(sI2C_SDA, sI2C_SCL);
   ads.begin();
 } //setup
 

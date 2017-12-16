@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 15, 2017, Lenny-d";
+static const String FileDate    = "Dec 15, 2017, Lenny-f";
 
 #include <Arduino.h>
 #include <BeckLogLib.h>
@@ -211,6 +211,7 @@ void(* ResetESP32)(void)= 0;        //Hopefully system crashes and reset when th
 void setup()   {
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
+  Serial << "setup(): Call Wire.begin(sI2C_SDA, sI2C_SCL) " << sI2C_SDA << ", " << sI2C_SCL << endl;
   Wire.begin(sI2C_SDA, sI2C_SCL);
   FillGearLocations();
   SetupGyro();
@@ -699,20 +700,24 @@ void FillGearLocations(void) {
 
 
 void ReadAtoD() {
+	Serial << "ReadAtoD(): Call Wire.beginTransmission(" << sPCF8591 << ")" << endl;
   Wire.beginTransmission(sPCF8591);
   Serial << "ReadAtoD(): Begin"  << endl;
+	Serial << "ReadAtoD(): Call Wire.write(0x04), turn on A/D"  << endl;
   Wire.write(0x04);
   Wire.endTransmission();
   //Serial << "ReadAtoD(): Call Wire.requestFrom(PCF8591, 5, stream 4 values"  << endl;
   Wire.requestFrom(sPCF8591, 5);
 
+  //The first reading is the last value read, throw it away.
+  byte cLastReading= Wire.read();
   acRawAnalogValue[eBatteryVolts]= Wire.read();
   acRawAnalogValue[eThermistor]= Wire.read();
   acRawAnalogValue[eBatteryAmps]= Wire.read();
   acRawAnalogValue[eThumbThrottle]= Wire.read();
   Serial << "ReadAtoD(): RawValues eBatteryVolts, eThermistor, eBatteryAmps, eThumbThrottle" << endl;
   for (int i= eBatteryVolts; i <= eThumbThrottle; i++){
-  	Serial << "   ReadAtoD(): Index, RawAnalogVolts" << i << ", " << dMotorVolts << endl;
+  	Serial << "   ReadAtoD(): Index, RawAnalogVolts " << i << ", " << acRawAnalogValue[i] << endl;
   }//for
 
   //Compute battery volts and amps.

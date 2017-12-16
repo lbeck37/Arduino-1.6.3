@@ -1,5 +1,5 @@
 static const String SketchName  = "BeckPCF8591_ADCtest.ino";
-static const String FileDate    = "Dec 12, 2017, Lenny-c";
+static const String FileDate    = "Dec 15, 2017, Lenny-a";
 
 #include <Arduino.h>
 #include "Wire.h"
@@ -57,6 +57,6 @@ void loop()
 	Serial.print(adcvalue3);
 	Serial.println();
 
-	delay(1000);
+	delay(2000);
 	return;
 }	//loop

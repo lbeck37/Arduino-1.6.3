@@ -1,3 +1,6 @@
+static const String SketchName  = "BeckI2cScan.ino";
+static const String FileDate    = "Dec 15, 2017, Lenny-a";
+
 // --------------------------------------
 // i2c_scanner
 //
@@ -21,12 +24,11 @@
 //    A sensor seems to use address 120.
 // Version 6, November 27, 2015.
 //    Added waiting for the Leonardo serial communication.
-//
-//
 // This sketch tests the standard 7-bit addresses
 // Devices with higher bit address might not be seen properly.
 //
 #include <Wire.h>
+#include <Streaming.h>
 
 static const int       sI2C_SDA              = 26;
 static const int       sI2C_SCL              = 27;
@@ -37,8 +39,9 @@ void setup()
   Wire.begin(sI2C_SDA, sI2C_SCL);
 
   Serial.begin(115200);
-  while (!Serial);             // Leonardo: wait for serial monitor
-  Serial.println("\nI2C Scanner");
+  Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
+  //while (!Serial);             // Leonardo: wait for serial monitor
+  //Serial.println("\nI2C Scanner");
 }
 
 
@@ -81,5 +84,5 @@ void loop()
   else
     Serial.println("done\n");
 
-  delay(5000);           // wait 5 seconds for next scan
+  delay(10000);           // wait 5 seconds for next scan
 }
