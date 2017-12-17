@@ -9,9 +9,6 @@ static const String FileDate    = "Dec 17, 2017, Lenny-f";
 static const INT16       sI2C_SDA				= 26;
 static const INT16       sI2C_SCL				= 27;
 
-static const double			dDividerChan[]	= {2.982, 3.003, 3.002, 1.0};
-static const INT16			sAmpChannel		  = 1;		//ACS712 current sense channel
-
 BeckI2C     I2C(sI2C_SDA, sI2C_SCL);
 BeckAtoD    AtoD(&I2C, eADS1115);
 
@@ -27,11 +24,11 @@ void loop(void){
 
   for (int sChan= 0; sChan <= 2; sChan++) {
   	if(sChan == sAmpChannel){
-			dRealVolts= AtoD.dReadRealVolts(sChan, GAIN_TWO, dDividerChan);
+			dRealVolts= AtoD.dReadRealVolts(sChan);
 			Serial << "loop(): Channel= " << sChan << ", dRealVolts=  " << dRealVolts << endl << endl;
   	}	//
   	else {
-			dRealVolts= AtoD.dReadRealVolts(sChan, GAIN_TWO, dDividerChan);
+			dRealVolts= AtoD.dReadRealVolts(sChan);
 			Serial << "loop(): Channel= " << sChan << ", dRealVolts=  " << dRealVolts << endl << endl;
   	}	//
   } //for(int sChannel=0;
