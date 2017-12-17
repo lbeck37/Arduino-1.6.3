@@ -1,5 +1,5 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 15, 2017, Lenny-f";
+static const String FileDate    = "Dec 17, 2017, Lenny-a";
 
 #include <Arduino.h>
 //#include <BeckLogLib.h>
@@ -27,6 +27,7 @@ static const String FileDate    = "Dec 15, 2017, Lenny-f";
 #define PAUSE_DELAY   delay(2000)
 #define RADIX_10      10
 #define DO_BUTTONS    true
+#define USE_DOGS102		false
 
 //Here come the const's
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
@@ -86,11 +87,12 @@ static const byte      cSPI_CLK_Pin          = 14;    //Pin 14, D5
 #endif
 
 static const int       sAccel             = 0;
-static const int       sRotation          = 1;
-static const int       sTemperature       = 2;
+//static const int       sRotation          = 1;
+//static const int       sTemperature       = 2;
 static const int       sNumGyroTypes      = 3;
 
 //Constants used locally for state in sCheckButtons
+/*
 static const int       sButtonOpen        = 0;
 static const int       sButtonPressed     = 1;
 static const int       sButtonClosed      = 2;
@@ -98,6 +100,7 @@ static const int       sButtonReleased    = 3;
 static const int       sButtonHeld        = 4;
 
 static const int       sDefaultFont       =  0;
+*/
 static const int       sMaxButtonPresses  = 10;
 
 static const unsigned long    ulModeSwitchTime  = 1000;  //Minimum msecs between mode changes
@@ -105,6 +108,7 @@ static const unsigned long    ulModeWaitTime    = 2000;  //Minimum msecs before 
 //static const unsigned long    ulReadTimeSpacing    = 500;   //Gyro and ADC reads spaced by this.
 static const unsigned long    ulReadTimeSpacing    = 2000;   //Gyro and ADC reads spaced by this.
 
+#if USE_DOGS102
 //Constants for DOGS102 display.
 static const int       sDisplayWidth        = 102;
 static const int       sDisplayHeight       = 64;
@@ -129,6 +133,7 @@ static const int       sFontSize2           =   2;
 static const int       sFontSize3           =   3;
 static const int       sFontSize4           =   4;
 static const int       sFontSize5           =   5;
+#endif	//USE_DOGS102
 
 //static const byte      cBogusResetPin       = 4;
 //static const byte      cHW_SPI              = 0;      //This is what their demo used.

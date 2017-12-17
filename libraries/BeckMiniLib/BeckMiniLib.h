@@ -1,6 +1,7 @@
-//BeckMiniLib.h, Dec 16, 2017, Lenny-a
+//BeckMiniLib.h, Dec 17, 2017, Lenny-a
 #ifndef BECKMINILIB_H
 #define BECKMINILIB_H
+#include <Arduino.h>
 #include <Streaming.h>
 #include <Time.h>
 
