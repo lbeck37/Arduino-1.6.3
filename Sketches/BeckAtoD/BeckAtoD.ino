@@ -1,5 +1,5 @@
 static const String SketchName  = "BeckAtoD.ino";
-static const String FileDate    = "Dec 16, 2017, Lenny-a";
+static const String FileDate    = "Dec 16, 2017, Lenny-b";
 
 //Beck 1/27/17
 #include <Wire.h>
@@ -7,10 +7,13 @@ static const String FileDate    = "Dec 16, 2017, Lenny-a";
 #include <BeckAtoD.h>
 #include <Streaming.h>
 
-static const int       sI2C_SDA              = 26;
-static const int       sI2C_SCL              = 27;
+static const INT16       sI2C_SDA              = 26;
+static const INT16       sI2C_SCL              = 27;
 
 //Adafruit_ADS1115 	ads(0x48);
+BeckI2C			I2C(sI2C_SDA, sI2C_SCL);
+BeckAtoD		AtoD(&I2C, eADS1115);
+
 float Voltage = 0.0;
 
 void setup(void)
@@ -19,8 +22,9 @@ void setup(void)
   Serial.begin(115200);
   //Serial.println("\nBeckAtoD.ino 12/15/17A Lenny");
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
-  Serial << "setup(): Call Wire.begin(sI2C_SDA, sI2C_SCL) " << sI2C_SDA << ", " << sI2C_SCL << endl;
-  Wire.begin(sI2C_SDA, sI2C_SCL);
+  I2C.Begin();
+  //Serial << "setup(): Call Wire.begin(sI2C_SDA, sI2C_SCL) " << sI2C_SDA << ", " << sI2C_SCL << endl;
+  //Wire.begin(sI2C_SDA, sI2C_SCL);
   //ads.begin();
 } //setup
 

@@ -2,16 +2,22 @@
 #include <BeckI2C.h>
 #include <Wire.h>
 
-BeckI2C::BeckI2C(INT16 sDummy) {
+BeckI2C::BeckI2C(INT16 sI2C_SDA, INT16 sI2C_SCL) {
   String szLogString="BeckI2C Constructor: Begin";
   LogToSerial(szLogString);
-  szLogString = "BeckI2C Constructor: Call Wire.begin()";
-  LogToSerial(szLogString);
-  Wire.begin();
-  ScanForDevices();
-  TestI2C();
+  sI2C_SDA_= sI2C_SDA;
+  sI2C_SCL_= sI2C_SCL;
+  //ScanForDevices();
+  TestAllI2C();
   return;
 } //Constructor
+
+
+void BeckI2C::Begin() {
+  Serial << "BeckI2C::Begin(): Call Wire.begin(sI2C_SDA, sI2C_SCL) " << sI2C_SDA_ << ", " << sI2C_SCL_ << endl;
+  Wire.begin(sI2C_SDA_, sI2C_SCL_);
+  return;
+} //Begin
 
 
 bool BeckI2C::bDevicePresent(I2cDevice_t eDevice) {
@@ -79,14 +85,14 @@ void BeckI2C::ScanForDevices(void){
 }	//ScanForDevices
 
 
-void BeckI2C::TestI2C(void) {
-	ucTestI2C(0x48);
-	ucTestI2C(0x68);
+void BeckI2C::TestAllI2C(void) {
+	TestI2C(0x48);
+	TestI2C(0x68);
   return;
 } //TestI2C:void
 
 
-UINT8 BeckI2C::ucTestI2C(UINT8 ucAddress) {
+UINT8 BeckI2C::TestI2C(UINT8 ucAddress) {
 	UINT8 		ucError			= 0;
   String 		szLogString;
   if (!bSkipTestI2c_) {
@@ -107,7 +113,7 @@ UINT8 BeckI2C::ucTestI2C(UINT8 ucAddress) {
 //Writes 16-bits to the specified destination register
 //void WriteI2cRegister(uint8_t i2cAddress, uint8_t reg, uint16_t value) {
 void BeckI2C::WriteI2cRegister(UINT8 ucI2cAddress, UINT8 ucRegister, UINT16 usValue) {
-  TestI2C();
+  TestAllI2C();
   Wire.beginTransmission(ucI2cAddress);
   Wire.write(ucRegister);
   Wire.write((UINT8)(usValue >> 8));      //High byte
