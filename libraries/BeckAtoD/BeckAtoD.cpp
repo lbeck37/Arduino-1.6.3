@@ -1,9 +1,6 @@
-//BeckAtoD.cpp
+//BeckAtoD.cpp, Dec 16, 2017, Lenny-a
 #include <BeckAtoD.h>
 
-//BeckAtoD class methods
-//BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType) {
-//BeckAtoD::BeckAtoD(AtoD_t eType) {
 BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType){
   String szLogString="BeckAtoD Constructor: Begin";
   LogToSerial(szLogString);
@@ -15,6 +12,7 @@ BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType){
 
 
 double BeckAtoD::dRead(INT16 sChan, adsGain_t eGain) {
+/*
 	if (bDevicePresent_) {
 		return(dRead_ADS1115(sChan, eGain));
 	}
@@ -24,12 +22,15 @@ double BeckAtoD::dRead(INT16 sChan, adsGain_t eGain) {
 		//LogToSerial(szLogString, dReturn);
 		return (dReturn);
 	}
+*/
+	return(dRead_ADS1115(sChan, eGain));
 } //dRead
 
 
 double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
   UINT16  usConfig= usDefaultSingleChanReadConfig_;
-  String szLogString;
+  Serial << "dRead_ADS1115(): Begin " << endl;
+  //String szLogString;
   //szLogString = "BeckAtoD::dRead_ADS1115: pBeckI2C_=";
   //LogToSerial(szLogString, (UINT32)pBeckI2C_);
 
@@ -48,18 +49,23 @@ double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {
       usConfig |= ADS1015_REG_CONFIG_MUX_SINGLE_3;
       break;
     default:
-      szLogString="dRead_ADS1115(): Bad switch";
+      //szLogString="dRead_ADS1115(): Bad switch";
       //LogToBoth(szLogString, sChannel);
+      Serial << "dRead_ADS1115(): Bad sChannel switch= " << sChannel << endl;
       break;
   } //switch
 
   pBeckI2C_->WriteI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONFIG, usConfig);
   delay(50);      //Adafruit code only delays for 8.
   INT16 sVoltCount= pBeckI2C_->ReadI2cRegister(ucADS1115_Address, ADS1015_REG_POINTER_CONVERT);
-  szLogString="BeckAtoD:dRead_ADS1115() sVoltCount=";
+  //szLogString="BeckAtoD:dRead_ADS1115() sVoltCount=";
   //LogToSerial(szLogString, sVoltCount);
+  Serial << "dRead_ADS1115(): sChannel, eGain, sVoltCount " << sChannel << ", " << eGain << ", " << sVoltCount << endl;
 
-  double dVoltsRead= (sVoltCount * 4.096) / 32768.0;
+  double dVoltsFullScale= 2.048;
+  double dCountFullScale= 32768.0;
+  double dVoltsRead= ((double)sVoltCount * dVoltsFullScale) / dCountFullScale;
+  Serial << "dRead_ADS1115(): dVoltsRead= " << dVoltsRead << endl;
   return(dVoltsRead);
 } //dRead_ADS1115
 

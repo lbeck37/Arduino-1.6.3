@@ -35,7 +35,8 @@ void loop(void)
 
   for (int sChannel= 0; sChannel < 4; sChannel++) {
      //adc0 = ads.readADC_SingleEnded(sChannel);
-     Voltage = (adc0 * 0.1875)/1000;
+  		AtoD.dRead(sChannel, GAIN_TWO);
+  		//Voltage = (adc0 * 0.1875)/1000;
 
      Serial.print("sChannel= ");
      Serial.print(sChannel);

@@ -1,9 +1,8 @@
-//BeckMiniLib.h, 12/16/17
+//BeckMiniLib.h, Dec 16, 2017, Lenny-a
 #ifndef BECKMINILIB_H
 #define BECKMINILIB_H
 #include <Streaming.h>
 #include <Time.h>
-//#include <Adafruit_ADS1015.h>   //Just for the defines
 
 #define INT8        int8_t
 #define UINT8       uint8_t

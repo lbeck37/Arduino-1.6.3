@@ -1,4 +1,4 @@
-//BeckI2C.h
+//BeckI2C.h, Dec 16, 2017, Lenny-a
 #ifndef BECKI2C_H
 #define BECKI2C_H
 #include <BeckMiniLib.h>

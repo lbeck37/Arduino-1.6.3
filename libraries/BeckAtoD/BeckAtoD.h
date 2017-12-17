@@ -1,11 +1,10 @@
-//BeckAtoD.h
+//BeckAtoD.h, Dec 16, 2017, Lenny-a
 #ifndef BECKATOD_H
 #define BECKATOD_H
 #include <Arduino.h>
 #include <BeckMiniLib.h>
 #include <BeckI2C.h>
 #include <BeckADS1115Defines.h>
-//#include <Adafruit_ADS1015.h>
 
 #define INT8        int8_t
 #define UINT8       uint8_t

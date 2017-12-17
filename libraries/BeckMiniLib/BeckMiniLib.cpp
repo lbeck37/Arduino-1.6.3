@@ -1,6 +1,4 @@
-static const char SketchName[]  = "BeckMiniLib.cpp";
-static const char FileDate[]    = "Dec 16, 2017, Lenny-a";
-
+//BeckMiniLib.cpp, Dec 16, 2017, Lenny-a
 #include <BeckMiniLib.h>
 
 //Global variables
@@ -22,32 +20,6 @@ String                  szLogLine;
   const byte      cSPI_CLK_Pin       = 14;
   const byte      cSPI_Select_Pin    = 15;
   const int       sServoPin          = 16;
-#else   //ESP32
-  #ifdef ESP8266
-    //BlynkBeck uses pins 4, 5, 15, 16
-    //static const int       sSelectButton;
-    //static const int       sBacklightPin;
-    const int       sUpButtonPin     		=  0;
-    const int       sDownButtonPin   		=  2;
-    const byte      cI2C_SDA_Pin      	=  4;
-    const byte      cI2C_SCL_Pin      	=  5;
-    const byte      cSPI_A0CmdData_Pin  =  4;
-    const byte      cSPI_MISO_Pin      	= 12;
-    const byte      cSPI_MOSI_Pin      	= 13;
-    const byte      cSPI_CLK_Pin       	= 14;
-    const byte      cSPI_Select_Pin    	= 15;
-    const int       sServoPin        		= 16;
-    const byte      cBogusResetPin      =  5;
-    const byte      cHW_SPI             =  0;      //This is what their demo used.
-  #else
-    //const int       sSelectButton         = A3;
-    const int       sDownButton           = A2;
-    const int       sUpButton             = A1;
-    const int       sBacklightPin         =  6;
-    const int       sServoPin             =  7;
-    const byte      cSPICmdDataPin        =  9;
-    const byte      cSPIChipSelectPin     = 10;
-  #endif  //ESP8266
 #endif  //ESP32
 
 bool            bDebugLog= true;   //Used to limit number of printouts.
