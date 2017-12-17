@@ -1,4 +1,4 @@
-//BeckAtoD.cpp, Dec 17, 2017, Lenny-c
+//BeckAtoD.cpp, Dec 17, 2017, Lenny-d
 #include <BeckAtoD.h>
 
 BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType){
@@ -10,20 +10,32 @@ BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType){
 } //Constructor
 
 
-double BeckAtoD::dRead(INT16 sChan, adsGain_t eGain) {
+double BeckAtoD::dReadRawVolts(INT16 sChan, adsGain_t eGain) {
+  double	dRawVolts= dRead_ADS1115(sChan, eGain);
+  return(dRawVolts);
+} //dReadRawVolts
+
+
+double BeckAtoD::dReadRealVolts(INT16 sChan, adsGain_t eGain, const double dDivider[]) {
+  double	dRealVolts= dRead_ADS1115(sChan, eGain) * dDivider[sChan];
+  return(dRealVolts);
+} //dReadRealVolts
+
+
+double BeckAtoD::dReadAmps(INT16 sChan, adsGain_t eGain, const double dDivider[]) {
+	//Read current from ACS712 +/-20A full scale current sense
+	//Vcc supply is nominal 5V but is read on channel 2 to use in current calculation
+	//Zero amps is at 1/2 Vcc (2.5V nominal) and swings +/-2.0V (0.5 - 4.5)
+  double	dRawVolts;
 /*
-  if (bDevicePresent_) {
-    return(dRead_ADS1115(sChan, eGain));
-  }
-  else {
-    double dReturn= 3.737;
-    String szLogString="BeckAtoD::dRead(): I2C AtoD not present, returning";
-    //LogToSerial(szLogString, dReturn);
-    return (dReturn);
-  }
+  double	dRawVolts;
+  double	dRawVolts;
+  double	dRawVolts;
+  double	dRawVolts;
 */
-  return(dRead_ADS1115(sChan, eGain));
-} //dRead
+	dRawVolts= dRead_ADS1115(sChan, eGain) * dDivider[sChan];
+  return(dRawVolts);
+} //dReadAmps
 
 
 double BeckAtoD::dRead_ADS1115(INT16 sChannel, adsGain_t eGain) {

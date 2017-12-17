@@ -23,7 +23,9 @@ typedef enum {
 class BeckAtoD {
 public:
 						BeckAtoD        (BeckI2C* pBeckI2C, AtoD_t eType);		//Constructor
-  double    dRead           (INT16 sChan, adsGain_t eGain);
+  double    dReadRawVolts   (INT16 sChan, adsGain_t eGain);
+  double 		dReadRealVolts	(INT16 sChan, adsGain_t eGain, const double dDivider[]);
+  double 		dReadAmps      	(INT16 sChan, adsGain_t eGain, const double dDivider[]);
 protected:
   AtoD_t        eType_;
   BeckI2C*      pBeckI2C_;
