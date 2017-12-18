@@ -1,4 +1,4 @@
-//BeckAtoD.h, Dec 17, 2017, Lenny-c
+//BeckAtoD.h, Dec 17, 2017, Lenny-d
 #ifndef BECKATOD_H
 #define BECKATOD_H
 #include <BeckMiniLib.h>
@@ -14,9 +14,11 @@
 #define INT64       int64_t
 #define UINT64      uint64_t
 
-const double			dDividerChan[]				= {2.982, 3.003, 3.002, 1.0};	//Resistor divider ratio to A/D input
-const adsGain_t		eGainChan[]						= {GAIN_TWO, GAIN_TWO, GAIN_TWO, GAIN_TWO};	//Resistor divider ratio to A/D input
-const INT16				sAmpChannel		  			= 1;		//ACS712 current sense channel
+const double			adChanDividers[]			= {2.982, 3.003, 3.002, 1.0};	//Resistor divider ratio to A/D input
+const adsGain_t		aeGainChans[]					= {GAIN_TWO, GAIN_TWO, GAIN_TWO, GAIN_TWO};	//Resistor divider ratio to A/D input
+const INT16				sMotorVoltsChan		  	= 0;		//Motor volts ADS1115 ADC input channel
+const INT16				sMotorAmpChan		  		= 1;		//Motor amps from ACS712 current sense A0 output volts
+const INT16				sACS712VccChan		  			  = 2;		//ACS712 current sense Vcc channel
 
 const double			dVccNominal						= 5.0; 							//Vcc voltage to ACS712 current sense
 const double			dZeroAmpVoltsNominal	= dVccNominal / 2; 	//Voltage at 0 amps from ACS712 current sense

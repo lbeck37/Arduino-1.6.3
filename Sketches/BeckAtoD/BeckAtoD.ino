@@ -1,8 +1,7 @@
 static const String SketchName  = "BeckAtoD.ino";
-static const String FileDate    = "Dec 17, 2017, Lenny-f";
+static const String FileDate    = "Dec 17, 2017, Lenny-L";
 
 #include <Wire.h>
-//#include <Adafruit_ADS1015.h>
 #include <BeckMiniLib.h>
 #include <BeckAtoD.h>
 
@@ -20,18 +19,25 @@ void setup(void){
 
 
 void loop(void){
-	static double	dRealVolts;
+	static double	dAmps;
+	static double	dVolts;
 
-  for (int sChan= 0; sChan <= 2; sChan++) {
-  	if(sChan == sAmpChannel){
-			dRealVolts= AtoD.dReadRealVolts(sChan);
-			Serial << "loop(): Channel= " << sChan << ", dRealVolts=  " << dRealVolts << endl << endl;
-  	}	//
-  	else {
-			dRealVolts= AtoD.dReadRealVolts(sChan);
-			Serial << "loop(): Channel= " << sChan << ", dRealVolts=  " << dRealVolts << endl << endl;
-  	}	//
-  } //for(int sChannel=0;
+  for (int sChan= sMotorVoltsChan; sChan <= sACS712VccChan; sChan++){
+		switch (sChan) {
+			case sMotorVoltsChan:
+			case sACS712VccChan:
+				dVolts= AtoD.dReadRealVolts(sChan);
+				Serial << "loop(): Channel= " << sChan << ", dVolts=  " << dVolts << endl << endl;
+				break;
+			case sMotorAmpChan:
+	  		dAmps= AtoD.dReadAmps(sChan);
+				Serial << "loop(): Channel= " << sChan << ", dAmps=  " << dAmps << endl << endl;
+				break;
+			default:
+				Serial << "loop(): Bad switch, sChan= " << sChan << endl;
+				break;
+		} //switch
+  } //for(int sChan=0;
   delay(5000);
 } //loop
 //Last line.

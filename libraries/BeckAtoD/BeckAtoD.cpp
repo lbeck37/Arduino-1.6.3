@@ -11,13 +11,15 @@ BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType){
 
 
 double BeckAtoD::dReadRawVolts(INT16 sChan, adsGain_t eGain) {
-  double	dRawVolts= dRead_ADS1115(sChan);
+  //double	dRawVolts= dRead_ADS1115(sChan);
+  double	dRawVolts= dRead_ADS1115(sChan) / adChanDividers[sChan];	//dRead_ADS1115 returns corrected voltage
   return(dRawVolts);
 } //dReadRawVolts
 
 
 double BeckAtoD::dReadRealVolts(INT16 sChan) {
-  double	dRealVolts= dRead_ADS1115(sChan) * dDividerChan[sChan];
+  //double	dRealVolts= dRead_ADS1115(sChan) * adChanDividers[sChan];
+  double	dRealVolts= dRead_ADS1115(sChan);
   return(dRealVolts);
 } //dReadRealVolts
 
@@ -32,24 +34,31 @@ double BeckAtoD::dReadAmps(INT16 sChan) {
 	double	dAmpsPerVolt;
 	double	dACS712Volts;
 	double  aAmpsReturn;
-//  double	dRawVolts;
-  dVccVolts= dReadRealVolts(sChan);
+
+  dVccVolts= dReadRealVolts(sACS712VccChan);
   dVccCorrection= dVccVolts / dVccNominal;
   dZeroAmpVolts = dZeroAmpVoltsNominal * dVccCorrection;
-  dAmpsPerVolt  = dAmpsPerVoltNominal  * dVccCorrection;
-  dACS712Volts  = dReadRealVolts(sAmpChannel);
+  dAmpsPerVolt  = dAmpsPerVoltNominal  / dVccCorrection;
+  dACS712Volts  = dReadRealVolts(sMotorAmpChan);
 
   aAmpsReturn= (dACS712Volts - dZeroAmpVolts) * dAmpsPerVolt;
+  Serial << "dReadAmps(): sChan, dVccVolts, dACS712Volts, dVccCorrection, dZeroAmpVolts,  dAmpsPerVolt:"
+  		<< sChan << ", " << dVccVolts << ", " << dACS712Volts << ", " << dVccCorrection << ", "
+			<< dZeroAmpVolts << ", " << dAmpsPerVolt  << endl;
   return(aAmpsReturn);
 } //dReadAmps
 
 
-double BeckAtoD::dRead_ADS1115(INT16 sChannel) {
-  UINT16  usConfig= usDefaultSingleChanReadConfig_;
-  Serial << "dRead_ADS1115(): Begin " << endl;
+double BeckAtoD::dRead_ADS1115(INT16 sChan) {
+	double dRealVoltsRead;
+  double dVoltsFullScale= 2.048;
+  double dCountFullScale= 32767.0;
 
-  usConfig |= eGainChan[sChannel];
-  switch (sChannel) {
+  UINT16  usConfig= usDefaultSingleChanReadConfig_;
+  //Serial << "dRead_ADS1115(): Begin " << endl;
+
+  usConfig |= aeGainChans[sChan];
+  switch (sChan) {
     case (0):
       usConfig |= ADS1015_REG_CONFIG_MUX_SINGLE_0;
       break;
@@ -63,7 +72,7 @@ double BeckAtoD::dRead_ADS1115(INT16 sChannel) {
       usConfig |= ADS1015_REG_CONFIG_MUX_SINGLE_3;
       break;
     default:
-      Serial << "dRead_ADS1115(): Bad sChannel switch= " << sChannel << endl;
+      Serial << "dRead_ADS1115(): Bad sChan switch= " << sChan << endl;
       break;
   } //switch
 
@@ -71,13 +80,11 @@ double BeckAtoD::dRead_ADS1115(INT16 sChannel) {
   delay(50);      //Adafruit code only delays for 8
 
   INT16 sVoltCount= pBeckI2C_->ReadI2cRegister(ucADS1115_Address_, ADS1015_REG_POINTER_CONVERT);
-  Serial << "dRead_ADS1115(): sChannel, eGain, sVoltCount " << sChannel << ", "
-  		   << eGainChan[sChannel] << ", " << sVoltCount << endl;
+  Serial << "dRead_ADS1115(): sChan, eGain, sVoltCount " << sChan << ", "
+  		   << aeGainChans[sChan] << ", " << sVoltCount << endl;
 
-  double dVoltsFullScale= 2.048;
-  double dCountFullScale= 32767.0;
-  double dVoltsRead= ((double)sVoltCount * dVoltsFullScale) / dCountFullScale;
-  Serial << "dRead_ADS1115(): dVoltsRead= " << dVoltsRead << endl;
-  return(dVoltsRead);
+  dRealVoltsRead= (((double)sVoltCount * dVoltsFullScale) / dCountFullScale) * adChanDividers[sChan];
+  Serial << "dRead_ADS1115(): dRealVoltsRead= " << dRealVoltsRead << endl;
+  return(dRealVoltsRead);
 } //dRead_ADS1115
 //Last line.
