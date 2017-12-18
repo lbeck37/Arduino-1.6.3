@@ -10,15 +10,31 @@ BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType){
 } //Constructor
 
 
+void BeckAtoD::WriteDACVolts(double dVolts) {
+	double	dVddVolts;		//Vdd (3.3V) supply to MCP4725 DAC
+	UINT16	usCode;
+
+	dVddVolts= dReadRealVolts(sDACVddChan);
+	usCode= (UINT16)((dVolts/dVddVolts) * dMax12Bits);
+  Serial << "WriteDACVolts(): dVolts, usCode: " << dVolts << ", " << usCode << endl;
+
+  Wire.beginTransmission(ucMCP4725_Address_);
+  Wire.write(0x40);														// Writes data to the DAC
+  Wire.write(usCode / 16);               			// Upper data bits          (D11.D10.D9.D8.D7.D6.D5.D4)
+  Wire.write((usCode % 16) << 4);         		// Lower data bits          (D3.D2.D1.D0.x.x.x.x)
+  Wire.endTransmission();
+
+	return;
+} //WriteDACVolts
+
+
 double BeckAtoD::dReadRawVolts(INT16 sChan, adsGain_t eGain) {
-  //double	dRawVolts= dRead_ADS1115(sChan);
   double	dRawVolts= dRead_ADS1115(sChan) / adChanDividers[sChan];	//dRead_ADS1115 returns corrected voltage
   return(dRawVolts);
 } //dReadRawVolts
 
 
 double BeckAtoD::dReadRealVolts(INT16 sChan) {
-  //double	dRealVolts= dRead_ADS1115(sChan) * adChanDividers[sChan];
   double	dRealVolts= dRead_ADS1115(sChan);
   return(dRealVolts);
 } //dReadRealVolts

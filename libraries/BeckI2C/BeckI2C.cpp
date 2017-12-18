@@ -1,6 +1,5 @@
 //BeckI2C.cpp, Dec 16, 2017, Lenny-a
 #include <BeckI2C.h>
-#include <Wire.h>
 
 BeckI2C::BeckI2C(INT16 sI2C_SDA, INT16 sI2C_SCL) {
   String szLogString="BeckI2C Constructor: Begin";

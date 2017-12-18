@@ -1,5 +1,5 @@
 static const String SketchName  = "BeckAtoD.ino";
-static const String FileDate    = "Dec 17, 2017, Lenny-L";
+static const String FileDate    = "Dec 17, 2017, Lenny-p";
 
 #include <Wire.h>
 #include <BeckMiniLib.h>
@@ -22,10 +22,11 @@ void loop(void){
 	static double	dAmps;
 	static double	dVolts;
 
-  for (int sChan= sMotorVoltsChan; sChan <= sACS712VccChan; sChan++){
+  for (int sChan= sMotorVoltsChan; sChan <= sDACVddChan; sChan++){
 		switch (sChan) {
 			case sMotorVoltsChan:
 			case sACS712VccChan:
+			case sDACVddChan:
 				dVolts= AtoD.dReadRealVolts(sChan);
 				Serial << "loop(): Channel= " << sChan << ", dVolts=  " << dVolts << endl << endl;
 				break;
@@ -38,6 +39,11 @@ void loop(void){
 				break;
 		} //switch
   } //for(int sChan=0;
+
+  for (double dVolt= 0; dVolt <= 3.00; dVolt += 0.50){
+  		AtoD.WriteDACVolts(dVolt);
+  	  delay(1000);
+  }	//for
   delay(5000);
 } //loop
 //Last line.

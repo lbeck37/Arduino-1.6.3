@@ -1,6 +1,7 @@
 //BeckI2C.h, Dec 17, 2017, Lenny-a
 #ifndef BECKI2C_H
 #define BECKI2C_H
+#include <Wire.h>
 #include <BeckMiniLib.h>
 //#include <map>
 
