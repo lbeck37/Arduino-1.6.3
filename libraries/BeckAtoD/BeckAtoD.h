@@ -14,7 +14,8 @@
 #define INT64       int64_t
 #define UINT64      uint64_t
 
-const double			adChanDividers[]			= {2.982, 3.003, 3.002, 2.0};	//Resistor divider ratio to A/D input
+//const double			adChanDividers[]			= {2.982, 3.003, 3.002, 2.0};	//Resistor divider ratio to A/D input
+const double			adChanDividers[]			= {23.42, 3.003, 3.002, 2.0};	//Resistor divider ratio to A/D input, 45V chan 1
 const adsGain_t		aeGainChans[]					= {GAIN_TWO, GAIN_TWO, GAIN_TWO, GAIN_TWO};	//Resistor divider ratio to A/D input
 const INT16				sMotorVoltsChan		  	= 0;		//Motor volts ADS1115 ADC input channel
 const INT16				sMotorAmpChan		  		= 1;		//Motor amps from ACS712 current sense A0 output volts

@@ -1,4 +1,4 @@
-//BeckAtoD.cpp, Dec 17, 2017, Lenny-e
+//BeckAtoD.cpp, Dec 18, 2017, Lenny-a
 #include <BeckAtoD.h>
 
 BeckAtoD::BeckAtoD(BeckI2C* pBeckI2C, AtoD_t eType){
