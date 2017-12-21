@@ -1,24 +1,25 @@
-static const String SketchName  = "BeckAtoD.ino";
-static const String FileDate    = "Dec 18, 2017, Lenny-c";
+static const String SketchName  = "BeckE32_RGB_LEDTest.ino";
+static const String FileDate    = "Dec 19, 2017, Lenny-a";
 
-#include <Wire.h>
+//#include <Wire.h>
 #include <BeckMiniLib.h>
-#include <BeckAtoD.h>
-
-static const INT16       sI2C_SDA				= 26;
-static const INT16       sI2C_SCL				= 27;
-
-BeckI2C     I2C(sI2C_SDA, sI2C_SCL);
-BeckAtoD    AtoD(&I2C, eADS1115);
+//#include <BeckAtoD.h>
+//
+//static const INT16       sI2C_SDA				= 26;
+//static const INT16       sI2C_SCL				= 27;
+//
+//BeckI2C     I2C(sI2C_SDA, sI2C_SCL);
+//BeckAtoD    AtoD(&I2C, eADS1115);
 
 void setup(void){
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
-  I2C.Begin();
+  //I2C.Begin();
 } //setup
 
 
 void loop(void){
+/*
 	static double	dAmps;
 	static double	dVolts;
 
@@ -45,5 +46,9 @@ void loop(void){
   	  delay(1000);
   }	//for
   delay(5000);
+*/
+	static INT16	sCount= 0;
+	Serial << "loop(): sCount= " << sCount++ << endl;
+  delay(1000);
 } //loop
 //Last line.

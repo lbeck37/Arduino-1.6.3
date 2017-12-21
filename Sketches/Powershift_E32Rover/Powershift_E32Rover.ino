@@ -1,7 +1,7 @@
 static const String SketchName  = "Powershift_E32Rover.ino";
 static const String FileDate    = "Dec 17, 2017, Lenny-a";
 
-#include <Arduino.h>
+//#include <Arduino.h>
 //#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckMPU6050_Gyro.h>
