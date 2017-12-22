@@ -1,5 +1,5 @@
 static const String SketchName  = "BeckE32_RGBLED_Example.ino";
-static const String FileDate    = "Dec 19, 2017, Lenny-e";
+static const String FileDate    = "Dec 21, 2017, Lenny-a";
 /* SparkFun WS2812 Breakout Board Example
   SparkFun Electronics
   date: July 25, 2013
@@ -28,7 +28,7 @@ static const String FileDate    = "Dec 19, 2017, Lenny-e";
 //#define PIN 4
 #define PIN 5
 //#define LED_COUNT 5
-#define LED_COUNT 3
+#define LED_COUNT 6
 
 // Create an instance of the Adafruit_NeoPixel class called "leds".
 // That'll be what we refer to from here on...
