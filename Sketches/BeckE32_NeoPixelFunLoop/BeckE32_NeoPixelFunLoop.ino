@@ -15,8 +15,8 @@
 #include <NeoPixelAnimator.h>
 
 
-const uint16_t PixelCount = 10; // make sure to set this to the number of pixels in your strip
-const uint16_t PixelPin = 5;  // make sure to set this to the correct pin, ignored for Esp8266
+const uint16_t PixelCount = 20; // make sure to set this to the number of pixels in your strip
+const uint16_t PixelPin = 4;  // make sure to set this to the correct pin, ignored for Esp8266
 const uint16_t AnimCount = PixelCount / 5 * 2 + 1; // we only need enough animations for the tail and one extra
 
 const uint16_t PixelFadeDuration = 300; // third of a second
