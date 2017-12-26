@@ -6,14 +6,16 @@
 // the number of rays
 rays = 3; //[1,2,3,4,5,6]
 
-// the weights per ray
-numWeights = 2;   //[1, 2, 3, 4]
+// the weights per ray 
+numWeights = 1;   //[1, 2, 3, 4]
 
 // mm to extend ray if only 1 weight per ray
 extra = 4;  //[0:1:20]
 
-// the type of weight
-whichWeight = "5/16 hex nut";   //[608 bearing, 5/16 hex nut, 3/8 hex nut, 1/2 hex nut, M8 hex nut, M10 16 hex nut, M10 17 hex nut, M12 18 hex nut, M12 19 hex nut, M4 square nut, penny, nickel, dime, quarter, 5/16 ball bearing, 3/8 ball bearing, 1/2 ball bearing, 5/8 ball bearing]
+// the type of weight 
+//whichWeight = "5/16 hex nut";
+//whichWeight = "1/2 hex nut";
+whichWeight = "penny";   //[608 bearing, 5/16 hex nut, 3/8 hex nut, 1/2 hex nut, M8 hex nut, M10 16 hex nut, M10 17 hex nut, M12 18 hex nut, M12 19 hex nut, M4 square nut, penny, nickel, dime, quarter, 5/16 ball bearing, 3/8 ball bearing, 1/2 ball bearing, 5/8 ball bearing]
 
 // corner radius in mm; > 0 causes timeout but Create Thing still works
 radius = 2;  //[0:.5:3]
