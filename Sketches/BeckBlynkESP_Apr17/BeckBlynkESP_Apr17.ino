@@ -11,7 +11,7 @@ static const char szFileDate[]    = "Apr 1, 2017 -A- Lenny";
 //#define DEV_REMOTE
 //#define TANK_MONITOR
 
-//#include <BeckLib.h>
+#include <BeckLib.h>
 #include <BeckBlynk.h>
 #include <BeckControlLib.h>
 #include <BeckI2C.h>

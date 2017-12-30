@@ -1,6 +1,7 @@
 //BeckLib.h, 7/31/17
 #ifndef BECKLIB_H
 #define BECKLIB_H
+#include <BeckMiniLib.h>
 #include <Streaming.h>
 #include <Time.h>
 //#include <Firebase.h>
@@ -66,6 +67,7 @@
 #endif	//NO_DISPLAY
 */
 
+/* In minilib
 #define INT8        int8_t
 #define UINT8       uint8_t
 #define INT16       int16_t
@@ -80,6 +82,7 @@
 #define BLogS       LogJustToSerial
 
 extern const char 	szVersionDate[];
+*/
 
 /*
 extern const int    sFrontLights;
@@ -93,6 +96,7 @@ extern const int    sTankMonitor;
 extern const int    sHotTub;
 extern const int    sHotTubV2;
 */
+/* In minilib
 extern int					sProjectType_;
 
 static const long   lSerialMonitorBaud    = 115200;
@@ -102,6 +106,7 @@ static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
 extern bool           bDebugLog;    //Used to limit number of printouts.
+*/
 
 //Function protos
 #ifdef ESP8266
@@ -123,9 +128,7 @@ String    szAddZeros(int sValue, int sNumDigits);
 
 
 //Global variables
-extern long                     lLineCount;       //Serial Monitor uses for clarity.
 extern int32_t                  wHttpServerCount; //To allow logging every nth call at UPLOAD_FILE_WRITE
-extern String                   szLogLine;
 
 extern bool                     bWiFiOn;
 extern bool                     bFirebaseOn;
@@ -147,6 +150,9 @@ extern bool                     bStartedOTA;
 #endif
 */
 
+/* In minilib
+extern long                     lLineCount;       //Serial Monitor uses for clarity.
+extern String                   szLogLine;
   extern void LogToBoth(String szLogString);
   extern void LogToBoth(String szLogString, String szLogValue);
   extern void LogToBoth(String szLogString, int sLogValue);
@@ -173,5 +179,6 @@ extern const byte      cSPI_Select_Pin;
 extern const int       sServoPin;
 extern const byte      cBogusResetPin;
 extern const byte      cHW_SPI;
+*/
 
 #endif   //BECKLIB_H
