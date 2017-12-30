@@ -4,11 +4,11 @@ static const char szFileDate[]    = "January 23, 2017A Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGE
+#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-#define DEV_REMOTE
+//#define DEV_REMOTE
 
 #define OTA_SERVER   false     //Skip running OTA server
 #if 0
@@ -17,9 +17,11 @@ static const char szFileDate[]    = "January 23, 2017A Lenny";
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
+/*
 #ifndef ESP32
   #define ESP32
 #endif
+*/
 
 #include <BeckLib.h>
 #include <Time.h>
@@ -28,7 +30,7 @@ static const char szFileDate[]    = "January 23, 2017A Lenny";
 #ifndef ESP32
   #include <Adafruit_ADS1015.h>
 #endif
-#include <BeckESPAtoDLib.>
+//#include <BeckESPAtoDLib.h>
 
 #define ONEWIRE_PIN       12
 
