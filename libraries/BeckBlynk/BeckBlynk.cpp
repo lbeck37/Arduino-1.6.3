@@ -411,7 +411,7 @@ BLYNK_WRITE(ThermoSwitch_V4){
 
 BLYNK_READ(AtoD_1V6){
   //double dVolts= pBeckBlynk_->dReadAtoD(1);
-  double dVolts= pBeckAtoD_->dRead(1, GAIN_ONE);
+  double dVolts= pBeckAtoD_->dReadRawVolts(1, GAIN_ONE);
   String szLogString= "Read AtoD_1V6 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_1V6, dVolts);
@@ -495,7 +495,7 @@ BLYNK_WRITE(TimerB_1V12){
 
 BLYNK_READ(AtoD_2V14){
   //double dVolts= pBeckBlynk_->dReadAtoD(2);
-  double dVolts= pBeckAtoD_->dRead(2, GAIN_ONE);
+  double dVolts= pBeckAtoD_->dReadRawVolts(2, GAIN_ONE);
   String szLogString= "Read AtoD_2V14 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_2V14, dVolts);
@@ -563,7 +563,7 @@ BLYNK_WRITE(TimerB_2V17){
 
 BLYNK_READ(AtoD_3V19){
 //  double dVolts= pBeckBlynk_->dReadAtoD(3);
-  double dVolts= pBeckAtoD_->dRead(3, GAIN_ONE);
+  double dVolts= pBeckAtoD_->dReadRawVolts(3, GAIN_ONE);
   String szLogString= "Read AtoD_3V19 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_3V19, dVolts);
@@ -637,7 +637,7 @@ BLYNK_WRITE(TimerB_3V22){
 BLYNK_READ(AtoD_4V24){
   //double dVolts= dRead_AtoD(4);
 //  double dVolts= pBeckBlynk_->dReadAtoD(4);
-  double dVolts= pBeckAtoD_->dRead(4, GAIN_ONE);
+  double dVolts= pBeckAtoD_->dReadRawVolts(4, GAIN_ONE);
   String szLogString= "Read AtoD_4V24 ";
   LogToBoth(szLogString, dVolts);
   Blynk.virtualWrite(AtoD_4V24, dVolts);

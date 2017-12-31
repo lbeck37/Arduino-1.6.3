@@ -33,6 +33,9 @@
 
 #define  USER_SEL_VERSION         VERSION_22
 
+#ifdef ESP8266
+	#undef ESP8266
+#endif
 /**
  * Provide an easy-to-use way to manipulate ESP8266. 
  */
@@ -53,7 +56,7 @@ class ESP8266 {
     Stream* getUart() { return m_puart; }
 
 
-    void setOnData(onData cbk, void* ptr) {
+   void setOnData(onData cbk, void* ptr) {
         m_onData = cbk;
         m_onDataPtr = ptr;
     }
@@ -675,5 +678,8 @@ class ESP8266 {
     void*  m_onDataPtr;
 };
 
-#endif /* #ifndef __ESP8266_H__ */
+#ifndef ESP8266
+	#define ESP8266
+#endif
 
+#endif /* #ifndef __ESP8266_H__ */

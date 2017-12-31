@@ -58,6 +58,7 @@ float BeckOneWireSensor::fGetDegF(bool bTakeReading) {
 }	//fGetDegF
 
 
+/*
 //Non-class functions
 float fGetDegF(bool bTakeReading){
   float fDegFReturn= 37.37;   //Value used for default in testing w/o reading sensor. fLastDegF
@@ -73,4 +74,5 @@ float fGetDegF(bool bTakeReading){
 #endif
   return fDegFReturn;
 }  //fGetDegF
+*/
 //Last line.

@@ -1,8 +1,10 @@
 //static const String SketchName  = "BeckLib.cpp";
 //static const String FileDate    = "Dec 16, 2017, Lenny-a";
 
+/*
 static const char SketchName[]  = "BeckLib.cpp";
 static const char FileDate[]    = "Dec 16, 2017, Lenny-a";
+*/
 
 //BeckLib.cpp, April 14, 2017
 //#define OTA_SERVER
@@ -133,7 +135,7 @@ void SetupWiFi(const char* pcRouterName, const char* pcRouterPW){
     bWiFiOn= false;
   } //if(eStatus==WL_CONNECTED)else
 
-  BLogS("SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP()));
+  //BLogS("SetupWiFi(): My WiFi IP address= " + szIPaddress(WiFi.localIP()));
 } //SetupWiFi
 
 
@@ -220,6 +222,7 @@ String szIPaddress(IPAddress oIP){
 #endif  //OTA_SERVER
 
 
+/*
 void LogJustToSerial(String sLogline){
   String sFullLogline=LOG0 + sLogline;
   Serial << sFullLogline << endl;
@@ -343,4 +346,5 @@ void LogToSerial(String szLogString, double dLogValue){
   Serial << LOG0 << szLogString << " " << dLogValue << endl;
   return;
 } //LogToSerial:double
+*/
 //Last line.

@@ -1,9 +1,12 @@
-//BeckLib.h, 7/31/17
+//BeckLib.h, 12/30/17
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <BeckMiniLib.h>
 #include <Streaming.h>
 #include <Time.h>
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp8266.h>
 //#include <Firebase.h>
 //#include <BeckFirebase.h>
 #include <Adafruit_ADS1015.h>   //Just for the defines
@@ -121,10 +124,12 @@ extern bool           bDebugLog;    //Used to limit number of printouts.
   void      HandleHttpServer(ESP8266WebServer& oHttpServer);
   String    szIPaddress(IPAddress oIP);
 #endif  //OTA_SERVER
+/*
 void      LogJustToSerial(String sLogline);
 String    szLogLineHeader(long lLineCount);
 String    szGetTime(long lMsec);
 String    szAddZeros(int sValue, int sNumDigits);
+*/
 
 
 //Global variables

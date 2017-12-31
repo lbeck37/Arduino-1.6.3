@@ -1,5 +1,6 @@
-static const char szSketchName[]  = "BeckBlynkESP32.ino";
-static const char szFileDate[]    = "January 23, 2017A Lenny";
+static const char szSketchName[]  = "BeckESP32_Blynk.ino";
+static const char szFileDate[]    = "December 30, 2017A Lenny";
+//static const char szFileDate[]    = "January 23, 2017A Lenny";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -30,6 +31,7 @@ static const char szFileDate[]    = "January 23, 2017A Lenny";
 #ifndef ESP32
   #include <Adafruit_ADS1015.h>
 #endif
+#include <BlynkSimpleEsp8266.h>
 //#include <BeckESPAtoDLib.h>
 
 #define ONEWIRE_PIN       12
@@ -209,7 +211,7 @@ static bool           bThermoOn             = true;   //Whether thermostat is ru
 static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
 static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
-static bool         bDebugLog             = true;   //Used to limit number of printouts.
+//static bool         bDebugLog             = true;   //Used to limit number of printouts.
 static bool         bUpdating             = false;   //Turns off Blynk.
 
 void setup()
@@ -788,13 +790,43 @@ void WriteTerminalString(String szString){
 
 //LogToBoth() and BlynkLogLine()have multiple versions
 //depending on there being a 2nd variable and its type.
+/*
 void LogToBoth(String szLogString){
   Serial << LOG0 << szLogString << endl;
   BlynkLogLine(szLogString);
   return;
 } //LogToBoth:empty
+*/
 
 
+void BlynkLogLine(String szString){
+  String szTermString= szLogLineHeader(lLineCount);
+  szTermString += szString;
+  WriteTerminalLine(szTermString);
+  return;
+} //BlynkLogLine:empty
+
+
+void BlynkLogLine(String szString, int sValue){
+  String szTermString= szLogLineHeader(lLineCount);
+  szTermString += szString;
+  szTermString +=  " ";
+  szTermString +=  sValue;
+  WriteTerminalLine(szTermString);
+  return;
+} //BlynkLogLine:int
+
+
+void BlynkLogLine(String szString, float fValue){
+  String szTermString= szLogLineHeader(lLineCount);
+  szTermString += szString;
+  szTermString +=  fValue;
+  WriteTerminalLine(szTermString);
+  return;
+} //BlynkLogLine:float
+
+
+/*
 void LogToBoth(String szLogString, String szLogValue){
   Serial << LOG0 << szLogString << " " << szLogValue << endl;
   BlynkLogLine(szLogString, szLogValue);
@@ -816,14 +848,6 @@ void LogToBoth(String szLogString, float fLogValue){
 } //LogToBoth:float
 
 
-void BlynkLogLine(String szString){
-  String szTermString= szLogLineHeader(lLineCount);
-  szTermString += szString;
-  WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:empty
-
-
 void BlynkLogLine(String szString, String szLogValue){
   String szTermString= szLogLineHeader(lLineCount);
   szTermString += szString;
@@ -832,25 +856,7 @@ void BlynkLogLine(String szString, String szLogValue){
   WriteTerminalLine(szTermString);
   return;
 } //BlynkLogLine:String
-
-
-void BlynkLogLine(String szString, int sValue){
-  String szTermString= szLogLineHeader(lLineCount);
-  szTermString += szString;
-  szTermString +=  " ";
-  szTermString +=  sValue;
-  WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:int
-
-
-void BlynkLogLine(String szString, float fValue){
-  String szTermString= szLogLineHeader(lLineCount);
-  szTermString += szString;
-  szTermString +=  fValue;
-  WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:float
+*/
 
 
 float fGetDegF(bool bTakeReading){
