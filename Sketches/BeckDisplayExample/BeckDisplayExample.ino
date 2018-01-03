@@ -1,5 +1,5 @@
 // Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
-#define SKETCH_HEAD "\nBeckDisplayExample.ino, February 16, 2017 -C- Beck"
+#define SKETCH_HEAD "\nBeckDisplayExample.ino, January 2, 2018A Lenny"
 /*********************************************************************
 This is an example for our Monochrome OLEDs based on SSD1306 drivers
 This example is for a 128x64 size display using I2C to communicate
