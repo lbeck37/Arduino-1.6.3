@@ -1,4 +1,4 @@
-//BeckLogLib.cpp, Aug 3, 2017
+//BeckLogLib.cpp, 1/3/18
 #include <BeckLogLib.h>
 
 //Global variables
@@ -19,25 +19,9 @@ String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
   szHeader += " ";
-  szHeader += szGetTime(millis());
+  //szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
-
-
-String szGetTime(long lMsec){
-  String  szString;
-  int sDays    =    lMsec                                               / lMsecPerDay ;
-  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
-  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
-  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
-  int sMsec    =    lMsec % lMsecPerSec;
-  szString = String(sDays) + ":";
-  szString+= String(szAddZeros(sHours, 2)) + ":";
-  szString+= String(szAddZeros(sMinutes, 2)) + ":";
-  szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
-  return szString;
-} //szGetTime
 
 
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
@@ -54,7 +38,48 @@ String szAddZeros(int sValue, int sNumDigits){
 } //szAddZeros
 
 
-//**********************************
+//LogToBoth() and BlynkLogLine()have multiple versions
+//depending on there being a 2nd variable and its type.
+void LogToBoth(String szLogString){
+  Serial << LOG0 << szLogString << endl;
+  //BlynkLogLine(szLogString);
+  return;
+} //LogToBoth:empty
+
+
+void LogToBoth(String szLogString, String szLogValue){
+  Serial << LOG0 << szLogString << " " << szLogValue << endl;
+  //BlynkLogLine(szLogString, szLogValue);
+  return;
+} //LogToBoth:String
+
+
+void LogToBoth(String szLogString, int sLogValue){
+  Serial << LOG0 << szLogString << " " << sLogValue << endl;
+  //BlynkLogLine(szLogString, sLogValue);
+  return;
+} //LogToBoth:int
+
+
+void LogToBoth(String szLogString, UINT32 uwLogValue){
+  Serial << LOG0 << szLogString << " " << uwLogValue << endl;
+  return;
+} //LogToBoth:UINT32
+
+
+void LogToBoth(String szLogString, float fLogValue){
+  Serial << LOG0 << szLogString << " " << fLogValue << endl;
+  //BlynkLogLine(szLogString, fLogValue);
+  return;
+} //LogToBoth:float
+
+
+void LogToBoth(String szLogString, double dLogValue){
+  Serial << LOG0 << szLogString << " " << dLogValue << endl;
+  //BlynkLogLine(szLogString, dLogValue);
+  return;
+} //LogToBoth:double
+
 void LogToSerial(String szLogString){
   Serial << LOG0 << szLogString << endl;
   return;
@@ -74,7 +99,7 @@ void LogToSerial(String szLogString, int sLogValue){
 
 
 void LogToSerial(String szLogString, int sValue1, int sValue2, int sValue3){
-	//Created for logging 3 acceleration axis
+  //Created for logging 3 acceleration axis
   Serial << LOG0 << szLogString << " " << sValue1 << "   " << sValue2 << "   " << sValue3 << "   " << endl;
   return;
 } //LogToSerial:int
