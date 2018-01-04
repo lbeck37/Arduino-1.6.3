@@ -15,7 +15,6 @@ void LogJustToSerial(String sLogline){
 } //LogJustToSerial
 
 
-/*
 String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
@@ -23,7 +22,6 @@ String szLogLineHeader(long lLineCount){
   //szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
-*/
 
 
 /*
@@ -58,7 +56,48 @@ String szAddZeros(int sValue, int sNumDigits){
 } //szAddZeros
 
 
-/*
+//LogToBoth() and BlynkLogLine()have multiple versions
+//depending on there being a 2nd variable and its type.
+void LogToBoth(String szLogString){
+  Serial << LOG0 << szLogString << endl;
+  //BlynkLogLine(szLogString);
+  return;
+} //LogToBoth:empty
+
+
+void LogToBoth(String szLogString, String szLogValue){
+  Serial << LOG0 << szLogString << " " << szLogValue << endl;
+  //BlynkLogLine(szLogString, szLogValue);
+  return;
+} //LogToBoth:String
+
+
+void LogToBoth(String szLogString, int sLogValue){
+  Serial << LOG0 << szLogString << " " << sLogValue << endl;
+  //BlynkLogLine(szLogString, sLogValue);
+  return;
+} //LogToBoth:int
+
+
+void LogToBoth(String szLogString, UINT32 uwLogValue){
+  Serial << LOG0 << szLogString << " " << uwLogValue << endl;
+  return;
+} //LogToBoth:UINT32
+
+
+void LogToBoth(String szLogString, float fLogValue){
+  Serial << LOG0 << szLogString << " " << fLogValue << endl;
+  //BlynkLogLine(szLogString, fLogValue);
+  return;
+} //LogToBoth:float
+
+
+void LogToBoth(String szLogString, double dLogValue){
+  Serial << LOG0 << szLogString << " " << dLogValue << endl;
+  //BlynkLogLine(szLogString, dLogValue);
+  return;
+} //LogToBoth:double
+
 void LogToSerial(String szLogString){
   Serial << LOG0 << szLogString << endl;
   return;
@@ -106,5 +145,4 @@ void LogToSerial(String szLogString, double dLogValue){
   Serial << LOG0 << szLogString << " " << dLogValue << endl;
   return;
 } //LogToSerial:double
-*/
 //Last line.

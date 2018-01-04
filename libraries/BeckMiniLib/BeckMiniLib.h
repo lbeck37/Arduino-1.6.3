@@ -1,10 +1,12 @@
 //BeckMiniLib.h, Dec 17, 2017, Lenny-a
 #ifndef BECKMINILIB_H
 #define BECKMINILIB_H
+#include <BeckLogLib.h>
 #include <Arduino.h>
 #include <Streaming.h>
 #include <Time.h>
 
+/*
 #define INT8        int8_t
 #define UINT8       uint8_t
 #define INT16       int16_t
@@ -15,6 +17,7 @@
 #define UINT64      uint64_t
 
 #define LOG0        szLogLineHeader(++lLineCount)
+*/
 #define BLog        LogJustToSerial
 #define BLogS       LogJustToSerial
 
@@ -28,12 +31,13 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
+String    szGetTime(long lMsec);
+/*
 extern bool           bDebugLog;    //Used to limit number of printouts.
 
 //Function protos
 void      LogJustToSerial(String sLogline);
 String    szLogLineHeader(long lLineCount);
-String    szGetTime(long lMsec);
 String    szAddZeros(int sValue, int sNumDigits);
 
 
@@ -56,6 +60,7 @@ extern void LogToSerial(String szLogString, int sLogValue);
 extern void LogToSerial(String szLogString, UINT32 uwLogValue);
 extern void LogToSerial(String szLogString, float fLogValue);
 extern void LogToSerial(String szLogString, double dLogValue);
+*/
 
 extern const int       sUpButtonPin;
 extern const int       sDownButtonPin;

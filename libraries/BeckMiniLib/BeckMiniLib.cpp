@@ -2,8 +2,10 @@
 #include <BeckMiniLib.h>
 
 //Global variables
+/*
 long                  lLineCount      = 0;  //Serial Monitor uses for clarity.
 String                  szLogLine;
+*/
 
 //Digital Pins
 #ifdef ESP32
@@ -22,6 +24,7 @@ String                  szLogLine;
   const int       sServoPin          = 16;
 #endif  //ESP32
 
+/*
 bool            bDebugLog= true;   //Used to limit number of printouts.
 
 void LogJustToSerial(String sLogline){
@@ -38,6 +41,7 @@ String szLogLineHeader(long lLineCount){
   szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
+*/
 
 
 String szGetTime(long lMsec){
@@ -56,6 +60,7 @@ String szGetTime(long lMsec){
 } //szGetTime
 
 
+/*
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
 String szAddZeros(int sValue, int sNumDigits){
   String szReturn;
@@ -68,8 +73,10 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
+*/
 
 
+/*
 //LogToBoth() and BlynkLogLine()have multiple versions
 //depending on there being a 2nd variable and its type.
 void LogToBoth(String szLogString){
@@ -112,7 +119,7 @@ void LogToBoth(String szLogString, double dLogValue){
   return;
 } //LogToBoth:double
 
-//**********************************
+
 void LogToSerial(String szLogString){
   Serial << LOG0 << szLogString << endl;
   return;
@@ -160,4 +167,5 @@ void LogToSerial(String szLogString, double dLogValue){
   Serial << LOG0 << szLogString << " " << dLogValue << endl;
   return;
 } //LogToSerial:double
+*/
 //Last line.
