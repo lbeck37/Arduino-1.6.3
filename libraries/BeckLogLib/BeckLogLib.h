@@ -6,7 +6,7 @@
 #include <Time.h>
 
 #define LOG0        szLogLineHeader(++lLineCount)
-#define BLog        LogToSerial
+//#define BLog        LogToSerial
 
 /*
 #define INT8        int8_t
@@ -43,8 +43,10 @@ extern String                   szLogLine;
   extern void LogToSerial(String szLogString);
   extern void LogToSerial(String szLogString, String szLogValue);
   extern void LogToSerial(String szLogString, int sLogValue);
+/*
   extern void LogToSerial(String szLogString, int sValue1, int sValue2, int sValue3);
   extern void LogToSerial(String szLogString, UINT16 usLogValue);
+*/
   extern void LogToSerial(String szLogString, UINT32 uwLogValue);
   extern void LogToSerial(String szLogString, float fLogValue);
   extern void LogToSerial(String szLogString, double dLogValue);

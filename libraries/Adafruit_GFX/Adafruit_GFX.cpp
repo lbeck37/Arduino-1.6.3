@@ -385,7 +385,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
  const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color) {
 
   int16_t i, j, byteWidth = (w + 7) / 8;
-  uint8_t byte;
+  uint8_t byte= 0;
 
   for(j=0; j<h; j++) {
     for(i=0; i<w; i++) {
@@ -403,7 +403,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
  const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg) {
 
   int16_t i, j, byteWidth = (w + 7) / 8;
-  uint8_t byte;
+  uint8_t byte= 0;
 
   for(j=0; j<h; j++) {
     for(i=0; i<w; i++ ) {
@@ -420,7 +420,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
  uint8_t *bitmap, int16_t w, int16_t h, uint16_t color) {
 
   int16_t i, j, byteWidth = (w + 7) / 8;
-  uint8_t byte;
+  uint8_t byte= 0;
 
   for(j=0; j<h; j++) {
     for(i=0; i<w; i++ ) {
@@ -436,7 +436,7 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
  uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg) {
 
   int16_t i, j, byteWidth = (w + 7) / 8;
-  uint8_t byte;
+  uint8_t byte= 0;
 
   for(j=0; j<h; j++) {
     for(i=0; i<w; i++ ) {
@@ -455,7 +455,7 @@ void Adafruit_GFX::drawXBitmap(int16_t x, int16_t y,
  const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color) {
 
   int16_t i, j, byteWidth = (w + 7) / 8;
-  uint8_t byte;
+  uint8_t byte= 0;
 
   for(j=0; j<h; j++) {
     for(i=0; i<w; i++ ) {
@@ -566,8 +566,8 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
              xa = pgm_read_byte(&glyph->xAdvance);
     int8_t   xo = pgm_read_byte(&glyph->xOffset),
              yo = pgm_read_byte(&glyph->yOffset);
-    uint8_t  xx, yy, bits, bit = 0;
-    int16_t  xo16, yo16;
+    uint8_t  xx, yy, bits= 0, bit = 0;
+    int16_t  xo16= 0, yo16= 0;
 
     if(size > 1) {
       xo16 = xo;

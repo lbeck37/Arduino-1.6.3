@@ -1,5 +1,5 @@
 // Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
-#define SKETCH_HEAD "\nBeckDisplayExample.ino, January 2, 2018A Lenny"
+#define SKETCH_HEAD "\nBeckDisplayExample.ino, January 3, 2018A Lenny"
 /*********************************************************************
 This is an example for our Monochrome OLEDs based on SSD1306 drivers
 This example is for a 128x64 size display using I2C to communicate
@@ -51,8 +51,8 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
 void setup()   {
   Serial.begin(115200);
 	Serial.println(SKETCH_HEAD);
-	Serial.println("Setup(): Call Wire.begin(4, 5)");
-  Wire.begin(4, 5);		//Beck 2/13/17
+	Serial.println("Setup(): Call Wire.begin(21, 22)");
+  Wire.begin(21, 22);		//Beck 1-3-18
   ScanForDevices();
 
   Serial.println("Setup(): Call display.begin()");
@@ -61,7 +61,7 @@ void setup()   {
   //oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3D);  // initialize with the I2C addr 0x3D (for the 128x64)
   oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
 
-  ScanForDevices();
+  //ScanForDevices();
   // init done
 
   // Clear the buffer.

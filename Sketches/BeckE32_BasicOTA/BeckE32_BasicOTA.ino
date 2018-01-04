@@ -1,5 +1,5 @@
-static const char szSketchName[]  = "BeckESP32_BasicOTA.ino";
-static const char szFileDate[]    = "Oct 7, 2017, Lenny-Arduino-a";
+const char szSketchName[]  = "BeckE32_BasicOTA.ino";
+const char szFileDate[]    = "Jan 3, 2018, Lenny-a, Sloeber 4.2";
 // "See https://diyprojects.io/arduinoota-esp32-wi-fi-ota-wireless-update-arduino-ide"
 #include <BeckLogLib.h>
 #include <WiFi.h>

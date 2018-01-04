@@ -131,6 +131,19 @@ void LogToSerial(String szLogString, int sLogValue){
 } //LogToSerial:int
 
 
+void LogToSerial(String szLogString, int sValue1, int sValue2, int sValue3){
+	//Created for logging 3 acceleration axis
+  Serial << LOG0 << szLogString << " " << sValue1 << "   " << sValue2 << "   " << sValue3 << "   " << endl;
+  return;
+} //LogToSerial:int
+
+
+void LogToSerial(String szLogString, UINT16 usLogValue){
+  Serial << LOG0 << szLogString << " " << usLogValue << endl;
+  return;
+} //LogToSerial:UINT16
+
+
 void LogToSerial(String szLogString, UINT32 uwLogValue){
   Serial << LOG0 << szLogString << " " << uwLogValue << endl;
   return;

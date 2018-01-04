@@ -1,40 +1,66 @@
-#define SKETCH_HEAD "\BeckE32_SSD1306SimpleDemo.ino, January 3, 2018-B Lenny, Sloeber 4.2"
+/**
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2016 by Daniel Eichhorn
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 // Include the correct display library
 // For a connection via I2C using Wire include
 #include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
 #include "SSD1306.h" // alias for `#include "SSD1306Wire.h"`
+// or #include "SH1106.h" alis for `#include "SH1106Wire.h"`
+// For a connection via I2C using brzo_i2c (must be installed) include
+// #include <brzo_i2c.h> // Only needed for Arduino 1.6.5 and earlier
+// #include "SSD1306Brzo.h"
+// #include "SH1106Brzo.h"
+// For a connection via SPI include
+// #include <SPI.h> // Only needed for Arduino 1.6.5 and earlier
+// #include "SSD1306Spi.h"
+// #include "SH1106SPi.h"
 
-#define WiFi_Logo_width 60
-#define WiFi_Logo_height 36
-const char WiFi_Logo_bits[] PROGMEM = {
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0xFF, 0x07, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0xE0, 0xFF, 0x1F, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0xFF,
-  0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC, 0xFF, 0xFF, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0xFE, 0xFF, 0xFF, 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF,
-  0xFF, 0x03, 0x00, 0x00, 0x00, 0xFC, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00,
-  0x00, 0xFF, 0xFF, 0xFF, 0x07, 0xC0, 0x83, 0x01, 0x80, 0xFF, 0xFF, 0xFF,
-  0x01, 0x00, 0x07, 0x00, 0xC0, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x0C, 0x00,
-  0xC0, 0xFF, 0xFF, 0x7C, 0x00, 0x60, 0x0C, 0x00, 0xC0, 0x31, 0x46, 0x7C,
-  0xFC, 0x77, 0x08, 0x00, 0xE0, 0x23, 0xC6, 0x3C, 0xFC, 0x67, 0x18, 0x00,
-  0xE0, 0x23, 0xE4, 0x3F, 0x1C, 0x00, 0x18, 0x00, 0xE0, 0x23, 0x60, 0x3C,
-  0x1C, 0x70, 0x18, 0x00, 0xE0, 0x03, 0x60, 0x3C, 0x1C, 0x70, 0x18, 0x00,
-  0xE0, 0x07, 0x60, 0x3C, 0xFC, 0x73, 0x18, 0x00, 0xE0, 0x87, 0x70, 0x3C,
-  0xFC, 0x73, 0x18, 0x00, 0xE0, 0x87, 0x70, 0x3C, 0x1C, 0x70, 0x18, 0x00,
-  0xE0, 0x87, 0x70, 0x3C, 0x1C, 0x70, 0x18, 0x00, 0xE0, 0x8F, 0x71, 0x3C,
-  0x1C, 0x70, 0x18, 0x00, 0xC0, 0xFF, 0xFF, 0x3F, 0x00, 0x00, 0x08, 0x00,
-  0xC0, 0xFF, 0xFF, 0x1F, 0x00, 0x00, 0x0C, 0x00, 0x80, 0xFF, 0xFF, 0x1F,
-  0x00, 0x00, 0x06, 0x00, 0x80, 0xFF, 0xFF, 0x0F, 0x00, 0x00, 0x07, 0x00,
-  0x00, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0x00, 0xF8, 0xFF, 0xFF,
-  0xFF, 0x7F, 0x00, 0x00, 0x00, 0x00, 0xFE, 0xFF, 0xFF, 0x01, 0x00, 0x00,
-  0x00, 0x00, 0xFC, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF8, 0xFF,
-  0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0xE0, 0xFF, 0x1F, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x80, 0xFF, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFC,
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-  };
+// Include custom images
+#include "images.h"
+
+// Initialize the OLED display using SPI
+// D5 -> CLK
+// D7 -> MOSI (DOUT)
+// D0 -> RES
+// D2 -> DC
+// D8 -> CS
+// SSD1306Spi        display(D0, D2, D8);
+// or
+// SH1106Spi         display(D0, D2);
+
+// Initialize the OLED display using brzo_i2c
+// D3 -> SDA
+// D5 -> SCL
+// SSD1306Brzo display(0x3c, D3, D5);
+// or
+// SH1106Brzo  display(0x3c, D3, D5);
+
 // Initialize the OLED display using Wire library
-//SSD1306  display(0x3c, D3, D5);
-SSD1306  display(0x3c, 21, 22);
+SSD1306  display(0x3c, D3, D5);
+// SH1106 display(0x3c, D3, D5);
+
 
 #define DEMO_DURATION 3000
 typedef void (*Demo)(void);
@@ -42,43 +68,19 @@ typedef void (*Demo)(void);
 int demoMode = 0;
 int counter = 1;
 
-Demo demos[] = {drawFontFaceDemo, drawTextFlowDemo, drawTextAlignmentDemo, drawRectDemo, drawCircleDemo, drawProgressBarDemo, drawImageDemo};
-int demoLength = (sizeof(demos) / sizeof(Demo));
-long timeSinceLastModeSwitch = 0;
-
 void setup() {
   Serial.begin(115200);
-	Serial.println(SKETCH_HEAD);
+  Serial.println();
+  Serial.println();
 
-	// Initialising the UI will init the display too.
+
+  // Initialising the UI will init the display too.
   display.init();
+
   display.flipScreenVertically();
   display.setFont(ArialMT_Plain_10);
 
-	Serial.println("setup(): Done");
-	return;
-}	//setup
-
-
-void loop() {
-  // clear the display
-  display.clear();
-  // draw the current demo method
-  demos[demoMode]();
-
-  display.setTextAlignment(TEXT_ALIGN_RIGHT);
-  display.drawString(10, 128, String(millis()));
-  // write the buffer to the display
-  display.display();
-
-  if (millis() - timeSinceLastModeSwitch > DEMO_DURATION) {
-    demoMode = (demoMode + 1)  % demoLength;
-    timeSinceLastModeSwitch = millis();
-  }
-  counter++;
-  delay(10);
-}	//loop
-
+}
 
 void drawFontFaceDemo() {
     // Font Demo1
@@ -160,4 +162,26 @@ void drawImageDemo() {
     // on how to create xbm files
     display.drawXbm(34, 14, WiFi_Logo_width, WiFi_Logo_height, WiFi_Logo_bits);
 }
-//Last line
+
+Demo demos[] = {drawFontFaceDemo, drawTextFlowDemo, drawTextAlignmentDemo, drawRectDemo, drawCircleDemo, drawProgressBarDemo, drawImageDemo};
+int demoLength = (sizeof(demos) / sizeof(Demo));
+long timeSinceLastModeSwitch = 0;
+
+void loop() {
+  // clear the display
+  display.clear();
+  // draw the current demo method
+  demos[demoMode]();
+
+  display.setTextAlignment(TEXT_ALIGN_RIGHT);
+  display.drawString(10, 128, String(millis()));
+  // write the buffer to the display
+  display.display();
+
+  if (millis() - timeSinceLastModeSwitch > DEMO_DURATION) {
+    demoMode = (demoMode + 1)  % demoLength;
+    timeSinceLastModeSwitch = millis();
+  }
+  counter++;
+  delay(10);
+}

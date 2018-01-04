@@ -15,6 +15,7 @@ void LogJustToSerial(String sLogline){
 } //LogJustToSerial
 
 
+/*
 String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
@@ -22,6 +23,7 @@ String szLogLineHeader(long lLineCount){
   //szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
+*/
 
 
 /*
@@ -56,7 +58,7 @@ String szAddZeros(int sValue, int sNumDigits){
 } //szAddZeros
 
 
-//**********************************
+/*
 void LogToSerial(String szLogString){
   Serial << LOG0 << szLogString << endl;
   return;
@@ -104,4 +106,5 @@ void LogToSerial(String szLogString, double dLogValue){
   Serial << LOG0 << szLogString << " " << dLogValue << endl;
   return;
 } //LogToSerial:double
+*/
 //Last line.
