@@ -1,4 +1,4 @@
-//BeckLogLib.cpp, Aug 3, 2017
+//BeckLogLib.cpp, 1/3/18
 #include <BeckLogLib.h>
 
 //Global variables
@@ -22,24 +22,6 @@ String szLogLineHeader(long lLineCount){
   //szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
-
-
-/*
-String szGetTime(long lMsec){
-  String  szString;
-  int sDays    =    lMsec                                               / lMsecPerDay ;
-  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
-  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
-  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
-  int sMsec    =    lMsec % lMsecPerSec;
-  szString = String(sDays) + ":";
-  szString+= String(szAddZeros(sHours, 2)) + ":";
-  szString+= String(szAddZeros(sMinutes, 2)) + ":";
-  szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
-  return szString;
-} //szGetTime
-*/
 
 
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
@@ -117,7 +99,7 @@ void LogToSerial(String szLogString, int sLogValue){
 
 
 void LogToSerial(String szLogString, int sValue1, int sValue2, int sValue3){
-	//Created for logging 3 acceleration axis
+  //Created for logging 3 acceleration axis
   Serial << LOG0 << szLogString << " " << sValue1 << "   " << sValue2 << "   " << sValue3 << "   " << endl;
   return;
 } //LogToSerial:int
