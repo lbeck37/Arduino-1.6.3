@@ -1,0 +1,28 @@
+#######################################
+# Syntax Coloring Map DOGS-1701
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+dog_1701	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+initialize	KEYWORD2
+clear	KEYWORD2       
+contrast	KEYWORD2        
+view	KEYWORD2
+string	KEYWORD2
+rectangle	KEYWORD2  
+picture	KEYWORD2     
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+DOGS102	LITERAL1
+VIEW_BOTTOM	LITERAL1
+VIEW_TOP	LITERAL1

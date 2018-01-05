@@ -1,21 +1,25 @@
 const char szSketchName[]  = "BeckE32_BasicOTA.ino";
-const char szFileDate[]    = "Jan 4, 2018, Lenny-b, NOT Sloeber 4.2";
+const char szFileDate[]    = "Jan 4, 2018, Lenny-e, NOT Sloeber 4.2";
 // "See https://diyprojects.io/arduinoota-esp32-wi-fi-ota-wireless-update-arduino-ide"
 #include <BeckLogLib.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+//#include <Streaming.h>
+//#include "HardwareSerial.h"
 
 /*
 const char* ssid = "..........";
 const char* password = "..........";
 */
-const char* ssid = "Aspot24";
-const char* password = "Qazqaz11";
+const char*       ssid      = "Aspot24";
+const char*       password  = "Qazqaz11";
+unsigned long     ulBaud    = 115200;
+//int     sBaud    = 115200;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(ulBaud);
   Serial.println("Booting");
   Serial << endl << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
   WiFi.mode(WIFI_STA);
