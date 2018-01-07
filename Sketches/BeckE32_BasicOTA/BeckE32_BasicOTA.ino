@@ -1,12 +1,12 @@
 const char szSketchName[]  = "BeckE32_BasicOTA.ino";
 const char szFileDate[]    = "Jan 5, 2018, Lenny-c, Sloeber 4.2";
 // "See https://diyprojects.io/arduinoota-esp32-wi-fi-ota-wireless-update-arduino-ide"
-#include <BeckLogLib.h>
+//#include <BeckLogLib.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-//#include <Streaming.h>
+#include <Streaming.h>
 //#include "HardwareSerial.h"
 
 /*
@@ -19,7 +19,8 @@ unsigned long     ulBaud    = 115200;
 //int     sBaud    = 115200;
 
 void setup() {
-  Serial.begin(ulBaud);
+  //Serial.begin(ulBaud);
+  Serial.begin(115200);
   Serial.println("Booting");
   Serial << endl << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
   WiFi.mode(WIFI_STA);

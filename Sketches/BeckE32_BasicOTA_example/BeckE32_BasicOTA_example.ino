@@ -8,7 +8,7 @@ const char* password = "Qazqaz11";
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("set(): Begin BeckE32_BasicOTA_example.ino, Jan 5, 2018h");
+  Serial.println("setup(): Begin BeckE32_BasicOTA_example.ino, Jan 6, 2018j");
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -42,16 +42,16 @@ void setup() {
         type = "filesystem";
 
       // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-      Serial.println("Start updating " + type);
+      Serial.println(".onStart(): Start updating " + type);
     })
     .onEnd([]() {
-      Serial.println("\nEnd");
+      Serial.println(".onEnd(): End");
     })
     .onProgress([](unsigned int progress, unsigned int total) {
-      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+      Serial.printf(".onProgress(): Progress: %u%%\n", (progress / (total / 100)));
     })
     .onError([](ota_error_t error) {
-      Serial.printf("Error[%u]: ", error);
+      Serial.printf(".onError(): Error[%u]: ", error);
       if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
       else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
       else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
@@ -61,8 +61,8 @@ void setup() {
 
   ArduinoOTA.begin();
 
-  Serial.println("Ready");
-  Serial.print("IP address: ");
+  Serial.println("setup(): Ready");
+  Serial.print("setup(): IP address: ");
   Serial.println(WiFi.localIP());
 }
 
