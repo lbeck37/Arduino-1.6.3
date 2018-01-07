@@ -24,7 +24,7 @@
 #define ESP8266WIFITYPE_H_
 
 //#include <types.h>		// 10/617 Beck Added
-#include <queue.h>
+//#include <queue.h>
 
 typedef unsigned char		uint8;
 
