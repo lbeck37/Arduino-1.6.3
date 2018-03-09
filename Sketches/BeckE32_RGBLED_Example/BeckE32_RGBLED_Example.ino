@@ -28,7 +28,7 @@ static const String FileDate    = "Feb 20, 2018, Lenny-c";
 //#define PIN 4
 #define PIN 5
 //#define LED_COUNT 5
-#define LED_COUNT 100
+#define LED_COUNT 160
 
 // Create an instance of the Adafruit_NeoPixel class called "leds".
 // That'll be what we refer to from here on...

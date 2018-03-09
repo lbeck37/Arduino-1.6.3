@@ -1,8 +1,11 @@
+//static const String SketchName  = "BeckE32_Alexa.ino";
+//static const String FileDate    = "March 9, 2018, Lenny-a";
 #include <Arduino.h>
 #ifdef ESP32
   #include <WiFi.h>
   #define RF_RECEIVER 13
-  #define RELAY_PIN_1 12
+  #define
+RELAY_PIN_1 12
   #define RELAY_PIN_2 14
 #else
   #include <ESP8266WiFi.h>
@@ -10,21 +13,22 @@
   #define RELAY_PIN_1 4
   #define RELAY_PIN_2 14
 #endif
+
 #include "fauxmoESP.h"
 
-#include <RCSwitch.h>
+//#include <RCSwitch.h>
 
 #define SERIAL_BAUDRATE 115200
 
-#define WIFI_SSID "REPLACE_WITH_YOUR_SSID"
-#define WIFI_PASS "REPLACE_WITH_YOUR_PASSWORD"
+#define WIFI_SSID "Aspot24"
+#define WIFI_PASS "Qazqaz11"
 
 #define LAMP_1 "lamp one"
 #define LAMP_2 "lamp two"
 
 fauxmoESP fauxmo;
 
-RCSwitch mySwitch = RCSwitch();
+//RCSwitch mySwitch = RCSwitch();
 
 // Wi-Fi Connection
 void wifiSetup() {
@@ -44,7 +48,8 @@ void wifiSetup() {
 
   // Connected!
   Serial.printf("[WIFI] STATION Mode, SSID: %s, IP address: %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
-}
+}	//wifiSetup
+
 
 void setup() {
   // Init serial port and clean garbage
@@ -61,7 +66,7 @@ void setup() {
   pinMode(RELAY_PIN_2, OUTPUT);
   digitalWrite(RELAY_PIN_2, HIGH);
 
-  mySwitch.enableReceive(RF_RECEIVER);  // Receiver on interrupt 0 => that is pin #2
+  //mySwitch.enableReceive(RF_RECEIVER);  // Receiver on interrupt 0 => that is pin #2
 
   // You can enable or disable the library at any moment
   // Disabling it will prevent the devices from being discovered and switched
@@ -101,7 +106,8 @@ void setup() {
       //return !digitalRead(RELAY_PIN_1);
       return
   });*/
-}
+}	//setup
+
 
 void loop() {
   // Since fauxmoESP 2.0 the library uses the "compatibility" mode by
@@ -111,22 +117,22 @@ void loop() {
   // But, since it's not "async" anymore we have to manually poll for UDP
   // packets
   fauxmo.handle();
-
-  /*static unsigned long last = millis();
+  /*
+  static unsigned long last = millis();
   if (millis() - last > 5000) {
     last = millis();
     Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
-  }*/
-
-
+  }
+  */
+/*
   if (mySwitch.available()) {
-  /*Serial.print("Received ");
+  Serial.print("Received ");
     Serial.print( mySwitch.getReceivedValue() );
     Serial.print(" / ");
     Serial.print( mySwitch.getReceivedBitlength() );
     Serial.print("bit ");
     Serial.print("Protocol: ");
-    Serial.println( mySwitch.getReceivedProtocol() );*/
+    Serial.println( mySwitch.getReceivedProtocol() );
     if (mySwitch.getReceivedValue()==6819768) {
       digitalWrite(RELAY_PIN_1, !digitalRead(RELAY_PIN_1));
     }
@@ -136,4 +142,5 @@ void loop() {
     delay(600);
     mySwitch.resetAvailable();
   }
-}
+*/
+}	//loop
