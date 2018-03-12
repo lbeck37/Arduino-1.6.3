@@ -4,8 +4,7 @@
 #ifdef ESP32
   #include <WiFi.h>
   #define RF_RECEIVER 13
-  #define
-RELAY_PIN_1 12
+  #define RELAY_PIN_1 12
   #define RELAY_PIN_2 14
 #else
   #include <ESP8266WiFi.h>
@@ -48,7 +47,7 @@ void wifiSetup() {
 
   // Connected!
   Serial.printf("[WIFI] STATION Mode, SSID: %s, IP address: %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
-}	//wifiSetup
+} //wifiSetup
 
 
 void setup() {
@@ -106,7 +105,7 @@ void setup() {
       //return !digitalRead(RELAY_PIN_1);
       return
   });*/
-}	//setup
+} //setup
 
 
 void loop() {
@@ -143,4 +142,4 @@ void loop() {
     mySwitch.resetAvailable();
   }
 */
-}	//loop
+} //loop
