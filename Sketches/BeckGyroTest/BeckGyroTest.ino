@@ -668,6 +668,9 @@ typedef union accel_t_gyro_union
 };
 
 
+static const int       sI2C_SDA              = 26;
+static const int       sI2C_SCL              = 27;
+
 void setup()
 {
   int error;
@@ -684,7 +687,8 @@ void setup()
 */
 
   // Initialize the 'Wire' class for the I2C-bus.
-  Wire.begin();
+  //Wire.begin();
+  Wire.begin(sI2C_SDA, sI2C_SCL);
 
 
   // default at power-up:

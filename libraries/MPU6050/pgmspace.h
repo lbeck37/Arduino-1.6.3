@@ -24,6 +24,8 @@
   THE SOFTWARE
 */
 
+#ifndef PGMSPACE_INCLUDE	// 12/05/17 Added to not include if ESP32 version has been included
+
 #ifndef __PGMSPACE_H_
 #define __PGMSPACE_H_ 1
 
@@ -73,4 +75,5 @@ typedef uint32_t prog_uint32_t;
 #define pgm_read_dword_far(addr) pgm_read_dword(addr)
 #define pgm_read_float_far(addr) pgm_read_float(addr)
 
-#endif
+#endif	//__PGMSPACE_H_
+#endif	//PGMSPACE_INCLUDE

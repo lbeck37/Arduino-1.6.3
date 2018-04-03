@@ -1,36 +1,49 @@
-//Beck 1/27/17
-//#include <Wire.h>
-#include <Adafruit_ADS1015.h>
+static const String SketchName  = "BeckAtoD.ino";
+static const String FileDate    = "Dec 18, 2017, Lenny-c";
 
-Adafruit_ADS1115 ads(0x48);
-float Voltage = 0.0;
+#include <Wire.h>
+#include <BeckMiniLib.h>
+#include <BeckAtoD.h>
 
-void setup(void)
-{
-  //Serial.begin(9600);
+static const INT16       sI2C_SDA				= 26;
+static const INT16       sI2C_SCL				= 27;
+
+BeckI2C     I2C(sI2C_SDA, sI2C_SCL);
+BeckAtoD    AtoD(&I2C, eADS1115);
+
+void setup(void){
   Serial.begin(115200);
-  Serial.println("\nBeckAtoD.ino 1/27/17B HP7");
-  ads.begin();
+  Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
+  I2C.Begin();
 } //setup
 
 
-void loop(void)
-{
-  int16_t adc0;  // we read from the ADC, we have a sixteen bit integer as a result
+void loop(void){
+	static double	dAmps;
+	static double	dVolts;
 
-  for (int sChannel= 0; sChannel < 4; sChannel++) {
-     adc0 = ads.readADC_SingleEnded(sChannel);
-     Voltage = (adc0 * 0.1875)/1000;
+  for (int sChan= sMotorVoltsChan; sChan <= sDACVddChan; sChan++){
+		switch (sChan) {
+			case sMotorVoltsChan:
+			case sACS712VccChan:
+			case sDACVddChan:
+				dVolts= AtoD.dReadRealVolts(sChan);
+				Serial << "loop(): Channel= " << sChan << ", dVolts=  " << dVolts << endl << endl;
+				break;
+			case sMotorAmpChan:
+	  		dAmps= AtoD.dReadAmps(sChan);
+				Serial << "loop(): Channel= " << sChan << ", dAmps=  " << dAmps << endl << endl;
+				break;
+			default:
+				Serial << "loop(): Bad switch, sChan= " << sChan << endl;
+				break;
+		} //switch
+  } //for(int sChan=0;
 
-     Serial.print("sChannel= ");
-     Serial.print(sChannel);
-     Serial.print(",\tAin= ");
-     Serial.print(adc0);
-     Serial.print(",\tVoltage: ");
-     Serial.println(Voltage, 7);
-     Serial.println();
-  } //for(int sChannel=0;
-
+  for (double dVolt= 0; dVolt <= 3.00; dVolt += 0.50){
+  		AtoD.WriteDACVolts(dVolt);
+  	  delay(1000);
+  }	//for
   delay(5000);
 } //loop
 //Last line.

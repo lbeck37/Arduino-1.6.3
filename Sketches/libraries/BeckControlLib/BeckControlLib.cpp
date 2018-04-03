@@ -127,6 +127,7 @@ void SetHeatSwitch(int sSwitchState){
 } //SetHeatSwitch
 
 
+/*
 void SetThermoState(int sSwitchState){
   String szLogString= "SetThermoState(): sSwitchState=";
   LogToBoth(szLogString, sSwitchState);
@@ -142,6 +143,7 @@ void SetThermoState(int sSwitchState){
   } //if(sState==sOn)else
   return;
 } //SetThermoState
+*/
 
 
 void HandleOverheat(){
@@ -208,6 +210,7 @@ void SetOverheatSwitch(int sSwitchState){
 } //SetOverheatSwitch
 
 
+/*
 void SetSwitch(int sSwitch, int sSwitchState){
   int sSwitchPin= asSwitchPin[sSwitch];
   bool bPinSetting;
@@ -240,6 +243,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
   //HandleBlynkLEDs();
   return;
 } //SetSwitch
+*/
 
 
 bool bTurnPumpOn(bool bTurnOn){
