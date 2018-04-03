@@ -1,4 +1,4 @@
-static const char szSketchName[]  = "BeckBlynkESP.ino";
+static const char szSketchName[]  = "BeckBlynkESP_Apr17.ino";
 //static const char szFileDate[]    = "Feb 26, 2017 -G- Lenny";
 static const char szFileDate[]    = "Apr 1, 2017 -A- Lenny";
 //Uncomment out desired implementation.

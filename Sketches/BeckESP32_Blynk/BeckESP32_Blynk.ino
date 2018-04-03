@@ -101,7 +101,7 @@ static const int    sNumSwitches          = 4;
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 static const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
-//(3) types of sketches are supported: front lights, fireplace and garage
+//(7) types of sketches are supported, including front lights, fireplace and garage
 static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
 static const int    sGarage               = 3;

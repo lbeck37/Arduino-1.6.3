@@ -1,5 +1,5 @@
 //static const String SketchName  = "BeckE32_Alexa.ino";
-//static const String FileDate    = "March 9, 2018, Lenny-a";
+//static const String FileDate    = "March 16, 2018, Lenny-a";
 #include <Arduino.h>
 #ifdef ESP32
   #include <WiFi.h>
@@ -8,9 +8,13 @@
   #define RELAY_PIN_2 14
 #else
   #include <ESP8266WiFi.h>
-  #define RF_RECEIVER 5
-  #define RELAY_PIN_1 4
-  #define RELAY_PIN_2 14
+  //#define RF_RECEIVER 5
+/*
+  #define RELAY_PIN_1  4		//D2
+  #define RELAY_PIN_2 14		//D5
+*/
+  #define RELAY_PIN_1  5		//NodeMCU pin D1 is GPIO5
+  #define RELAY_PIN_2  4		//NodeMCU pin D2 is GPIO4
 #endif
 
 #include "fauxmoESP.h"
@@ -21,6 +25,10 @@
 
 #define WIFI_SSID "Aspot24"
 #define WIFI_PASS "Qazqaz11"
+/* Was going to change except the Alexis needs to be one same network
+#define WIFI_SSID "P291spot"
+#define WIFI_PASS "Wsxwsx22"
+*/
 
 #define LAMP_1 "lamp one"
 #define LAMP_2 "lamp two"
