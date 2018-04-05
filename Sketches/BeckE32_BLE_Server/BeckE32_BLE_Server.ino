@@ -1,3 +1,5 @@
+const char szSketchName[]  = "BeckE32_BLE_Server.ino";
+const char szFileDate[]    = "Apr 4, 2018, Lenny-d, Sloeber 4.2";
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -19,6 +21,7 @@
    In this example rxValue is the data received (only accessible inside that function).
    And txValue is the data to be sent, in this example just a byte incremented every second. 
 */
+#include <Streaming.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
@@ -28,7 +31,7 @@ BLECharacteristic *pCharacteristic;
 bool deviceConnected = false;
 float txValue = 0;
 const int readPin = 32; // Use GPIO number. See ESP32 board pinouts
-const int LED = 2; // Could be different depending on the dev board. I used the DOIT ESP32 dev board.
+const int LED = 5; // Could be different depending on the dev board. I used the DOIT ESP32 dev board.
 
 //std::string rxValue; // Could also make this a global var to access it in loop()
 
@@ -81,11 +84,13 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 
 void setup() {
   Serial.begin(115200);
+  Serial << endl << endl<< endl<< endl;
+  Serial << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
 
   pinMode(LED, OUTPUT);
 
   // Create the BLE Device
-  BLEDevice::init("ESP32 UART Test"); // Give it a name
+  BLEDevice::init("BeckE32 BLE Server"); // Give it a name
 
   // Create the BLE Server
   BLEServer *pServer = BLEDevice::createServer();
@@ -114,25 +119,29 @@ void setup() {
 
   // Start advertising
   pServer->getAdvertising()->start();
-  Serial.println("Waiting a client connection to notify...");
+  Serial.println("Waiting for a client connection to notify...");
 }
 
 void loop() {
+	//static int	sCount= 1;
   if (deviceConnected) {
     // Fabricate some arbitrary junk for now...
-    txValue = analogRead(readPin) / 3.456; // This could be an actual sensor reading!
-
+    //txValue = analogRead(readPin) / 3.456; // This could be an actual sensor reading!
+    txValue = txValue + 1.0;
     // Let's convert the value to a char array:
-    char txString[8]; // make sure this is big enuffz
+    char txString[16]; // make sure this is big enuffz
     dtostrf(txValue, 1, 2, txString); // float_val, min_width, digits_after_decimal, char_buffer
-    
-//    pCharacteristic->setValue(&txValue, 1); // To send the integer value
-//    pCharacteristic->setValue("Hello!"); // Sending a test message
+
+    //char *pcCount = itoa(sCount++);
+  	//pCharacteristic->setValue(&txValue, 1); // To send the integer value
+    //pCharacteristic->setValue("Hello!"); // Sending a test message
     pCharacteristic->setValue(txString);
+    //pCharacteristic->setValue(pcCount);
     
     pCharacteristic->notify(); // Send the value to the app!
     Serial.print("*** Sent Value: ");
     Serial.print(txString);
+    //Serial.print(pcCount);
     Serial.println(" ***");
 
     // You can add the rxValue checks down here instead
