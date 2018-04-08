@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BasicOTA.ino";
-const char szFileDate[]    = "Jan 5, 2018, Lenny-c, Sloeber 4.2";
+const char szFileDate[]    = "Apr 7, 2018, Lenny-d, Sloeber 4.2";
 // "See https://diyprojects.io/arduinoota-esp32-wi-fi-ota-wireless-update-arduino-ide"
 //#include <BeckLogLib.h>
 #include <WiFi.h>
@@ -35,9 +35,9 @@ void setup() {
   // ArduinoOTA.setPort(3232);
 
   // Hostname defaults to esp3232-[MAC]
-  // ArduinoOTA.setHostname("myesp32");
-  //ArduinoOTA.setHostname("ESP32-DevKitC");
-  ArduinoOTA.setHostname("SF-ESP32-Thing");
+  //ArduinoOTA.setHostname("myesp32");
+  ArduinoOTA.setHostname("ESP32-DevKitC");
+  //ArduinoOTA.setHostname("SF-ESP32-Thing");
 
   // No authentication by default
   // ArduinoOTA.setPassword("admin");
