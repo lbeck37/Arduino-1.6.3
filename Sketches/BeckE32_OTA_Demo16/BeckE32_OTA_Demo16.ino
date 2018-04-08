@@ -1,5 +1,7 @@
 const String SketchName  = "Beck32_OTA_Demo16.ino";
-const String FileDate    = "Apr 7, 2018, Lenny-a";
+const String FileDate    = "Apr 8, 2018, Lenny-d";
+//Execute the following command line to perform update.
+//"python .\espota.py -i 192.168.0.38 -I 192.168.0.37 -p 3232 -P3232 -f BeckE32_OTA_Demo16.bin"
 
 #include <WiFi.h>
 #include <ESPmDNS.h>
@@ -74,36 +76,17 @@ void setup() {
   ArduinoOTA.begin();
   Serial.print("ESP IP address: ");
   Serial.println(WiFi.localIP());
-}
+} //setup
+
 
 void loop() {
-  /* this function will handle incomming chunk of SW, flash and respond sender */
+  /* this function will handle incoming chunk of SW, flash and respond sender */
   ArduinoOTA.handle();
 
-  /* we can not use delay() here, because it will block the ArduinoOTA work
-  so we count the time, if it reach we toggle the lED */
-/*
   long now = millis();
-  if (now - lastMsg > 3000) {
+  static int sCount= 0;
+  if (now - lastMsg > 5000) {
     lastMsg = now;
-    if(flag == false){
-      digitalWrite(led, HIGH);
-      flag = true;
-    }else{
-      digitalWrite(led, LOW);
-      flag = false;
-    }
-  }
-*/
-  long now = millis();
-  if (now - lastMsg > 3000) {
-    lastMsg = now;
-    if(flag == false){
-      Serial << "loop(): flag is false " << endl;
-      flag = true;
-    }else{
-      Serial << "loop(): flag is true " << endl;
-      flag = false;
-    }
-  }
-}
+    Serial << "loop(): Count= " << sCount++ << endl;
+  } //if(now-lastMsg>5000)
+} //loop
