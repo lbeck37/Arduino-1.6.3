@@ -1,4 +1,4 @@
-#define SKETCH_HEAD "\BeckE32_SSD1306SimpleDemo.ino, January 3, 2018-B Lenny, Sloeber 4.2"
+#define SKETCH_HEAD "\nBeckE32_SSD1306SimpleDemo.ino, Apr 17, 2018-a Lenny, Sloeber 4.2"
 // Include the correct display library
 // For a connection via I2C using Wire include
 #include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
