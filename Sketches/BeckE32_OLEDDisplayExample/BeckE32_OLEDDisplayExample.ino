@@ -1,5 +1,5 @@
 // Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
-#define SKETCH_HEAD "\nBeckDisplayExample.ino, January 3, 2018A Lenny"
+#define SKETCH_HEAD "\n****\nBeckE32_OLEDDisplayExample.ino, Apr 18, 2018-c"
 /*********************************************************************
 This is an example for our Monochrome OLEDs based on SSD1306 drivers
 This example is for a 128x64 size display using I2C to communicate
@@ -165,7 +165,7 @@ void setup()   {
   // miniature bitmap display
   oDisplay.drawBitmap(30, 16,  logo16_glcd_bmp, 16, 16, 1);
   oDisplay.display();
-  delay(1);
+  delay(1000);
 
   // invert the display
   oDisplay.invertDisplay(true);
