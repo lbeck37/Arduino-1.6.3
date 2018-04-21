@@ -17,7 +17,7 @@ HX711			oPedalForce;
 void setup() {
   Serial.begin(115200);
   Serial.println();
-  Serial.println("BeckE32_HX711.ino, Apr 21, 2018-f");
+  Serial.println("BeckE32_HX711.ino, Apr 21, 2018-r");
 
   Serial.println("setup(): Call rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M)");
   rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
@@ -25,6 +25,7 @@ void setup() {
   oPedalForce.begin(cHX711_DOUT, cHX711_SCK);		//Use default gain
   TakeReadings();
 
+/*
   //Set the scale.
   Serial.print("oPedalForce.set_scale(2280.f): \t\t");
   oPedalForce.set_scale(2280.f);                      // this value is obtained by calibrating the scale with known weights; see the README for details
@@ -34,17 +35,28 @@ void setup() {
 
   Serial.println("After setting up the scale:");
   TakeReadings();
+*/
 
-  Serial.println("Readings:");
+  //Serial.println("Readings:");
   return;
 }	//setup
 
 
 void loop() {
-  Serial.print("one reading:\t");
-  Serial.print(oPedalForce.get_units(), 1);
+	unsigned long		ulValue;
+
+/*
+	ulValue= oPedalForce.get_units();
+  Serial << "loop(): oPedalForce.get_units() returned " << ulValue << endl;
+*/
+	Serial << endl;
+  ulValue= oPedalForce.read();
+  Serial << "loop(): oPedalForce.read() returned " << ulValue << endl;
+
+/*
   Serial.print("\t| average:\t");
   Serial.println(oPedalForce.get_units(10), 1);
+*/
 
   oPedalForce.power_down();			        // put the ADC in sleep mode
   delay(5000);
@@ -61,22 +73,19 @@ void TakeReadings(){
   ulValue= oPedalForce.read();
   Serial << "TakeReadings(): oPedalForce.read() returned " << ulValue << endl;
 
-  //Serial.print("oPedalForce.read_average(20): \t\t");
-  //Serial.println(oPedalForce.read_average(20));  	// print the average of 20 readings from the ADC
+/*
   ulValue= oPedalForce.read_average(20);
   Serial << "TakeReadings(): oPedalForce.read_average(20) returned " << ulValue << endl;
+*/
 
-  //Serial.print("oPedalForce.get_value(5): \t\t");
-  //Serial.println(oPedalForce.get_value(5));		// print the average of 5 readings from the ADC minus the tare weight (not set yet)
-  ulValue= oPedalForce.get_value(5);
-  Serial << "TakeReadings(): oPedalForce.get_value(5) returned " << ulValue << endl;
+  ulValue= oPedalForce.get_value(1);
+  Serial << "TakeReadings(): oPedalForce.get_value(1) returned " << ulValue << endl;
 
-  //Serial.print("oPedalForce.get_units(5): \t\t");
-  //Serial.println(oPedalForce.get_units(5), 1);
-  // Print the average of 5 readings from the ADC minus tare weight (not set) divided
+  // Print the average of n readings from the ADC minus tare weight (not set) divided
 	// by the SCALE parameter (not set yet)
-  ulValue= oPedalForce.get_units(5);
-  Serial << "TakeReadings(): oPedalForce.get_units(5) returned " << ulValue << endl;
+  ulValue= oPedalForce.get_units(1);
+  Serial << "TakeReadings(): oPedalForce.get_units(1) returned " << ulValue << endl;
+
 	return;
 }	//TakeReadings
 //Last line

@@ -78,10 +78,26 @@ long HX711::read() {
 		yield();
 	}	//while
 
+/*
 	// pulse the clock pin 24 times to read the data
-	aucData[2] = shiftIn(DOUT, PD_SCK, MSBFIRST);
-	aucData[1] = shiftIn(DOUT, PD_SCK, MSBFIRST);
 	aucData[0] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+	aucData[1] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+	aucData[2] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+*/
+	// pulse the clock pin 24 times to read the data
+/*
+	//0x7FFFFF => 8,388,607d)
+	aucData[0] = 127;
+	aucData[1] = 255;
+	aucData[2] = 255;
+*/
+	//0x800000 => -8,388,608d)
+	aucData[0] = 128;
+	aucData[1] = 0;
+	aucData[2] = 0;
+
+	Serial << "HX711::read(): shiftIn() bytes read: " <<
+			aucData[0] << ", " << aucData[1] << ", " << aucData[2] << endl;
 
 	// set the channel and the gain factor for the next reading using the clock pin
 	for (unsigned int i = 0; i < GAIN; i++) {
@@ -90,7 +106,7 @@ long HX711::read() {
 	}	//for
 
 	// Replicate the most significant bit to pad out a 32-bit signed integer
-	if (aucData[2] & 0x80) {
+	if (aucData[0] & 0x80) {
 		ucFiller = 0xFF;
 	} else {
 		ucFiller = 0x00;
@@ -98,9 +114,9 @@ long HX711::read() {
 
 	// Construct a 32-bit signed integer
 	ulValue = ( static_cast<unsigned long>(ucFiller) << 24
-			| static_cast<unsigned long>(aucData[2]) << 16
+			| static_cast<unsigned long>(aucData[0]) << 16
 			| static_cast<unsigned long>(aucData[1]) << 8
-			| static_cast<unsigned long>(aucData[0]) );
+			| static_cast<unsigned long>(aucData[2]) );
 
 	Serial << "HX711::read(): Returning ulValue= " << ulValue << endl;
 	return static_cast<long>(ulValue);
