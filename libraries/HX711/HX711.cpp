@@ -1,11 +1,14 @@
 #include <Arduino.h>
 #include <HX711.h>
+#include <Streaming.h>
 
+/* Beck 4/20/18
 #if ARDUINO_VERSION <= 106
     // "yield" is not implemented as noop in older Arduino Core releases, so let's define it.
     // See also: https://stackoverflow.com/questions/34497758/what-is-the-secret-of-the-arduino-yieldfunction/34498165#34498165
     void yield(void) {};
 #endif
+*/
 
 HX711::HX711(byte dout, byte pd_sck, byte gain) {
 	begin(dout, pd_sck, gain);
@@ -20,12 +23,20 @@ HX711::~HX711() {
 void HX711::begin(byte dout, byte pd_sck, byte gain) {
 	PD_SCK = pd_sck;
 	DOUT = dout;
+  //Serial.println("HX711::begin(): dout= %d", dout);
+	Serial << "HX711::begin(): DOUT= " << DOUT << ", PD_SCK= " << PD_SCK << endl;
 
+  Serial.println("HX711::begin(): Call pinMode(PD_SCK, OUTPUT)");
 	pinMode(PD_SCK, OUTPUT);
+  Serial.println("HX711::begin(): Call pinMode(DOUT, INPUT)");
 	pinMode(DOUT, INPUT);
 
+  Serial.println("HX711::begin(): Call set_gain(gain)");
 	set_gain(gain);
-}
+  Serial.println("HX711::begin(): Done");
+	return;
+}	//begin
+
 
 bool HX711::is_ready() {
 	return digitalRead(DOUT) == LOW;
@@ -44,9 +55,13 @@ void HX711::set_gain(byte gain) {
 			break;
 	}
 
+	Serial << "HX711::set_gain(): Call digitalWrite(PD_SCK, LOW)" << endl;
 	digitalWrite(PD_SCK, LOW);
+	Serial << "HX711::set_gain(): Call read()" << endl;
 	read();
-}
+	return;
+}	//set_gain
+
 
 long HX711::read() {
 	// wait for the chip to become ready
