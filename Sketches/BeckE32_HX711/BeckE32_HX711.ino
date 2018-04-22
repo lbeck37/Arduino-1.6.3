@@ -13,17 +13,19 @@ const byte		cHX711_Gain		= 128;			//Default gain is 128
 
 //HX711			oPedalForce(cHX711_DOUT, cHX711_SCK, cHX711_Gain);
 HX711			oPedalForce;
+double			dZeroCnt		= -127000.0;
+double			dCntsPerLb	=  -10000.0;
 
 void setup() {
   Serial.begin(115200);
   Serial.println();
-  Serial.println("BeckE32_HX711.ino, Apr 21, 2018-r");
+  Serial.println("BeckE32_HX711.ino, Apr 21, 2018-y");
 
   Serial.println("setup(): Call rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M)");
   rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
 
   oPedalForce.begin(cHX711_DOUT, cHX711_SCK);		//Use default gain
-  TakeReadings();
+  //TakeReadings();
 
 /*
   //Set the scale.
@@ -43,48 +45,55 @@ void setup() {
 
 
 void loop() {
-	unsigned long		ulValue;
-
+	long		lValue;
+	double	dLbs;
+	char szNumber[10];
 /*
 	ulValue= oPedalForce.get_units();
   Serial << "loop(): oPedalForce.get_units() returned " << ulValue << endl;
 */
 	Serial << endl;
-  ulValue= oPedalForce.read();
-  Serial << "loop(): oPedalForce.read() returned " << ulValue << endl;
+	lValue= oPedalForce.read();
+  //Serial << "loop(): oPedalForce.read() returned " << lValue << endl;
+	dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
+	dtostrf(dLbs, 8, 4, szNumber);
+  Serial << "loop(): Total Lbs= " << szNumber << endl;
 
 /*
   Serial.print("\t| average:\t");
   Serial.println(oPedalForce.get_units(10), 1);
 */
 
+/*
   oPedalForce.power_down();			        // put the ADC in sleep mode
-  delay(5000);
+  delay(1000);
   oPedalForce.power_up();
+*/
+  delay(1000);
   return;
 }	//loop
 
 
 void TakeReadings(){
-	unsigned long		ulValue;
+	long		lValue;
   Serial.println("TakeReadings(): Call oPedalForce.read()");
   //Serial.print("read: \t\t");
   //Serial.println(oPedalForce.read());			// print a raw reading from the ADC
-  ulValue= oPedalForce.read();
-  Serial << "TakeReadings(): oPedalForce.read() returned " << ulValue << endl;
+  lValue= oPedalForce.read();
+  Serial << "TakeReadings(): oPedalForce.read() returned " << lValue << endl;
 
 /*
   ulValue= oPedalForce.read_average(20);
   Serial << "TakeReadings(): oPedalForce.read_average(20) returned " << ulValue << endl;
 */
 
-  ulValue= oPedalForce.get_value(1);
-  Serial << "TakeReadings(): oPedalForce.get_value(1) returned " << ulValue << endl;
+  lValue= oPedalForce.get_value(1);
+  Serial << "TakeReadings(): oPedalForce.get_value(1) returned " << lValue << endl;
 
   // Print the average of n readings from the ADC minus tare weight (not set) divided
 	// by the SCALE parameter (not set yet)
-  ulValue= oPedalForce.get_units(1);
-  Serial << "TakeReadings(): oPedalForce.get_units(1) returned " << ulValue << endl;
+  lValue= oPedalForce.get_units(1);
+  Serial << "TakeReadings(): oPedalForce.get_units(1) returned " << lValue << endl;
 
 	return;
 }	//TakeReadings

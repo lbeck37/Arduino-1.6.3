@@ -78,23 +78,31 @@ long HX711::read() {
 		yield();
 	}	//while
 
-/*
+
 	// pulse the clock pin 24 times to read the data
 	aucData[0] = shiftIn(DOUT, PD_SCK, MSBFIRST);
 	aucData[1] = shiftIn(DOUT, PD_SCK, MSBFIRST);
 	aucData[2] = shiftIn(DOUT, PD_SCK, MSBFIRST);
-*/
-	// pulse the clock pin 24 times to read the data
+
 /*
 	//0x7FFFFF => 8,388,607d)
 	aucData[0] = 127;
 	aucData[1] = 255;
 	aucData[2] = 255;
 */
+/*
 	//0x800000 => -8,388,608d)
 	aucData[0] = 128;
 	aucData[1] = 0;
 	aucData[2] = 0;
+*/
+
+/*
+	//0xFFFFFF => -1d
+	aucData[0] = 255;
+	aucData[1] = 255;
+	aucData[2] = 255;
+*/
 
 	Serial << "HX711::read(): shiftIn() bytes read: " <<
 			aucData[0] << ", " << aucData[1] << ", " << aucData[2] << endl;
@@ -118,7 +126,7 @@ long HX711::read() {
 			| static_cast<unsigned long>(aucData[1]) << 8
 			| static_cast<unsigned long>(aucData[2]) );
 
-	Serial << "HX711::read(): Returning ulValue= " << ulValue << endl;
+	//Serial << "HX711::read(): Returning ulValue= " << (long)ulValue << endl;
 	return static_cast<long>(ulValue);
 }	//read
 
