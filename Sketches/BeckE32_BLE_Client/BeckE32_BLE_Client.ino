@@ -1,3 +1,5 @@
+const char szSketchName[]  = "BeckE32_BLE_Client.ino";
+const char szFileDate[]    = "Apr 22, 2018-b";
 /**
  * A BLE client example that is rich in capabilities.
  */
