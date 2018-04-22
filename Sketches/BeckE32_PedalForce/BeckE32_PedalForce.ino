@@ -1,5 +1,5 @@
-const String SketchName  = "BeckE32_PedalForce.ino";
-const String FileDate    = "Apr 22, 2018, Lenny-a";
+const String SketchName  = "BeckE32_PedalForce";
+const String FileDate    = "Apr 22, 2018-s";
 //Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -23,9 +23,10 @@ const byte 		cHX711_DOUT		= 25;				//IO pin number was 34 and 35
 const byte		cHX711_SCK		= 26;
 const byte		cHX711_Gain		= 128;			//Default gain is 128
 
-double			dZeroCnt		= -118000.0;
-double			dCntsPerLb	=  -10000.0;
+const double			dZeroCnt		= -118000.0;
+const double			dCntsPerLb	=  -10000.0;
 
+long			_lValue;
 HX711			oPedalForce;
 
 void setup()   {
@@ -43,32 +44,90 @@ void setup()   {
   Wire.begin(21, 22);		//Beck 1-3-18
   ScanForDevices();
 
-  //By default, we'll generate the high voltage from the 3.3v line internally! (neat!) Beck????
-  //oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3D);  // initialize with the I2C addr 0x3D (for the 128x64)
-  oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
-
-  // Clear the buffer.
-  oDisplay.clearDisplay();
+  StartOLED();
+  oPedalForce.power_up();
   return;
 }	//setup
 
 
 void loop() {
+	double		dLbs;
 	//TestDashboard();
+	dLbs= ReadPedal();
+	DisplayPedal(dLbs);
+	//LogPedal(dLbs);
+	//delay(10);
+ 	return;
+}	//loop
+
+
+void StartOLED(){
+  Serial << "StartOLED(): Call oDisplay.begin() " << endl;
+  //By default, we'll generate the high voltage from the 3.3v line internally! (neat!) Beck????
+  //oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3D);  // initialize with the I2C addr 0x3D (for the 128x64)
+  oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+
+  // Clear the buffer.
+  Serial << "StartOLED(): Setup and clear OLED." << endl;
+	oDisplay.setTextSize(2);
+	oDisplay.setTextColor(WHITE);
+  oDisplay.clearDisplay();
+	oDisplay.display();
+	return;
+}	//StartOLED
+
+
+double ReadPedal(){
 	long		lValue;
 	double	dLbs;
 	char szNumber[10];
-  oPedalForce.power_up();
+
+  //oPedalForce.power_up();
 	lValue= oPedalForce.read();
-  oPedalForce.power_down();			        // put the ADC in sleep mode
+  //oPedalForce.power_down();			        // put the ADC in sleep mode
 
 	dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
-	dtostrf(dLbs, 8, 4, szNumber);
-  Serial << "loop(): Count= " << lValue << ", Lbs= " << szNumber << endl;
+	//dtostrf(dLbs, 8, 4, szNumber);
+  //Serial << "ReadPedal(): Count= " << lValue << ", Lbs= " << szNumber << endl;
+  _lValue= lValue;
+	return(dLbs);
+}	//ReadPedal
 
-  delay(1000);
- 	return;
-}	//loop
+
+void LogPedal(double dLbs){
+	char szNumber[10];
+
+	dtostrf(dLbs, 8, 4, szNumber);
+  Serial << "LogPedal(): Count= " << _lValue << ", Lbs= " << szNumber << endl;
+	return;
+}	//LogPedal
+
+
+void DisplayPedal(double dLbs){
+	char szNumber[10];
+	oDisplay.clearDisplay();
+	//oDisplay.setTextSize(2);
+	oDisplay.setTextColor(WHITE);
+	oDisplay.setCursor(0,0);
+
+	oDisplay.setTextSize(1);
+	oDisplay.println(SketchName);
+	oDisplay.println(FileDate);
+	oDisplay.println();
+
+	oDisplay.setTextSize(2);
+	oDisplay.println(_lValue);
+
+	oDisplay.setTextSize(1);
+	oDisplay.println();
+
+	dtostrf(dLbs, 7, 2, szNumber);
+	oDisplay.setTextSize(2);
+	oDisplay.println(szNumber);
+
+	oDisplay.display();
+	return;
+}	//DisplayPedal
 
 
 void TestDashboard(void) {
