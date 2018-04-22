@@ -9,24 +9,26 @@ const byte 		cHX711_DOUT		= 25;				//IO pin number was 34 and 35
 const byte		cHX711_SCK		= 26;
 const byte		cHX711_Gain		= 128;			//Default gain is 128
 
-//HX711 scale(A1, A0);		// parameter "gain" is ommited; the default value 128 is used by the library
+//double			dZeroCnt		= -127000.0;
+//double			dZeroCnt		= -164000.0; 		//Count= -216951, Lbs=   5.2951
+//double			dZeroCnt		= -220000.0;			//Count= -127098, Lbs=  -9.2902
+//double			dZeroCnt		= -124000.0;
+double			dZeroCnt		= -118000.0;
+double			dCntsPerLb	=  -10000.0;
 
 //HX711			oPedalForce(cHX711_DOUT, cHX711_SCK, cHX711_Gain);
 HX711			oPedalForce;
-double			dZeroCnt		= -127000.0;
-double			dCntsPerLb	=  -10000.0;
 
 void setup() {
   Serial.begin(115200);
   Serial.println();
-  Serial.println("BeckE32_HX711.ino, Apr 21, 2018-y");
+  Serial.println("BeckE32_HX711.ino, Apr 22, 2018-n");
 
   Serial.println("setup(): Call rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M)");
   rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
 
   oPedalForce.begin(cHX711_DOUT, cHX711_SCK);		//Use default gain
-  //TakeReadings();
-
+  oPedalForce.power_down();			        // put the ADC in sleep mode
 /*
   //Set the scale.
   Serial.print("oPedalForce.set_scale(2280.f): \t\t");
@@ -38,8 +40,6 @@ void setup() {
   Serial.println("After setting up the scale:");
   TakeReadings();
 */
-
-  //Serial.println("Readings:");
   return;
 }	//setup
 
@@ -48,27 +48,14 @@ void loop() {
 	long		lValue;
 	double	dLbs;
 	char szNumber[10];
-/*
-	ulValue= oPedalForce.get_units();
-  Serial << "loop(): oPedalForce.get_units() returned " << ulValue << endl;
-*/
-	Serial << endl;
+  oPedalForce.power_up();
 	lValue= oPedalForce.read();
-  //Serial << "loop(): oPedalForce.read() returned " << lValue << endl;
+  oPedalForce.power_down();			        // put the ADC in sleep mode
+
 	dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
 	dtostrf(dLbs, 8, 4, szNumber);
-  Serial << "loop(): Total Lbs= " << szNumber << endl;
+  Serial << endl << "loop(): Count= " << lValue << ", Lbs= " << szNumber << endl;
 
-/*
-  Serial.print("\t| average:\t");
-  Serial.println(oPedalForce.get_units(10), 1);
-*/
-
-/*
-  oPedalForce.power_down();			        // put the ADC in sleep mode
-  delay(1000);
-  oPedalForce.power_up();
-*/
   delay(1000);
   return;
 }	//loop

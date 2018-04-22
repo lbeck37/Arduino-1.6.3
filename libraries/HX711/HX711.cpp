@@ -104,8 +104,10 @@ long HX711::read() {
 	aucData[2] = 255;
 */
 
+/*
 	Serial << "HX711::read(): shiftIn() bytes read: " <<
 			aucData[0] << ", " << aucData[1] << ", " << aucData[2] << endl;
+*/
 
 	// set the channel and the gain factor for the next reading using the clock pin
 	for (unsigned int i = 0; i < GAIN; i++) {

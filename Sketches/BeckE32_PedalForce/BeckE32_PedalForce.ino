@@ -1,9 +1,11 @@
 const String SketchName  = "BeckE32_PedalForce.ino";
-const String FileDate    = "Apr 18, 2018, Lenny-w";
+const String FileDate    = "Apr 22, 2018, Lenny-a";
 //Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "HX711.h"
+#include <soc/rtc.h>
 #include <Streaming.h>
 #include <iostream>   // std::cout
 #include <string>     // std::string, std::to_string
@@ -17,9 +19,26 @@ Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
 	#error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
 
+const byte 		cHX711_DOUT		= 25;				//IO pin number was 34 and 35
+const byte		cHX711_SCK		= 26;
+const byte		cHX711_Gain		= 128;			//Default gain is 128
+
+double			dZeroCnt		= -118000.0;
+double			dCntsPerLb	=  -10000.0;
+
+HX711			oPedalForce;
+
 void setup()   {
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
+
+  //Slow down CPU so HX711 will work with ESP32
+  Serial.println("setup(): Call rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M)");
+  rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
+
+  oPedalForce.begin(cHX711_DOUT, cHX711_SCK);		//Use default gain
+  oPedalForce.power_down();			        // put the ADC in sleep mode
+
   //Serial << "setup(): Call Wire.begin(21, 22)" << endl;
   Wire.begin(21, 22);		//Beck 1-3-18
   ScanForDevices();
@@ -35,7 +54,19 @@ void setup()   {
 
 
 void loop() {
-	TestDashboard();
+	//TestDashboard();
+	long		lValue;
+	double	dLbs;
+	char szNumber[10];
+  oPedalForce.power_up();
+	lValue= oPedalForce.read();
+  oPedalForce.power_down();			        // put the ADC in sleep mode
+
+	dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
+	dtostrf(dLbs, 8, 4, szNumber);
+  Serial << "loop(): Count= " << lValue << ", Lbs= " << szNumber << endl;
+
+  delay(1000);
  	return;
 }	//loop
 
