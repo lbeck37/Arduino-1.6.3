@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Client.ino";
-const char szFileDate[]    = "Apr 22, 2018-b";
+const char szFileDate[]    = "Apr 22, 2018-d";
 /**
  * A BLE client example that is rich in capabilities.
  */
@@ -7,10 +7,21 @@ const char szFileDate[]    = "Apr 22, 2018-b";
 #include "BLEDevice.h"
 //#include "BLEScan.h"
 
+/*
 // The remote service we wish to connect to.
 static BLEUUID serviceUUID("91bad492-b950-4226-aa2b-4ede9fa42f59");
 // The characteristic of the remote service we are interested in.
 static BLEUUID    charUUID("0d563a58-196a-48ce-ace2-dfec78acc814");
+*/
+
+#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
+#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+
+// The remote service we wish to connect to.
+static BLEUUID serviceUUID(SERVICE_UUID);
+// The characteristic of the remote service we are interested in.
+static BLEUUID    charUUID(CHARACTERISTIC_UUID_TX);
 
 static BLEAddress *pServerAddress;
 static boolean doConnect = false;

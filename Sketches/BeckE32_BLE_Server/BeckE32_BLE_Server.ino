@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 4, 2018, Lenny-d, Sloeber 4.2";
+const char szFileDate[]    = "Apr 22, 2018-j";
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -21,11 +21,12 @@ const char szFileDate[]    = "Apr 4, 2018, Lenny-d, Sloeber 4.2";
    In this example rxValue is the data received (only accessible inside that function).
    And txValue is the data to be sent, in this example just a byte incremented every second. 
 */
-#include <Streaming.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
+#include <soc/rtc.h>
+#include <Streaming.h>
 
 BLECharacteristic *pCharacteristic;
 bool deviceConnected = false;
@@ -86,6 +87,10 @@ void setup() {
   Serial.begin(115200);
   Serial << endl << endl<< endl<< endl;
   Serial << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
+
+  //Slow down CPU since HX711 needs to work with ESP32, verify BTE works
+  Serial.println("setup(): Call rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M)");
+  rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
 
   pinMode(LED, OUTPUT);
 
@@ -157,5 +162,10 @@ void loop() {
 //      digitalWrite(LED, LOW);
 //    }
   }
-  delay(1000);
-}
+  //delay(1000);
+  //delay(300);
+  delay(10);		//32 samples/sec with 80 MHz cpu
+  return;
+}	//Loop
+//Last line.
+
