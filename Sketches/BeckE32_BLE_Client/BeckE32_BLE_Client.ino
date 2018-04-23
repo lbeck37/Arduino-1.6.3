@@ -1,11 +1,12 @@
 const char szSketchName[]  = "BeckE32_BLE_Client.ino";
-const char szFileDate[]    = "Apr 22, 2018-d";
+const char szFileDate[]    = "Apr 23, 2018-e";
 /**
  * A BLE client example that is rich in capabilities.
  */
 
 #include "BLEDevice.h"
 //#include "BLEScan.h"
+#include <Streaming.h>
 
 /*
 // The remote service we wish to connect to.
@@ -19,14 +20,15 @@ static BLEUUID    charUUID("0d563a58-196a-48ce-ace2-dfec78acc814");
 #define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
 // The remote service we wish to connect to.
-static BLEUUID serviceUUID(SERVICE_UUID);
+static BLEUUID 		serviceUUID(SERVICE_UUID);
+
 // The characteristic of the remote service we are interested in.
 static BLEUUID    charUUID(CHARACTERISTIC_UUID_TX);
 
-static BLEAddress *pServerAddress;
+static BLEAddress*								pServerAddress;
+static BLERemoteCharacteristic* 	pRemoteCharacteristic;
 static boolean doConnect = false;
 static boolean connected = false;
-static BLERemoteCharacteristic* pRemoteCharacteristic;
 
 static void notifyCallback(
   BLERemoteCharacteristic* pBLERemoteCharacteristic,
@@ -37,7 +39,8 @@ static void notifyCallback(
     Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
     Serial.print(" of data length ");
     Serial.println(length);
-}
+}	//notifyCallback
+
 
 bool connectToServer(BLEAddress pAddress) {
     Serial.print("Forming a connection to ");
@@ -59,7 +62,6 @@ bool connectToServer(BLEAddress pAddress) {
     }
     Serial.println(" - Found our service");
 
-
     // Obtain a reference to the characteristic in the service of the remote BLE server.
     pRemoteCharacteristic = pRemoteService->getCharacteristic(charUUID);
     if (pRemoteCharacteristic == nullptr) {
@@ -76,36 +78,35 @@ bool connectToServer(BLEAddress pAddress) {
 
     pRemoteCharacteristic->registerForNotify(notifyCallback);
     return true;
-}
-/**
- * Scan for BLE servers and find the first one that advertises the service we are looking for.
- */
+}	//connectToServer
+
+
+//Scan for BLE servers and find the first one that advertises the service we are looking for.
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
- /**
-   * Called for each advertising BLE server.
-   */
+ //Called for each advertising BLE server.
   void onResult(BLEAdvertisedDevice advertisedDevice) {
-    Serial.print("BLE Advertised Device found: ");
-    Serial.println(advertisedDevice.toString().c_str());
+    //Serial.print("BLE Advertised Device found: ");
+    //Serial.println(advertisedDevice.toString().c_str());
+    Serial << "onResult(): Found: |" << advertisedDevice.toString().c_str()	<< "|" << endl;
 
-    // We have found a device, let us now see if it contains the service we are looking for.
-    if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(serviceUUID)) {
-
-      //
-      Serial.print("Found our device!  address: ");
+    //We have found a device, let us now see if it contains the service we are looking for.
+    if ((advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(serviceUUID)) ||
+    		( strstr(advertisedDevice.getName().c_str(), "BeckE32"))){
+    	//Serial.print("Found our device!  address: ");
+      Serial << "onResult(): Found match, address: " << advertisedDevice.getAddress().toString().c_str() << endl;
       advertisedDevice.getScan()->stop();
-
       pServerAddress = new BLEAddress(advertisedDevice.getAddress());
       doConnect = true;
-
-    } // Found our server
-  } // onResult
+    } //if
+  } //onResult
 }; // MyAdvertisedDeviceCallbacks
 
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Starting Arduino BLE Client application...");
+  Serial << endl << endl<< endl<< endl;
+  Serial << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
+  //Serial.println("Starting Arduino BLE Client application...");
   BLEDevice::init("");
 
   // Retrieve a Scanner and set the callback we want to use to be informed when we
@@ -114,35 +115,36 @@ void setup() {
   BLEScan* pBLEScan = BLEDevice::getScan();
   pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
   pBLEScan->setActiveScan(true);
-  pBLEScan->start(30);
+  //pBLEScan->start(30);		//scan to run for 30 seconds
+  pBLEScan->start(10);
 } // End of setup.
 
 
-// This is the Arduino main loop function.
 void loop() {
-
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are
   // connected we set the connected flag to be true.
   if (doConnect == true) {
     if (connectToServer(*pServerAddress)) {
-      Serial.println("We are now connected to the BLE Server.");
+      Serial.println("loop(): We are now connected to the BLE Server.");
       connected = true;
-    } else {
-      Serial.println("We have failed to connect to the server; there is nothin more we will do.");
-    }
+    }	//if(connectToServer((*pServerAddress))
+    else {
+      Serial.println("loop(): We have failed to connect to the server; there is nothing more we will do.");
+    }	//else 	//if(connectToServer((*pServerAddress))
     doConnect = false;
-  }
+  }	//if(doConnect==true)
 
   // If we are connected to a peer BLE Server, update the characteristic each time we are reached
   // with the current time since boot.
   if (connected) {
     String newValue = "Time since boot: " + String(millis()/1000);
-    Serial.println("Setting new characteristic value to \"" + newValue + "\"");
+    Serial.println("loop(): Setting new characteristic value to \"" + newValue + "\"");
 
     // Set the characteristic's value to be the array of bytes that is actually a string.
     pRemoteCharacteristic->writeValue(newValue.c_str(), newValue.length());
-  }
+  }	//if(connected)
 
   delay(1000); // Delay a second between loops.
-} // End of loop
+} //loop
+//Last line.

@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 22, 2018-j";
+const char szFileDate[]    = "Apr 23, 2018-c";
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -132,7 +132,7 @@ void loop() {
   if (deviceConnected) {
     // Fabricate some arbitrary junk for now...
     //txValue = analogRead(readPin) / 3.456; // This could be an actual sensor reading!
-    txValue = txValue + 1.0;
+    txValue = txValue + 2.0;
     // Let's convert the value to a char array:
     char txString[16]; // make sure this is big enuffz
     dtostrf(txValue, 1, 2, txString); // float_val, min_width, digits_after_decimal, char_buffer
@@ -162,9 +162,9 @@ void loop() {
 //      digitalWrite(LED, LOW);
 //    }
   }
-  //delay(1000);
+  delay(1000);
   //delay(300);
-  delay(10);		//32 samples/sec with 80 MHz cpu
+  //delay(10);		//32 samples/sec with 80 MHz cpu
   return;
 }	//Loop
 //Last line.
