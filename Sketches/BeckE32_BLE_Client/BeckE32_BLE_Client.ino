@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Client.ino";
-const char szFileDate[]    = "Apr 23, 2018-e";
+const char szFileDate[]    = "Apr 24, 2018-a";
 /**
  * A BLE client example that is rich in capabilities.
  */
@@ -43,39 +43,40 @@ static void notifyCallback(
 
 
 bool connectToServer(BLEAddress pAddress) {
-    Serial.print("Forming a connection to ");
+    Serial.print("connectToServer(): Forming a connection to ");
     Serial.println(pAddress.toString().c_str());
 
     BLEClient*  pClient  = BLEDevice::createClient();
-    Serial.println(" - Created client");
+    Serial.println("connectToServer(): Created client");
 
     // Connect to the remove BLE Server.
     pClient->connect(pAddress);
-    Serial.println(" - Connected to server");
+    Serial.println("connectToServer(): Connected to server");
 
     // Obtain a reference to the service we are after in the remote BLE server.
     BLERemoteService* pRemoteService = pClient->getService(serviceUUID);
     if (pRemoteService == nullptr) {
-      Serial.print("Failed to find our service UUID: ");
+      Serial.print("connectToServer(): Failed to find our service UUID: ");
       Serial.println(serviceUUID.toString().c_str());
       return false;
     }
-    Serial.println(" - Found our service");
+    Serial.println("connectToServer(): Found our service");
 
     // Obtain a reference to the characteristic in the service of the remote BLE server.
     pRemoteCharacteristic = pRemoteService->getCharacteristic(charUUID);
     if (pRemoteCharacteristic == nullptr) {
-      Serial.print("Failed to find our characteristic UUID: ");
+      Serial.print("connectToServer(): Failed to find our characteristic UUID: ");
       Serial.println(charUUID.toString().c_str());
       return false;
     }
-    Serial.println(" - Found our characteristic");
+    Serial.println("connectToServer(): Found our characteristic");
 
     // Read the value of the characteristic.
     std::string value = pRemoteCharacteristic->readValue();
-    Serial.print("The characteristic value was: ");
+    Serial.print("connectToServer(): The characteristic value was: ");
     Serial.println(value.c_str());
 
+    Serial.println("connectToServer(): Calling pRemoteCharacteristic->registerForNotify()");
     pRemoteCharacteristic->registerForNotify(notifyCallback);
     return true;
 }	//connectToServer
@@ -91,7 +92,7 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 
     //We have found a device, let us now see if it contains the service we are looking for.
     if ((advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(serviceUUID)) ||
-    		( strstr(advertisedDevice.getName().c_str(), "BeckE32"))){
+    		( strstr(advertisedDevice.getName().c_str(), "RightPedal_BeckE32"))){
     	//Serial.print("Found our device!  address: ");
       Serial << "onResult(): Found match, address: " << advertisedDevice.getAddress().toString().c_str() << endl;
       advertisedDevice.getScan()->stop();

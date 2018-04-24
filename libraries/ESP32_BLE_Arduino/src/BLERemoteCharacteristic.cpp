@@ -305,7 +305,7 @@ void BLERemoteCharacteristic::retrieveDescriptors() {
 		}
 
 		if (status != ESP_GATT_OK) {
-			ESP_LOGE(LOG_TAG, "esp_ble_gattc_get_all_descr: %s", BLEUtils::gattStatusToString(status).c_str());
+			ESP_LOGE(LOG_TAG, "retrieveDescriptors(): esp_ble_gattc_get_all_descr: %s", BLEUtils::gattStatusToString(status).c_str());
 			break;
 		}
 
