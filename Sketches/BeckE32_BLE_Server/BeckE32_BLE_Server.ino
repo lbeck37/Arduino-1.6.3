@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 24, 2018-f";
+const char szFileDate[]    = "Apr 24, 2018-k";
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -30,17 +30,19 @@ const char szFileDate[]    = "Apr 24, 2018-f";
 
 BLECharacteristic *pNotifyCharact;
 bool deviceConnected = false;
-float txValue = 0;
-const int readPin = 32; // Use GPIO number. See ESP32 board pinouts
-const int LED = 5; // Could be different depending on the dev board. I used the DOIT ESP32 dev board.
+//float txValue = 0;
+double dNotifyValue = 0;
+const int readPin 	= 32; // Use GPIO number. See ESP32 board pinouts
+const int LED 			= 5; // Could be different depending on the dev board. I used the DOIT ESP32 dev board.
 
 //std::string rxValue; // Could also make this a global var to access it in loop()
 
 // See the following for generating UUIDs:
 // https://www.uuidgenerator.net/
-#define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
-#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
-#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+//#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+//#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+#define SERVICE_UUID          "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
+#define NOTIFY_CHARACT_UUID 	"6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
 
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -103,7 +105,7 @@ void setup() {
   BLEService *pService = pServer->createService(SERVICE_UUID);
 
   // Create a Characteristic for Notify
-  pNotifyCharact = pService->createCharacteristic(CHARACTERISTIC_UUID_TX,
+  pNotifyCharact = pService->createCharacteristic(NOTIFY_CHARACT_UUID,
                                                   BLECharacteristic::PROPERTY_NOTIFY);
   //Add Descriptor to Characteristic for Notify
   pNotifyCharact->addDescriptor(new BLE2902());
@@ -126,21 +128,16 @@ void setup() {
 
 void loop() {
 	//static int	sCount= 1;
+  char szNotifyString[16]; // make sure this is big enuffz
   if (deviceConnected){
-    txValue = txValue + 2.0;
+  	dNotifyValue += 2.0;
     //Convert the value to a string:
-    char txString[16]; // make sure this is big enuffz
-    dtostrf(txValue, 1, 2, txString); // float_val, min_width, digits_after_decimal, char_buffer
+    dtostrf(dNotifyValue, 1, 4, szNotifyString); 	// float_val, min_width, digits_after_decimal, char_buffer
   	//pCharacteristic->setValue(&txValue, 1); // To send the integer value
-    //pCharacteristic->setValue("Hello!"); // Sending a test message
-    pNotifyCharact->setValue(txString);
-    
-    //pCharacteristic->notify(); // Send the value to the app!
-    pNotifyCharact->notify(); // Send the value to the app!
-    Serial.print("*** Sent Value: ");
-    Serial.print(txString);
-    //Serial.print(pcCount);
-    Serial.println(" ***");
+    //pCharacteristic->setValue("Hello!"); 		// Sending a test message
+    pNotifyCharact->setValue(szNotifyString);
+    pNotifyCharact->notify(); 								//Send the value to the client
+    Serial << "loop(): Sent Notify Value= " << szNotifyString << endl;
   }	//if (deviceConnected)
   delay(1000);
   //delay(300);
