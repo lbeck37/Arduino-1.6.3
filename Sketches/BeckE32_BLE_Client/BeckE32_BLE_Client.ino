@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Client.ino";
-const char szFileDate[]    = "Apr 26, 2018-a";
+const char szFileDate[]    = "Apr 26, 2018-f";
 /**
  * A BLE client example that is rich in capabilities.
  */
@@ -40,14 +40,13 @@ static void notifyCallback(
   size_t length,
   bool isNotify) {
 /*
-    Serial.print("Notify callback for characteristic ");
-    Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
-    Serial.print(" of data length ");
-    Serial.println(length);
-*/
 	Serial << "notifyCallback(): Characteristic UUID= "
 			   << pBLERemoteCharacteristic->getUUID().toString().c_str()
 				 << ", Data length= " << length << endl;
+*/
+	//Terminate the string.
+	pData[length]= '\0';
+	Serial << "notifyCallback(): Data= " << (char*)pData << endl;
 	return;
 } //notifyCallback
 
@@ -136,7 +135,7 @@ void loop() {
   // connected we set the connected flag to be true.
   if (doConnect == true) {
     if (connectToServer(*pServerAddress)) {
-      Serial.println("loop(): We are now connected to the BLE Server.");
+      //Serial.println("loop(): We are now connected to the BLE Server.");
       connected= true;
     } //if(connectToServer((*pServerAddress))
     else {
@@ -145,9 +144,10 @@ void loop() {
     doConnect= false;
   } //if(doConnect==true)
 
+/*
   String szTime= "Seconds since boot= " + String(millis()/1000);
   if (connected){
-/*
+
     // If we are connected to a peer BLE Server, update the characteristic each time we are reached
     // with the current time since boot.
     String newValue= "Time since boot: " + String(millis()/1000);
@@ -155,12 +155,14 @@ void loop() {
 
     // Set the characteristic's value to be the array of bytes that is actually a string.
     pRemoteCharacteristic->writeValue(newValue.c_str(), newValue.length());
-*/
+
     Serial << "loop(): Connected, " << szTime << endl;
   } //if(connected)
   else{
     Serial << "loop(): Not Connected, " << szTime << endl;
   }
   delay(2000); // Delay a second between loops.
+*/
+  return;
 } //loop
 //Last line.

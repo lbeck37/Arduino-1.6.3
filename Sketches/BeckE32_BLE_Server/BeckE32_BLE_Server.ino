@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 24, 2018-k";
+const char szFileDate[]    = "Apr 26, 2018-b";
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -128,7 +128,7 @@ void setup() {
 
 void loop() {
 	//static int	sCount= 1;
-  char szNotifyString[16]; // make sure this is big enuffz
+  char szNotifyString[16]; // make sure this is big enough
   if (deviceConnected){
   	dNotifyValue += 2.0;
     //Convert the value to a string:
@@ -137,10 +137,11 @@ void loop() {
     //pCharacteristic->setValue("Hello!"); 		// Sending a test message
     pNotifyCharact->setValue(szNotifyString);
     pNotifyCharact->notify(); 								//Send the value to the client
-    Serial << "loop(): Sent Notify Value= " << szNotifyString << endl;
+    Serial << "Server: loop(): Sent Notify Value= " << szNotifyString << endl;
   }	//if (deviceConnected)
-  delay(1000);
+  //delay(1000);
   //delay(300);
+  delay(20);
   //delay(10);		//32 samples/sec with 80 MHz cpu
   return;
 }	//Loop
