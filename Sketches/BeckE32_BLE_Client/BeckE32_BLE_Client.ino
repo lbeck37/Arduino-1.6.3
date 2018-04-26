@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Client.ino";
-const char szFileDate[]    = "Apr 24, 2018-g";
+const char szFileDate[]    = "Apr 26, 2018-a";
 /**
  * A BLE client example that is rich in capabilities.
  */
@@ -39,10 +39,16 @@ static void notifyCallback(
   uint8_t* pData,
   size_t length,
   bool isNotify) {
+/*
     Serial.print("Notify callback for characteristic ");
     Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
     Serial.print(" of data length ");
     Serial.println(length);
+*/
+	Serial << "notifyCallback(): Characteristic UUID= "
+			   << pBLERemoteCharacteristic->getUUID().toString().c_str()
+				 << ", Data length= " << length << endl;
+	return;
 } //notifyCallback
 
 
