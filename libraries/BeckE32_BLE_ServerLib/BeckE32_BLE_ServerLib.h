@@ -1,4 +1,4 @@
-//BeckE32_BLE_ServerLib.h, Apr 26,2018-a
+//BeckE32_BLE_ServerLib.h, Apr 27,2018-a
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -46,7 +46,6 @@ const int LED       = 5; // Could be different depending on the dev board. I use
 #define SERVICE_UUID          "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
 #define NOTIFY_CHARACT_UUID   "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
-
 class MyServerCallbacks: public BLEServerCallbacks {
   void onConnect(BLEServer* pServer) {
     deviceConnected = true;
@@ -56,6 +55,33 @@ class MyServerCallbacks: public BLEServerCallbacks {
     deviceConnected = false;
   } //onDisconnect
 };  //MyServerCallbacks
+
+
+void SetupBLE(void){
+  //Create the  Device with a name
+  //BLEDevice::init("BeckE32 BLE Server"); // Give it a name
+  BLEDevice::init("RightPedal_BeckE32");
+
+  // Create the Server
+  BLEServer *pServer = BLEDevice::createServer();
+  pServer->setCallbacks(new MyServerCallbacks());
+
+  // Create the Service
+  BLEService *pService = pServer->createService(SERVICE_UUID);
+
+  // Create a Characteristic for Notify
+  pNotifyCharact = pService->createCharacteristic(NOTIFY_CHARACT_UUID,
+                                                  BLECharacteristic::PROPERTY_NOTIFY);
+  //Add Descriptor to Characteristic for Notify
+  pNotifyCharact->addDescriptor(new BLE2902());
+
+  //Start the service
+  pService->start();
+
+  // Start advertising
+  pServer->getAdvertising()->start();
+	return;
+}	//SetupBLE
 
 
 /*

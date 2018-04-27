@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 27, 2018-c";
+const char szFileDate[]    = "Apr 27, 2018-d";
 #include <BeckE32_BLE_ServerLib.h>
 
 void setup() {
@@ -12,29 +12,9 @@ void setup() {
   rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
   pinMode(LED, OUTPUT);
 
-  //Create the  Device with a name
-  //BLEDevice::init("BeckE32 BLE Server"); // Give it a name
-  BLEDevice::init("RightPedal_BeckE32");
-
-  // Create the Server
-  BLEServer *pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new MyServerCallbacks());
-
-  // Create the Service
-  BLEService *pService = pServer->createService(SERVICE_UUID);
-
-  // Create a Characteristic for Notify
-  pNotifyCharact = pService->createCharacteristic(NOTIFY_CHARACT_UUID,
-                                                  BLECharacteristic::PROPERTY_NOTIFY);
-  //Add Descriptor to Characteristic for Notify
-  pNotifyCharact->addDescriptor(new BLE2902());
-
-  //Start the service
-  pService->start();
-
-  // Start advertising
-  pServer->getAdvertising()->start();
+  SetupBLE();
   Serial.println("Waiting for a client connection to notify...");
+  return;
 } //setup
 
 
