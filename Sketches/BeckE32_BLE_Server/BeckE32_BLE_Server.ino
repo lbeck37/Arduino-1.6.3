@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 26, 2018-r";
+const char szFileDate[]    = "Apr 27, 2018-a";
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp

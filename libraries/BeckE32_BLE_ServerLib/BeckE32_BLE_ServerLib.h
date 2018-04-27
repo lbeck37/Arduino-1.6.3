@@ -1,4 +1,8 @@
 //BeckE32_BLE_ServerLib.h, Apr 26,2018-a
+
+#ifndef BLE_SERVERLIB_H
+#define BLE_SERVERLIB_H
+
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
@@ -60,3 +64,4 @@ class MyCallbacks: public BLECharacteristicCallbacks {
   } //onWrite
 };  //MyCallbacks
 */
+#endif		//BLE_SERVERLIB_H
