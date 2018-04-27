@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Client.ino";
-const char szFileDate[]    = "Apr 26, 2018-f";
+const char szFileDate[]    = "Apr 26, 2018-m";
 /**
  * A BLE client example that is rich in capabilities.
  */
@@ -88,6 +88,9 @@ bool connectToServer(BLEAddress pAddress) {
 
       Serial.println("connectToServer(): Calling pRemoteCharacteristic->registerForNotify()");
       pRemoteCharacteristic->registerForNotify(notifyCallback);
+      //Fix from Internet
+      const uint8_t v[]={0x1,0x0};
+      pRemoteCharacteristic->getDescriptor(BLEUUID((uint16_t)0x2902))->writeValue((uint8_t*)v,2,true);
     } //else if(pRemoteCharacteristic==nullptr)
     return true;
 } //connectToServer
@@ -97,12 +100,13 @@ bool connectToServer(BLEAddress pAddress) {
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
   void onResult(BLEAdvertisedDevice advertisedDevice) {
   //Called for each advertising BLE server.
-   Serial << "onResult(): Found: |" << advertisedDevice.toString().c_str()  << "|" << endl;
+   Serial << "MyAdvertisedDeviceCallbacks: onResult(): Found: |" << advertisedDevice.toString().c_str()  << "|" << endl;
 
   //We have found a device, let us now see if it contains the service we are looking for.
   if ((advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(serviceUUID)) ||
       ( strstr(advertisedDevice.getName().c_str(), "RightPedal_BeckE32"))){
-    Serial << "onResult(): Found match, address: " << advertisedDevice.getAddress().toString().c_str() << endl;
+    Serial << "MyAdvertisedDeviceCallbacks: onResult(): Found match, address: " << advertisedDevice.getAddress().toString().c_str() << endl;
+    Serial << "MyAdvertisedDeviceCallbacks: onResult(): " << szSketchName << ", " << szFileDate << endl;
     advertisedDevice.getScan()->stop();
     pServerAddress= new BLEAddress(advertisedDevice.getAddress());
     doConnect= true;
@@ -133,6 +137,7 @@ void loop() {
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are
   // connected we set the connected flag to be true.
+  //if (!connected && (doConnect == true)) {
   if (doConnect == true) {
     if (connectToServer(*pServerAddress)) {
       //Serial.println("loop(): We are now connected to the BLE Server.");
@@ -163,6 +168,7 @@ void loop() {
   }
   delay(2000); // Delay a second between loops.
 */
+  delay(50);
   return;
 } //loop
 //Last line.

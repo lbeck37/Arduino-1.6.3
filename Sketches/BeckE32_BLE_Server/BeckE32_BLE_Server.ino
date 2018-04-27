@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 26, 2018-b";
+const char szFileDate[]    = "Apr 26, 2018-p";
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -7,7 +7,7 @@ const char szFileDate[]    = "Apr 26, 2018-b";
 
    Create a BLE server that, once we receive a connection, will send periodic notifications.
    The service advertises itself as: 6E400001-B5A3-F393-E0A9-E50E24DCCA9E
-   Has a characteristic of: 6E400002-B5A3-F393-E0A9-E50E24DCCA9E - used for receiving data with "WRITE" 
+   Has a characteristic of: 6E400002-B5A3-F393-E0A9-E50E24DCCA9E - used for receiving data with "WRITE"
    Has a characteristic of: 6E400003-B5A3-F393-E0A9-E50E24DCCA9E - used to send data with  "NOTIFY"
 
    The design of creating the BLE server is:
@@ -19,7 +19,7 @@ const char szFileDate[]    = "Apr 26, 2018-b";
    6. Start advertising.
 
    In this example rxValue is the data received (only accessible inside that function).
-   And txValue is the data to be sent, in this example just a byte incremented every second. 
+   And txValue is the data to be sent, in this example just a byte incremented every second.
 */
 #include <BLEDevice.h>
 #include <BLEServer.h>
@@ -32,8 +32,8 @@ BLECharacteristic *pNotifyCharact;
 bool deviceConnected = false;
 //float txValue = 0;
 double dNotifyValue = 0;
-const int readPin 	= 32; // Use GPIO number. See ESP32 board pinouts
-const int LED 			= 5; // Could be different depending on the dev board. I used the DOIT ESP32 dev board.
+const int readPin   = 32; // Use GPIO number. See ESP32 board pinouts
+const int LED       = 5; // Could be different depending on the dev board. I used the DOIT ESP32 dev board.
 
 //std::string rxValue; // Could also make this a global var to access it in loop()
 
@@ -42,45 +42,45 @@ const int LED 			= 5; // Could be different depending on the dev board. I used t
 //#define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 //#define CHARACTERISTIC_UUID_TX "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 #define SERVICE_UUID          "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
-#define NOTIFY_CHARACT_UUID 	"6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
+#define NOTIFY_CHARACT_UUID   "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
 
 class MyServerCallbacks: public BLEServerCallbacks {
-	void onConnect(BLEServer* pServer) {
-		deviceConnected = true;
-	};	//onConnect
+  void onConnect(BLEServer* pServer) {
+    deviceConnected = true;
+  };  //onConnect
 
-	void onDisconnect(BLEServer* pServer) {
-		deviceConnected = false;
-	}	//onDisconnect
-};	//MyServerCallbacks
+  void onDisconnect(BLEServer* pServer) {
+    deviceConnected = false;
+  } //onDisconnect
+};  //MyServerCallbacks
 
 
 /*
 class MyCallbacks: public BLECharacteristicCallbacks {
-	void onWrite(BLECharacteristic *pCharacteristic) {
-		std::string szRxValue = pCharacteristic->getValue();
+  void onWrite(BLECharacteristic *pCharacteristic) {
+    std::string szRxValue = pCharacteristic->getValue();
 
-		if (szRxValue.length() > 0) {
-			Serial.println("*********");
-			Serial.print("Received Value: ");
-			for (int i = 0; i < szRxValue.length(); i++) {
-				Serial.print(szRxValue[i]);
-			}	//for
-			Serial.println();
-			// Do stuff based on the command received from the app
-			if (rxValue.find("A") != -1) {
-				Serial.print("Turning ON!");
-				digitalWrite(LED, HIGH);
-			}	//if(szRxValue.find("A")!=-1)
-			else if (szRxValue.find("B") != -1) {
-				Serial.print("Turning OFF!");
-				digitalWrite(LED, LOW);
-			}	//else if(szRxValue.find("B")!=-1)
-			Serial.println("\n*********");
-		}	//if(szRxValue.length()>0)
-	}	//onWrite
-};	//MyCallbacks
+    if (szRxValue.length() > 0) {
+      Serial.println("*********");
+      Serial.print("Received Value: ");
+      for (int i = 0; i < szRxValue.length(); i++) {
+        Serial.print(szRxValue[i]);
+      } //for
+      Serial.println();
+      // Do stuff based on the command received from the app
+      if (rxValue.find("A") != -1) {
+        Serial.print("Turning ON!");
+        digitalWrite(LED, HIGH);
+      } //if(szRxValue.find("A")!=-1)
+      else if (szRxValue.find("B") != -1) {
+        Serial.print("Turning OFF!");
+        digitalWrite(LED, LOW);
+      } //else if(szRxValue.find("B")!=-1)
+      Serial.println("\n*********");
+    } //if(szRxValue.length()>0)
+  } //onWrite
+};  //MyCallbacks
 */
 
 void setup() {
@@ -112,7 +112,7 @@ void setup() {
 /*
   //Create Characteristic for Write. This is local to setup().
   BLECharacteristic *pWriteCharact=
-  	pService->createCharacteristic(CHARACTERISTIC_UUID_RX,
+    pService->createCharacteristic(CHARACTERISTIC_UUID_RX,
                                    BLECharacteristic::PROPERTY_WRITE);
   //Set Callbacks for Characteristic for Write
   pWriteCharact->setCallbacks(new MyCallbacks());
@@ -123,26 +123,26 @@ void setup() {
   // Start advertising
   pServer->getAdvertising()->start();
   Serial.println("Waiting for a client connection to notify...");
-}	//setup
+} //setup
 
 
 void loop() {
-	//static int	sCount= 1;
+  //static int  sCount= 1;
   char szNotifyString[16]; // make sure this is big enough
   if (deviceConnected){
-  	dNotifyValue += 2.0;
+    dNotifyValue += 2.0;
     //Convert the value to a string:
-    dtostrf(dNotifyValue, 1, 4, szNotifyString); 	// float_val, min_width, digits_after_decimal, char_buffer
-  	//pCharacteristic->setValue(&txValue, 1); // To send the integer value
-    //pCharacteristic->setValue("Hello!"); 		// Sending a test message
+    dtostrf(dNotifyValue, 1, 4, szNotifyString);  // float_val, min_width, digits_after_decimal, char_buffer
+    //pCharacteristic->setValue(&txValue, 1); // To send the integer value
+    //pCharacteristic->setValue("Hello!");    // Sending a test message
     pNotifyCharact->setValue(szNotifyString);
-    pNotifyCharact->notify(); 								//Send the value to the client
+    pNotifyCharact->notify();                 //Send the value to the client
     Serial << "Server: loop(): Sent Notify Value= " << szNotifyString << endl;
-  }	//if (deviceConnected)
+  } //if (deviceConnected)
   //delay(1000);
   //delay(300);
-  delay(20);
-  //delay(10);		//32 samples/sec with 80 MHz cpu
+  //delay(100);
+  delay(10);    //32 samples/sec with 80 MHz cpu to Android app
   return;
-}	//Loop
+} //Loop
 //Last line.
