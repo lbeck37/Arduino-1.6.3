@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 26, 2018-p";
+const char szFileDate[]    = "Apr 26, 2018-r";
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -21,13 +21,17 @@ const char szFileDate[]    = "Apr 26, 2018-p";
    In this example rxValue is the data received (only accessible inside that function).
    And txValue is the data to be sent, in this example just a byte incremented every second.
 */
+#include <BeckE32_BLE_ServerLib.h>
+/*
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include <soc/rtc.h>
 #include <Streaming.h>
+*/
 
+/*
 BLECharacteristic *pNotifyCharact;
 bool deviceConnected = false;
 //float txValue = 0;
@@ -54,34 +58,8 @@ class MyServerCallbacks: public BLEServerCallbacks {
     deviceConnected = false;
   } //onDisconnect
 };  //MyServerCallbacks
-
-
-/*
-class MyCallbacks: public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
-    std::string szRxValue = pCharacteristic->getValue();
-
-    if (szRxValue.length() > 0) {
-      Serial.println("*********");
-      Serial.print("Received Value: ");
-      for (int i = 0; i < szRxValue.length(); i++) {
-        Serial.print(szRxValue[i]);
-      } //for
-      Serial.println();
-      // Do stuff based on the command received from the app
-      if (rxValue.find("A") != -1) {
-        Serial.print("Turning ON!");
-        digitalWrite(LED, HIGH);
-      } //if(szRxValue.find("A")!=-1)
-      else if (szRxValue.find("B") != -1) {
-        Serial.print("Turning OFF!");
-        digitalWrite(LED, LOW);
-      } //else if(szRxValue.find("B")!=-1)
-      Serial.println("\n*********");
-    } //if(szRxValue.length()>0)
-  } //onWrite
-};  //MyCallbacks
 */
+
 
 void setup() {
   Serial.begin(115200);
