@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_PedalForce";
-const String FileDate    = "Apr 27, 2018-a";
+const String FileDate    = "Apr 28, 2018-b";
 //Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -84,7 +84,6 @@ void StartOLED(){
 double ReadPedal(){
   long    lValue;
   double  dLbs;
-  char szNumber[10];
 
   //oPedalForce.power_up();
   lValue= oPedalForce.read();
