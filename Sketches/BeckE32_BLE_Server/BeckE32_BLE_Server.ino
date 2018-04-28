@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 27, 2018-d";
+const char szFileDate[]    = "Apr 27, 2018-e";
 #include <BeckE32_BLE_ServerLib.h>
 
 void setup() {
@@ -10,9 +10,9 @@ void setup() {
   //Slow down CPU since HX711 needs to work with ESP32, verify BTE works
   Serial.println("setup(): Call rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M)");
   rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
-  pinMode(LED, OUTPUT);
+  //pinMode(LED, OUTPUT);
 
-  SetupBLE();
+  SetupBLEServer();
   Serial.println("Waiting for a client connection to notify...");
   return;
 } //setup
@@ -20,6 +20,9 @@ void setup() {
 
 void loop() {
   //static int  sCount= 1;
+  dNotifyValue += 2.0;
+  DoBLENotify(dNotifyValue);
+/*
   char szNotifyString[16]; // make sure this is big enough
   if (deviceConnected){
     dNotifyValue += 2.0;
@@ -31,6 +34,7 @@ void loop() {
     pNotifyCharact->notify();                 //Send the value to the client
     Serial << "Server: loop(): Sent Notify Value= " << szNotifyString << endl;
   } //if (deviceConnected)
+*/
   //delay(1000);
   //delay(300);	//~One loop per second with 80MHz CPU
   delay(10);    //32 samples/sec with 80MHz CPU to Android app

@@ -1,4 +1,4 @@
-//BeckE32_BLE_ServerLib.h, Apr 27,2018-a
+//BeckE32_BLE_ServerLib.h, Apr 27,2018-b
 /*
     Video: https://www.youtube.com/watch?v=oCMOYS71NIU
     Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
@@ -34,8 +34,8 @@ BLECharacteristic *pNotifyCharact;
 bool deviceConnected = false;
 //float txValue = 0;
 double dNotifyValue = 0;
-const int readPin   = 32; // Use GPIO number. See ESP32 board pinouts
-const int LED       = 5; // Could be different depending on the dev board. I used the DOIT ESP32 dev board.
+//const int readPin   = 32; // Use GPIO number. See ESP32 board pinouts
+//const int LED       = 5; // Could be different depending on the dev board. I used the DOIT ESP32 dev board.
 
 //std::string rxValue; // Could also make this a global var to access it in loop()
 
@@ -57,7 +57,7 @@ class MyServerCallbacks: public BLEServerCallbacks {
 };  //MyServerCallbacks
 
 
-void SetupBLE(void){
+void SetupBLEServer(void){
   //Create the  Device with a name
   //BLEDevice::init("BeckE32 BLE Server"); // Give it a name
   BLEDevice::init("RightPedal_BeckE32");
@@ -81,7 +81,23 @@ void SetupBLE(void){
   // Start advertising
   pServer->getAdvertising()->start();
 	return;
-}	//SetupBLE
+}	//SetupBLEServer
+
+
+void DoBLENotify(double dNotifyValue){
+  char szNotifyString[16]; // make sure this is big enough
+  if (deviceConnected){
+    //dNotifyValue += 2.0;
+    //Convert the value to a string:
+    dtostrf(dNotifyValue, 1, 4, szNotifyString);  // float_val, min_width, digits_after_decimal, char_buffer
+    //pCharacteristic->setValue(&txValue, 1); // To send the integer value
+    //pCharacteristic->setValue("Hello!");    // Sending a test message
+    pNotifyCharact->setValue(szNotifyString);
+    pNotifyCharact->notify();                 //Send the value to the client
+    Serial << "DoBLENotify(): Sent Notify Value= " << szNotifyString << endl;
+  } //if (deviceConnected)
+	return;
+}	//DoBLENotify
 
 
 /*

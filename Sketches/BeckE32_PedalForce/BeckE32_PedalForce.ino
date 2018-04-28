@@ -5,6 +5,7 @@ const String FileDate    = "Apr 22, 2018-s";
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include "HX711.h"
+#include <BeckE32_BLE_ServerLib.h>
 #include <soc/rtc.h>
 #include <Streaming.h>
 #include <iostream>   // std::cout
@@ -46,6 +47,8 @@ void setup()   {
 
   StartOLED();
   oPedalForce.power_up();
+  SetupBLEServer();
+  Serial.println("setup(): Waiting for a client connection to notify...");
   return;
 }	//setup
 
@@ -55,6 +58,7 @@ void loop() {
 	//TestDashboard();
 	dLbs= ReadPedal();
 	DisplayPedal(dLbs);
+  DoBLENotify(dLbs);
 	//LogPedal(dLbs);
 	//delay(10);
  	return;
