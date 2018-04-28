@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_PedalForce";
-const String FileDate    = "Apr 22, 2018-s";
+const String FileDate    = "Apr 27, 2018-a";
 //Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -14,21 +14,21 @@ const String FileDate    = "Apr 22, 2018-s";
 //#define OLED_RESET 4
 //Adafruit_SSD1306 oDisplay(OLED_RESET);
 
-Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
+Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
 
 #if (SSD1306_LCDHEIGHT != 64)
-	#error("Height incorrect, please fix Adafruit_SSD1306.h!");
+  #error("Height incorrect, please fix Adafruit_SSD1306.h!");
 #endif
 
-const byte 		cHX711_DOUT		= 25;				//IO pin number was 34 and 35
-const byte		cHX711_SCK		= 26;
-const byte		cHX711_Gain		= 128;			//Default gain is 128
+const byte    cHX711_DOUT   = 25;       //IO pin number was 34 and 35
+const byte    cHX711_SCK    = 26;
+const byte    cHX711_Gain   = 128;      //Default gain is 128
 
-const double			dZeroCnt		= -118000.0;
-const double			dCntsPerLb	=  -10000.0;
+const double      dZeroCnt    = -118000.0;
+const double      dCntsPerLb  =  -10000.0;
 
-long			_lValue;
-HX711			oPedalForce;
+long      _lValue;
+HX711     oPedalForce;
 
 void setup()   {
   Serial.begin(115200);
@@ -38,11 +38,11 @@ void setup()   {
   Serial.println("setup(): Call rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M)");
   rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
 
-  oPedalForce.begin(cHX711_DOUT, cHX711_SCK);		//Use default gain
-  oPedalForce.power_down();			        // put the ADC in sleep mode
+  oPedalForce.begin(cHX711_DOUT, cHX711_SCK);   //Use default gain
+  oPedalForce.power_down();             // put the ADC in sleep mode
 
   //Serial << "setup(): Call Wire.begin(21, 22)" << endl;
-  Wire.begin(21, 22);		//Beck 1-3-18
+  Wire.begin(21, 22);   //Beck 1-3-18
   ScanForDevices();
 
   StartOLED();
@@ -50,19 +50,19 @@ void setup()   {
   SetupBLEServer();
   Serial.println("setup(): Waiting for a client connection to notify...");
   return;
-}	//setup
+} //setup
 
 
 void loop() {
-	double		dLbs;
-	//TestDashboard();
-	dLbs= ReadPedal();
-	DisplayPedal(dLbs);
+  double    dLbs;
+  //TestDashboard();
+  dLbs= ReadPedal();
+  DisplayPedal(dLbs);
   DoBLENotify(dLbs);
-	//LogPedal(dLbs);
-	//delay(10);
- 	return;
-}	//loop
+  //LogPedal(dLbs);
+  //delay(10);
+  return;
+} //loop
 
 
 void StartOLED(){
@@ -73,102 +73,102 @@ void StartOLED(){
 
   // Clear the buffer.
   Serial << "StartOLED(): Setup and clear OLED." << endl;
-	oDisplay.setTextSize(2);
-	oDisplay.setTextColor(WHITE);
+  oDisplay.setTextSize(2);
+  oDisplay.setTextColor(WHITE);
   oDisplay.clearDisplay();
-	oDisplay.display();
-	return;
-}	//StartOLED
+  oDisplay.display();
+  return;
+} //StartOLED
 
 
 double ReadPedal(){
-	long		lValue;
-	double	dLbs;
-	char szNumber[10];
+  long    lValue;
+  double  dLbs;
+  char szNumber[10];
 
   //oPedalForce.power_up();
-	lValue= oPedalForce.read();
-  //oPedalForce.power_down();			        // put the ADC in sleep mode
+  lValue= oPedalForce.read();
+  //oPedalForce.power_down();             // put the ADC in sleep mode
 
-	dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
-	//dtostrf(dLbs, 8, 4, szNumber);
+  dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
+  //dtostrf(dLbs, 8, 4, szNumber);
   //Serial << "ReadPedal(): Count= " << lValue << ", Lbs= " << szNumber << endl;
   _lValue= lValue;
-	return(dLbs);
-}	//ReadPedal
+  return(dLbs);
+} //ReadPedal
 
 
 void LogPedal(double dLbs){
-	char szNumber[10];
+  char szNumber[10];
 
-	dtostrf(dLbs, 8, 4, szNumber);
+  dtostrf(dLbs, 8, 4, szNumber);
   Serial << "LogPedal(): Count= " << _lValue << ", Lbs= " << szNumber << endl;
-	return;
-}	//LogPedal
+  return;
+} //LogPedal
 
 
 void DisplayPedal(double dLbs){
-	char szNumber[10];
-	oDisplay.clearDisplay();
-	//oDisplay.setTextSize(2);
-	oDisplay.setTextColor(WHITE);
-	oDisplay.setCursor(0,0);
+  char szNumber[10];
+  oDisplay.clearDisplay();
+  //oDisplay.setTextSize(2);
+  oDisplay.setTextColor(WHITE);
+  oDisplay.setCursor(0,0);
 
-	oDisplay.setTextSize(1);
-	oDisplay.println(SketchName);
-	oDisplay.println(FileDate);
-	oDisplay.println();
+  oDisplay.setTextSize(1);
+  oDisplay.println(SketchName);
+  oDisplay.println(FileDate);
+  oDisplay.println();
 
-	oDisplay.setTextSize(2);
-	oDisplay.println(_lValue);
+  oDisplay.setTextSize(2);
+  oDisplay.println(_lValue);
 
-	oDisplay.setTextSize(1);
-	oDisplay.println();
+  oDisplay.setTextSize(1);
+  oDisplay.println();
 
-	dtostrf(dLbs, 7, 2, szNumber);
-	oDisplay.setTextSize(2);
-	oDisplay.println(szNumber);
+  dtostrf(dLbs, 7, 2, szNumber);
+  oDisplay.setTextSize(2);
+  oDisplay.println(szNumber);
 
-	oDisplay.display();
-	return;
-}	//DisplayPedal
+  oDisplay.display();
+  return;
+} //DisplayPedal
 
 
 void TestDashboard(void) {
   //float val;
   char szNumber[10];
-	static double dDigit= 1.0;
-	double dNumber;
-	oDisplay.setTextSize(2);
-	oDisplay.setTextColor(WHITE);
-	oDisplay.setCursor(0,0);
-	for (int sLine= 1; sLine <= 4; sLine++){
-		dNumber= dDigit + (2. * dDigit / 10.0) + (3. * dDigit / 100.0) + (4. * dDigit / 1000.0);
-		//dNumber= 1.234;
-		dtostrf(dNumber, 8, 4, szNumber);
-		Serial << "TestDashboard(): dNumber= " << dNumber << endl;
-		oDisplay.println(szNumber);
-		dDigit += 1.0;
-	}
-	oDisplay.display();
-	Serial << endl;
+  static double dDigit= 1.0;
+  double dNumber;
+  oDisplay.setTextSize(2);
+  oDisplay.setTextColor(WHITE);
+  oDisplay.setCursor(0,0);
+  for (int sLine= 1; sLine <= 4; sLine++){
+    dNumber= dDigit + (2. * dDigit / 10.0) + (3. * dDigit / 100.0) + (4. * dDigit / 1000.0);
+    //dNumber= 1.234;
+    dtostrf(dNumber, 8, 4, szNumber);
+    Serial << "TestDashboard(): dNumber= " << dNumber << endl;
+    oDisplay.println(szNumber);
+    dDigit += 1.0;
+  }
+  oDisplay.display();
+  Serial << endl;
 /*
-	oDisplay.println("+3.101");
-	oDisplay.println("+3.202");
-	oDisplay.println("+3.303");
-	oDisplay.println("+3.404");
+  oDisplay.println("+3.101");
+  oDisplay.println("+3.202");
+  oDisplay.println("+3.303");
+  oDisplay.println("+3.404");
 */
-	delay(5000);
-	//Serial.println("Dashboard(): Call clearDisplay()");
-	oDisplay.clearDisplay();
-	oDisplay.display();
-	//delay(1000);
-	return;
-}	//TestDashboard
+  delay(5000);
+  //Serial.println("Dashboard(): Call clearDisplay()");
+  oDisplay.clearDisplay();
+  oDisplay.display();
+  //delay(1000);
+  return;
+} //TestDashboard
 
 
 void ScanForDevices(void){
-	byte ucError, ucAddress;
+  byte ucError, ucAddress;
   int nDevices;
   Serial.println("ScanForDevices(): Begin");
 
@@ -184,7 +184,7 @@ void ScanForDevices(void){
 
     if (ucError == 0)
     {
-    	//SetDevicePresent(ucAddress);
+      //SetDevicePresent(ucAddress);
       Serial.print("I2C device found at address 0x");
       if (ucAddress<16) {
         Serial.print("0");
@@ -207,5 +207,5 @@ void ScanForDevices(void){
   else
     Serial.println("done");
   return;
-}	//ScanForDevices
+} //ScanForDevices
 //Lastline
