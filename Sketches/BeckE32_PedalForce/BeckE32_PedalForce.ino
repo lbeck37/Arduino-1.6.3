@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_PedalForce";
-const String FileDate    = "Apr 28, 2018-b";
+const String FileDate    = "May 13, 2018-a";
 //Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -60,7 +60,9 @@ void loop() {
   DisplayPedal(dLbs);
   DoBLENotify(dLbs);
   //LogPedal(dLbs);
-  //delay(10);
+  //delay(1000);
+  delay(300);	//~One loop per second with 80MHz CPU
+  //delay(10);    //32 samples/sec with 80MHz CPU to Android app
   return;
 } //loop
 

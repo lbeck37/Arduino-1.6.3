@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_BLE_Server.ino";
-const char szFileDate[]    = "Apr 27, 2018-e";
+const char szFileDate[]    = "May 13, 2018-b";
 #include <BeckE32_BLE_ServerLib.h>
 
 void setup() {
@@ -36,8 +36,8 @@ void loop() {
   } //if (deviceConnected)
 */
   //delay(1000);
-  //delay(300);	//~One loop per second with 80MHz CPU
-  delay(10);    //32 samples/sec with 80MHz CPU to Android app
+  delay(300);	//~One loop per second with 80MHz CPU
+  //delay(10);    //32 samples/sec with 80MHz CPU to Android app
   return;
 } //Loop
 //Last line.
