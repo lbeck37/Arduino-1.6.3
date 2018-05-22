@@ -1,10 +1,10 @@
 const String SketchName  = "BeckE32_PedalForce";
-const String FileDate    = "May 13, 2018-a";
+const String FileDate    = "May 14, 2018-a";
 //Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "HX711.h"
+#include <HX711.h>
 #include <BeckE32_BLE_ServerLib.h>
 #include <soc/rtc.h>
 #include <Streaming.h>
@@ -87,9 +87,9 @@ double ReadPedal(){
   long    lValue;
   double  dLbs;
 
-  //oPedalForce.power_up();
+  oPedalForce.power_up();
   lValue= oPedalForce.read();
-  //oPedalForce.power_down();             // put the ADC in sleep mode
+  oPedalForce.power_down();             // put the ADC in sleep mode
 
   dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
   //dtostrf(dLbs, 8, 4, szNumber);
