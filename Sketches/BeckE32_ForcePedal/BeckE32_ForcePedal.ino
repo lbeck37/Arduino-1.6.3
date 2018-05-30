@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_ForcePedal.ino";
-const String FileDate    = "May 29, 2018-a";
+const String FileDate    = "May 29, 2018-b";
 //Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
 #include <Wire.h>
 #include <Adafruit_GFX.h>
@@ -24,7 +24,7 @@ const uint32_t	ulOneMillion				= 1000000;
 const uint32_t	ulCPUFreq						= 80 * ulOneMillion;
 const uint16_t	usClockDivider			= 80;
 const uint32_t	ulTicksPerSec				= ulCPUFreq / usClockDivider;
-const uint32_t	ulRedAlarmTicks			= ulOneMillion / 2;
+const uint32_t	ulRedAlarmTicks			= ulOneMillion;
 const uint32_t	ulGreenAlarmTicks		= ulOneMillion / 4;
 const uint8_t		ucRedTimerNum				= 0;
 const uint8_t		ucGreenTimerNum			= 1;
