@@ -1,5 +1,5 @@
-const String SketchName  = "BeckE32_PedalForce";
-const String FileDate    = "May 29, 2018-g";
+const String SketchName  = "BeckE32_ForcePedal.ino";
+const String FileDate    = "May 29, 2018-a";
 //Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
 #include <Wire.h>
 #include <Adafruit_GFX.h>
