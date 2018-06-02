@@ -1,4 +1,4 @@
-Rem Beck 6/1/18: Basic! Bluetooth example
+Rem Beck 6/1/18: Basic! Bluetooth example, not complete
 BT.open
 
 BT.status s

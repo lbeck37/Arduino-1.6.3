@@ -206,12 +206,12 @@ void DisplayPedal(double dLbs){
 
 void TestDashboard(void) {
   //float val;
-  char szNumber[10];
-  static double dDigit= 1.0;
-  double dNumber;
   oDisplay.setTextSize(2);
   oDisplay.setTextColor(WHITE);
   oDisplay.setCursor(0,0);
+  static double dDigit= 1.0;
+  char szNumber[10];
+  double dNumber;
   for (int sLine= 1; sLine <= 4; sLine++){
     dNumber= dDigit + (2. * dDigit / 10.0) + (3. * dDigit / 100.0) + (4. * dDigit / 1000.0);
     //dNumber= 1.234;
