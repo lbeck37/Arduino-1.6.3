@@ -1,4 +1,4 @@
-! BeckBasic_PlotFunc.bas,6/3/18j
+! BeckBasic_PlotFunc.bas,6/3/18m
 !flagOri     = 0
 flagOri     = 1
 GOSUB openScreen
@@ -226,7 +226,8 @@ refH       = 1280
 IF !flagOri  THEN SWAP refW, refH
 centW      = refW/2
 centH      = refH/2
-GR.OPEN      255,0,0,20,0,flagOri
+!GR.OPEN      255,0,0,20,0,flagOri
+GR.OPEN      255,0,0,20,1,flagOri		% Alpha, Red, Green, Blue, ShowStatusBar,Orientation
 GR.SCREEN    curW, curH
 scaW       = curW / refW
 scaH       = curH / refH
