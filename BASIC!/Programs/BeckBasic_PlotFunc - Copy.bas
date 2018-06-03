@@ -1,18 +1,29 @@
-! BeckBasic_PlotFunc.bas,6/3/18f
+! BeckBasic_PlotFunc.bas, 6/3/18b
 flagOri     = 0
 GOSUB openScreen
 GOSUB userfunctions
+
+
+! test it --------------------------------------------
+
 
 ! create some functions ----------------------
 
 _2pi            = 2*3.14159
 aa              = 600
 DIM               x  [ aa ]
-DIM               y [ aa ]
+DIM               y1 [ aa ]
+DIM               y2 [ aa ]
+DIM               y3 [ aa ]
+DIM               y4 [ aa ]
 FOR i            =  -_2pi TO _2pi STEP  0.10
  ctr             += 1
  x  [ctr]        =  i
- y  [ctr]        =  sin (4*i)
+ y1 [ctr]        =  sin (4*i)
+ IF                 y1[ctr] >=  0.8 THEN y2 [ctr] = 0.85
+ IF                 y1[ctr] <= -0.8 THEN y2 [ctr] = -0.85
+ y3 [ctr]        =  sin (2*i)
+ y4 [ctr]        =  sin (1*i)+(RND()-0.5)
 NEXT
 
 
@@ -28,8 +39,7 @@ BUNDLE.PUT        diag1, "ye"           ,  1.1
 BUNDLE.PUT        diag1, "posX1"        ,  0.05
 BUNDLE.PUT        diag1, "posY1"        ,  0.05
 BUNDLE.PUT        diag1, "posX2"        ,  0.95
-!BUNDLE.PUT        diag1, "posY2"        ,  0.5
-BUNDLE.PUT        diag1, "posY2"        ,  0.95
+BUNDLE.PUT        diag1, "posY2"        ,  0.5
 BUNDLE.PUT        diag1, "cntDivX"      ,  12
 BUNDLE.PUT        diag1, "cntDivY"      ,  9
 BUNDLE.PUT        diag1, "border"       ,  0.09
@@ -38,25 +48,110 @@ BUNDLE.PUT        diag1, "backGrCol"    ,  " 255 58  58  58  "
 BUNDLE.PUT        diag1, "gridCol"      ,  " 255 50  100 50  "
 BUNDLE.PUT        diag1, "lineCol"      ,  " 190 200 200  20  "
 BUNDLE.PUT        diag1, "lineWidth"    ,  2
-!BUNDLE.PUT        diag1, "numbersSize"  ,  16
-BUNDLE.PUT        diag1, "numbersSize"  ,  40
+BUNDLE.PUT        diag1, "numbersSize"  ,  16
 BUNDLE.PUT        diag1, "nDigitXaxis"  ,  2
 BUNDLE.PUT        diag1, "nDigitYaxis"  ,  4
 BUNDLE.PUT        diag1, "updaterate"   ,  20
 BUNDLE.PUT        diag1, "useMarker"    ,  0
 BUNDLE.PUT        diag1, "markerSize"   ,  2
-!BUNDLE.PUT        diag1, "useFillArea"  ,  1
-BUNDLE.PUT        diag1, "useFillArea"  ,  0
+BUNDLE.PUT        diag1, "useFillArea"  ,  1
 BUNDLE.PUT        diag1, "alphaFillArea",  50
 BUNDLE.PUT        diag1, "useTopAxis"   ,  0
 BUNDLE.PUT        diag1, "useRightAxis" ,  0
 
 ! plot it -------
 
-CALL              plot (diag1, x[], y[])
+CALL              plot (diag1, x [], y1 [])
+
+
+! make a copy, modify it a bit,  plot it -------
+! plot it as a 2nd layer by setting alpha-values=0 !! ----
+
+diag2           = bundleCopy( diag1 )
+BUNDLE.PUT        diag2, "lineCol"     ,  " 190 200  0  20  "
+BUNDLE.PUT        diag2, "borderCol"   ,  " 0 200 200 200 "
+BUNDLE.PUT        diag2, "backGrCol"   ,  " 0 58  58  58  "
+BUNDLE.PUT        diag2, "gridCol"     ,  " 0 50  120 50  "
+BUNDLE.PUT        diag2, "useFillArea" ,  0
+BUNDLE.PUT        diag2, "lineWidth"   ,  2
+!CALL              plot (diag2, x [], y2 [])
+
+
+! do it again ----------
+
+diag3           = bundleCopy( diag1 )
+BUNDLE.PUT        diag3, "posX1"        ,  0.05
+BUNDLE.PUT        diag3, "posY1"        ,  0.50
+BUNDLE.PUT        diag3, "posX2"        ,  0.95
+BUNDLE.PUT        diag3, "posY2"        ,  0.95
+BUNDLE.PUT        diag3, "lineCol"      ,  " 160 20 200  200  "
+BUNDLE.PUT        diag3, "useFillArea"  ,  0
+BUNDLE.PUT        diag3, "lineWidth"    ,  2
+BUNDLE.PUT        diag3, "useMarker"    ,  1
+!CALL              plot (diag3, x[], y3 [])
+
+
+! brief stop ----------
+
+POPUP "brief stop....",0,0,0
+!PAUSE  3000
+PAUSE  1000
+
+
+! re-arrange the three diags  ------
+GR.CLS
+diag            = diag1
+BUNDLE.PUT        diag, "posX1"        ,  0.05
+BUNDLE.PUT        diag, "posY1"        ,  0.05
+BUNDLE.PUT        diag, "posX2"        ,  0.498
+BUNDLE.PUT        diag, "posY2"        ,  0.498
+BUNDLE.PUT        diag, "useTopAxis"   ,  1
+BUNDLE.PUT        diag, "borderCol"    ,  " 0 200 200 200 "
+BUNDLE.PUT        diag, "border"       ,  0.02
+
+diag            = diag2
+BUNDLE.PUT        diag, "posX1"        ,  0.502
+BUNDLE.PUT        diag, "posY1"        ,  0.05
+BUNDLE.PUT        diag, "posX2"        ,  0.95
+BUNDLE.PUT        diag, "posY2"        ,  0.498
+BUNDLE.PUT        diag, "borderCol"    ,  " 0 200 200 200 "
+BUNDLE.PUT        diag, "backGrCol"    ,  " 255 58  58  58  "
+BUNDLE.PUT        diag, "gridCol"      ,  " 255 50  120 50  "
+BUNDLE.PUT        diag, "useTopAxis"   ,  1
+BUNDLE.PUT        diag, "useRightAxis" ,  1
+BUNDLE.PUT        diag, "border"       ,  0.02
+BUNDLE.PUT        diag, "useMarker"    ,  1
+
+diag            = diag3
+BUNDLE.PUT        diag, "posX1"        ,  0.05
+BUNDLE.PUT        diag, "posY1"        ,  0.502
+BUNDLE.PUT        diag, "posX2"        ,  0.498
+BUNDLE.PUT        diag, "posY2"        ,  0.95
+BUNDLE.PUT        diag, "borderCol"    ,  " 0 200 200 200 "
+BUNDLE.PUT        diag, "border"       ,  0.02
+CALL              plot (diag1, x [], y1 [])
+CALL              plot (diag2, x [], y2 [])
+CALL              plot (diag3, x [], y3 [])
+
+
+! add another one ----------
+
+diag4           = bundleCopy( diag1 )
+diag            = diag4
+BUNDLE.PUT        diag, "posX1"        ,  0.502
+BUNDLE.PUT        diag, "posY1"        ,  0.502
+BUNDLE.PUT        diag, "posX2"        ,  0.95
+BUNDLE.PUT        diag, "posY2"        ,  0.95
+BUNDLE.PUT        diag, "lineCol"      ,  " 155 50  12 250  "
+BUNDLE.PUT        diag, "borderCol"    ,  " 0 200 200 200 "
+BUNDLE.PUT        diag, "useTopAxis"   ,  0
+BUNDLE.PUT        diag, "useRightAxis" ,  1
+BUNDLE.PUT        diag, "border"       ,  0.02
+CALL              plot (diag4, x [], y4 [])
 
 DO
 UNTIL0
+
 END
 
 
