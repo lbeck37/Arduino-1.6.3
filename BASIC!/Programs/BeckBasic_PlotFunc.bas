@@ -1,10 +1,10 @@
-! BeckBasic_PlotFunc.bas,6/3/18f
-flagOri     = 0
+! BeckBasic_PlotFunc.bas,6/3/18j
+!flagOri     = 0
+flagOri     = 1
 GOSUB openScreen
 GOSUB userfunctions
 
-! create some functions ----------------------
-
+! Create sine function to work with.
 _2pi            = 2*3.14159
 aa              = 600
 DIM               x  [ aa ]
@@ -28,9 +28,10 @@ BUNDLE.PUT        diag1, "ye"           ,  1.1
 BUNDLE.PUT        diag1, "posX1"        ,  0.05
 BUNDLE.PUT        diag1, "posY1"        ,  0.05
 BUNDLE.PUT        diag1, "posX2"        ,  0.95
+BUNDLE.PUT        diag1, "posY2"        ,  0.3
 !BUNDLE.PUT        diag1, "posY2"        ,  0.5
-BUNDLE.PUT        diag1, "posY2"        ,  0.95
-BUNDLE.PUT        diag1, "cntDivX"      ,  12
+!BUNDLE.PUT        diag1, "posY2"        ,  0.95
+BUNDLE.PUT        diag1, "cntDivX"      ,  8
 BUNDLE.PUT        diag1, "cntDivY"      ,  9
 BUNDLE.PUT        diag1, "border"       ,  0.09
 BUNDLE.PUT        diag1, "borderCol"    ,  " 250 200 200 200 "
@@ -39,7 +40,7 @@ BUNDLE.PUT        diag1, "gridCol"      ,  " 255 50  100 50  "
 BUNDLE.PUT        diag1, "lineCol"      ,  " 190 200 200  20  "
 BUNDLE.PUT        diag1, "lineWidth"    ,  2
 !BUNDLE.PUT        diag1, "numbersSize"  ,  16
-BUNDLE.PUT        diag1, "numbersSize"  ,  40
+BUNDLE.PUT        diag1, "numbersSize"  ,  30
 BUNDLE.PUT        diag1, "nDigitXaxis"  ,  2
 BUNDLE.PUT        diag1, "nDigitYaxis"  ,  4
 BUNDLE.PUT        diag1, "updaterate"   ,  20
@@ -59,28 +60,8 @@ DO
 UNTIL0
 END
 
-
 !--------------------------------------------
 userfunctions:
-
-FN.DEF             bundleCopy( bundleIn )
- BUNDLE.CREATE     bundleOut
- BUNDLE.KEYS       bundleIn , keys
- LIST.SIZE         keys, len
- FOR i             =1 TO len
-  LIST.GET         keys, i, key$
-  BUNDLE.TYPE      bundleIn, key$,  type$
-  IF               type$ ="N"
-   BUNDLE.GET      bundleIn , key$, tmp
-   BUNDLE.PUT      bundleOut, key$, tmp
-  ELSE
-   BUNDLE.GET      bundleIn , key$, tmp$
-   BUNDLE.PUT      bundleOut, key$, tmp$
-  ENDIF
- NEXT
- FN.RTN            bundleOut
-FN.END
-
 
 FN.DEF             plot (diag, xval [], yval [])
  BUNDLE.GET        diag, "npoints"     ,  npoints
