@@ -53,7 +53,7 @@ void setup()   {
 	Serial.println(SKETCH_HEAD);
 	Serial.println("Setup(): Call Wire.begin(21, 22)");
   Wire.begin(21, 22);		//Beck 1-3-18
-  ScanForDevices();
+  ScanForI2CDevices();
 
   Serial.println("Setup(): Call display.begin()");
 
@@ -223,7 +223,7 @@ void testscrolltext(void) {
 }	//testscrolltext
 
 
-void ScanForDevices(void){
+void ScanForI2CDevices(void){
 	byte ucError, ucAddress;
   int nDevices;
   Serial.println("ScanForDevices(): Begin");
