@@ -1,5 +1,5 @@
-PRINT "BeckBasic_Bluetooth.bas,6/3/18b"
-!!
+PRINT "BeckBasic_Bluetooth.bas,6/3/18c"
+
 This program demonstrates using
 Bluetooth as both an application
 that listens for a connection
@@ -24,7 +24,7 @@ Note: The UUID used by default is
 the standard serial port UUID. This
 can be changed. Read the manual.
 
-!!
+
 
 ! Begin by opening Bluetooth
 ! If Bluetooth is not enabled

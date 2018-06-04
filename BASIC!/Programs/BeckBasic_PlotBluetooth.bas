@@ -1,23 +1,134 @@
-! BeckBasic_PlotFunc.bas,6/3/18m
-!flagOri     = 0
-flagOri     = 1		;Portrait
+PRINT "BeckBasic_PlotBluetooth.bas,6/3/18a"
+
+flagOri= 1		%Portrait
 GOSUB openScreen
 GOSUB userfunctions
+CALL SetupPlot()
 
-! Create sine function to work with.
-_2pi            = 2*3.14159
-aa              = 600
-DIM               x  [ aa ]
-DIM               y [ aa ]
-FOR i            =  -_2pi TO _2pi STEP  0.10
- ctr             += 1
- x  [ctr]        =  i
- y  [ctr]        =  sin (4*i)
-NEXT
+! Begin by opening Bluetooth
+! If Bluetooth is not enabled
+! the program will stop here.
+BT.OPEN
+PAUSE 500	%Need pause because we're in graphics mode
 
+! When BT is opened, the program
+! will start listening for another
+! device to connect. At this time
+! the user can continue to wait
+! for a connection are can attempt
+! to connect to another device
+! that is waiting for a connection
 
+! Ask user what to do
+ARRAY.LOAD type$[], "Connect to listener", "Continue to listen for connection", "Quit"
+title$ = "Select operation mode"
+
+! Create the menu that will be loaded
+! when the screen is touched.
+ARRAY.LOAD menu$[], "Send", "Disconnect","Quit"
+
+new_connection:
+xdomenu =0
+SELECT type, type$[], title$
+
+! If the user pressed the back
+! key or selected quit then quit
+! otherwise try to connect to
+! a listener
+IF (type = 0) | (type =3)
+ PRINT "See you later"
+ BT.CLOSE
+ END
+ELSEIF type = 1
+ BT.CONNECT
+ENDIF
+
+! Read status until a connection is made
+ln = 0
+DO
+ BT.STATUS s
+ IF s = 1
+  ln = ln + 1
+  PRINT "Listening", ln
+ ELSEIF s =2
+  PRINT "Connecting"
+ ELSEIF s = 3
+  PRINT "Connected"
+  PRINT "Touch any text line to send, disconnect or quit."
+ ENDIF		%IF s=1
+ PAUSE 1000
+UNTIL s = 3
+
+! When a connection is made
+! get the name of the connected
+! device
+BT.DEVICE.NAME device$
+
+! *** Read/Write Loop ****
+RW_Loop:
+DO
+ ! If the screen is touched, the interrupt
+ ! code will change xdoMemu to 1 (true)
+ ! In that case, show the menu
+ IF xdoMenu
+  xdoMenu =0
+  SELECT menu,  menu$[], "Do what?"
+  IF menu = 1 THEN GOSUB xdoSend
+  IF menu = 2 THEN BT.DISCONNECT
+  IF menu = 3
+   PRINT "Bye bye"
+   BT.CLOSE
+   END
+  ENDIF	  %IF menu=3
+ ENDIF	%IF xdoMenu
+
+ ! Read status to insure
+ ! that we remain connected.
+ ! If disconnected, program
+ ! reverts to listen mode.
+ ! In that case, ask user
+ ! what to do.
+
+ BT.STATUS s
+ IF s<> 3
+  PRINT "Connection lost"
+  GOTO new_connection
+ ENDIF		%IF s<>3
+
+ ! Read messages until
+ ! the message queue is
+ ! empty
+ DO
+  BT.READ.READY rr
+  IF rr
+   BT.READ.BYTES rmsg$
+   !PRINT device$;": ";rmsg$
+   PlotDataValue(device$, rmsg$)
+  ENDIF		%IF rr
+ UNTIL (rr = 0)		%BT.READ.READY
+UNTIL 0		%RW_Loop
+
+! Get and send message
+! to the connected device
+xdoSend:
+	INPUT "Text to send", wmsg$
+	BT.WRITE wmsg$
+	PRINT "Me: "; wmsg$
+RETURN
+
+! When Console is touched
+! set xdoMenu to true
+onConsoleTouch:
+	xdoMenu = 1
+ConsoleTouch.Resume
+
+!*************************************************************8
+! Code fromBeckBasic_PlotFunc.bas,6/3/18m
+
+!--------------------------------------------
+userfunctions:
+FN.DEF	SetupPlot()
 ! create a diagram bundle (...object) -------
-
 BUNDLE.CREATE     diag1
 
 BUNDLE.PUT        diag1, "npoints"      ,  ctr
@@ -52,18 +163,11 @@ BUNDLE.PUT        diag1, "alphaFillArea",  50
 BUNDLE.PUT        diag1, "useTopAxis"   ,  0
 BUNDLE.PUT        diag1, "useRightAxis" ,  0
 
-! plot it -------
+CALL              PlotFrame(diag1)
+FN.RETURN	%SetupPlot
 
-CALL              plot (diag1, x[], y[])
-
-DO
-UNTIL0
-END
-
-!--------------------------------------------
-userfunctions:
-
-FN.DEF             plot (diag, xval [], yval [])
+!FN.DEF             plot (diag, xval [], yval [])
+FN.DEF PlotFrame(diag)
  BUNDLE.GET        diag, "npoints"     ,  npoints
  BUNDLE.GET        diag, "xs"          ,  xs
  BUNDLE.GET        diag, "xe"          ,  xe
@@ -99,33 +203,29 @@ FN.DEF             plot (diag, xval [], yval [])
  widY           =  ( posY2 - posY1 ) * curH
  borderX        =  border * widX
  borderY        =  border * widY
- pixX           =  widX - 2* borderX
- pixY           =  widY - 2* borderY
+ pixX           =  widX - (2 * borderX)
+ pixY           =  widY - (2 * borderY)
 
- fmt $          =  "################"
- pScax          =  pixX/(xe-xs)
- pScay          =  pixY/(ye-ys)
- border         =  (border *(pixX+pixy)/2)/2
-
+ fmt$           =  "################"
+ pScax          =  pixX / (xe-xs)
+ pScay          =  pixY / (ye-ys)
+ border         =  (border * ((pixX + pixy)/2))/2
 
  curCol$         = borderCol$
  curFill         = 1
- GOSUB             setColor
- GR.RECT           nn,  offsX , offsY , offsX+ widx , offsY+ widy
-
+ GOSUB setColor
+ GR.RECT (nn, offsX, offsY, offsX + widx, offsY + widy)
 
  curCol$         = backGrCol$
  curFill         = 1
  GOSUB setColor
- GR.RECT           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
+ GR.RECT (nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
 
  curCol$         = gridCol$
- GOSUB             setColor
+ GOSUB setColor
 
  GR.SET.STROKE     1
  GR.TEXT.SIZE      numbersSize
-
-
  GR.TEXT.ALIGN     2
  FOR i           = 0 TO cntDivX
   tmp            = offsX+ borderx + i*pixX/cntDivX
@@ -133,7 +233,7 @@ FN.DEF             plot (diag, xval [], yval [])
   tmp$           = replace $(format$ ( fmtstr$, xs+i*(xe-xs)/cntDivX)," " ,"")
   GR.LINE          nn,  tmp, offsY+ bordery, tmp, offsY+ pixY+ bordery
   IF               useTopAxis THEN tmp1= -numbersSize*0.6 ELSE tmp1= pixY+ numbersSize*1.2
-  GR.TEXT.DRAW     nn,  tmp, offsY+ bordery+ tmp1 , tmp$
+  GR.TEXT.DRAW     nn, tmp, offsY+ bordery+ tmp1 , tmp$
  NEXT
 
  IF                useRightAxis THEN GR.TEXT.ALIGN 1 ELSE GR.TEXT.ALIGN 3
@@ -142,10 +242,9 @@ FN.DEF             plot (diag, xval [], yval [])
   fmtstr$        = "#############%."+right $(fmt$, nDigitXaxis)
   tmp$           = replace $(format$ ( fmtstr$, ye - i* (ye-ys) /cntDivY )," " ,"")
   GR.LINE          nn, offsX+ borderx, tmp, offsX+ pixX+ borderx , tmp
-  IF                useRightAxis THEN tmp1=pixX+5 ELSE tmp1=-5
+  IF useRightAxis THEN tmp1= pixX + 5 ELSE tmp1= -5
   GR.TEXT.DRAW     nn, offsX+ borderx + tmp1 , tmp , tmp$
  NEXT
-
 
  curCol$         = lineCol$
  curFill         = 1
@@ -156,55 +255,12 @@ FN.DEF             plot (diag, xval [], yval [])
  yo             =  offsY+ pixY+ bordery
  yu             =  offsY+       bordery
 
- DIM               xy [ npoints, 2 ]
- LIST.CREATE       n,polyplot
-
- FOR i          =  1 TO npoints
-
-  xy [i,1]      =  offsX+ borderx+        (xval [i] - xs )* pScax
-  xy [i,2]      =  offsY+ bordery+ pixY - (yval [i] - ys )* pScay
-
-  IF               xy[i,1]>xo THEN xy[i,1] = xo
-  IF               xy[i,1]<xu THEN xy[i,1] = xu
-  IF               xy[i,2]>yo THEN xy[i,2] = yo
-  IF               xy[i,2]<yu THEN xy[i,2] = yu
-
-  IF        useMarker THEN gr.circle nn, xy [i,1], xy [i,2], markerSize
-  IF               ! mod (i, updaterate) THEN gr.render
-
- NEXT
-
- LIST.ADD.ARRAY   polyplot, xy[]
- LIST.ADD         polyplot, offsX+pixX+borderx  , offsY+pixY+bordery
- LIST.ADD         polyplot, offsX+     borderx  , offsY+pixY+bordery
-
-
- ! plot polyline without filling ----
- curFill         = 0
- GOSUB            setColor
- GR.POLY          nn, polyplot
-
- ! plot filling ---
- IF useFillArea
-  GR.COLOR  ~
-  alphaFillArea        , VAL(WORD$(curCol$,2)), ~
-  VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), 1
-  GR.SET.STROKE     3
-  GR.POLY          nn, polyplot
- ENDIF
-
-
  curCol$         = gridCol$
- GR.COLOR  ~
- 255                  , VAL(WORD$(curCol$,2)), ~
- VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), 0
+ GR.COLOR (255, VAL(WORD$(curCol$,2)), VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), 0)
  GR.SET.STROKE     linewidth+2
  GR.RECT           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
-
  GR.RENDER
-
-
- FN.RTN            1
+ FN.RTN 1	%PlotFrame
 
  setColor:
  GR.COLOR  ~
@@ -212,15 +268,17 @@ FN.DEF             plot (diag, xval [], yval [])
  VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), curFill
  RETURN
 
-FN.END
+FN.END	%PlotFrame
 
+!FN.DEF PlotDataValue(Xval, Yval)
+FN.DEF PlotDataValue(device$, rmsg$)
+   PRINT device$; ": "; rmsg$
+FN.END	%PlotDataValue
 
-RETURN
-!--------------------------------------------
+RETURN	%userfunctions
 
 !--------------------------------------------
 openScreen:
-
 refW       = 780
 refH       = 1280
 IF !flagOri  THEN SWAP refW, refH
@@ -233,8 +291,9 @@ scaW       = curW / refW
 scaH       = curH / refH
 !GR.SCALE     scaW , scaH
 desLoopTime= 50
+RETURN	%openScreen
 
-
-RETURN
 !--------------------------------------------
+onError:
+END
 !Last line.
