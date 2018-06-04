@@ -1,4 +1,4 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/4/18k"
+PRINT "BeckBasic_PlotBluetooth.bas,6/4/18w"
 
 flagOri= 1    %Portrait
 Print "Main(): GoSub openScreen"
@@ -12,7 +12,7 @@ Call SetupPlot()
 ! If Bluetooth is not enabled
 ! the program will stop here.
 Print "Call BT.Open"
-Call BT.Open
+BT.Open
 Pause 500 %Need pause because we're in graphics mode
 
 ! When BT is opened, the program
@@ -24,23 +24,22 @@ Pause 500 %Need pause because we're in graphics mode
 ! that is waiting for a connection
 
 ! Ask user what to do
-ARRAY.LOAD type$[], "Connect to listener", "Continue to listen for connection", "Quit"
-title$ = "Select operation mode"
+Array.Load type$[], "Connect to listener", "Continue to listen for connection", "Quit"
+title$= "Select operation mode"
 
 ! Create the menu that will be loaded
 ! when the screen is touched.
-ARRAY.LOAD menu$[], "Send", "Disconnect","Quit"
+Array.Load menu$[], "Send", "Disconnect","Quit"
 
 new_connection:
 xdomenu =0
-SELECT type, type$[], title$
+Select type, type$[], title$
 
 ! If the user pressed the back
 ! key or selected quit then quit
 ! otherwise try to connect to
 ! a listener
 IF (type = 0) | (type =3)
- !PRINT "See you later"
  BT.CLOSE
  End "END: See you later"
 ELSEIF type = 1
@@ -53,14 +52,14 @@ DO
  BT.STATUS s
  IF s = 1
   ln = ln + 1
-  PRINT "Listening", ln
+  Print "Listening", ln
  ELSEIF s =2
-  PRINT "Connecting"
+  Print "Connecting"
  ELSEIF s = 3
-  PRINT "Connected"
-  PRINT "Touch any text line to send, disconnect or quit."
+  Print "Connected"
+  Print "Touch any text line to send, disconnect or quit."
  ENDIF    %IF s=1
- PAUSE 1000
+ Pause 1000
 UNTIL s = 3
 
 ! When a connection is made
@@ -80,7 +79,6 @@ DO
   IF menu = 1 THEN GOSUB xdoSend
   IF menu = 2 THEN BT.DISCONNECT
   IF menu = 3
-   !PRINT "Bye bye"
    BT.CLOSE
    End "END: Bye bye"
   ENDIF   %IF menu=3
@@ -95,7 +93,7 @@ DO
 
  BT.STATUS s
  IF s<> 3
-  PRINT "Connection lost"
+  Print "Connection lost"
   GOTO new_connection
  ENDIF    %IF s<>3
 
@@ -106,7 +104,6 @@ DO
   BT.READ.READY rr
   IF rr
    BT.READ.BYTES rmsg$
-   !PRINT device$;": ";rmsg$
    PlotDataValue(device$, rmsg$)
   ENDIF   %IF rr
  UNTIL (rr = 0)   %BT.READ.READY
@@ -117,7 +114,7 @@ UNTIL 0   %RW_Loop
 xdoSend:
   INPUT "Text to send", wmsg$
   BT.WRITE wmsg$
-  PRINT "Me: "; wmsg$
+  Print "Me: "; wmsg$
 RETURN
 
 ! When Console is touched
@@ -168,12 +165,10 @@ FN.Def  SetupPlot()
 
   Print "SetupPlot(): Call PlotFrame(diag1)"
   Call PlotFrame(diag1)
-  !FN.Return  %SetupPlot
   Print "SetupPlot(): End"
 FN.End  %SetupPlot
 
 
-!FN.DEF             plot (diag, xval [], yval [])
 FN.Def PlotFrame(diag)
   Print "PlotFrame(): Begin"
   BUNDLE.GET        diag, "npoints"     ,  npoints
@@ -205,8 +200,7 @@ FN.Def PlotFrame(diag)
   BUNDLE.GET        diag, "useRightAxis",  useRightAxis
 
   Print "PlotFrame(): Call GR.Screen()"
-  !Call GR.Screen(curW, curH)
-  GR.Screen(curW, curH)
+  GR.Screen curW, curH
   Print "PlotFrame(): GR.Screen returned curW= "; curW; ", curH= "; curH
   
   offsX          =  posX1 * curW
@@ -217,30 +211,29 @@ FN.Def PlotFrame(diag)
   borderY        =  border * widY
   pixX           =  widX - (2 * borderX)
   pixY           =  widY - (2 * borderY)
+  !Print "PlotFrame(): pixY= "; pixY
 
   fmt$           =  "################"
-  pScax          =  pixX / (xe-xs)
-  pScay          =  pixY / (ye-ys)
+  !pScax          =  pixX / (xe-xs)
+  !pScay          =  pixY / (ye-ys)
   border         =  (border * ((pixX + pixy)/2))/2
+  !Print "PlotFrame(): border= "; border
 
   curCol$= borderCol$
   curFill= 1
-  !GOSUB setColor
-  Print "PlotFrame(): Call GR.SetColor()"
+  !Print "PlotFrame(): Call SetColor("; curCol$, curFill; ")"
   Call SetColor(curCol$, curFill)
-  Print "PlotFrame(): Call GR.Rect()"
-  Call GR.Rect(nn, offsX, offsY, offsX + widx, offsY + widy)
+  !Print "PlotFrame(): Call GR.Rect()"
+  GR.Rect nn, offsX, offsY, offsX + widx, offsY + widy
 
   curCol$= backGrCol$
   curFill= 1
-  !GOSUB setColor
-  Print "PlotFrame(): Call GR.SetColor()"
+  !Print "PlotFrame(): Call SetColor()"
   Call SetColor(curCol$, curFill)
-  Print "PlotFrame(): Call GR.Rect()"
-  Call GR.Rect (nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
+  !Print "PlotFrame(): Call GR.Rect()"
+  GR.Rect nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
 
   curCol$= gridCol$
-  !GOSUB setColor
   Call SetColor(curCol$, curFill)
 
   GR.SET.STROKE     1
@@ -267,7 +260,6 @@ FN.Def PlotFrame(diag)
 
  curCol$= lineCol$
  curFill= 1
- !GOSUB             setColor
  Call SetColor(curCol$, curFill)
  GR.SET.STROKE     linewidth
  xo             =  offsX+ pixX+ borderx
@@ -276,19 +268,14 @@ FN.Def PlotFrame(diag)
  yu             =  offsY+       bordery
 
  curCol$= gridCol$
- GR.COLOR (255, VAL(WORD$(curCol$,2)), VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), 0)
+ GR.COLOR 255, VAL(WORD$(curCol$,2)), VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), 0
  GR.SET.STROKE     linewidth+2
  GR.Rect           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
  GR.Render
- Print "PlotFrame(): Rtn 1"
+ Print "PlotFrame(): Return OK"
  FN.Rtn 1 %PlotFrame
-
- ! setColor:
- ! GR.COLOR  ~
- ! VAL(WORD$(curcol$,1)), VAL(WORD$(curCol$,2)), ~
- ! VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), curFill
- ! RETURN
 FN.End  %PlotFrame
+
 
 !FN.Def PlotDataValue(Xval, Yval)
 FN.Def PlotDataValue(device$, rmsg$)
@@ -297,12 +284,13 @@ FN.End  %PlotDataValue
 
 
 FN.Def SetColor(Color$, FillNum)
-  GR.Color(VAL(WORD$(Color$,1)), VAL(WORD$(Color$,2)), ~
+  GR.Color VAL(WORD$(Color$,1)), VAL(WORD$(Color$,2)), ~
            VAL(WORD$(Color$,3)), VAL(WORD$(Color$,4)), FillNum
 FN.End  %SetColor
 Return  %userfunctions
 
-!--------------------------------------------
+
+!Subroutines
 openScreen:
   Print "openScreen: Begin"
   refW       = 780
@@ -311,7 +299,7 @@ openScreen:
   centW      = refW/2
   centH      = refH/2
   !GR.OPEN      255,0,0,20,0,flagOri
-  GR.OPEN      255,0,0,20,1,flagOri   % Alpha, Red, Green, Blue, ShowStatusBar,Orientation
+  GR.Open      255,0,0,20,1,flagOri   % Alpha, Red, Green, Blue, ShowStatusBar,Orientation
   GR.Screen    curW, curH
   Print "openScreen: GR.Screen returned curW= "; curW; ", curH= "; curH
   scaW       = curW / refW
@@ -321,7 +309,6 @@ openScreen:
   Print "openScreen: Return"
 Return  %openScreen
 
-!--------------------------------------------
 onError:
 End "END: onError:"
 !Last line.
