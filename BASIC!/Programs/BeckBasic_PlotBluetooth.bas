@@ -1,4 +1,4 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/4/18w"
+PRINT "BeckBasic_PlotBluetooth.bas,6/4/18x"
 
 flagOri= 1    %Portrait
 Print "Main(): GoSub openScreen"
@@ -6,7 +6,8 @@ GoSub openScreen
 Print "Main(): GoSub userfunctions"
 GoSub userfunctions
 Print "Main(): Call SetupPlot()"
-Call SetupPlot()
+!Call SetupPlot()
+Call SetupPlot(0, 20, -20, 20)
 
 ! Begin by opening Bluetooth
 ! If Bluetooth is not enabled
@@ -126,16 +127,20 @@ ConsoleTouch.Resume
 !*************************************************************8
 ! Code fromBeckBasic_PlotFunc.bas,6/3/18m
 userfunctions:
-FN.Def  SetupPlot()
+FN.Def  SetupPlot(Xleft, Xright, Ybot, Ytop)
   Print "SetupPlot(): Begin"
   ! create a diagram bundle (...object) -------
   BUNDLE.CREATE     diag1
 
   BUNDLE.PUT        diag1, "npoints"      ,  ctr
-  BUNDLE.PUT        diag1, "xs"           , -_2pi
-  BUNDLE.PUT        diag1, "xe"           ,  _2pi
-  BUNDLE.PUT        diag1, "ys"           ,  -1.1
-  BUNDLE.PUT        diag1, "ye"           ,  1.1
+  ! BUNDLE.PUT        diag1, "xs"           , -_2pi
+  ! BUNDLE.PUT        diag1, "xe"           ,  _2pi
+  ! BUNDLE.PUT        diag1, "ys"           ,  -1.1
+  ! BUNDLE.PUT        diag1, "ye"           ,  1.1
+  BUNDLE.PUT        diag1, "xs"           ,  Xleft
+  BUNDLE.PUT        diag1, "xe"           ,  Xright
+  BUNDLE.PUT        diag1, "ys"           ,  Ybot
+  BUNDLE.PUT        diag1, "ye"           ,  Ytop
   BUNDLE.PUT        diag1, "posX1"        ,  0.05
   BUNDLE.PUT        diag1, "posY1"        ,  0.05
   BUNDLE.PUT        diag1, "posX2"        ,  0.95
