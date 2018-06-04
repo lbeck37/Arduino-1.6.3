@@ -1,15 +1,19 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/3/18a"
+PRINT "BeckBasic_PlotBluetooth.bas,6/4/18k"
 
-flagOri= 1		%Portrait
-GOSUB openScreen
-GOSUB userfunctions
-CALL SetupPlot()
+flagOri= 1    %Portrait
+Print "Main(): GoSub openScreen"
+GoSub openScreen
+Print "Main(): GoSub userfunctions"
+GoSub userfunctions
+Print "Main(): Call SetupPlot()"
+Call SetupPlot()
 
 ! Begin by opening Bluetooth
 ! If Bluetooth is not enabled
 ! the program will stop here.
-BT.OPEN
-PAUSE 500	%Need pause because we're in graphics mode
+Print "Call BT.Open"
+Call BT.Open
+Pause 500 %Need pause because we're in graphics mode
 
 ! When BT is opened, the program
 ! will start listening for another
@@ -36,9 +40,9 @@ SELECT type, type$[], title$
 ! otherwise try to connect to
 ! a listener
 IF (type = 0) | (type =3)
- PRINT "See you later"
+ !PRINT "See you later"
  BT.CLOSE
- END
+ End "END: See you later"
 ELSEIF type = 1
  BT.CONNECT
 ENDIF
@@ -55,7 +59,7 @@ DO
  ELSEIF s = 3
   PRINT "Connected"
   PRINT "Touch any text line to send, disconnect or quit."
- ENDIF		%IF s=1
+ ENDIF    %IF s=1
  PAUSE 1000
 UNTIL s = 3
 
@@ -76,11 +80,11 @@ DO
   IF menu = 1 THEN GOSUB xdoSend
   IF menu = 2 THEN BT.DISCONNECT
   IF menu = 3
-   PRINT "Bye bye"
+   !PRINT "Bye bye"
    BT.CLOSE
-   END
-  ENDIF	  %IF menu=3
- ENDIF	%IF xdoMenu
+   End "END: Bye bye"
+  ENDIF   %IF menu=3
+ ENDIF  %IF xdoMenu
 
  ! Read status to insure
  ! that we remain connected.
@@ -93,7 +97,7 @@ DO
  IF s<> 3
   PRINT "Connection lost"
   GOTO new_connection
- ENDIF		%IF s<>3
+ ENDIF    %IF s<>3
 
  ! Read messages until
  ! the message queue is
@@ -104,129 +108,144 @@ DO
    BT.READ.BYTES rmsg$
    !PRINT device$;": ";rmsg$
    PlotDataValue(device$, rmsg$)
-  ENDIF		%IF rr
- UNTIL (rr = 0)		%BT.READ.READY
-UNTIL 0		%RW_Loop
+  ENDIF   %IF rr
+ UNTIL (rr = 0)   %BT.READ.READY
+UNTIL 0   %RW_Loop
 
 ! Get and send message
 ! to the connected device
 xdoSend:
-	INPUT "Text to send", wmsg$
-	BT.WRITE wmsg$
-	PRINT "Me: "; wmsg$
+  INPUT "Text to send", wmsg$
+  BT.WRITE wmsg$
+  PRINT "Me: "; wmsg$
 RETURN
 
 ! When Console is touched
 ! set xdoMenu to true
 onConsoleTouch:
-	xdoMenu = 1
+  xdoMenu = 1
 ConsoleTouch.Resume
 
 !*************************************************************8
 ! Code fromBeckBasic_PlotFunc.bas,6/3/18m
-
-!--------------------------------------------
 userfunctions:
-FN.DEF	SetupPlot()
-! create a diagram bundle (...object) -------
-BUNDLE.CREATE     diag1
+FN.Def  SetupPlot()
+  Print "SetupPlot(): Begin"
+  ! create a diagram bundle (...object) -------
+  BUNDLE.CREATE     diag1
 
-BUNDLE.PUT        diag1, "npoints"      ,  ctr
-BUNDLE.PUT        diag1, "xs"           , -_2pi
-BUNDLE.PUT        diag1, "xe"           ,  _2pi
-BUNDLE.PUT        diag1, "ys"           ,  -1.1
-BUNDLE.PUT        diag1, "ye"           ,  1.1
-BUNDLE.PUT        diag1, "posX1"        ,  0.05
-BUNDLE.PUT        diag1, "posY1"        ,  0.05
-BUNDLE.PUT        diag1, "posX2"        ,  0.95
-BUNDLE.PUT        diag1, "posY2"        ,  0.3
-!BUNDLE.PUT        diag1, "posY2"        ,  0.5
-!BUNDLE.PUT        diag1, "posY2"        ,  0.95
-BUNDLE.PUT        diag1, "cntDivX"      ,  8
-BUNDLE.PUT        diag1, "cntDivY"      ,  9
-BUNDLE.PUT        diag1, "border"       ,  0.09
-BUNDLE.PUT        diag1, "borderCol"    ,  " 250 200 200 200 "
-BUNDLE.PUT        diag1, "backGrCol"    ,  " 255 58  58  58  "
-BUNDLE.PUT        diag1, "gridCol"      ,  " 255 50  100 50  "
-BUNDLE.PUT        diag1, "lineCol"      ,  " 190 200 200  20  "
-BUNDLE.PUT        diag1, "lineWidth"    ,  2
-!BUNDLE.PUT        diag1, "numbersSize"  ,  16
-BUNDLE.PUT        diag1, "numbersSize"  ,  30
-BUNDLE.PUT        diag1, "nDigitXaxis"  ,  2
-BUNDLE.PUT        diag1, "nDigitYaxis"  ,  4
-BUNDLE.PUT        diag1, "updaterate"   ,  20
-BUNDLE.PUT        diag1, "useMarker"    ,  0
-BUNDLE.PUT        diag1, "markerSize"   ,  2
-!BUNDLE.PUT        diag1, "useFillArea"  ,  1
-BUNDLE.PUT        diag1, "useFillArea"  ,  0
-BUNDLE.PUT        diag1, "alphaFillArea",  50
-BUNDLE.PUT        diag1, "useTopAxis"   ,  0
-BUNDLE.PUT        diag1, "useRightAxis" ,  0
+  BUNDLE.PUT        diag1, "npoints"      ,  ctr
+  BUNDLE.PUT        diag1, "xs"           , -_2pi
+  BUNDLE.PUT        diag1, "xe"           ,  _2pi
+  BUNDLE.PUT        diag1, "ys"           ,  -1.1
+  BUNDLE.PUT        diag1, "ye"           ,  1.1
+  BUNDLE.PUT        diag1, "posX1"        ,  0.05
+  BUNDLE.PUT        diag1, "posY1"        ,  0.05
+  BUNDLE.PUT        diag1, "posX2"        ,  0.95
+  BUNDLE.PUT        diag1, "posY2"        ,  0.3
+  !BUNDLE.PUT        diag1, "posY2"        ,  0.5
+  !BUNDLE.PUT        diag1, "posY2"        ,  0.95
+  BUNDLE.PUT        diag1, "cntDivX"      ,  8
+  BUNDLE.PUT        diag1, "cntDivY"      ,  9
+  BUNDLE.PUT        diag1, "border"       ,  0.09
+  BUNDLE.PUT        diag1, "borderCol"    ,  " 250 200 200 200 "
+  BUNDLE.PUT        diag1, "backGrCol"    ,  " 255 58  58  58  "
+  BUNDLE.PUT        diag1, "gridCol"      ,  " 255 50  100 50  "
+  BUNDLE.PUT        diag1, "lineCol"      ,  " 190 200 200  20  "
+  BUNDLE.PUT        diag1, "lineWidth"    ,  2
+  !BUNDLE.PUT        diag1, "numbersSize"  ,  16
+  BUNDLE.PUT        diag1, "numbersSize"  ,  30
+  BUNDLE.PUT        diag1, "nDigitXaxis"  ,  2
+  BUNDLE.PUT        diag1, "nDigitYaxis"  ,  4
+  BUNDLE.PUT        diag1, "updaterate"   ,  20
+  BUNDLE.PUT        diag1, "useMarker"    ,  0
+  BUNDLE.PUT        diag1, "markerSize"   ,  2
+  !BUNDLE.PUT        diag1, "useFillArea"  ,  1
+  BUNDLE.PUT        diag1, "useFillArea"  ,  0
+  BUNDLE.PUT        diag1, "alphaFillArea",  50
+  BUNDLE.PUT        diag1, "useTopAxis"   ,  0
+  BUNDLE.PUT        diag1, "useRightAxis" ,  0
 
-CALL              PlotFrame(diag1)
-FN.RETURN	%SetupPlot
+  Print "SetupPlot(): Call PlotFrame(diag1)"
+  Call PlotFrame(diag1)
+  !FN.Return  %SetupPlot
+  Print "SetupPlot(): End"
+FN.End  %SetupPlot
+
 
 !FN.DEF             plot (diag, xval [], yval [])
-FN.DEF PlotFrame(diag)
- BUNDLE.GET        diag, "npoints"     ,  npoints
- BUNDLE.GET        diag, "xs"          ,  xs
- BUNDLE.GET        diag, "xe"          ,  xe
- BUNDLE.GET        diag, "ys"          ,  ys
- BUNDLE.GET        diag, "ye"          ,  ye
- BUNDLE.GET        diag, "posX1"       ,  posX1
- BUNDLE.GET        diag, "posY1"       ,  posY1
- BUNDLE.GET        diag, "posX2"       ,  posX2
- BUNDLE.GET        diag, "posY2"       ,  posY2
- BUNDLE.GET        diag, "cntDivX"     ,  cntDivX
- BUNDLE.GET        diag, "cntDivY"     ,  cntDivY
- BUNDLE.GET        diag, "border"      ,  border
- BUNDLE.GET        diag, "borderCol"   ,  borderCol$
- BUNDLE.GET        diag, "backGrCol"   ,  backGrCol$
- BUNDLE.GET        diag, "gridCol"     ,  gridCol$
- BUNDLE.GET        diag, "lineCol"     ,  lineCol$
- BUNDLE.GET        diag, "lineWidth"   ,  lineWidth
- BUNDLE.GET        diag, "numbersSize" ,  numbersSize
- BUNDLE.GET        diag, "nDigitXaxis" ,  nDigitXaxis
- BUNDLE.GET        diag, "nDigitYaxis" ,  nDigitYaxis
- BUNDLE.GET        diag, "updaterate"  ,  updaterate
- BUNDLE.GET        diag, "useMarker"   ,  useMarker
- BUNDLE.GET        diag, "markerSize"  ,  markerSize
- BUNDLE.GET        diag, "useFillArea" ,  useFillArea
- BUNDLE.GET        diag, "alphaFillArea", alphaFillArea
- BUNDLE.GET        diag, "useTopAxis"  ,  useTopAxis
- BUNDLE.GET        diag, "useRightAxis",  useRightAxis
+FN.Def PlotFrame(diag)
+  Print "PlotFrame(): Begin"
+  BUNDLE.GET        diag, "npoints"     ,  npoints
+  BUNDLE.GET        diag, "xs"          ,  xs
+  BUNDLE.GET        diag, "xe"          ,  xe
+  BUNDLE.GET        diag, "ys"          ,  ys
+  BUNDLE.GET        diag, "ye"          ,  ye
+  BUNDLE.GET        diag, "posX1"       ,  posX1
+  BUNDLE.GET        diag, "posY1"       ,  posY1
+  BUNDLE.GET        diag, "posX2"       ,  posX2
+  BUNDLE.GET        diag, "posY2"       ,  posY2
+  BUNDLE.GET        diag, "cntDivX"     ,  cntDivX
+  BUNDLE.GET        diag, "cntDivY"     ,  cntDivY
+  BUNDLE.GET        diag, "border"      ,  border
+  BUNDLE.GET        diag, "borderCol"   ,  borderCol$
+  BUNDLE.GET        diag, "backGrCol"   ,  backGrCol$
+  BUNDLE.GET        diag, "gridCol"     ,  gridCol$
+  BUNDLE.GET        diag, "lineCol"     ,  lineCol$
+  BUNDLE.GET        diag, "lineWidth"   ,  lineWidth
+  BUNDLE.GET        diag, "numbersSize" ,  numbersSize
+  BUNDLE.GET        diag, "nDigitXaxis" ,  nDigitXaxis
+  BUNDLE.GET        diag, "nDigitYaxis" ,  nDigitYaxis
+  BUNDLE.GET        diag, "updaterate"  ,  updaterate
+  BUNDLE.GET        diag, "useMarker"   ,  useMarker
+  BUNDLE.GET        diag, "markerSize"  ,  markerSize
+  BUNDLE.GET        diag, "useFillArea" ,  useFillArea
+  BUNDLE.GET        diag, "alphaFillArea", alphaFillArea
+  BUNDLE.GET        diag, "useTopAxis"  ,  useTopAxis
+  BUNDLE.GET        diag, "useRightAxis",  useRightAxis
 
- GR.SCREEN         curW, curH
- offsX          =  posX1 * curW
- offsY          =  posY1 * curH
- widX           =  ( posX2 - posX1 ) * curW
- widY           =  ( posY2 - posY1 ) * curH
- borderX        =  border * widX
- borderY        =  border * widY
- pixX           =  widX - (2 * borderX)
- pixY           =  widY - (2 * borderY)
+  Print "PlotFrame(): Call GR.Screen()"
+  !Call GR.Screen(curW, curH)
+  GR.Screen(curW, curH)
+  Print "PlotFrame(): GR.Screen returned curW= "; curW; ", curH= "; curH
+  
+  offsX          =  posX1 * curW
+  offsY          =  posY1 * curH
+  widX           =  ( posX2 - posX1 ) * curW
+  widY           =  ( posY2 - posY1 ) * curH
+  borderX        =  border * widX
+  borderY        =  border * widY
+  pixX           =  widX - (2 * borderX)
+  pixY           =  widY - (2 * borderY)
 
- fmt$           =  "################"
- pScax          =  pixX / (xe-xs)
- pScay          =  pixY / (ye-ys)
- border         =  (border * ((pixX + pixy)/2))/2
+  fmt$           =  "################"
+  pScax          =  pixX / (xe-xs)
+  pScay          =  pixY / (ye-ys)
+  border         =  (border * ((pixX + pixy)/2))/2
 
- curCol$         = borderCol$
- curFill         = 1
- GOSUB setColor
- GR.RECT (nn, offsX, offsY, offsX + widx, offsY + widy)
+  curCol$= borderCol$
+  curFill= 1
+  !GOSUB setColor
+  Print "PlotFrame(): Call GR.SetColor()"
+  Call SetColor(curCol$, curFill)
+  Print "PlotFrame(): Call GR.Rect()"
+  Call GR.Rect(nn, offsX, offsY, offsX + widx, offsY + widy)
 
- curCol$         = backGrCol$
- curFill         = 1
- GOSUB setColor
- GR.RECT (nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
+  curCol$= backGrCol$
+  curFill= 1
+  !GOSUB setColor
+  Print "PlotFrame(): Call GR.SetColor()"
+  Call SetColor(curCol$, curFill)
+  Print "PlotFrame(): Call GR.Rect()"
+  Call GR.Rect (nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
 
- curCol$         = gridCol$
- GOSUB setColor
+  curCol$= gridCol$
+  !GOSUB setColor
+  Call SetColor(curCol$, curFill)
 
- GR.SET.STROKE     1
- GR.TEXT.SIZE      numbersSize
- GR.TEXT.ALIGN     2
+  GR.SET.STROKE     1
+  GR.TEXT.SIZE      numbersSize
+  GR.TEXT.ALIGN     2
  FOR i           = 0 TO cntDivX
   tmp            = offsX+ borderx + i*pixX/cntDivX
   fmtstr$        = "#############%."+right $(fmt$, nDigitXaxis)
@@ -246,54 +265,63 @@ FN.DEF PlotFrame(diag)
   GR.TEXT.DRAW     nn, offsX+ borderx + tmp1 , tmp , tmp$
  NEXT
 
- curCol$         = lineCol$
- curFill         = 1
- GOSUB             setColor
+ curCol$= lineCol$
+ curFill= 1
+ !GOSUB             setColor
+ Call SetColor(curCol$, curFill)
  GR.SET.STROKE     linewidth
  xo             =  offsX+ pixX+ borderx
  xu             =  offsX+       borderx
  yo             =  offsY+ pixY+ bordery
  yu             =  offsY+       bordery
 
- curCol$         = gridCol$
+ curCol$= gridCol$
  GR.COLOR (255, VAL(WORD$(curCol$,2)), VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), 0)
  GR.SET.STROKE     linewidth+2
- GR.RECT           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
- GR.RENDER
- FN.RTN 1	%PlotFrame
+ GR.Rect           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
+ GR.Render
+ Print "PlotFrame(): Rtn 1"
+ FN.Rtn 1 %PlotFrame
 
- setColor:
- GR.COLOR  ~
- VAL(WORD$(curcol$,1)), VAL(WORD$(curCol$,2)), ~
- VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), curFill
- RETURN
+ ! setColor:
+ ! GR.COLOR  ~
+ ! VAL(WORD$(curcol$,1)), VAL(WORD$(curCol$,2)), ~
+ ! VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), curFill
+ ! RETURN
+FN.End  %PlotFrame
 
-FN.END	%PlotFrame
-
-!FN.DEF PlotDataValue(Xval, Yval)
-FN.DEF PlotDataValue(device$, rmsg$)
+!FN.Def PlotDataValue(Xval, Yval)
+FN.Def PlotDataValue(device$, rmsg$)
    PRINT device$; ": "; rmsg$
-FN.END	%PlotDataValue
+FN.End  %PlotDataValue
 
-RETURN	%userfunctions
+
+FN.Def SetColor(Color$, FillNum)
+  GR.Color(VAL(WORD$(Color$,1)), VAL(WORD$(Color$,2)), ~
+           VAL(WORD$(Color$,3)), VAL(WORD$(Color$,4)), FillNum
+FN.End  %SetColor
+Return  %userfunctions
 
 !--------------------------------------------
 openScreen:
-refW       = 780
-refH       = 1280
-IF !flagOri  THEN SWAP refW, refH
-centW      = refW/2
-centH      = refH/2
-!GR.OPEN      255,0,0,20,0,flagOri
-GR.OPEN      255,0,0,20,1,flagOri		% Alpha, Red, Green, Blue, ShowStatusBar,Orientation
-GR.SCREEN    curW, curH
-scaW       = curW / refW
-scaH       = curH / refH
-!GR.SCALE     scaW , scaH
-desLoopTime= 50
-RETURN	%openScreen
+  Print "openScreen: Begin"
+  refW       = 780
+  refH       = 1280
+  IF !flagOri  THEN SWAP refW, refH
+  centW      = refW/2
+  centH      = refH/2
+  !GR.OPEN      255,0,0,20,0,flagOri
+  GR.OPEN      255,0,0,20,1,flagOri   % Alpha, Red, Green, Blue, ShowStatusBar,Orientation
+  GR.Screen    curW, curH
+  Print "openScreen: GR.Screen returned curW= "; curW; ", curH= "; curH
+  scaW       = curW / refW
+  scaH       = curH / refH
+  !GR.SCALE     scaW , scaH
+  desLoopTime= 50
+  Print "openScreen: Return"
+Return  %openScreen
 
 !--------------------------------------------
 onError:
-END
+End "END: onError:"
 !Last line.
