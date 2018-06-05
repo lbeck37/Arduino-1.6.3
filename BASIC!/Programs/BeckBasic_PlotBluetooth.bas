@@ -1,18 +1,18 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/5/18b"
+PRINT "BeckBasic_PlotBluetooth.bas,6/5/18n"
 
 flagOri= 1    %Portrait
 Print "Main(): GoSub openScreen"
 GoSub openScreen
-Print "Main(): GoSub userfunctions"
-GoSub userfunctions
-Print "Main(): Call SetupPlot()"
-!Call SetupPlot()
-Call SetupPlot(0, 20, -20, 20)
+Print "Main(): GoSub DefineUserFunctions:"
+GoSub DefineUserFunctions
+Print "Main(): GoSub SetupPlot:"
+!Call SetupPlot(0, 20, -20, 20)
+GoSub SetupPlot
 
 ! Begin by opening Bluetooth
 ! If Bluetooth is not enabled
 ! the program will stop here.
-Print "Call BT.Open"
+!Print "Call BT.Open"
 BT.Open
 Pause 500 %Need pause because we're in graphics mode
 
@@ -126,9 +126,8 @@ ConsoleTouch.Resume
 
 !*************************************************************8
 ! Code fromBeckBasic_PlotFunc.bas,6/3/18m
-userfunctions:
-FN.Def  SetupPlot(Xleft, Xright, Ybot, Ytop)
-  Print "SetupPlot(): Begin"
+SetupPlot:    %GoSub label
+  Print "SetupPlot: Begin"
   ! create a diagram bundle (...object) -------
   BUNDLE.CREATE     diag1
 
@@ -137,20 +136,24 @@ FN.Def  SetupPlot(Xleft, Xright, Ybot, Ytop)
   ! BUNDLE.PUT        diag1, "xe"           ,  _2pi
   ! BUNDLE.PUT        diag1, "ys"           ,  -1.1
   ! BUNDLE.PUT        diag1, "ye"           ,  1.1
-  BUNDLE.PUT        diag1, "xs"           ,  Xleft
-  BUNDLE.PUT        diag1, "xe"           ,  Xright
-  BUNDLE.PUT        diag1, "ys"           ,  Ybot
-  BUNDLE.PUT        diag1, "ye"           ,  Ytop
+  ! BUNDLE.PUT        diag1, "xs"           ,  Xleft
+  ! BUNDLE.PUT        diag1, "xe"           ,  Xright
+  ! BUNDLE.PUT        diag1, "ys"           ,  Ybot
+  ! BUNDLE.PUT        diag1, "ye"           ,  Ytop
+  BUNDLE.PUT        diag1, "xs"           ,  20   %Was 0
+  BUNDLE.PUT        diag1, "xe"           ,  40   %Was 20
+  BUNDLE.PUT        diag1, "ys"           ,  -20
+  BUNDLE.PUT        diag1, "ye"           ,  20
   BUNDLE.PUT        diag1, "posX1"        ,  0.05
   BUNDLE.PUT        diag1, "posY1"        ,  0.05
   BUNDLE.PUT        diag1, "posX2"        ,  0.95
   BUNDLE.PUT        diag1, "posY2"        ,  0.3
   !BUNDLE.PUT        diag1, "posY2"        ,  0.5
   !BUNDLE.PUT        diag1, "posY2"        ,  0.95
-  BUNDLE.PUT        diag1, "cntDivX"      ,  10
+  BUNDLE.PUT        diag1, "cntDivX"      ,  2
   BUNDLE.PUT        diag1, "cntDivY"      ,  8
   BUNDLE.PUT        diag1, "nDigitXaxis"  ,  0
-  BUNDLE.PUT        diag1, "nDigitYaxis"  ,  0
+  BUNDLE.PUT        diag1, "nDigitYaxis"  ,  1
   BUNDLE.PUT        diag1, "border"       ,  0.09
   BUNDLE.PUT        diag1, "borderCol"    ,  " 250 200 200 200 "
   BUNDLE.PUT        diag1, "backGrCol"    ,  " 255 58  58  58  "
@@ -168,14 +171,15 @@ FN.Def  SetupPlot(Xleft, Xright, Ybot, Ytop)
   BUNDLE.PUT        diag1, "useTopAxis"   ,  0
   BUNDLE.PUT        diag1, "useRightAxis" ,  0
 
-  Print "SetupPlot(): Call PlotFrame(diag1)"
-  Call PlotFrame(diag1)
-  Print "SetupPlot(): End"
-FN.End  %SetupPlot
+  Print "SetupPlot(): GoSub PlotFrame"
+  diag= diag1
+  GoSub PlotFrame
+  Print "SetupPlot: Return"
+Return  %SetupPlot
 
 
-FN.Def PlotFrame(diag)
-  Print "PlotFrame(): Begin"
+PlotFrame:    %GoSub label
+  Print "PlotFrame: Begin"
   BUNDLE.GET        diag, "npoints"     ,  npoints
   BUNDLE.GET        diag, "xs"          ,  xs
   BUNDLE.GET        diag, "xe"          ,  xe
@@ -187,6 +191,8 @@ FN.Def PlotFrame(diag)
   BUNDLE.GET        diag, "posY2"       ,  posY2
   BUNDLE.GET        diag, "cntDivX"     ,  cntDivX
   BUNDLE.GET        diag, "cntDivY"     ,  cntDivY
+  BUNDLE.GET        diag, "nDigitXaxis" ,  nDigitXaxis
+  BUNDLE.GET        diag, "nDigitYaxis" ,  nDigitYaxis
   BUNDLE.GET        diag, "border"      ,  border
   BUNDLE.GET        diag, "borderCol"   ,  borderCol$
   BUNDLE.GET        diag, "backGrCol"   ,  backGrCol$
@@ -194,8 +200,6 @@ FN.Def PlotFrame(diag)
   BUNDLE.GET        diag, "lineCol"     ,  lineCol$
   BUNDLE.GET        diag, "lineWidth"   ,  lineWidth
   BUNDLE.GET        diag, "numbersSize" ,  numbersSize
-  BUNDLE.GET        diag, "nDigitXaxis" ,  nDigitXaxis
-  BUNDLE.GET        diag, "nDigitYaxis" ,  nDigitYaxis
   BUNDLE.GET        diag, "updaterate"  ,  updaterate
   BUNDLE.GET        diag, "useMarker"   ,  useMarker
   BUNDLE.GET        diag, "markerSize"  ,  markerSize
@@ -204,9 +208,8 @@ FN.Def PlotFrame(diag)
   BUNDLE.GET        diag, "useTopAxis"  ,  useTopAxis
   BUNDLE.GET        diag, "useRightAxis",  useRightAxis
 
-  Print "PlotFrame(): Call GR.Screen()"
   GR.Screen curW, curH
-  Print "PlotFrame(): GR.Screen returned curW= "; curW; ", curH= "; curH
+  Print "PlotFrame: GR.Screen returned curW= "; curW; ", curH= "; curH
   
   offsX          =  posX1 * curW
   offsY          =  posY1 * curH
@@ -216,26 +219,26 @@ FN.Def PlotFrame(diag)
   borderY        =  border * widY
   pixX           =  widX - (2 * borderX)
   pixY           =  widY - (2 * borderY)
-  !Print "PlotFrame(): pixY= "; pixY
+  Print "PlotFrame: pixY= "; pixY
 
-  fmt$           =  "################"
+  fmt$           =  "################"          %That's (16) "#"s
   !pScax          =  pixX / (xe-xs)
   !pScay          =  pixY / (ye-ys)
   border         =  (border * ((pixX + pixy)/2))/2
-  !Print "PlotFrame(): border= "; border
+  Print "PlotFrame: border= "; border
 
   curCol$= borderCol$
   curFill= 1
   !Print "PlotFrame(): Call SetColor("; curCol$, curFill; ")"
   Call SetColor(curCol$, curFill)
-  !Print "PlotFrame(): Call GR.Rect()"
+  Print "PlotFrame: Call GR.Rect"
   GR.Rect nn, offsX, offsY, offsX + widx, offsY + widy
 
   curCol$= backGrCol$
   curFill= 1
-  !Print "PlotFrame(): Call SetColor()"
+  Print "PlotFrame: Call SetColor()"
   Call SetColor(curCol$, curFill)
-  !Print "PlotFrame(): Call GR.Rect()"
+  Print "PlotFrame(): Call GR.Rect"
   GR.Rect nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
 
   curCol$= gridCol$
@@ -244,14 +247,23 @@ FN.Def PlotFrame(diag)
   GR.SET.STROKE     1
   GR.TEXT.SIZE      numbersSize
   GR.TEXT.ALIGN     2
- FOR i           = 0 TO cntDivX
-  tmp            = offsX+ borderx + i*pixX/cntDivX
-  fmtstr$        = "#############%."+right $(fmt$, nDigitXaxis)
-  tmp$           = replace $(format$ ( fmtstr$, xs+i*(xe-xs)/cntDivX)," " ,"")
-  GR.LINE          nn,  tmp, offsY+ bordery, tmp, offsY+ pixY+ bordery
-  IF               useTopAxis THEN tmp1= -numbersSize*0.6 ELSE tmp1= pixY+ numbersSize*1.2
-  GR.TEXT.DRAW     nn, tmp, offsY+ bordery+ tmp1 , tmp$
- NEXT
+  For i= 0 To cntDivX
+    !tmp     = offsX + borderx + i * (pixX / cntDivX)
+    Xpos    = offsX + borderx + i * (pixX / cntDivX)
+    fmtstr$ = "#############%." + right$(fmt$, nDigitXaxis)                         %That’s (13) “#”
+    tmp$    = replace$(format$(fmtstr$, (xs + i*((xe - xs) / cntDivX))), " " , "")
+    Print "PlotFrame(): Before GR.Line call, tmp$= "; tmp$
+    GR.Line   LastObj, Xpos, (offsY + bordery), 
+                       Xpos, (offsY + bordery + pixY)
+    !IF useTopAxis THEN tmp1= (-numbersSize * 0.6) ELSE tmp1= (pixY + numbersSize * 1.2)
+    If useTopAxis Then 
+      tmp1= (-numbersSize * 0.6) 
+    Else 
+      tmp1= (pixY + numbersSize * 1.2)
+    Endif   %If useTopAxis
+    Print "PlotFrame(): Before GR.Text.Draw call, tmp$= "; tmp$
+    GR.Text.Draw   LastObj, Xpos, (offsY + bordery + tmp1), tmp$
+  Next  %For i
 
  IF                useRightAxis THEN GR.TEXT.ALIGN 1 ELSE GR.TEXT.ALIGN 3
  FOR i           = 0 TO cntDivY
@@ -277,14 +289,15 @@ FN.Def PlotFrame(diag)
  GR.SET.STROKE     linewidth+2
  GR.Rect           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
  GR.Render
- Print "PlotFrame(): Return OK"
- FN.Rtn 1 %PlotFrame
-FN.End  %PlotFrame
+ Print "PlotFrame: Return"
+ ! FN.Rtn 1 %PlotFrame
+! FN.End  %PlotFrame
+Return  %PlotFrame
 
 
-!FN.Def PlotDataValue(Xval, Yval)
+DefineUserFunctions:
 FN.Def PlotDataValue(device$, rmsg$)
-   PRINT device$; ": "; rmsg$
+   PRINT "PlotDataValue(): "; device$; ": "; rmsg$
 FN.End  %PlotDataValue
 
 
@@ -292,7 +305,7 @@ FN.Def SetColor(Color$, FillNum)
   GR.Color VAL(WORD$(Color$,1)), VAL(WORD$(Color$,2)), ~
            VAL(WORD$(Color$,3)), VAL(WORD$(Color$,4)), FillNum
 FN.End  %SetColor
-Return  %userfunctions
+Return  %DefineUserFunctions
 
 
 !Subroutines
@@ -304,7 +317,7 @@ openScreen:
   centW      = refW/2
   centH      = refH/2
   !GR.OPEN      255,0,0,20,0,flagOri
-  GR.Open      255,0,0,20,1,flagOri   % Alpha, Red, Green, Blue, ShowStatusBar,Orientation
+  GR.Open      255, 0, 0, 20, 1, flagOri   % Alpha, Red, Green, Blue, ShowStatusBar, Orientation
   GR.Screen    curW, curH
   Print "openScreen: GR.Screen returned curW= "; curW; ", curH= "; curH
   scaW       = curW / refW
