@@ -1,4 +1,4 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/5/18b"
+PRINT "BeckBasic_PlotBluetooth.bas,6/4/18x"
 
 flagOri= 1    %Portrait
 Print "Main(): GoSub openScreen"
@@ -147,10 +147,8 @@ FN.Def  SetupPlot(Xleft, Xright, Ybot, Ytop)
   BUNDLE.PUT        diag1, "posY2"        ,  0.3
   !BUNDLE.PUT        diag1, "posY2"        ,  0.5
   !BUNDLE.PUT        diag1, "posY2"        ,  0.95
-  BUNDLE.PUT        diag1, "cntDivX"      ,  10
-  BUNDLE.PUT        diag1, "cntDivY"      ,  8
-  BUNDLE.PUT        diag1, "nDigitXaxis"  ,  0
-  BUNDLE.PUT        diag1, "nDigitYaxis"  ,  0
+  BUNDLE.PUT        diag1, "cntDivX"      ,  8
+  BUNDLE.PUT        diag1, "cntDivY"      ,  9
   BUNDLE.PUT        diag1, "border"       ,  0.09
   BUNDLE.PUT        diag1, "borderCol"    ,  " 250 200 200 200 "
   BUNDLE.PUT        diag1, "backGrCol"    ,  " 255 58  58  58  "
@@ -159,6 +157,8 @@ FN.Def  SetupPlot(Xleft, Xright, Ybot, Ytop)
   BUNDLE.PUT        diag1, "lineWidth"    ,  2
   !BUNDLE.PUT        diag1, "numbersSize"  ,  16
   BUNDLE.PUT        diag1, "numbersSize"  ,  30
+  BUNDLE.PUT        diag1, "nDigitXaxis"  ,  2
+  BUNDLE.PUT        diag1, "nDigitYaxis"  ,  4
   BUNDLE.PUT        diag1, "updaterate"   ,  20
   BUNDLE.PUT        diag1, "useMarker"    ,  0
   BUNDLE.PUT        diag1, "markerSize"   ,  2
