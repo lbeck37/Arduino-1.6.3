@@ -1,13 +1,10 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/5/18n"
-
+PRINT "BeckBasic_PlotBluetooth.bas,6/5/18z"
 flagOri= 1    %Portrait
-Print "Main(): GoSub openScreen"
 GoSub openScreen
-Print "Main(): GoSub DefineUserFunctions:"
 GoSub DefineUserFunctions
-Print "Main(): GoSub SetupPlot:"
-!Call SetupPlot(0, 20, -20, 20)
 GoSub SetupPlot
+diag= diag1
+GoSub PlotFrame
 
 ! Begin by opening Bluetooth
 ! If Bluetooth is not enabled
@@ -110,6 +107,7 @@ DO
  UNTIL (rr = 0)   %BT.READ.READY
 UNTIL 0   %RW_Loop
 
+
 ! Get and send message
 ! to the connected device
 xdoSend:
@@ -117,6 +115,7 @@ xdoSend:
   BT.WRITE wmsg$
   Print "Me: "; wmsg$
 RETURN
+
 
 ! When Console is touched
 ! set xdoMenu to true
@@ -128,29 +127,19 @@ ConsoleTouch.Resume
 ! Code fromBeckBasic_PlotFunc.bas,6/3/18m
 SetupPlot:    %GoSub label
   Print "SetupPlot: Begin"
-  ! create a diagram bundle (...object) -------
   BUNDLE.CREATE     diag1
-
   BUNDLE.PUT        diag1, "npoints"      ,  ctr
-  ! BUNDLE.PUT        diag1, "xs"           , -_2pi
-  ! BUNDLE.PUT        diag1, "xe"           ,  _2pi
-  ! BUNDLE.PUT        diag1, "ys"           ,  -1.1
-  ! BUNDLE.PUT        diag1, "ye"           ,  1.1
-  ! BUNDLE.PUT        diag1, "xs"           ,  Xleft
-  ! BUNDLE.PUT        diag1, "xe"           ,  Xright
-  ! BUNDLE.PUT        diag1, "ys"           ,  Ybot
-  ! BUNDLE.PUT        diag1, "ye"           ,  Ytop
-  BUNDLE.PUT        diag1, "xs"           ,  20   %Was 0
-  BUNDLE.PUT        diag1, "xe"           ,  40   %Was 20
-  BUNDLE.PUT        diag1, "ys"           ,  -20
-  BUNDLE.PUT        diag1, "ye"           ,  20
+  BUNDLE.PUT        diag1, "xs"           ,   0   %Xstart
+  BUNDLE.PUT        diag1, "xe"           ,  20   %Xend
+  BUNDLE.PUT        diag1, "ys"           , -20   %Ybot
+  BUNDLE.PUT        diag1, "ye"           ,  20   %Ytop
   BUNDLE.PUT        diag1, "posX1"        ,  0.05
   BUNDLE.PUT        diag1, "posY1"        ,  0.05
   BUNDLE.PUT        diag1, "posX2"        ,  0.95
   BUNDLE.PUT        diag1, "posY2"        ,  0.3
   !BUNDLE.PUT        diag1, "posY2"        ,  0.5
   !BUNDLE.PUT        diag1, "posY2"        ,  0.95
-  BUNDLE.PUT        diag1, "cntDivX"      ,  2
+  BUNDLE.PUT        diag1, "cntDivX"      ,  10
   BUNDLE.PUT        diag1, "cntDivY"      ,  8
   BUNDLE.PUT        diag1, "nDigitXaxis"  ,  0
   BUNDLE.PUT        diag1, "nDigitYaxis"  ,  1
@@ -170,11 +159,6 @@ SetupPlot:    %GoSub label
   BUNDLE.PUT        diag1, "alphaFillArea",  50
   BUNDLE.PUT        diag1, "useTopAxis"   ,  0
   BUNDLE.PUT        diag1, "useRightAxis" ,  0
-
-  Print "SetupPlot(): GoSub PlotFrame"
-  diag= diag1
-  GoSub PlotFrame
-  Print "SetupPlot: Return"
 Return  %SetupPlot
 
 
@@ -219,26 +203,26 @@ PlotFrame:    %GoSub label
   borderY        =  border * widY
   pixX           =  widX - (2 * borderX)
   pixY           =  widY - (2 * borderY)
-  Print "PlotFrame: pixY= "; pixY
+  !Print "PlotFrame: pixY= "; pixY
 
   fmt$           =  "################"          %That's (16) "#"s
   !pScax          =  pixX / (xe-xs)
   !pScay          =  pixY / (ye-ys)
   border         =  (border * ((pixX + pixy)/2))/2
-  Print "PlotFrame: border= "; border
+  !Print "PlotFrame: border= "; border
 
   curCol$= borderCol$
   curFill= 1
   !Print "PlotFrame(): Call SetColor("; curCol$, curFill; ")"
   Call SetColor(curCol$, curFill)
-  Print "PlotFrame: Call GR.Rect"
+  !Print "PlotFrame: Call GR.Rect"
   GR.Rect nn, offsX, offsY, offsX + widx, offsY + widy
 
   curCol$= backGrCol$
   curFill= 1
-  Print "PlotFrame: Call SetColor()"
+  !Print "PlotFrame: Call SetColor()"
   Call SetColor(curCol$, curFill)
-  Print "PlotFrame(): Call GR.Rect"
+  !Print "PlotFrame(): Call GR.Rect"
   GR.Rect nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
 
   curCol$= gridCol$
@@ -248,32 +232,47 @@ PlotFrame:    %GoSub label
   GR.TEXT.SIZE      numbersSize
   GR.TEXT.ALIGN     2
   For i= 0 To cntDivX
-    !tmp     = offsX + borderx + i * (pixX / cntDivX)
-    Xpos    = offsX + borderx + i * (pixX / cntDivX)
+    Xstart= (offsX + borderx + i*(pixX / cntDivX))
+    Xend  = Xstart
+    Ystart= (offsY + bordery)
+    Yend  = (offsY + bordery + pixY)
+    !Print "PlotFrame(): Before GR.Line call, Xpos, Ystart, Xpos, Yend "; Xpos, Ystart, Xpos, Yend
+    GR.Line   LastObj, Xstart, Ystart, Xend, Yend
+    
     fmtstr$ = "#############%." + right$(fmt$, nDigitXaxis)                         %That’s (13) “#”
     tmp$    = replace$(format$(fmtstr$, (xs + i*((xe - xs) / cntDivX))), " " , "")
-    Print "PlotFrame(): Before GR.Line call, tmp$= "; tmp$
-    GR.Line   LastObj, Xpos, (offsY + bordery), 
-                       Xpos, (offsY + bordery + pixY)
-    !IF useTopAxis THEN tmp1= (-numbersSize * 0.6) ELSE tmp1= (pixY + numbersSize * 1.2)
     If useTopAxis Then 
       tmp1= (-numbersSize * 0.6) 
     Else 
       tmp1= (pixY + numbersSize * 1.2)
     Endif   %If useTopAxis
-    Print "PlotFrame(): Before GR.Text.Draw call, tmp$= "; tmp$
-    GR.Text.Draw   LastObj, Xpos, (offsY + bordery + tmp1), tmp$
+    !Print "PlotFrame(): Before GR.Text.Draw call, tmp$= "; tmp$
+    GR.Text.Draw   LastObj, Xstart, (offsY + bordery + tmp1), tmp$
   Next  %For i
 
- IF                useRightAxis THEN GR.TEXT.ALIGN 1 ELSE GR.TEXT.ALIGN 3
- FOR i           = 0 TO cntDivY
-  tmp            = offsY+ bordery + i*pixY/cntDivY
-  fmtstr$        = "#############%."+right $(fmt$, nDigitXaxis)
-  tmp$           = replace $(format$ ( fmtstr$, ye - i* (ye-ys) /cntDivY )," " ,"")
-  GR.LINE          nn, offsX+ borderx, tmp, offsX+ pixX+ borderx , tmp
-  IF useRightAxis THEN tmp1= pixX + 5 ELSE tmp1= -5
-  GR.TEXT.DRAW     nn, offsX+ borderx + tmp1 , tmp , tmp$
- NEXT
+ !IF useRightAxis THEN GR.TEXT.ALIGN 1 ELSE GR.TEXT.ALIGN 3
+ If useRightAxis Then
+  GR.TEXT.ALIGN 1 
+ Else
+    GR.TEXT.ALIGN 3
+ Endif  %If useRightAxis
+   
+ For i           = 0 TO cntDivY
+  Xstart= (offsX + borderx)
+  Xend  = (offsX + pixX + borderx)
+  Ystart= (offsY + bordery + i*(pixY / cntDivY))
+  Yend  = Ystart
+  GR.Line   LastObj, Xstart, Ystart, Xend, Yend
+  
+  fmtstr$= "#############%." + right$(fmt$, nDigitXaxis)
+  tmp$   = replace $(format$( fmtstr$, (ye - i*((ye - ys) / cntDivY))), " ", "")
+  If useRightAxis Then
+    tmp1= pixX + 5 
+  Else
+    tmp1= -5
+  Endif %If useRightAxis
+  GR.Text.Draw   LastObj, (offsX + borderx + tmp1), Ystart, tmp$
+ Next %For i
 
  curCol$= lineCol$
  curFill= 1
@@ -289,9 +288,6 @@ PlotFrame:    %GoSub label
  GR.SET.STROKE     linewidth+2
  GR.Rect           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
  GR.Render
- Print "PlotFrame: Return"
- ! FN.Rtn 1 %PlotFrame
-! FN.End  %PlotFrame
 Return  %PlotFrame
 
 
@@ -319,12 +315,11 @@ openScreen:
   !GR.OPEN      255,0,0,20,0,flagOri
   GR.Open      255, 0, 0, 20, 1, flagOri   % Alpha, Red, Green, Blue, ShowStatusBar, Orientation
   GR.Screen    curW, curH
-  Print "openScreen: GR.Screen returned curW= "; curW; ", curH= "; curH
+  !Print "openScreen: GR.Screen returned curW= "; curW; ", curH= "; curH
   scaW       = curW / refW
   scaH       = curH / refH
   !GR.SCALE     scaW , scaH
   desLoopTime= 50
-  Print "openScreen: Return"
 Return  %openScreen
 
 onError:
