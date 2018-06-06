@@ -1,10 +1,11 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/5/18z"
+PRINT "BeckBasic_PlotBluetooth.bas,6/6/18g"
 flagOri= 1    %Portrait
 GoSub openScreen
 GoSub DefineUserFunctions
 GoSub SetupPlot
 diag= diag1
 GoSub PlotFrame
+DataCount= 0
 
 ! Begin by opening Bluetooth
 ! If Bluetooth is not enabled
@@ -29,8 +30,8 @@ title$= "Select operation mode"
 ! when the screen is touched.
 Array.Load menu$[], "Send", "Disconnect","Quit"
 
-new_connection:
-xdomenu =0
+new_connection:   %Reached from GoTo about 60 lines down
+xdomenu= 0
 Select type, type$[], title$
 
 ! If the user pressed the back
@@ -45,7 +46,7 @@ ELSEIF type = 1
 ENDIF
 
 ! Read status until a connection is made
-ln = 0
+ln= 0
 DO
  BT.STATUS s
  IF s = 1
@@ -72,7 +73,7 @@ DO
  ! code will change xdoMemu to 1 (true)
  ! In that case, show the menu
  IF xdoMenu
-  xdoMenu =0
+  xdoMenu= 0
   SELECT menu,  menu$[], "Do what?"
   IF menu = 1 THEN GOSUB xdoSend
   IF menu = 2 THEN BT.DISCONNECT
@@ -90,22 +91,44 @@ DO
  ! what to do.
 
  BT.STATUS s
- IF s<> 3
+ If s <> 3
   Print "Connection lost"
   GOTO new_connection
- ENDIF    %IF s<>3
+ Endif    %If s<>3
 
  ! Read messages until
  ! the message queue is
  ! empty
- DO
+ Do
   BT.READ.READY rr
-  IF rr
-   BT.READ.BYTES rmsg$
-   PlotDataValue(device$, rmsg$)
-  ENDIF   %IF rr
- UNTIL (rr = 0)   %BT.READ.READY
-UNTIL 0   %RW_Loop
+  If rr
+   BT.READ.BYTES ForceStr$
+   GoSub PlotDataValue
+  EndIf   %If rr
+ Until (rr = 0)   %BT.READ.READY
+Until 0   %RW_Loop
+
+
+PlotDataValue:
+  Print "PlotDataValue: Received "; ForceStr$; " from "; device$
+  DataCount= DataCount + 1
+  If Is_Number(ForceStr$) Then
+    Print "PlotDataValue: ForceStr$ Length=  "; Len(ForceStr$)
+    Print "PlotDataValue: Call Val() "
+    Force= VAL(ForceStr$)
+    Print "PlotDataValue: Converted to "; Force
+  Else
+    PRINT "PlotDataValue: ERROR: "; ForceStr$; " is not a number"
+    Return
+  EndIf  %If Is_Number(ForceStr$)
+  ValPixX= PixXLeft + (DataCount / RangeX) * PixX
+  ValPixY= PixYBot  - (Force     / RangeY) * PixY
+  Call SetColor(lineCol$, curFill)
+  GR.Set.Stroke  linewidth
+  GR.Line  LastObj, LastValPixX, LastValPixY, ValPixX, ValPixY
+  LastValPixX= ValPixX
+  LastValPixY= ValPixY
+Return  %PlotDataValue
 
 
 ! Get and send message
@@ -114,7 +137,7 @@ xdoSend:
   INPUT "Text to send", wmsg$
   BT.WRITE wmsg$
   Print "Me: "; wmsg$
-RETURN
+Return  %xdoSend
 
 
 ! When Console is touched
@@ -205,6 +228,13 @@ PlotFrame:    %GoSub label
   pixY           =  widY - (2 * borderY)
   !Print "PlotFrame: pixY= "; pixY
 
+  RangeX= xe - xs
+  RangeY= ye - ys
+  PixXLeft= offsX + borderX
+  PixYBot = offsY + borderY + PixY 
+  LastValPixX= PixXLeft
+  LastValPixY= PixYBot
+
   fmt$           =  "################"          %That's (16) "#"s
   !pScax          =  pixX / (xe-xs)
   !pScay          =  pixY / (ye-ys)
@@ -225,6 +255,7 @@ PlotFrame:    %GoSub label
   !Print "PlotFrame(): Call GR.Rect"
   GR.Rect nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
 
+  !**** Draw Grid ****
   curCol$= gridCol$
   Call SetColor(curCol$, curFill)
 
@@ -257,7 +288,7 @@ PlotFrame:    %GoSub label
     GR.TEXT.ALIGN 3
  Endif  %If useRightAxis
    
- For i           = 0 TO cntDivY
+ For i= 0 To cntDivY
   Xstart= (offsX + borderx)
   Xend  = (offsX + pixX + borderx)
   Ystart= (offsY + bordery + i*(pixY / cntDivY))
@@ -265,7 +296,7 @@ PlotFrame:    %GoSub label
   GR.Line   LastObj, Xstart, Ystart, Xend, Yend
   
   fmtstr$= "#############%." + right$(fmt$, nDigitXaxis)
-  tmp$   = replace $(format$( fmtstr$, (ye - i*((ye - ys) / cntDivY))), " ", "")
+  tmp$= replace $(format$( fmtstr$, (ye - i*((ye - ys) / cntDivY))), " ", "")
   If useRightAxis Then
     tmp1= pixX + 5 
   Else
@@ -292,11 +323,6 @@ Return  %PlotFrame
 
 
 DefineUserFunctions:
-FN.Def PlotDataValue(device$, rmsg$)
-   PRINT "PlotDataValue(): "; device$; ": "; rmsg$
-FN.End  %PlotDataValue
-
-
 FN.Def SetColor(Color$, FillNum)
   GR.Color VAL(WORD$(Color$,1)), VAL(WORD$(Color$,2)), ~
            VAL(WORD$(Color$,3)), VAL(WORD$(Color$,4)), FillNum
