@@ -1,4 +1,4 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/6/18g"
+PRINT "BeckBasic_PlotBluetooth.bas,6/6/18n"
 flagOri= 1    %Portrait
 GoSub openScreen
 GoSub DefineUserFunctions
@@ -102,7 +102,7 @@ DO
  Do
   BT.READ.READY rr
   If rr
-   BT.READ.BYTES ForceStr$
+   BT.READ.BYTES PedalForceStr$
    GoSub PlotDataValue
   EndIf   %If rr
  Until (rr = 0)   %BT.READ.READY
@@ -110,24 +110,25 @@ Until 0   %RW_Loop
 
 
 PlotDataValue:
-  Print "PlotDataValue: Received "; ForceStr$; " from "; device$
+  Print "PlotDataValue: Received "; PedalForceStr$; " from "; device$
   DataCount= DataCount + 1
-  If Is_Number(ForceStr$) Then
-    Print "PlotDataValue: ForceStr$ Length=  "; Len(ForceStr$)
+  If Is_Number(PedalForceStr$) Then
+    Print "PlotDataValue: PedalPedalForceStr$ Length=  "; Len(PedalForceStr$)
     Print "PlotDataValue: Call Val() "
-    Force= VAL(ForceStr$)
-    Print "PlotDataValue: Converted to "; Force
+    PedalForce= VAL(PedalForceStr$)
+    Print "PlotDataValue: Converted to "; PedalForce
   Else
-    PRINT "PlotDataValue: ERROR: "; ForceStr$; " is not a number"
+    PRINT "PlotDataValue: ERROR: "; PedalForceStr$; " is not a number"
     Return
-  EndIf  %If Is_Number(ForceStr$)
+  EndIf  %If Is_Number(PedalForceStr$)
   ValPixX= PixXLeft + (DataCount / RangeX) * PixX
-  ValPixY= PixYBot  - (Force     / RangeY) * PixY
+  ValPixY= PixYBot  - (PedalForce/ RangeY) * PixY
   Call SetColor(lineCol$, curFill)
   GR.Set.Stroke  linewidth
   GR.Line  LastObj, LastValPixX, LastValPixY, ValPixX, ValPixY
   LastValPixX= ValPixX
   LastValPixY= ValPixY
+  GR.Render
 Return  %PlotDataValue
 
 
@@ -348,6 +349,8 @@ openScreen:
   desLoopTime= 50
 Return  %openScreen
 
-onError:
-End "END: onError:"
+! onError:
+! Print "onError: Begin"
+! Print GetError$() 
+! End "END: onError:"
 !Last line.
