@@ -1,13 +1,8 @@
 const String SketchName  = "BeckE32_ForcePedal.ino";
-const String FileDate    = "June 2, 2018-b";
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+const String FileDate    = "June 7, 2018-2j";
 #include <HX711.h>
-#include <soc/rtc.h>
 #include <Streaming.h>
-#include <iostream>   // std::cout
-#include <string>     // std::string, std::to_string
+#include <soc/rtc.h>
 
 #include "BluetoothSerial.h"		//Classic Bluetooth, not BLE
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
@@ -74,10 +69,11 @@ void setup()   {
 
   Serial << "setup(): Setup load cells" << endl;
   oPedalForce.begin(cHX711_DOUT, cHX711_SCK);   //Use default gain
+  //oPedalForce.begin(cHX711_DOUT, cHX711_SCK, 32);   //Use default gain
   oPedalForce.power_down();             // put the ADC in sleep mode
 
-  Serial << "setup(): Call Wire.begin(21, 22)" << endl;
-  Wire.begin(21, 22);   //Beck 1-3-18
+//  Serial << "setup(): Call Wire.begin(21, 22)" << endl;
+//  Wire.begin(21, 22);   //Beck 1-3-18
 
   oPedalForce.power_up();
   return;
@@ -85,15 +81,28 @@ void setup()   {
 
 
 void loop() {
-  double    dLbs;
-  char szNumber[10];
+	static int  sLogCount= 0;
+	static long	lLastMillis= 0;
+	long				lDeltaMillis;
+	long				lCurrentMillis;
+	int					sLogSkip= 1;
+  double    	dLbs= 3.7;
+  char 				szNumber[10];
+
   dLbs= ReadPedal();
-  LogPedal(dLbs);
+  if ((sLogCount++ % sLogSkip) == 0) {
+  	lCurrentMillis= millis();
+  	lDeltaMillis= lCurrentMillis - lLastMillis;
+  	lLastMillis= lCurrentMillis;
+  	LogPedal(sLogCount, dLbs, lDeltaMillis);
+  }	//if ((sLogCount++MOD...
   dtostrf(dLbs, 8, 4, szNumber);
+  //Write pedal force to BT
   SerialBT.write((uint8_t*)szNumber, strlen(szNumber));
+
   //delay(1000);
-  delay(300);	//~One loop per second with 80MHz CPU
-  //delay(10);    //32 samples/sec with 80MHz CPU to Android app
+  //delay(300);	//delay(300) is ~1 loop per second with 80MHz CPU
+  //delay(10);    //delay(10) is 32 samples/sec with 80MHz CPU to Android app
   return;
 } //loop
 
@@ -130,26 +139,27 @@ void SetupLEDTimers(){
 
 
 double ReadPedal(){
-  long    lValue;
+  long    lValue= 3737;
   double  dLbs;
 
-  oPedalForce.power_up();
+  //oPedalForce.power_up();
   lValue= oPedalForce.read();
-  oPedalForce.power_down();             // put the ADC in sleep mode
+  //lValue= oPedalForce.read_average(4);
+  //oPedalForce.power_down();             // put the ADC in sleep mode
 
   dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
-  //dtostrf(dLbs, 8, 4, szNumber);
-  //Serial << "ReadPedal(): Count= " << lValue << ", Lbs= " << szNumber << endl;
   _lValue= lValue;
   return(dLbs);
 } //ReadPedal
 
 
-void LogPedal(double dLbs){
+void LogPedal(int sCount, double dLbs, long lDeltaMillis){
   char szNumber[10];
 
   dtostrf(dLbs, 8, 4, szNumber);
-  Serial << "LogPedal(): Count= " << _lValue << ", Lbs= " << szNumber << endl;
+  //Serial << "LogPedal(): Count= " << _lValue << ", Lbs= " << szNumber << endl;
+  Serial << "LogPedal(): Reading number " << sCount << ", Lbs= " << szNumber
+  		   << ", lDeltaMillis= " << lDeltaMillis << endl;
   return;
 } //LogPedal
 //Lastline

@@ -1,4 +1,4 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/6/18n"
+PRINT "BeckBasic_PlotBluetooth.bas,6/7/18a"
 flagOri= 1    %Portrait
 GoSub openScreen
 GoSub DefineUserFunctions
@@ -154,7 +154,8 @@ SetupPlot:    %GoSub label
   BUNDLE.CREATE     diag1
   BUNDLE.PUT        diag1, "npoints"      ,  ctr
   BUNDLE.PUT        diag1, "xs"           ,   0   %Xstart
-  BUNDLE.PUT        diag1, "xe"           ,  20   %Xend
+  ! BUNDLE.PUT        diag1, "xe"           ,  20   %Xend
+  BUNDLE.PUT        diag1, "xe"           ,  200   %Xend
   BUNDLE.PUT        diag1, "ys"           , -20   %Ybot
   BUNDLE.PUT        diag1, "ye"           ,  20   %Ytop
   BUNDLE.PUT        diag1, "posX1"        ,  0.05
