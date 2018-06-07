@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_ForcePedal.ino";
-const String FileDate    = "June 7, 2018-2j";
+const String FileDate    = "June 7, 2018-2p";
 #include <HX711.h>
 #include <Streaming.h>
 #include <soc/rtc.h>
@@ -70,12 +70,12 @@ void setup()   {
   Serial << "setup(): Setup load cells" << endl;
   oPedalForce.begin(cHX711_DOUT, cHX711_SCK);   //Use default gain
   //oPedalForce.begin(cHX711_DOUT, cHX711_SCK, 32);   //Use default gain
-  oPedalForce.power_down();             // put the ADC in sleep mode
+  //oPedalForce.power_down();             // put the ADC in sleep mode
 
 //  Serial << "setup(): Call Wire.begin(21, 22)" << endl;
 //  Wire.begin(21, 22);   //Beck 1-3-18
 
-  oPedalForce.power_up();
+  //oPedalForce.power_up();
   return;
 } //setup
 
