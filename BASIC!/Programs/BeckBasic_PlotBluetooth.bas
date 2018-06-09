@@ -1,5 +1,5 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/9/18d"
-flagOri= 1    %Portrait
+PRINT "BeckBasic_PlotBluetooth.bas,6/9/18k"
+!flagOri= 1    %Portrait
 GoSub openScreen
 GoSub DefineUserFunctions
 GoSub SetupPlot
@@ -110,13 +110,13 @@ Until 0   %RW_Loop
 
 
 PlotDataValue:
-  Print "PlotDataValue: Received "; PedalForceStr$; " from "; device$
+  ! Print "PlotDataValue: Received "; PedalForceStr$; " from "; device$
   DataCount= DataCount + 1
   If Is_Number(PedalForceStr$) Then
-    Print "PlotDataValue: PedalPedalForceStr$ Length=  "; Len(PedalForceStr$)
-    Print "PlotDataValue: Call Val() "
+    ! Print "PlotDataValue: PedalPedalForceStr$ Length=  "; Len(PedalForceStr$)
+    ! Print "PlotDataValue: Call Val() "
     PedalForce= VAL(PedalForceStr$)
-    Print "PlotDataValue: Converted to "; PedalForce
+    ! Print "PlotDataValue: Converted to "; PedalForce
   Else
     PRINT "PlotDataValue: ERROR: "; PedalForceStr$; " is not a number"
     Return
@@ -165,7 +165,8 @@ SetupPlot:    %GoSub label
   BUNDLE.PUT        diag1, "posX1"        ,  0.00
   BUNDLE.PUT        diag1, "posY1"        ,  0.00
   BUNDLE.PUT        diag1, "posX2"        ,  1.00
-  BUNDLE.PUT        diag1, "posY2"        ,  0.30
+  !BUNDLE.PUT        diag1, "posY2"        ,  0.30
+  BUNDLE.PUT        diag1, "posY2"        ,  1.00
   BUNDLE.PUT        diag1, "cntDivX"      ,  10
   BUNDLE.PUT        diag1, "cntDivY"      ,  8
   BUNDLE.PUT        diag1, "nDigitXaxis"  ,  0
@@ -176,8 +177,8 @@ SetupPlot:    %GoSub label
   BUNDLE.PUT        diag1, "BorderBot"    ,  0.05
   BUNDLE.PUT        diag1, "BorderTop"    ,  0.05
   BUNDLE.PUT        diag1, "borderCol"    ,  " 250 200 200 200 "
-  BUNDLE.PUT        diag1, "backGrCol"    ,  " 255 58  58  58  "
-  BUNDLE.PUT        diag1, "gridCol"      ,  " 255 50  100 50  "
+  BUNDLE.PUT        diag1, "backGrCol"    ,  " 255  58  58  58  "
+  BUNDLE.PUT        diag1, "gridCol"      ,  " 255  50 100  50  "
   BUNDLE.PUT        diag1, "lineCol"      ,  " 190 200 200  20  "
   BUNDLE.PUT        diag1, "lineWidth"    ,  2
   !BUNDLE.PUT        diag1, "numbersSize"  ,  16
@@ -229,6 +230,7 @@ PlotFrame:    %GoSub label
 
   GR.Screen curW, curH
   Print "PlotFrame: GR.Screen returned curW= "; curW; ", curH= "; curH
+  !Note4 Portrait 1440 x 2560
   
   offsX          =  posX1 * curW
   offsY          =  posY1 * curH
@@ -365,17 +367,25 @@ Return  %DefineUserFunctions
 !Subroutines
 openScreen:
   Print "openScreen: Begin"
-  refW       = 780
-  refH       = 1280
-  IF !flagOri  THEN SWAP refW, refH
-  centW      = refW/2
-  centH      = refH/2
+  !refW       = 780
+  !refH       = 1280
+  !IF !flagOri  THEN SWAP refW, refH
+  !centW      = refW/2
+  !centH      = refH/2
   !GR.OPEN      255,0,0,20,0,flagOri
-  GR.Open      255, 0, 0, 20, 1, flagOri   % Alpha, Red, Green, Blue, ShowStatusBar, Orientation
+  Alpha         = 255     %Transparancy
+  Red           = 0
+  Green         = 0
+  Blue          = 20
+  ShowStatusBar = 0
+  Orientation   = 0      %Landscape: 0, Portrait: 1
+  !GR.Open      255, 0, 0, 20, ShowStatusBar, Orientation   % Alpha, Red, Green, Blue, ShowStatusBar, Orientation
+  GR.Open      Alpha, Red, Green, Blue, ShowStatusBar, Orientation  
   GR.Screen    curW, curH
-  !Print "openScreen: GR.Screen returned curW= "; curW; ", curH= "; curH
-  scaW       = curW / refW
-  scaH       = curH / refH
+  Print "openScreen: GR.Screen returned curW= "; curW; ", curH= "; curH
+  !Samsung Note4 Landscape: 2560 x 1440 Portrait: 1440 x 2560
+  !scaW       = curW / refW
+  !scaH       = curH / refH
   !GR.SCALE     scaW , scaH
   desLoopTime= 50
 Return  %openScreen
