@@ -1,4 +1,4 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/7/18a"
+PRINT "BeckBasic_PlotBluetooth.bas,6/9/18d"
 flagOri= 1    %Portrait
 GoSub openScreen
 GoSub DefineUserFunctions
@@ -158,17 +158,23 @@ SetupPlot:    %GoSub label
   BUNDLE.PUT        diag1, "xe"           ,  200   %Xend
   BUNDLE.PUT        diag1, "ys"           , -20   %Ybot
   BUNDLE.PUT        diag1, "ye"           ,  20   %Ytop
-  BUNDLE.PUT        diag1, "posX1"        ,  0.05
-  BUNDLE.PUT        diag1, "posY1"        ,  0.05
-  BUNDLE.PUT        diag1, "posX2"        ,  0.95
-  BUNDLE.PUT        diag1, "posY2"        ,  0.3
-  !BUNDLE.PUT        diag1, "posY2"        ,  0.5
-  !BUNDLE.PUT        diag1, "posY2"        ,  0.95
+  ! BUNDLE.PUT        diag1, "posX1"        ,  0.05
+  ! BUNDLE.PUT        diag1, "posY1"        ,  0.05
+  ! BUNDLE.PUT        diag1, "posX2"        ,  0.95
+  ! BUNDLE.PUT        diag1, "posY2"        ,  0.3
+  BUNDLE.PUT        diag1, "posX1"        ,  0.00
+  BUNDLE.PUT        diag1, "posY1"        ,  0.00
+  BUNDLE.PUT        diag1, "posX2"        ,  1.00
+  BUNDLE.PUT        diag1, "posY2"        ,  0.30
   BUNDLE.PUT        diag1, "cntDivX"      ,  10
   BUNDLE.PUT        diag1, "cntDivY"      ,  8
   BUNDLE.PUT        diag1, "nDigitXaxis"  ,  0
   BUNDLE.PUT        diag1, "nDigitYaxis"  ,  1
-  BUNDLE.PUT        diag1, "border"       ,  0.09
+  ! BUNDLE.PUT        diag1, "border"       ,  0.09
+  BUNDLE.PUT        diag1, "BorderLeft"   ,  0.05
+  BUNDLE.PUT        diag1, "BorderRight"  ,  0.01
+  BUNDLE.PUT        diag1, "BorderBot"    ,  0.05
+  BUNDLE.PUT        diag1, "BorderTop"    ,  0.05
   BUNDLE.PUT        diag1, "borderCol"    ,  " 250 200 200 200 "
   BUNDLE.PUT        diag1, "backGrCol"    ,  " 255 58  58  58  "
   BUNDLE.PUT        diag1, "gridCol"      ,  " 255 50  100 50  "
@@ -202,7 +208,11 @@ PlotFrame:    %GoSub label
   BUNDLE.GET        diag, "cntDivY"     ,  cntDivY
   BUNDLE.GET        diag, "nDigitXaxis" ,  nDigitXaxis
   BUNDLE.GET        diag, "nDigitYaxis" ,  nDigitYaxis
-  BUNDLE.GET        diag, "border"      ,  border
+  ! BUNDLE.GET        diag, "border"      ,  border
+  BUNDLE.GET        diag, "BorderLeft"  ,  BorderLeft
+  BUNDLE.GET        diag, "BorderRight" ,  BorderRight
+  BUNDLE.GET        diag, "BorderBot"   ,  BorderBot
+  BUNDLE.GET        diag, "BorderTop"   ,  BorderTop
   BUNDLE.GET        diag, "borderCol"   ,  borderCol$
   BUNDLE.GET        diag, "backGrCol"   ,  backGrCol$
   BUNDLE.GET        diag, "gridCol"     ,  gridCol$
@@ -224,24 +234,30 @@ PlotFrame:    %GoSub label
   offsY          =  posY1 * curH
   widX           =  ( posX2 - posX1 ) * curW
   widY           =  ( posY2 - posY1 ) * curH
-  borderX        =  border * widX
-  borderY        =  border * widY
-  pixX           =  widX - (2 * borderX)
-  pixY           =  widY - (2 * borderY)
-  !Print "PlotFrame: pixY= "; pixY
+  ! borderX        =  border * widX
+  ! borderY        =  border * widY
+  ! pixX           =  widX - (2 * borderX)
+  ! pixY           =  widY - (2 * borderY)
+  BorderLeftX    =  BorderLeft * widX
+  BorderRightX   =  BorderRight * widX
+  BorderBotY     =  BorderBot * widX
+  BorderTopY     =  BorderTop * widX
+  PixX           =  widX - (BorderLeftX + BorderRightX)
+  PixY           =  widY - (BorderBotY  + BorderTopY)
 
   RangeX= xe - xs
   RangeY= ye - ys
-  PixXLeft= offsX + borderX
-  PixYBot = offsY + borderY + PixY 
+  ! PixXLeft= offsX + borderX
+  ! PixYBot = offsY + borderY + PixY 
+  PixXLeft= offsX + BorderLeftX
+  PixYBot = offsY + BorderTopY + PixY 
   LastValPixX= PixXLeft
   LastValPixY= PixYBot
 
   fmt$           =  "################"          %That's (16) "#"s
   !pScax          =  pixX / (xe-xs)
   !pScay          =  pixY / (ye-ys)
-  border         =  (border * ((pixX + pixy)/2))/2
-  !Print "PlotFrame: border= "; border
+  !border         =  (border * ((pixX + pixy)/2))/2
 
   curCol$= borderCol$
   curFill= 1
@@ -255,7 +271,9 @@ PlotFrame:    %GoSub label
   !Print "PlotFrame: Call SetColor()"
   Call SetColor(curCol$, curFill)
   !Print "PlotFrame(): Call GR.Rect"
-  GR.Rect nn, offsX + borderx,offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
+  ! GR.Rect nn, (offsX + borderx), (offsY + bordery), (offsX + pixX + borderx), (offsY + pixY + bordery)
+  GR.Rect nn, (offsX + BorderLeftX),         (offsY + BorderTopY), ~
+              (offsX + pixX + BorderRightX), (offsY + pixY + BorderBotY)
 
   !**** Draw Grid ****
   curCol$= gridCol$
@@ -264,11 +282,15 @@ PlotFrame:    %GoSub label
   GR.SET.STROKE     1
   GR.TEXT.SIZE      numbersSize
   GR.TEXT.ALIGN     2
+  ! Vertical grid lines and X axis labels
   For i= 0 To cntDivX
-    Xstart= (offsX + borderx + i*(pixX / cntDivX))
+    ! Xstart= (offsX + borderx + i*(pixX / cntDivX))
+    Xstart= (offsX + BorderLeftX + i*(pixX / cntDivX))
     Xend  = Xstart
-    Ystart= (offsY + bordery)
-    Yend  = (offsY + bordery + pixY)
+    ! Ystart= (offsY + bordery)
+    ! Yend  = (offsY + bordery + pixY)
+    Ystart= (offsY + BorderTopY)
+    Yend  = (offsY + BorderTopY + pixY)
     !Print "PlotFrame(): Before GR.Line call, Xpos, Ystart, Xpos, Yend "; Xpos, Ystart, Xpos, Yend
     GR.Line   LastObj, Xstart, Ystart, Xend, Yend
     
@@ -280,20 +302,25 @@ PlotFrame:    %GoSub label
       tmp1= (pixY + numbersSize * 1.2)
     Endif   %If useTopAxis
     !Print "PlotFrame(): Before GR.Text.Draw call, tmp$= "; tmp$
-    GR.Text.Draw   LastObj, Xstart, (offsY + bordery + tmp1), tmp$
+    GR.Text.Draw   LastObj, Xstart, (offsY + BorderTopY + tmp1), tmp$
   Next  %For i
 
  !IF useRightAxis THEN GR.TEXT.ALIGN 1 ELSE GR.TEXT.ALIGN 3
  If useRightAxis Then
-  GR.TEXT.ALIGN 1 
+   GR.TEXT.ALIGN 1 
  Else
-    GR.TEXT.ALIGN 3
+   GR.TEXT.ALIGN 3
  Endif  %If useRightAxis
    
+  ! Horizontal grid lines and Y axis labels
  For i= 0 To cntDivY
-  Xstart= (offsX + borderx)
-  Xend  = (offsX + pixX + borderx)
-  Ystart= (offsY + bordery + i*(pixY / cntDivY))
+  ! Xstart= (offsX + borderx)
+  ! Xend  = (offsX + pixX + borderx)
+  ! Ystart= (offsY + bordery + i*(pixY / cntDivY))
+  Xstart= (offsX + BorderLeftX)
+  ! Xend  = (offsX + pixX + BorderLeftX)
+  Xend  = (offsX + pixX)
+  Ystart= (offsY + BorderTopY + i*(pixY / cntDivY))
   Yend  = Ystart
   GR.Line   LastObj, Xstart, Ystart, Xend, Yend
   
@@ -310,16 +337,19 @@ PlotFrame:    %GoSub label
  curCol$= lineCol$
  curFill= 1
  Call SetColor(curCol$, curFill)
- GR.SET.STROKE     linewidth
- xo             =  offsX+ pixX+ borderx
- xu             =  offsX+       borderx
- yo             =  offsY+ pixY+ bordery
- yu             =  offsY+       bordery
+ GR.SET.STROKE  linewidth
+ ! xo             =  offsX+ pixX+ borderx
+ ! xu             =  offsX+       borderx
+ ! yo             =  offsY+ pixY+ bordery
+ ! yu             =  offsY+       bordery
 
  curCol$= gridCol$
  GR.COLOR 255, VAL(WORD$(curCol$,2)), VAL(WORD$(curCol$,3)), VAL(WORD$(curCol$,4)), 0
  GR.SET.STROKE     linewidth+2
- GR.Rect           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
+ ! GR.Rect           nn, offsX+borderx,offsY+bordery,offsX+pixX+borderx, offsY+pixY+bordery
+ ! GR.Rect           nn, offsX + borderx, offsY + bordery,offsX + pixX + borderx, offsY + pixY + bordery
+ GR.Rect  nn, (offsX + BorderLeftX),         (offsY + BorderTopY), ~
+              (offsX + pixX + BorderRightX), (offsY + pixY + BorderBotY)
  GR.Render
 Return  %PlotFrame
 
