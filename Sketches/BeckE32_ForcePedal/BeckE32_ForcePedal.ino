@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_ForcePedal.ino";
-const String FileDate    = "June 7, 2018-2p";
+const String FileDate    = "June 8, 2018-e";
 #include <HX711.h>
 #include <Streaming.h>
 #include <soc/rtc.h>
@@ -85,7 +85,7 @@ void loop() {
 	static long	lLastMillis= 0;
 	long				lDeltaMillis;
 	long				lCurrentMillis;
-	int					sLogSkip= 1;
+	int					sLogSkip= 25;
   double    	dLbs= 3.7;
   char 				szNumber[10];
 
@@ -143,8 +143,8 @@ double ReadPedal(){
   double  dLbs;
 
   //oPedalForce.power_up();
-  lValue= oPedalForce.read();
-  //lValue= oPedalForce.read_average(4);
+  //lValue= oPedalForce.read();
+  lValue= oPedalForce.read_average(4);
   //oPedalForce.power_down();             // put the ADC in sleep mode
 
   dLbs= ((double)lValue - dZeroCnt) / dCntsPerLb;
