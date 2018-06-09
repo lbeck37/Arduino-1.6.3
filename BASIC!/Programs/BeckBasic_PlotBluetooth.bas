@@ -1,4 +1,4 @@
-PRINT "BeckBasic_PlotBluetooth.bas,6/9/18k"
+PRINT "BeckBasic_PlotBluetooth.bas,6/9/18n"
 !flagOri= 1    %Portrait
 GoSub openScreen
 GoSub DefineUserFunctions
@@ -165,8 +165,11 @@ SetupPlot:    %GoSub label
   BUNDLE.PUT        diag1, "posX1"        ,  0.00
   BUNDLE.PUT        diag1, "posY1"        ,  0.00
   BUNDLE.PUT        diag1, "posX2"        ,  1.00
-  !BUNDLE.PUT        diag1, "posY2"        ,  0.30
-  BUNDLE.PUT        diag1, "posY2"        ,  1.00
+  If (Orientation = 1) Then     %Portrait
+    BUNDLE.PUT        diag1, "posY2"        ,  0.30
+  Else
+    BUNDLE.PUT        diag1, "posY2"        ,  1.00
+  EndIf
   BUNDLE.PUT        diag1, "cntDivX"      ,  10
   BUNDLE.PUT        diag1, "cntDivY"      ,  8
   BUNDLE.PUT        diag1, "nDigitXaxis"  ,  0
@@ -378,7 +381,7 @@ openScreen:
   Green         = 0
   Blue          = 20
   ShowStatusBar = 0
-  Orientation   = 0      %Landscape: 0, Portrait: 1
+  Orientation   = 1      %Landscape: 0, Portrait: 1
   !GR.Open      255, 0, 0, 20, ShowStatusBar, Orientation   % Alpha, Red, Green, Blue, ShowStatusBar, Orientation
   GR.Open      Alpha, Red, Green, Blue, ShowStatusBar, Orientation  
   GR.Screen    curW, curH
