@@ -1,6 +1,3 @@
-static const String SketchName  = "Powershift_E32Rover.ino";
-static const String FileDate    = "Dec 17, 2017, Lenny-a";
-
 //#include <Arduino.h>
 //#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -30,6 +27,8 @@ static const String FileDate    = "Dec 17, 2017, Lenny-a";
 #define USE_DOGS102		false
 
 //Here come the const's
+static const String SketchName  = "Powershift_E32Rover.ino";
+static const String FileDate    = "July 15, 2018, Lenny-a";
 //static const int asDefaultGearLocation[]= {0, 122, 101, 74, 68, 56, 35, 20};   //9-spd cogs 3-9
 //static const int asDefaultGearLocation[]= {0, 152, 137, 122, 101, 74, 68, 56, 35, 27, 20};  //10-speed estimates
 //static const int asDefaultGearLocation[]= {0, 168, 135, 113, 101, 79, 66, 58, 41, 29, 14};  //10-speed
