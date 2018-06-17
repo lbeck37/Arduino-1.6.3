@@ -1,5 +1,5 @@
-const String SketchName  = "BeckE32_SMS_Water_Sensor.ino";
-const String FileDate    = "July 15, 2018-a";
+const String SketchName  = "BeckE32_TouchSensorTest.ino";
+const String FileDate    = "July 16, 2018-a";
 /******************************************************************************
 ESP32_Water_Sensor_SMS_Example.ino
 Example for sending a text message using the ESP32 Thing and IFTTT
@@ -23,28 +23,36 @@ the local, and you've found our code helpful, please buy us a round!
 Distributed as-is; no warranty is given.
 ******************************************************************************/
 
+#include <Streaming.h>
+/*
 #include <WiFi.h>
 WiFiClient client;
 
 const char* myKey = "Maker_Key_Goes_Here";            // Your maker key goes here
 const char* ssid = "Network_Name_Goes_Here";          // Your router's ssid goes here
 const char* password = "Network_Password_Goes_Here";  // Password to router goes here
+*/
 const byte  touchPin = 4;                             // IO pin for capacitive touch sensing
 
-boolean oldWaterLevel=0, currentWaterLevel=0;
+//boolean oldWaterLevel=0, currentWaterLevel=0;
 
 
 void setup() {
   Serial.begin(115200); // Start serial communication for debug information
+  Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
+/*
   WiFi.mode(WIFI_STA);  // Setup the WiFi radio to connect to a wireless access point
   ConnectWifi();        // Connect to WiFi
+*/
 }
 
 void loop()
 {
+/*
   if(WiFi.status() == WL_CONNECTED) // Make sure we're still connected to our router
   {
+*/
     float sensorReading = 0;  // Read the analog value for the touch sensor
     byte sampleSize = 8;      // Number of samples we want to take
 
@@ -53,8 +61,10 @@ void loop()
       sensorReading += touchRead(touchPin); // We sample the touch pin here
       delay(10);
     }
-    sensorReading /= sampleSize;
+    //sensorReading /= sampleSize;
+    Serial << "loop(): sensorReading= " << sensorReading << endl;
 
+/*
     if(sensorReading < 5)
     {
       currentWaterLevel = HIGH;
@@ -84,8 +94,13 @@ void loop()
     delay(1000);    // Wait 1 second between connection attempts
     ConnectWifi();  // Connect to WiFi
   }
-}
+*/
+	delay(1000);
+	return;
+}	//loop
 
+
+/*
 bool ConnectWifi()  // Tries to connect to the wireless access point with the credentials provided
 {
   bool timeOut = 0; // Change to 1 if connection times out
@@ -152,4 +167,5 @@ void sendSMS(boolean waterLevel)  // Built HTTP packet to send to Maker
   client.println();
   client.println(postData);
 }
+*/
 
