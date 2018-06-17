@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_TouchSensorTest.ino";
-const String FileDate    = "July 16, 2018-c";
+const String FileDate    = "July 16, 2018-d";
 /******************************************************************************
 ESP32_Water_Sensor_SMS_Example.ino
 Example for sending a text message using the ESP32 Thing and IFTTT
@@ -21,7 +21,7 @@ void setup() {
 	Serial.begin(115200); // Start serial communication for debug information
 	Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
-  SerialBT.begin("Beck_RightPedal"); //Bluetooth device name
+  SerialBT.begin("Beck_TankSensor"); //Bluetooth device name
 	return;
 }	//setup
 
