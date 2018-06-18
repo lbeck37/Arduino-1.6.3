@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_TouchSensorTest.ino";
-const String FileDate    = "July 16, 2018-d";
+const String FileDate    = "July 16, 2018-e";
 /******************************************************************************
 ESP32_Water_Sensor_SMS_Example.ino
 Example for sending a text message using the ESP32 Thing and IFTTT
@@ -31,6 +31,7 @@ void loop()
   char 				szNumber[10];
   //float sensorReading = 0;  // Read the analog value for the touch sensor
   double dSensorReading = 0;  // Read the analog value for the touch sensor
+		//touchRead() returns an int but I use double because I don't know int version of dtostrf()
 	byte sampleSize = 8;      // Number of samples we want to take
 
 	for(byte i= 0; i < sampleSize; i++)  // Average samples together to minimize false readings
