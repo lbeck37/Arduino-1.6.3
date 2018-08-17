@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_AirLift.ino";
-const String FileDate    = "Aug 15, 2018-e";
+const String FileDate    = "Aug 16, 2018-j";
 /******************************************************************************
 ESP32_Water_Sensor_SMS_Example.ino
 Example for sending a text message using the ESP32 Thing and IFTTT
@@ -15,6 +15,8 @@ February 7th 2017
 
 BluetoothSerial SerialBT;
 
+char			_szFormattedString[30];
+
 void setup() {
 	Serial.begin(115200); // Start serial communication for debug information
 	Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
@@ -27,10 +29,35 @@ void setup() {
 void loop()
 {
 	//ReadTouchSensor();
-	ReadPressureSensor();
+	//ReadPressureSensor();
+	ReadDummyPressures();
 	delay(1000);
 	return;
 }	//loop
+
+
+void ReadDummyPressures() {
+	//uint8_t 				szFormattedString[30];
+	//char 					szFormattedString[30];
+  static double dLeftBagPsi  	= 60.00;
+  static double dRightBagPsi 	= 70.00;
+
+  dLeftBagPsi  += 0.01;
+  dRightBagPsi += 0.01;
+
+  sprintf(_szFormattedString, "Left= %7.2f psi, Right= %7.2f psi", dLeftBagPsi, dRightBagPsi);
+	Serial << "ReadDummyPressures(): " << _szFormattedString << endl;
+	//Serial << "ReadDummyPressures(): Test" << endl;
+
+  //dtostrf(dSensorReading, 8, 4, szNumber);
+  //Write sensor reading to BT
+  //SerialBT.write((uint8_t*)szNumber, strlen(szNumber));
+  //SerialBT.write(szFormattedString, strlen(szFormattedString));
+
+  SerialBT.write((uint8_t*)_szFormattedString, strlen(_szFormattedString));
+
+	return;
+}	//ReadDummyPressures
 
 
 void ReadPressureSensor() {
