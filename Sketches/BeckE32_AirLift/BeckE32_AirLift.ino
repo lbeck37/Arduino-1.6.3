@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_AirLift.ino";
-const String FileDate    = "Aug 16, 2018-k";
+const String FileDate    = "Aug 20, 2018-f";
 /******************************************************************************
 ESP32_Water_Sensor_SMS_Example.ino
 Example for sending a text message using the ESP32 Thing and IFTTT
@@ -14,6 +14,9 @@ February 7th 2017
 #endif
 
 BluetoothSerial SerialBT;
+
+const uint8_t		ucLeftBagGPIO 	= 34;
+const uint8_t		ucRightBagGPIO	= 35;
 
 char			_szFormattedString[30];
 
@@ -30,10 +33,51 @@ void loop()
 {
 	//ReadTouchSensor();
 	//ReadPressureSensor();
-	ReadDummyPressures();
+	//ReadDummyPressures();
+	ReadPressureSensors();
 	delay(1000);
 	return;
 }	//loop
+
+
+void ReadPressureSensors() {
+	//Volts= (CNT / 4095) * 3.3
+	//Psi= (68.0 * Volts) - 21.8
+  //char 			szNumber[10];
+  double 		dLeftBagVolts;
+  double 		dRightBagVolts;
+  double 		dLeftBagPsi;
+  double 		dRightBagPsi;
+  uint32_t	usSensorCount;
+
+  // 5V pressure sensors output 0.5 to 4.5V representing 0 to 174psi
+  // We have a 560K resistor over a 1M => gain of 0.641 => Into A/D 0.32 to 2.88V
+  // Count ranges from 0 to 4095 representing 0 to 3.3V
+  // Voltage and pressure conversion derived in notebook 8/19/19
+
+  //Read Left bag pressure sensor
+  usSensorCount= analogRead(ucLeftBagGPIO);
+  dLeftBagVolts= ((double)usSensorCount / 4095.0) * 3.30;
+  dLeftBagPsi= (68.0 * dLeftBagVolts) - 21.8;
+	Serial << "usSensorCount= " << usSensorCount << ", dLeftBagVolts= "
+			   << dLeftBagVolts << ", dLeftBagPsi= " << dLeftBagPsi << endl;
+
+  //Read Right bag pressure sensor
+  usSensorCount= analogRead(ucRightBagGPIO);
+  dRightBagVolts= ((double)usSensorCount / 4095.0) * 3.30;
+  dRightBagPsi= (68.0 * dRightBagVolts) - 21.8;
+	Serial << "usSensorCount= " << usSensorCount << ", dRightBagVolts= "
+			   << dRightBagVolts << ", dRightBagPsi= " << dRightBagPsi << endl << endl;
+
+  sprintf(_szFormattedString, "Left= %7.2f psi, Right= %7.2f psi", dLeftBagPsi, dRightBagPsi);
+	//Serial << "_szFormattedString= " << _szFormattedString << endl;
+  SerialBT.write((uint8_t*)_szFormattedString, strlen(_szFormattedString));
+
+  //dtostrf(dSensorReading, 8, 4, szNumber);
+  //Write sensor reading to BT
+  //SerialBT.write((uint8_t*)szNumber, strlen(szNumber));
+	return;
+}	//ReadPressureSensors
 
 
 void ReadDummyPressures() {
@@ -44,34 +88,11 @@ void ReadDummyPressures() {
 
   dLeftBagPsi  += 0.01;
   dRightBagPsi += 0.01;
-
   sprintf(_szFormattedString, "Left= %7.2f psi, Right= %7.2f psi", dLeftBagPsi, dRightBagPsi);
 	Serial << "ReadDummyPressures(): " << _szFormattedString << endl;
-	//Serial << "ReadDummyPressures(): Test" << endl;
-
-  //dtostrf(dSensorReading, 8, 4, szNumber);
-  //Write sensor reading to BT
-  //SerialBT.write((uint8_t*)szNumber, strlen(szNumber));
-  //SerialBT.write(szFormattedString, strlen(szFormattedString));
-
   SerialBT.write((uint8_t*)_szFormattedString, strlen(_szFormattedString));
-
 	return;
 }	//ReadDummyPressures
-
-
-void ReadPressureSensor() {
-  char 				szNumber[10];
-  static double dSensorReading = 37.0;  // Read the analog value for sensor
-
-  dSensorReading += 0.01;
-	Serial << "loop(): sensorReading= " << dSensorReading << endl;
-
-  dtostrf(dSensorReading, 8, 4, szNumber);
-  //Write sensor reading to BT
-  SerialBT.write((uint8_t*)szNumber, strlen(szNumber));
-	return;
-}	//ReadPressureSensor
 
 
 void ReadTouchSensor() {
