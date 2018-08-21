@@ -18,7 +18,8 @@ void setup() {
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
-  SerialBT.begin("ESP32_RightPedal"); //Bluetooth device name
+  //SerialBT.begin("ESP32_RightPedal"); //Bluetooth device name
+  SerialBT.begin("Beck32_Test082018"); //Bluetooth device name
 
   //Serial.println("The device started, now you can pair it with bluetooth!");
   Serial << "setup(): Bluetooth ESP32_RightPedalhas been started." << endl;

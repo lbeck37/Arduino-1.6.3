@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_AirLift.ino";
-const String FileDate    = "Aug 20, 2018-f";
+const String FileDate    = "Aug 20, 2018-j";
 /******************************************************************************
 ESP32_Water_Sensor_SMS_Example.ino
 Example for sending a text message using the ESP32 Thing and IFTTT
@@ -18,13 +18,24 @@ BluetoothSerial SerialBT;
 const uint8_t		ucLeftBagGPIO 	= 34;
 const uint8_t		ucRightBagGPIO	= 35;
 
-char			_szFormattedString[30];
+// 5V pressure sensors output 0.5 to 4.5V representing 0 to 174psi
+// We have a 560K resistor over a 1M => gain of 0.641 => Into A/D 0.32 to 2.88V
+// Count ranges from 0 to 4095 representing 0 to 3.3V
+// Voltage and pressure conversion derived in notebook 8/19/19
+// Update: Sensors were so out of range I came up with a CNT to Psi linear equation
+//    Psi= A * CNT + B
+const double		dLeftA		= 0.069;
+const double		dRightA		= 0.1035;
+const double		dLeftB		= -8.83;
+const double		dRightB		= -51.25;
+
+char		_szFormattedString[30];
 
 void setup() {
 	Serial.begin(115200); // Start serial communication for debug information
 	Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
-
-  SerialBT.begin("Beck_AirLift"); //Bluetooth device name
+	Serial << "setup(): Call SerialBT.begin(Beck_AirLift082018)" << endl;
+  SerialBT.begin("Beck_AirLift082018"); //Bluetooth device name
 	return;
 }	//setup
 
@@ -44,33 +55,39 @@ void ReadPressureSensors() {
 	//Volts= (CNT / 4095) * 3.3
 	//Psi= (68.0 * Volts) - 21.8
   //char 			szNumber[10];
-  double 		dLeftBagVolts;
-  double 		dRightBagVolts;
+  //double 		dLeftBagVolts;
+  //double 		dRightBagVolts;
   double 		dLeftBagPsi;
   double 		dRightBagPsi;
   uint32_t	usSensorCount;
 
-  // 5V pressure sensors output 0.5 to 4.5V representing 0 to 174psi
-  // We have a 560K resistor over a 1M => gain of 0.641 => Into A/D 0.32 to 2.88V
-  // Count ranges from 0 to 4095 representing 0 to 3.3V
-  // Voltage and pressure conversion derived in notebook 8/19/19
-
   //Read Left bag pressure sensor
   usSensorCount= analogRead(ucLeftBagGPIO);
+/*
   dLeftBagVolts= ((double)usSensorCount / 4095.0) * 3.30;
   dLeftBagPsi= (68.0 * dLeftBagVolts) - 21.8;
-	Serial << "usSensorCount= " << usSensorCount << ", dLeftBagVolts= "
+	Serial << endl << "usSensorCount= " << usSensorCount << ", dLeftBagVolts= "
 			   << dLeftBagVolts << ", dLeftBagPsi= " << dLeftBagPsi << endl;
+*/
+  dLeftBagPsi= (dLeftA * usSensorCount) - dLeftB;
+	Serial << endl << "usSensorCount= " << usSensorCount
+			   << ", dLeftBagPsi= " << dLeftBagPsi << endl;
 
   //Read Right bag pressure sensor
   usSensorCount= analogRead(ucRightBagGPIO);
+/*
   dRightBagVolts= ((double)usSensorCount / 4095.0) * 3.30;
   dRightBagPsi= (68.0 * dRightBagVolts) - 21.8;
 	Serial << "usSensorCount= " << usSensorCount << ", dRightBagVolts= "
-			   << dRightBagVolts << ", dRightBagPsi= " << dRightBagPsi << endl << endl;
+			   << dRightBagVolts << ", dRightBagPsi= " << dRightBagPsi << endl;
+*/
+  dRightBagPsi= (dRightA * usSensorCount) - dRightB;
+	Serial << endl << "usSensorCount= " << usSensorCount
+			   << ", dRightBagPsi= " << dRightBagPsi << endl;
 
   sprintf(_szFormattedString, "Left= %7.2f psi, Right= %7.2f psi", dLeftBagPsi, dRightBagPsi);
-	//Serial << "_szFormattedString= " << _szFormattedString << endl;
+	Serial << "_szFormattedString= " << _szFormattedString << endl;
+	Serial << "ReadPressureSensors(): Call SerialBT.write()" << endl;
   SerialBT.write((uint8_t*)_szFormattedString, strlen(_szFormattedString));
 
   //dtostrf(dSensorReading, 8, 4, szNumber);
