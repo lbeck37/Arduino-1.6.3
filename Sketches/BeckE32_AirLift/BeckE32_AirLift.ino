@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_AirLift.ino";
-const String FileDate    = "Aug 20, 2018-k";
+const String FileDate    = "Aug 22, 2018-a";
 /******************************************************************************
 ESP32_Water_Sensor_SMS_Example.ino
 Example for sending a text message using the ESP32 Thing and IFTTT
@@ -24,10 +24,10 @@ const uint8_t   ucRightBagGPIO  = 35;
 // Voltage and pressure conversion derived in notebook 8/19/19
 // Update: Sensors were so out of range I came up with a CNT to Psi linear equation
 //    Psi= A * CNT + B
-const double    dLeftA    = 0.069;
-const double    dRightA   = 0.104;
-const double    dLeftB    = -8.83;
-const double    dRightB   = -51.25;
+const double    dLeftSlope    = 0.069;
+const double    dRightSlope   = 0.104;
+const double    dLeftOffset   = -8.83;
+const double    dRightOffset  = -51.25;
 
 char    _szFormattedString[30];
 
@@ -70,7 +70,7 @@ void ReadPressureSensors() {
   Serial << endl << "usSensorCount= " << usSensorCount << ", dLeftBagVolts= "
          << dLeftBagVolts << ", dLeftBagPsi= " << dLeftBagPsi << endl;
 */
-  dLeftBagPsi= (dLeftA * (double)usSensorCount) + dLeftB;
+  dLeftBagPsi= (dLeftSlope * (double)usSensorCount) + dLeftOffset;
   Serial << "usSensorCount= " << usSensorCount
          << ", dLeftBagPsi= " << dLeftBagPsi << endl;
 
@@ -82,7 +82,7 @@ void ReadPressureSensors() {
   Serial << "usSensorCount= " << usSensorCount << ", dRightBagVolts= "
          << dRightBagVolts << ", dRightBagPsi= " << dRightBagPsi << endl;
 */
-  dRightBagPsi= (dRightA * (double)usSensorCount) + dRightB;
+  dRightBagPsi= (dRightSlope * (double)usSensorCount) + dRightOffset;
   Serial << "usSensorCount= " << usSensorCount
          << ", dRightBagPsi= " << dRightBagPsi << endl;
 
