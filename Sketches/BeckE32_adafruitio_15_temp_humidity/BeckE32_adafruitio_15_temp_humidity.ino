@@ -1,4 +1,4 @@
-// Adafruit IO Temperature & Humidity Example
+// Adafruit IO Temperature & Humidity Example Beck 11/7/18
 // Tutorial Link: https://learn.adafruit.com/adafruit-io-basics-temperature-and-humidity
 //
 // Adafruit invests time and resources providing this open source code.
