@@ -12,6 +12,7 @@
 #ifndef ADAFRUITIO_WIFI_H
 #define ADAFRUITIO_WIFI_H
 
+
 #if defined(ARDUINO_SAMD_MKR1000)
 
   #include "wifi/AdafruitIO_MKR1000.h"
@@ -22,8 +23,9 @@
   #include "wifi/AdafruitIO_WINC1500.h"
   typedef AdafruitIO_WINC1500 AdafruitIO_WiFi;
 
-#elif defined(ARDUINO_ARCH_ESP32)
-
+//#elif defined(ARDUINO_ARCH_ESP32)
+#elif 1
+	#pragma GCC warning "Before wifi/AdafruitIO_ESP32.h include"
   #include "wifi/AdafruitIO_ESP32.h"
   typedef AdafruitIO_ESP32 AdafruitIO_WiFi;
 

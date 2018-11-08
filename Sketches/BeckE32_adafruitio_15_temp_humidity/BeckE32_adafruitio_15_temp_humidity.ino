@@ -16,6 +16,7 @@
 // edit the config.h tab and enter your Adafruit IO credentials
 // and any additional configuration needed for WiFi, cellular,
 // or ethernet clients.
+#pragma GCC warning "Before config.h include"
 #include "config.h"
 
 /************************ Example Starts Here *******************************/

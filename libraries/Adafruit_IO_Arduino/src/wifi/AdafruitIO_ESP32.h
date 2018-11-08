@@ -12,8 +12,11 @@
 #ifndef ADAFRUITIO_ESP32_H
 #define ADAFRUITIO_ESP32_H
 
-#ifdef ARDUINO_ARCH_ESP32
+#pragma GCC warning "Before ifdef ARDUINO_ARCH_ESP32"
+//#ifdef ARDUINO_ARCH_ESP32
+#if 1
 
+#pragma GCC warning "Before Arduino.h include"
 #include "Arduino.h"
 #include "AdafruitIO.h"
 #include <WiFi.h>
@@ -40,5 +43,6 @@ class AdafruitIO_ESP32 : public AdafruitIO {
 
 };
 
-#endif //ESP32
+//#endif //ESP32
+#endif //ARDUINO_ARCH_ESP32
 #endif // ADAFRUITIO_ESP32_H

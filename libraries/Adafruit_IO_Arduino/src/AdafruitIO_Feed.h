@@ -12,6 +12,7 @@
 #ifndef ADAFRUITIO_FEED_H
 #define ADAFRUITIO_FEED_H
 
+#pragma GCC warning "Before Arduino.h include"
 #include "Arduino.h"
 #include "Adafruit_MQTT.h"
 #include "AdafruitIO_Definitions.h"

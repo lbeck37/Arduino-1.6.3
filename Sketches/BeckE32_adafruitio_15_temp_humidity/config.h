@@ -17,6 +17,7 @@
 #define WIFI_PASS       "your_pass"
 
 // comment out the following two lines if you are using fona or ethernet
+#pragma GCC warning "Before AdafruitIO_WiFi.h include"
 #include "AdafruitIO_WiFi.h"
 AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
 
