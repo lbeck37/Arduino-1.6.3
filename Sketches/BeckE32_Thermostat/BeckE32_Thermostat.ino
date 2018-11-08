@@ -1,3 +1,5 @@
+const String SketchName  = "BeckE32_Thermostat.ino";
+const String FileDate    = "November 4, 2018-b";
 //
 // Google Home / Alexa Enabled WiFi Thermostat
 // -------------------------------------------
@@ -106,6 +108,7 @@
 #include <HTTPClient.h>
 #include <ArduinoOTA.h>
 #include <AdafruitIO_WiFi.h>          // Modified Adafruit ilbrary.  Repository: https://github.com/CGB01/Adadruit_IO
+#include <DummyConfig.h>				//Beck 11/4/18
 #include "DHT.h"                      // Modified Adafruit library
 #include <TimeLib.h>                  // Repository: https://github.com/PaulStoffregen/Time
 #include <Timezone.h>                 // Repository: https://github.com/JChristensen/Timezone
@@ -126,6 +129,7 @@
   #include "Adafruit_PCD8544.h"       // Modified Adafruit library
 #endif
 
+#include <AdafruitIO_Data.h>		//Beck 11/4/18
 //
 // Define PINs used by sketch.  I have mapped the pins so that it uses the same GPIO pins from
 // one board to another (as much as possible!).
