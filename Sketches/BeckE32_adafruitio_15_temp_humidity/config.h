@@ -13,8 +13,8 @@
 //   - Feather M0 WiFi -> https://www.adafruit.com/products/3010
 //   - Feather WICED -> https://www.adafruit.com/products/3056
 
-#define WIFI_SSID       "your_ssid"
-#define WIFI_PASS       "your_pass"
+#define WIFI_SSID       "Aspot24"
+#define WIFI_PASS       "Qazqaz11"
 
 // comment out the following two lines if you are using fona or ethernet
 #pragma GCC warning "Before AdafruitIO_WiFi.h include"
@@ -23,7 +23,6 @@ AdafruitIO_WiFi io(IO_USERNAME, IO_KEY, WIFI_SSID, WIFI_PASS);
 
 
 /******************************* FONA **************************************/
-
 // the AdafruitIO_FONA client will work with the following boards:
 //   - Feather 32u4 FONA -> https://www.adafruit.com/product/3027
 
