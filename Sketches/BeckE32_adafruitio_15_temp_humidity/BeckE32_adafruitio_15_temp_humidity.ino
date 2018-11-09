@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_adafruitio_15_temp_humidity.ino";
-const String FileDate    = "November 9, 2018-a";
+const String FileDate    = "November 9, 2018-b";
 // Adafruit IO Temperature & Humidity Example Beck 11/7/18
 // Tutorial Link: https://learn.adafruit.com/adafruit-io-basics-temperature-and-humidity
 //
@@ -31,7 +31,8 @@ const String FileDate    = "November 9, 2018-a";
 #define DATA_PIN 2
 
 // create DHT22 instance
-DHT_Unified dht(DATA_PIN, DHT22);
+//DHT_Unified dht(DATA_PIN, DHT22);
+DHT_Unified dht(DATA_PIN, DHT11);
 
 // set up the 'temperature' and 'humidity' feeds
 AdafruitIO_Feed *temperature = io.feed("temperature");
