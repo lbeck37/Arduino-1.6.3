@@ -1,3 +1,5 @@
+const String SketchName  = "BeckE32_adafruitio_15_temp_humidity.ino";
+const String FileDate    = "November 8, 2018-a";
 // Adafruit IO Temperature & Humidity Example Beck 11/7/18
 // Tutorial Link: https://learn.adafruit.com/adafruit-io-basics-temperature-and-humidity
 //
@@ -23,6 +25,7 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
+#include <Streaming.h>
 
 // pin connected to DH22 data line
 #define DATA_PIN 2
@@ -38,6 +41,7 @@ void setup() {
 
   // start the serial connection
   Serial.begin(115200);
+  Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
   // wait for serial monitor to open
   while(! Serial);
