@@ -22,7 +22,8 @@
   #include "wifi/AdafruitIO_WINC1500.h"
   typedef AdafruitIO_WINC1500 AdafruitIO_WiFi;
 
-#elif defined(ARDUINO_ARCH_ESP32)
+//#elif defined(ARDUINO_ARCH_ESP32)
+#elif 1
 
   #include "wifi/AdafruitIO_ESP32.h"
   typedef AdafruitIO_ESP32 AdafruitIO_WiFi;

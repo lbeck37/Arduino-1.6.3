@@ -12,7 +12,8 @@
 #ifndef ADAFRUITIO_ESP32_H
 #define ADAFRUITIO_ESP32_H
 
-#ifdef ARDUINO_ARCH_ESP32
+//#ifdef ARDUINO_ARCH_ESP32
+#if 1
 
 #include "Arduino.h"
 #include "AdafruitIO.h"
@@ -32,7 +33,7 @@ class AdafruitIO_ESP32 : public AdafruitIO {
 
   protected:
     void _connect();
-	void _connect(const char *ssid, const char *pass);	//[CGB]
+  void _connect(const char *ssid, const char *pass);  //[CGB]
     const char *_ssid;
     const char *_pass;
 

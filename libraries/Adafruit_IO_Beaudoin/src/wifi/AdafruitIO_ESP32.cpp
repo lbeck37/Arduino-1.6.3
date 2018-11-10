@@ -8,8 +8,9 @@
 // Licensed under the MIT license.
 //
 // All text above must be included in any redistribution.
-//
-#ifdef ARDUINO_ARCH_ESP32
+
+//#ifdef ARDUINO_ARCH_ESP32
+#if 1
 
 #include "AdafruitIO_ESP32.h"
 

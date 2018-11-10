@@ -2568,6 +2568,8 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
   String  Title, SubTitle, Labels, LeftAxisLabel, yAxisUnit, Legend, DataSet1, Set1Title, DataSet2, Set2Title, DataSet3, Type1, Type2, Type3;
   time_t  Today = now();
   
+  ScaleMin= ScaleMax= 0.0;		//Beck 11/9/18
+
   // Build data based on the chart type
   MaxDays = 22;       // You can change this up to 45 days.
   ChartWidth = 800;   // Defines the chart width
