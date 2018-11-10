@@ -1,7 +1,7 @@
+const String SketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
+const String FileDate    = "November 9, 2018-a";
 //
 // Google Home / Alexa Enabled WiFi Thermostat
-// -------------------------------------------
-//
 // Copyright (c) 2018 Claude G. Beaudoin (claudegbeaudoin @ hotmail.com)
 //
 // Programming level required:  Advanced
@@ -551,7 +551,8 @@ void setup()
   // Display heater size, kWh used, running cost
   CurrentTime = 0;
   Cntr = (Config.HeatingTime / 86400UL) * 24;
-  Serial.printf("Heating Time  = %02u:%02u:%02u\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
+  //Serial.printf("Heating Time  = %02u:%02u:%02u\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
+  Serial.printf("Heating Time  = %02lu:%02lu:%02lu\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
   Serial.printf("Heater Size   = %d watts\n", Config.Watts);
   Serial.print("Consumption   = "); Serial.print(Calc_kWh(Config.HeatingTime), 2); Serial.print(" kWh\n");
   Serial.print("kWh cost      = "); Serial.print(Config.kWh_Cost, 1); Serial.println(" cents");
@@ -980,8 +981,8 @@ void  WiFiConnect(void)
         }
       }
     }
-  }    
-}
+  }	//while(!WiFiConnected)
+}	//WiFiConnect
 
 //
 // Initialize OTA functions
