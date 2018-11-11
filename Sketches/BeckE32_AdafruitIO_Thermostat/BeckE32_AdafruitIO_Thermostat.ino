@@ -1,5 +1,6 @@
 const String SketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String FileDate    = "November 9, 2018-a";
+const String FileDate    = "November 10, 2018-a";
+// 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
 // Copyright (c) 2018 Claude G. Beaudoin (claudegbeaudoin @ hotmail.com)
@@ -14,11 +15,11 @@ const String FileDate    = "November 9, 2018-a";
 //        updated to support the ESP32 boards.  You get compiler errors and some functions just
 //        don't work anymore.  I'm sure they will get around to fixing them...
 //
-//        Also the Adafruit IO libraries.  Mainly the ->exist() and ->create() functions do not 
-//        work and you had to hard code your WiFi network name / password along with your 
+//        Also the Adafruit IO libraries.  Mainly the ->exist() and ->create() functions do not
+//        work and you had to hard code your WiFi network name / password along with your
 //        user name / API key.  The changes I have brought to the libraries are backwards
-//        compatible, so nothing was broken in adding (fixing) these libraries.  
-//        
+//        compatible, so nothing was broken in adding (fixing) these libraries.
+//
 
 //
 // Code Revision History:
@@ -93,7 +94,7 @@ const String FileDate    = "November 9, 2018-a";
 #else
   // Uncomment next three lines if you are using an I2C OLED display.
   // Otherwise you are using a Nokia 5110 display
-  #define OLED_Display  
+  #define OLED_Display
   #define OLED_ADDR     0x3C  // Define I2C Oled Address
   #define OLED_Reset    -1    // Define the reset pin used for OLED module (If there is none, set to -1)
 #endif
@@ -118,11 +119,11 @@ const String FileDate    = "November 9, 2018-a";
   #endif
   #include "WiFi_Logo.h"
   #include "Arduino_Logo.h"
-    
+
   // Reverse the definition of what BLACK and WHITE are for the OLED display
   #define BLACK 1
   #define WHITE 0
-#else  
+#else
   #include "Adafruit_PCD8544.h"       // Modified Adafruit library
 #endif
 
@@ -135,39 +136,39 @@ const String FileDate    = "November 9, 2018-a";
   #define VBATPIN       A13   // GPIO 35
   #define DHTPIN        A10   // GPIO 27
   #define RelayPIN      A1    // GPIO 25
-#ifndef OLED_Display  
+#ifndef OLED_Display
   #define BackLight     A0    // GPIO 26
-#endif  
+#endif
   #define DC            A8    // GPIO 15
   #define CS            A7    // GPIO 32
   #define RST           A6    // GPIO 14
-#endif  
+#endif
 #ifdef ARDUINO_ESP32_DEV
 // I2C SDA = GPIO 11, SCL = GPIO 22
   #define DHTPIN        A17   // GPIO 27
   #define RelayPIN      A18   // GPIO 25
-#ifndef OLED_Display  
+#ifndef OLED_Display
   #define BackLight     A19   // GPIO 26
-#endif  
+#endif
   #define DC            A13   // GPIO 15
   #define CS            A4    // GPIO 32
   #define RST           A16   // GPIO 14
   #define SPI_CLK       SCK   // GPIO 18
-  #define SPI_MOSI      MOSI  // GPIO 23      
-#endif  
+  #define SPI_MOSI      MOSI  // GPIO 23
+#endif
 #ifdef ARDUINO_LOLIN32
 // I2C SDA = GPIO 21, SCL = GPIO 22
   #define DHTPIN        A17   // GPIO 27
   #define RelayPIN      A18   // GPIO 25
-#ifndef OLED_Display  
+#ifndef OLED_Display
   #define BackLight     A19   // GPIO 26
-#endif  
+#endif
   #define DC            A13   // GPIO 15
   #define CS            A4    // GPIO 32
   #define RST           A16   // GPIO 14
   #define SPI_CLK       SCK   // GPIO 18
-  #define SPI_MOSI      MOSI  // GPIO 23      
-#endif  
+  #define SPI_MOSI      MOSI  // GPIO 23
+#endif
 #ifdef ARDUINO_Heltec_WIFI_LoRa_32
 // I2C SDA = GPIO 4, SCL = GPIO 15 (For OLED display)
   #define DHTPIN        A14   // GPIO 13
@@ -177,7 +178,7 @@ const String FileDate    = "November 9, 2018-a";
 // I2C SDA = GPIO 4, SCL = GPIO 15 (For OLED display)
   #define DHTPIN        A14   // GPIO 13
   #define RelayPIN      A18   // GPIO 25
-#endif  
+#endif
 #ifndef DHTPIN
   #error Unsupported Board Type!
 #endif
@@ -196,14 +197,14 @@ const String FileDate    = "November 9, 2018-a";
   #endif
 #endif
 
-// 
+//
 // Define OTA hostname/password and Dweet name
 //
 #define OTA_PASS      "admin"                   // Define your own password for updates
 char HOSTNAME[32]     = "Termo-location-OTA";   // 'location' will change to whatever the device location is
 char DWEETNAME[32]    = "Thermo-eFusedMac";     // This will change to Thermo-'FusedMacAddress'
 
-// 
+//
 // Define what signal level turns ON and OFF the thermostat relay
 //
 #define RelayON       HIGH
@@ -302,7 +303,7 @@ struct WEEK_SCHEDULE
 //
 // The length of the location name is being limited by the display size.
 // If you have an LCD display that has more than 14 characters per line,
-// then change the location names.  This will help you when speaking to 
+// then change the location names.  This will help you when speaking to
 // Google Home to identify the locations...
 //
 char Location[][15] = {
@@ -320,7 +321,7 @@ char Location[][15] = {
   "Bathroom 2",
   "Bathroom 3",
   "Office",
-// Locations below 'Office' are excluded from the keyword "Home" location  
+// Locations below 'Office' are excluded from the keyword "Home" location
   "Basement",
   "Cantina",
   "Wine Cellar",
@@ -344,9 +345,9 @@ enum CHARTS
   HOURLY_COST,              // Hourly heating cost
   HOURLY_KWH,               // Hourly kWh consumption
   DAILY_TEMP,               // Daily temperature/humidity
-  DAILY_COST,               // Daily heating cost 
-  DAILY_KWH,                // Daily kWh consumption 
-  MONTHLY_TEMP,             // Monthly temperature/humidity 
+  DAILY_COST,               // Daily heating cost
+  DAILY_KWH,                // Daily kWh consumption
+  MONTHLY_TEMP,             // Monthly temperature/humidity
   MONTHLY_COST,             // Monthly heating cost
   MONTHLY_KWH,              // Monthly kWh consumption
   COMPARE_TEMP,             // Monthly temperature with last year's comparison bar chart
@@ -412,7 +413,7 @@ void setup()
   char  Time[32];
   int   chk, Cntr;
   bool  Done, InitFlag;
-  
+
   // Start by saving MaxLocations and DWEET name (used during first time configuration)
   MaxLocations = sizeof(Location) / 15;
   for(chk=0; chk<MaxLocations; chk++) { if(strcmp(Location[chk], "Basement") == 0) break; }
@@ -431,7 +432,7 @@ void setup()
 #ifdef BUILTIN_LED
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LED_ON);
-#endif  
+#endif
 
   // Display board name and firmware version
   Serial.begin(115200);
@@ -450,13 +451,13 @@ void setup()
     Serial.println("Failed to initialize EEPROM memory...");
     while(1);
   }
- 
+
   // Get EEPROM data
   EEPROM.get(CONFIG_OFFSET, Config);
   EEPROM.get(STATS_OFFSET, HeatingStats);
   EEPROM.get(SCHEDULE_OFFSET, Schedule);
   InitFlag = (Config.Init == DEVICETYPE && Config.CRC == Calc_CRC());
-  
+
   // Initialize display object
 #ifdef OLED_Display
   #if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
@@ -504,15 +505,15 @@ void setup()
       delay(1000);
 #ifdef OLED_Display
     } while(++Cntr < 21 && isnan(temperature));
-#else      
+#else
     } while(++Cntr < 14 && isnan(temperature));
-#endif    
+#endif
     if(!isnan(temperature))
     {
       Last_T = temperature;
       Last_H = humidity = dht.readHumidity();
       Done = true;
-      Serial.print("  OK!\n\nTemperature   = "); 
+      Serial.print("  OK!\n\nTemperature   = ");
       Serial.print(temperature, 1);
       if(InitFlag)
         Serial.printf(" %c\n", Config.Celcius ? 'C' : 'F');
@@ -539,14 +540,14 @@ void setup()
       {
 #ifdef BUILTIN_LED
         digitalWrite(LED_BUILTIN, LED_ON); delay(250);
-        digitalWrite(LED_BUILTIN, LED_OFF); delay(250);   
+        digitalWrite(LED_BUILTIN, LED_OFF); delay(250);
 #endif
       }
     }
   }
-  
+
   // If Init flag is not DEVICETYPE or CRC values doesn't match, then run first time init process
-  if(Config.Init != DEVICETYPE || Config.SoftReboot >= 3 || Config.CRC != Calc_CRC()) AP_Config();    
+  if(Config.Init != DEVICETYPE || Config.SoftReboot >= 3 || Config.CRC != Calc_CRC()) AP_Config();
 
   // Display heater size, kWh used, running cost
   CurrentTime = 0;
@@ -557,13 +558,13 @@ void setup()
   Serial.print("Consumption   = "); Serial.print(Calc_kWh(Config.HeatingTime), 2); Serial.print(" kWh\n");
   Serial.print("kWh cost      = "); Serial.print(Config.kWh_Cost, 1); Serial.println(" cents");
   Serial.print("Running cost  = $ "); Serial.print(Calc_HeatingCost(Config.HeatingTime), 2); Serial.print("\n");
-  if(strlen(Config.IO_USER) == 0) 
-  { 
-    Serial.print("Master Device = "); 
-    Serial.printf("%s\n", (strcmp(Config.Master, FusedMAC()) == 0 ? "YES" : Config.Master)); 
+  if(strlen(Config.IO_USER) == 0)
+  {
+    Serial.print("Master Device = ");
+    Serial.printf("%s\n", (strcmp(Config.Master, FusedMAC()) == 0 ? "YES" : Config.Master));
   }
   Serial.println();
-  
+
   // Set HOSTNAME
   sprintf(HOSTNAME, "Thermo-%s-OTA", Location[Config.DeviceLocation]);
 
@@ -573,19 +574,19 @@ void setup()
 
   // The only way I get here is if I'm connected, clear the SoftReboot counter
   Config.SoftReboot = 0;
-  Config.CRC = Calc_CRC();                        
+  Config.CRC = Calc_CRC();
   EEPROM.put(CONFIG_OFFSET, Config);
   EEPROM.commit();
 
   // Display connection info
   Serial.print("MAC Address = ");
   Serial.println(WiFi.macAddress());
-  Serial.print("IP Address  = "); 
+  Serial.print("IP Address  = ");
   Serial.println(WiFi.localIP());
   Serial.print("RSSI Signal = ");
   Serial.print(WiFi.RSSI());
   Serial.println(" dBm");
-    
+
   // Get time from NTP server
   Serial.print("Getting time from NTP server... ");
   setSyncProvider(getNTPTime);
@@ -597,9 +598,9 @@ void setup()
   Serial.printf("dweet.io name is %s\n", DWEETNAME);
   InitOTA();
 
-  // Print my Common Name if I have one defined 
+  // Print my Common Name if I have one defined
   if(strlen(Config.CommonName) != 0) Serial.printf("Location '%s' has a common name of \"%s\"\n", Location[Config.DeviceLocation], Config.CommonName);
-  
+
   // Default global variables and display initial temperature reading
   OTA_Update = HeatOn = SensorError = DweetFailed = LostWiFi = false;
   strcpy(googleText, "");
@@ -610,8 +611,8 @@ void setup()
   Serial.printf("Scheduling is %sabled.\n", (Schedule.Enabled ? "en" : "dis"));
   RequestedTemp = ScheduledTemp(Config.MinTemp);
   strcpy(googleText, "");
-  Serial.printf("Temperature will be set to %s %c\n", String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F')); 
-      
+  Serial.printf("Temperature will be set to %s %c\n", String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
+
   // Start WebServer
   Serial.println("Starting web service.");
   WebServer.begin();
@@ -625,7 +626,7 @@ void setup()
   // Init done, run program
 #ifdef BUILTIN_LED
   digitalWrite(LED_BUILTIN, LED_OFF);
-#endif  
+#endif
   Serial.printf("\n%s %s\nRunning program...\n", getDate(false), getTime(false));
   for(Cntr = 0; Cntr < 50; Cntr++) Serial.print("-");
   Serial.println();
@@ -640,7 +641,7 @@ void loop()
   float   temp;
   char    buf[32];
   String  MasterValue;
-  
+
   // Save current time
   CurrentTime = millis();
 
@@ -650,8 +651,8 @@ void loop()
   // before ending the action.  i.e. if I start an action one second before
   // the roll over value of 4,294,967,295 with a 3 second delay, I'd be waiting
   // for the clock to reach 4,294,969,295 which will never occur.
-  if(CurrentTime >= 4294967295UL - OneMinute) 
-  { 
+  if(CurrentTime >= 4294967295UL - OneMinute)
+  {
     // Wait for the roll over
     Serial.printf("[%s] Waiting for clock roll over.\n", getTime(false));
     while(millis() > 100);
@@ -663,21 +664,21 @@ void loop()
     delay(1000);
     ESP.restart();
     while(1);
-  }  
+  }
 
   // Check if still connected to the WiFi Access Point
   WiFiConnected = (WiFi.status() == WL_CONNECTED);
   if(!WiFiConnected && !LostWiFi) { Serial.printf("[%s] Lost WiFi connection.  Attempting to reconnect...\n", getTime(false)); LostWiFi = true; }
   if(WiFiConnected && LostWiFi) { Serial.printf("[%s] WiFi reconnected!\n", getTime(false)); LostWiFi = false; }
-  
+
   // Handle OTA process and do nothing else if I'm in an OTA Update
   ArduinoOTA.handle();
   if(OTA_Update) return;
   if(strlen(Config.IO_USER) != 0 && strlen(Config.IO_KEY) != 0) io.run();
-  
+
   // Check if I have a client connecting to web server
   ProcessClient();
-  
+
   // Time to turn off the backlight?
 #ifdef BackLight
   if(CurrentTime - DisplayTime >= DisplayDelay) digitalWrite(BackLight, LOW);
@@ -694,7 +695,7 @@ void loop()
       RequestedTemp = temp;
     }
   }
-  
+
   // Is it time to read the temperature sensor?
   if(CurrentTime - TempReading >= SensorDelay)
   {
@@ -711,7 +712,7 @@ void loop()
       SensorError = false;
 
       // Add temperature/humidity reading to hourly statistics
-      if(String(HeatingStats.Hourly[LastHour].Temperature, 1) == "nan" || 
+      if(String(HeatingStats.Hourly[LastHour].Temperature, 1) == "nan" ||
         String(HeatingStats.Hourly[LastHour].Temperature, 1) == "inf" ||
         String(HeatingStats.Hourly[LastHour].Humidity, 0) == "nan" ||
         String(HeatingStats.Hourly[LastHour].Humidity, 0) == "inf")
@@ -725,7 +726,7 @@ void loop()
       ++HeatingStats.Hourly[LastHour].Samples;
 
       // Add to daily statistics
-      if(String(HeatingStats.Daily[0].Temperature, 1) == "nan" || 
+      if(String(HeatingStats.Daily[0].Temperature, 1) == "nan" ||
         String(HeatingStats.Daily[0].Temperature, 1) == "inf" ||
         String(HeatingStats.Daily[0].Humidity, 0) == "nan" ||
         String(HeatingStats.Daily[0].Humidity, 0) == "inf")
@@ -739,7 +740,7 @@ void loop()
       ++HeatingStats.Daily[0].Samples;
 
       // Add to monthly statistics
-      if(String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "nan" || 
+      if(String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "nan" ||
         String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "inf" ||
         String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "nan" ||
         String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "inf")
@@ -751,7 +752,7 @@ void loop()
       HeatingStats.Monthly[0][LastMonth-1].Temperature += temperature;
       HeatingStats.Monthly[0][LastMonth-1].Humidity += humidity;
       ++HeatingStats.Monthly[0][LastMonth-1].Samples;
-      
+
       // Do I need to turn on the heat?
       if(!HeatOn && fabs(temperature - RequestedTemp) >= 0.5F && temperature < RequestedTemp)
       {
@@ -784,16 +785,16 @@ void loop()
       Last_T = temperature;
       Last_H = humidity;
     } else SensorError = true;
-      
+
     // Update display with new values (or sensor error message)
-    UpdateTemperature();   
+    UpdateTemperature();
 
     // Post to Adafruit if needed
     if(strlen(Config.IO_USER) != 0 && strlen(Config.IO_KEY) != 0) IO_Location->save(Last_T);
   }
 
   // Time to dweet new values?
-  if(CurrentTime - DweetTime > DweetDelay) DweetPost();  
+  if(CurrentTime - DweetTime > DweetDelay) DweetPost();
 
   // Update stats if it's time...
   UpdateStats();
@@ -819,9 +820,9 @@ void  WiFiConnect(void)
     // Initial Adafruit handlers and set up the message callback for feed
     io.init(Config.IO_USER, Config.IO_KEY);             // Modified Adafruit library
     GoogleHome->init();                                 // Modified Adafruit library
-    GoogleHome->onMessage(GoogleCommand);    
+    GoogleHome->onMessage(GoogleCommand);
     IO_Location->init(Location[Config.DeviceLocation]); // Modified Adafruit library
-    IO_Location->onMessage(IOCommand);    
+    IO_Location->onMessage(IOCommand);
     IO_Schedule->init();                                // Modified Adafruit library
     IO_Schedule->onMessage(IOSchedule);
     io.connect(Config.WiFi_SSID, Config.WiFi_PASS);     // Modified Adafruit library
@@ -834,14 +835,14 @@ void  WiFiConnect(void)
       display.clearDisplay();
       display.setTextSize(1);
       display.setCursor(0, 0);
-#ifdef OLED_Display       
+#ifdef OLED_Display
       display.println(FormatText("Connecting to", CENTER));
       if(strlen(Config.IO_USER) == 0 || strlen(Config.IO_KEY) == 0)
         display.println(FormatText(Config.WiFi_SSID, CENTER));
       else
         display.println(FormatText("ADAFRUIT", CENTER));
       display.println("\n\n\n");
-      display.drawXBitmap((display.width() - WiFi_Logo_width)/2, ((display.height() - WiFi_Logo_height)/2)+5, WiFi_Logo_bits, WiFi_Logo_width, WiFi_Logo_height, BLACK);  
+      display.drawXBitmap((display.width() - WiFi_Logo_width)/2, ((display.height() - WiFi_Logo_height)/2)+5, WiFi_Logo_bits, WiFi_Logo_width, WiFi_Logo_height, BLACK);
 #else
       display.setTextColor(WHITE, BLACK);
       display.println(FormatText("Startup", CENTER));
@@ -855,7 +856,7 @@ void  WiFiConnect(void)
         else
           display.println(" WiFi Network ");
       } else display.println(" Adafruit IO  ");
-#endif      
+#endif
       display.println();
       display.display();
     }
@@ -863,17 +864,17 @@ void  WiFiConnect(void)
       { if(WiFi.status() == WL_CONNECTED) WiFiConnected = true; }
     else
       { if(io.status() == AIO_CONNECTED) WiFiConnected = true; }
-    if(!WiFiConnected) 
-    { 
-      Serial.print("."); 
+    if(!WiFiConnected)
+    {
+      Serial.print(".");
       display.print(".");
       display.display();
       delay(1000);
 #ifdef OLED_Display
       if(++Cntr >= 21)
 #else
-      if(++Cntr >= 14) 
-#endif      
+      if(++Cntr >= 14)
+#endif
       {
         // WiFi connection failed, save config and reboot
         WiFi.disconnect();
@@ -885,7 +886,7 @@ void  WiFiConnect(void)
         display.println("\n\n\n\n");
 #ifdef OLED_Display
         display.println("\n");
-#endif  
+#endif
         display.println(FormatText("Failed!", CENTER));
         display.display();
         delay(5000);
@@ -901,7 +902,7 @@ void  WiFiConnect(void)
       display.println("\n\n\n\n");
 #ifdef OLED_Display
       display.println("\n");
-#endif  
+#endif
       display.println(FormatText("Connected!", CENTER));
       display.display();
       if(strlen(Config.IO_USER) != 0 && strlen(Config.IO_KEY) != 0)
@@ -914,28 +915,28 @@ void  WiFiConnect(void)
 
         // Check if the Adafruit MASTER feed already exits
         Serial.println(io.userAgent());
-        if(!GoogleHome->exists()) 
+        if(!GoogleHome->exists())
         {
-          Serial.print("Creating Adafruit MASTER feed...  ");        
+          Serial.print("Creating Adafruit MASTER feed...  ");
           if(!GoogleHome->create()) Serial.println("Failed!"); else Serial.println("OK!");
-        }      
+        }
 
         // Check if the Schedule feed exists
-        if(!IO_Schedule->exists()) 
+        if(!IO_Schedule->exists())
         {
-          Serial.print("Creating Adafruit Schedule feed...  ");        
+          Serial.print("Creating Adafruit Schedule feed...  ");
           if(!IO_Schedule->create()) Serial.println("Failed!"); else Serial.println("OK!");
-        }      
-        
+        }
+
         // Check if the Adafruit location feed already exits
-        if(!IO_Location->exists()) 
+        if(!IO_Location->exists())
         {
-          Serial.print("Creating Adafruit location feed...  ");        
+          Serial.print("Creating Adafruit location feed...  ");
           if(!IO_Location->create()) Serial.println("Failed!"); else Serial.println("OK!");
-        }  
+        }
 
         // Now check if the dashboard exists
-        if(!dashboard->exists()) 
+        if(!dashboard->exists())
         {
           Serial.print("Creating Thermostat dashboard... ");
           if(dashboard->create())
@@ -977,12 +978,12 @@ void  WiFiConnect(void)
             gauge->label = (Config.Celcius ? "Celcius" : "Farenheit");
             bool added = gauge->save(Location[Config.DeviceLocation]);
             Serial.println(added ? "OK!" : "Failed!");
-          }          
+          }
         }
       }
     }
-  }	//while(!WiFiConnected)
-}	//WiFiConnect
+  } //while(!WiFiConnected)
+} //WiFiConnect
 
 //
 // Initialize OTA functions
@@ -991,8 +992,8 @@ void  InitOTA(void)
 {
   ArduinoOTA.setHostname(HOSTNAME);
   ArduinoOTA.setPassword(OTA_PASS);
-  ArduinoOTA.onStart([]() 
-  { 
+  ArduinoOTA.onStart([]()
+  {
     OTA_Update = true;
     WebServer.stop();
 #ifdef BackLight
@@ -1009,14 +1010,14 @@ void  InitOTA(void)
 #ifdef OLED_Display
     display.println();
     display.setTextSize(3);
-#else    
+#else
     display.setTextSize(2);
     display.println("   0%");
-#endif    
+#endif
     display.display();
   });
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) 
-  { 
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total)
+  {
     int   p = (progress / (total / 100));
     char  buf[25];
     // Comment next line if you want to see increaments of 1% (slower OTA updates)
@@ -1033,9 +1034,9 @@ void  InitOTA(void)
 #ifdef OLED_Display
       display.println();
       display.setTextSize(3);
-#else    
+#else
       display.setTextSize(2);
-#endif      
+#endif
       display.print(" ");
       if(p <= 100) display.print(" ");
       if(p < 10) display.print(" ");
@@ -1048,8 +1049,8 @@ void  InitOTA(void)
       display.display();
     }
   });
-  ArduinoOTA.onEnd([]() 
-  { 
+  ArduinoOTA.onEnd([]()
+  {
     WiFi.disconnect();
     display.clearDisplay();
     display.setTextSize(1);
@@ -1062,10 +1063,10 @@ void  InitOTA(void)
     display.println();
     display.print(" ");
     display.setTextSize(3);
-#else    
+#else
     display.print(" ");
     display.setTextSize(2);
-#endif      
+#endif
     display.print(" DONE");
     display.setTextSize(1);
     display.println();
@@ -1073,12 +1074,12 @@ void  InitOTA(void)
     display.println();
 #ifdef OLED_Display
     display.println();
-#endif        
+#endif
     display.print(FormatText("Rebooting!", CENTER));
     display.display();
     delay(2000);
   });
-  ArduinoOTA.onError([](ota_error_t error) 
+  ArduinoOTA.onError([](ota_error_t error)
   {
     display.clearDisplay();
     display.setTextSize(1);
@@ -1101,16 +1102,16 @@ void  InitOTA(void)
     delay(5000);
     ESP.restart();
   });
-  ArduinoOTA.begin();  
+  ArduinoOTA.begin();
 }
 
 //
-// Update statistics 
+// Update statistics
 //
 void  UpdateStats(void)
 {
   int   Cntr;
-  
+
   if(LastHour != hour())
   {
     // Average out the temperature and humidity reading
@@ -1125,7 +1126,7 @@ void  UpdateStats(void)
       HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (CurrentTime - HourlyHeatOnTime) / OneSecond;
       HourlyHeatOnTime = CurrentTime;
     }
-    HeatingStats.Hourly[LastHour].Samples = 0;    
+    HeatingStats.Hourly[LastHour].Samples = 0;
 
     // Save new LastHour value and write back to EEPROM
     LastHour = hour();
@@ -1157,7 +1158,7 @@ void  UpdateStats(void)
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
   }
-  
+
   // Time to update monthly stats?
   if(LastMonth != month())
   {
@@ -1181,14 +1182,14 @@ void  UpdateStats(void)
     HeatingStats.Monthly[0][LastMonth-1].Humidity = Last_H;
     HeatingStats.Monthly[0][LastMonth-1].Samples = 1;
     EEPROM.commit();
-  }  
+  }
 
   // Time to do a auto-save on the statistical data?
   if(CurrentTime - DataSave > 15 * OneMinute)
   {
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
-    DataSave = CurrentTime;    
+    DataSave = CurrentTime;
   }
 }
 
@@ -1206,13 +1207,13 @@ void UpdateTemperature(void)
   display.println();
 #ifdef OLED_Display
   display.println();
-#endif  
+#endif
   display.printf(" %c  ", (Schedule.Enabled ? 'S' : ' '));
-#ifdef OLED_Display  
+#ifdef OLED_Display
   display.setTextSize(3);
 #else
   display.setTextSize(2);
-#endif  
+#endif
   if(Last_T < 10.0) display.print(" ");
   display.print(Last_T, 1);
   display.setTextSize(1);
@@ -1223,11 +1224,11 @@ void UpdateTemperature(void)
   display.println();
 #ifdef OLED_Display
   display.println();
-#endif  
+#endif
   if(WiFiConnected)
   {
     renderRSSIIcon();
-    if(strlen(googleText) != 0)    
+    if(strlen(googleText) != 0)
       display.println(FormatText(googleText, CENTER));
     else
       display.println((DweetFailed ? FormatText("dweet failed", CENTER) : (SensorError ? FormatText("sensor", CENTER) : "")));
@@ -1238,9 +1239,9 @@ void UpdateTemperature(void)
 #ifdef OLED_Display
   display.printf("%s ", dayShortStr(weekday()));
   display.printf("%s-%02d %s  ", monthShortStr(month()), day(), getTime(true));
-#else    
+#else
   display.printf("%s %s  ", getTime(true), dayShortStr(weekday()));
-#endif  
+#endif
   display.print(Last_H, 0);
   display.println("%");
   display.display();
@@ -1255,9 +1256,9 @@ char *getTime(bool Short)
 
   // Default buffer
   if(Short) strcpy(Buffer, "00:00"); else strcpy(Buffer, "00:00:00");
-  
+
   // Check if I have the time set
-  if(timeStatus() != timeSet) 
+  if(timeStatus() != timeSet)
   {
     Serial.println("[getTime] TimeStatus() not set!");
     if(!getNTPTime()) return Buffer;    // Unable to get time from NTP server
@@ -1281,9 +1282,9 @@ char *getDate(bool Short)
 
   // Default buffer
   strcpy(Buffer, "??? ??? ?? ????");
-  
+
   // Check if I have the time set
-  if(timeStatus() != timeSet) 
+  if(timeStatus() != timeSet)
     if(!getNTPTime()) return Buffer;    // Unable to get time from NTP server
 
   // I have a valid time...
@@ -1320,7 +1321,7 @@ void UpTime(char *Buf)
 char *FormatText(char *Text, int Mode)
 {
   static char buf[25];
-#ifdef OLED_Display  
+#ifdef OLED_Display
   strcpy(buf, "                     ");
   int i = (22 - strlen(Text)) / 2;
   if(Mode == CENTER) memcpy(&buf[i], Text, strlen(Text));
@@ -1332,7 +1333,7 @@ char *FormatText(char *Text, int Mode)
   if(Mode == CENTER) memcpy(&buf[i], Text, strlen(Text));
   if(Mode == LEFT) sprintf(buf, "%-14s", Text);
   if(Mode == RIGHT) sprintf(buf, "%14s", Text);
-#endif  
+#endif
   return buf;
 }
 
@@ -1351,15 +1352,15 @@ void AP_Config(void)
   int     Pos, Cntr, net, i;
   char    buf[32];
   String  Msg, value;
-    
+
   // Create server object on port 80
   WiFiServer server(80);
   WiFiClient client;
-  
+
   // Config access point.
   String AP_SSID = "Thermostat-" + String(FusedMAC());
   Serial.printf("\nConfiguring Access point \"%s\"...  ", AP_SSID.c_str());
-  if(!WiFi.softAP(AP_SSID.c_str(), NULL)) 
+  if(!WiFi.softAP(AP_SSID.c_str(), NULL))
   {
     Serial.println("Failed!\nUnable to initialize.");
     while(1);
@@ -1380,43 +1381,43 @@ void AP_Config(void)
   display.println();
 #else
   display.print(buf);
-#endif  
+#endif
   display.println();
   display.println(FormatText("Connect to", CENTER));
   display.println(FormatText("Thermostat AP", CENTER));
   display.println(FormatText("then browser", CENTER));
   display.println(FormatText("192.168.4.1", CENTER));
   display.display();
-  
+
   // Loop here until a client has connected and sent a good config record
   while(!Done)
   {
 #ifdef BUILTIN_LED
-    for(i=0; i<2; i++) 
+    for(i=0; i<2; i++)
     {
       // This is just to visualize that I'm waiting for a client to connect
-      digitalWrite(LED_BUILTIN, LED_ON); delay(100); 
+      digitalWrite(LED_BUILTIN, LED_ON); delay(100);
       digitalWrite(LED_BUILTIN, LED_OFF); delay(100);
     }
-#endif    
+#endif
     delay(1000);
     client = server.available();
-    if(client) 
+    if(client)
     {
       // We have a new client!
       ClearStats = (Config.Init == DEVICETYPE && Config.CRC == Calc_CRC());
 #ifdef BUILTIN_LED
       digitalWrite(LED_BUILTIN, LED_ON);
-#endif    
-      
+#endif
+
       String currentLine = "";
-      while(client.connected()) 
+      while(client.connected())
       {
         // If data is available, read bytes
-        if(client.available()) 
+        if(client.available())
         {
           char c = client.read();
-          if(c == '\n') 
+          if(c == '\n')
           {
             // If the current line is blank, and you get two newline characters in a row,
             // that's the end of the client HTTP request header
@@ -1424,7 +1425,7 @@ void AP_Config(void)
             {
               // Is was for the icon, send it and break out
               if(Icon) { SendIcon(client); break; }
-              
+
               // Send HTTP response code
               // and a content-type so the client knows what's coming, then a blank line
               client.println("HTTP/1.1 200 OK");
@@ -1447,23 +1448,23 @@ void AP_Config(void)
 //Serial.println(Msg);
                 Pos = Msg.indexOf("SSID=");
                 if(Pos != -1) value = Msg.substring(Pos+5, Msg.indexOf("&PASS"));
-                if(value == "") 
+                if(value == "")
                   Post = false;
                 else
                   strcpy(Config.WiFi_SSID, value.c_str());
-//Serial.println(Config.WiFi_SSID);                  
+//Serial.println(Config.WiFi_SSID);
                 Pos = Msg.indexOf("PASS=");
                 if(Pos != -1) value = Msg.substring(Pos+5, Msg.indexOf("&LOC"));
                 strcpy(Config.WiFi_PASS, value.c_str());
-//Serial.println(Config.WiFi_PASS);                  
+//Serial.println(Config.WiFi_PASS);
                 Pos = Msg.indexOf("LOC=");
                 if(Pos != -1) value = Msg.substring(Pos+4, Msg.indexOf("&COMMON"));
                 Config.DeviceLocation = value.toInt();
-//Serial.println(Config.DeviceLocation);                  
+//Serial.println(Config.DeviceLocation);
                 Pos = Msg.indexOf("COMMON=");
                 if(Pos != -1) value = Msg.substring(Pos+7, Msg.indexOf("&DEGREES"));
                 strcpy(Config.CommonName, value.c_str());
-//Serial.println(Config.CommonName);                  
+//Serial.println(Config.CommonName);
 
                 // Make sure common name entered is not defined as a location
                 for(Pos=0; Pos<MaxLocations; Pos++) if(strcmp(Location[Pos], Config.CommonName) == 0) Post = false;
@@ -1471,11 +1472,11 @@ void AP_Config(void)
                 Pos = Msg.indexOf("DEGREES=");
                 if(Pos != -1) value = Msg.substring(Pos+8, Msg.indexOf("&TEMP"));
                 Config.Celcius = value.toInt();
-//Serial.println(Config.Celcius);                  
+//Serial.println(Config.Celcius);
                 Pos = Msg.indexOf("TEMP=");
                 if(Pos != -1) value = Msg.substring(Pos+5, Msg.indexOf("&WATTS"));
                 Config.MinTemp = value.toFloat();
-//Serial.println(Config.MinTemp);                  
+//Serial.println(Config.MinTemp);
                 if(Config.MinTemp < (Config.Celcius ? 5 : 41) || Config.MinTemp > (Config.Celcius ? 30 : 86))
                 {
                   client.print("<center><font color=\"#FF0000\">Invalid minimum temperature!<font color=\"#000000\"><br>Must be between 5 and 30 for Celcius<br>between 41 and 86 for Farenheit.</center><br><br>");
@@ -1484,32 +1485,32 @@ void AP_Config(void)
                 Pos = Msg.indexOf("WATTS=");
                 if(Pos != -1) value = Msg.substring(Pos+6, Msg.indexOf("&COST"));
                 Config.Watts = value.toFloat();
-//Serial.println(Config.Watts);                  
+//Serial.println(Config.Watts);
                 Pos = Msg.indexOf("COST=");
                 if(Pos != -1) value = Msg.substring(Pos+5, Msg.indexOf("&MASTER"));
                 Config.kWh_Cost = value.toFloat();
-//Serial.println(Config.kWh_Cost);                  
+//Serial.println(Config.kWh_Cost);
                 Pos = Msg.indexOf("MASTER=");
                 if(Pos != -1) value = Msg.substring(Pos+7, Msg.indexOf("&IO_USER"));
                 strcpy(Config.Master, value.c_str());
-//Serial.println(Config.Master);                  
+//Serial.println(Config.Master);
                 Pos = Msg.indexOf("IO_USER=");
                 if(Pos != -1) value = Msg.substring(Pos+8, Msg.indexOf("&IO_KEY"));
                 strcpy(Config.IO_USER, value.c_str());
-//Serial.println(Config.IO_USER);                  
+//Serial.println(Config.IO_USER);
                 Pos = Msg.indexOf("IO_KEY");
                 if(Pos != -1) value = Msg.substring(Pos+7);
                 Pos = value.indexOf("&CLEAR");
                 if(Pos != -1) value = value.substring(0, Pos);
                 strcpy(Config.IO_KEY, value.c_str());
-//Serial.println(Config.IO_KEY);    
+//Serial.println(Config.IO_KEY);
                 if(ClearStats)
-                {              
+                {
                   Pos = Msg.indexOf("CLEAR=on");
                   if(Pos != -1) ClearStats = true; else ClearStats = false;
                 } else ClearStats = true;
-//Serial.println(ClearStats);                  
-                
+//Serial.println(ClearStats);
+
                 // If Post is still TRUE, try to connect to WiFi network
                 if(Post)
                 {
@@ -1542,14 +1543,14 @@ void AP_Config(void)
                       Serial.printf("Location \"%s\" already used!\n", Location[Config.DeviceLocation]);
                       client.printf("Location \"<b>%s</b>\" already in use!</center><br>", Location[Config.DeviceLocation]);
                       ClearStats = (Config.Init == DEVICETYPE && Config.CRC == Calc_CRC());
-                    }   
+                    }
                     else
                     {
                       // Everything was good...
                       Serial.printf("Location \"%s\" not in use.\n", Location[Config.DeviceLocation]);
                       client.printf("Location '<b>%s</b>' added to the network.<br>", Location[Config.DeviceLocation]);
                       if(strlen(Config.CommonName) != 0) client.printf("You can reference it as \"<b>%s</b>\" with Google Home.<br>", Config.CommonName);
-                      if(Count == 0 && strlen(Config.IO_USER) == 0 && strlen(Config.IO_KEY) == 0) 
+                      if(Count == 0 && strlen(Config.IO_USER) == 0 && strlen(Config.IO_KEY) == 0)
                       {
                         client.print("<br>This is now your \"<font color=\"#FF0000\">MASTER<font color=\"#000000\">\" device for Google Home.<br>");
                         client.print("Please write down the device number above.<br>");
@@ -1558,7 +1559,7 @@ void AP_Config(void)
                       }
                       client.print("<br>Now go and create your <a href=\"https://ifttt.com\" target=\"_blank\">IFTTT</a> applet.<br>");
                       client.printf("<br>Your <b>dweet.io</b> name is <a href=\"https://dweet.io/follow/%s\" target=\"_blank\">%s</a>", DWEETNAME, DWEETNAME);
-                      client.print("<br><br>Device IP address is: <a href=\"http://"); 
+                      client.print("<br><br>Device IP address is: <a href=\"http://");
                       client.print(WiFi.localIP());
                       client.print("\" target=\"_blank\">");
                       client.print(WiFi.localIP());
@@ -1566,11 +1567,11 @@ void AP_Config(void)
                       client.println();
                       client.println();
                       client.flush();
-                      
+
                       // Save config record
                       Config.Init = DEVICETYPE;
                       Config.Contrast = 60;
-                      Config.CRC = Calc_CRC();                        
+                      Config.CRC = Calc_CRC();
                       EEPROM.put(CONFIG_OFFSET, Config);
 
                       // Do I need to clear HeatingStats and Schedule?
@@ -1589,14 +1590,14 @@ void AP_Config(void)
                   }
                 }
               }
-            
+
               // Get list of available WiFi networks
               net = WiFi.scanNetworks();
               client.print("<form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/\">");
               client.print("<center><table border=\"1\" width=\"40%\"><tr><td align=\"right\">WiFi Network&nbsp</td><td>\n<select name=\"SSID\">");
-              if(net <= 0) 
+              if(net <= 0)
                 client.println("<option value=\"\">No networks found!</option>");
-              else 
+              else
                 for(i=0; i<net; ++i) client.printf("<option value=\"%s\">%s</option>\n", WiFi.SSID(i).c_str(), WiFi.SSID(i).c_str());
               client.print("</select>\n&nbsp&nbsp&nbsp<a href=\"/\" title=\"Refresh WiFi network list\">Refresh</a></td></tr>");
               client.print("<tr><td align=\"right\">Passphrase&nbsp</td><td><input type=\"text\" name=\"PASS\" value=\"\" placeholder=\"Network Password\"></td></tr>");
@@ -1633,7 +1634,7 @@ void AP_Config(void)
           if(currentLine.endsWith("GET /favicon.ico")) Icon = true;
         }
       }
-        
+
       // Close the connection
       client.flush();
       delay(2000);
@@ -1645,14 +1646,14 @@ void AP_Config(void)
         WiFi.softAPdisconnect();
         WiFi.disconnect();
         delay(2000);
-        ESP.restart(); 
-        while(1);                 
+        ESP.restart();
+        while(1);
       }
       Icon = Post = false;
     }
 #ifdef BUILTIN_LED
     digitalWrite(LED_BUILTIN, LED_OFF);
-#endif    
+#endif
   }
 }
 
@@ -1665,17 +1666,17 @@ void DweetPost(void)
   int     httpCode, i;
   float   temp;
   char    buf[64], buf1[32];
-  
+
   // If not connected to WiFi, just exit
   if(!WiFiConnected) { DweetTime = millis(); return; }
-  
+
 #ifdef BUILTIN_LED
   digitalWrite(LED_BUILTIN, LED_ON);
-#endif  
+#endif
   DweetFailed = true;
   MyLocation = String(Location[Config.DeviceLocation]);
   MyLocation.toUpperCase();
-  
+
   // First check if Google home has posted an updated temperature configuration if using dweet.io
   if(strlen(Config.IO_USER) == 0 || strlen(Config.IO_KEY) == 0)
   {
@@ -1684,18 +1685,18 @@ void DweetPost(void)
     http.setTimeout(10000);
     http.begin(postData);
     httpCode = http.GET();
-    if(httpCode == HTTP_CODE_OK) 
+    if(httpCode == HTTP_CODE_OK)
     {
       // Get response and parse it to get the MinTemp field
       response = http.getString();
-  
+
       // Get the created data from response
       i = response.indexOf("\"created\"");
       if(i != -1)
       {
         // Save the date/time the message was created
         strcpy(buf, response.substring(i+11, response.indexOf("Z\",\"")).c_str());
-  
+
         // Is the created date different then last one I received?
         if(strcmp(buf, Config.LastUpdated) != 0)
         {
@@ -1707,7 +1708,7 @@ void DweetPost(void)
           {
             response = response.substring(i);
             i = response.indexOf("\",");
-            if(i != -1) 
+            if(i != -1)
             {
               ForLocation = response.substring(11, i);
               // Check if there's an apostrophe "'" in the location and remove spaces around it
@@ -1716,7 +1717,7 @@ void DweetPost(void)
               if(i != -1) ForLocation = ForLocation.substring(0, i-1) + "'" + ForLocation.substring(i+2);
             }
           }
-  
+
           // Is this request for MyLocation or for all thermostats
           if(MyLocation == ForLocation || (ForLocation == "HOME" && Config.DeviceLocation < ExcludeLocation) || strcmp(Config.CommonName, ForLocation.c_str()) == 0)
           {
@@ -1725,10 +1726,10 @@ void DweetPost(void)
 #ifdef BackLight
             digitalWrite(BackLight, HIGH);
             DisplayTime = millis();
-#endif          
+#endif
             i = response.indexOf("MINTEMP");
-            if(i != -1) 
-            { 
+            if(i != -1)
+            {
               // Extract requested temperature
               response = response.substring(i);
               i = response.indexOf("}");
@@ -1736,10 +1737,10 @@ void DweetPost(void)
               Serial.printf("[%s] Google = MinTemp \"%s\"\n", getTime(false), response.c_str());
               if(response.length() < 5) sprintf(googleText, "-> %s <-", response.c_str());
               float MinTemp = response.toFloat();
-    
+
               // Validate new temperature
               if(MinTemp < (Config.Celcius ? MinCelcius : MinFarenheit) || MinTemp > (Config.Celcius ? MaxCelcius : MaxFarenheit))
-                strcpy(googleText, "temp error");        
+                strcpy(googleText, "temp error");
               else
               {
                 // Save new temperature and disable scheduling
@@ -1748,7 +1749,7 @@ void DweetPost(void)
                 EEPROM.put(SCHEDULE_OFFSET, Schedule);
               }
             }
-  
+
             // Am I being ask to run the programmed schedule?
             // This is in response to a "Ok Google, run $ heating schedule" command
             i = response.indexOf("SCHEDULE");
@@ -1761,16 +1762,16 @@ void DweetPost(void)
               {
                 Schedule.Enabled = true;
                 EEPROM.put(SCHEDULE_OFFSET, Schedule);
-                EEPROM.commit();        
+                EEPROM.commit();
               } else RequestedTemp = temp;
             }
           }
-  
+
           // Save date/time of last message from Google Home
-          Config.CRC = Calc_CRC();                        
+          Config.CRC = Calc_CRC();
           EEPROM.put(CONFIG_OFFSET, Config);
           EEPROM.commit();
-  
+
           // Update new temperature
           DweetFailed = false;
           UpdateTemperature();
@@ -1781,13 +1782,13 @@ void DweetPost(void)
     {
       // Failed reading the Google Home feed.
       Serial.printf("[%s] Dweet get error = %d (%s)\n", getTime(false), httpCode, http.errorToString(httpCode).c_str());
-  
+
       // Exit from here if the connection is refused.  Otherwise do nothing
       if(httpCode == HTTPC_ERROR_CONNECTION_REFUSED)
       {
 #ifdef BUILTIN_LED
         digitalWrite(LED_BUILTIN, LED_OFF);
-#endif  
+#endif
         http.setReuse(false);
         http.end();
         DweetTime = millis();
@@ -1795,7 +1796,7 @@ void DweetPost(void)
       }
     }
   }
-  
+
   // Now post current values
   DweetFailed = true;
   UpTime(buf1);
@@ -1813,25 +1814,25 @@ void DweetPost(void)
   postData += "&kWh_Used=" + String(Calc_kWh(Config.HeatingTime + (HeatOn ? (CurrentTime - HeatOnTime) / OneSecond : 0))) + " kWh";
   postData += "&Firmware=" + String(FIRMWARE);
   postData += "&IP=" + WiFi.localIP().toString();
-  postData += "&UpTime=" + String(buf1);  
-  
+  postData += "&UpTime=" + String(buf1);
+
   // Replace any spaces in postData with '%20'
   postData.replace(" ", "%20");
   http.setReuse(false);
   http.setTimeout(10000);
   http.begin(postData);
   httpCode = http.GET();
-  if(httpCode == HTTP_CODE_OK) 
-    DweetFailed = false; 
+  if(httpCode == HTTP_CODE_OK)
+    DweetFailed = false;
   else
     Serial.printf("[%s] Dweet post error = %d\n", getTime(false), httpCode);
-  
+
   // End connection and save dweet time
   http.end();
   DweetTime = millis();
 #ifdef BUILTIN_LED
   digitalWrite(LED_BUILTIN, LED_OFF);
-#endif  
+#endif
 }
 
 //
@@ -1857,7 +1858,7 @@ void GoogleCommand(AdafruitIO_Data *data)
   if(i != -1) ForLocation = ForLocation.substring(0, i-1) + "'" + ForLocation.substring(i+2);
 
   // Extract destination location from message if there is one.
-  // If there's none, then it's for all thermostats and it was 
+  // If there's none, then it's for all thermostats and it was
   // changed/set by the Adafruit dashboard
   i = value.indexOf("=");
   if(i != -1)
@@ -1889,13 +1890,13 @@ void GoogleCommand(AdafruitIO_Data *data)
         // There was one
         Schedule.Enabled = true;
         EEPROM.put(SCHEDULE_OFFSET, Schedule);
-        EEPROM.commit();        
+        EEPROM.commit();
 
         // Save new temp to feed
         Serial.printf("[%s] Scheduled temperature now set to %s %c\n", getTime(false), String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
         IO_Schedule->save("ON");
-      } 
-      else 
+      }
+      else
       {
         // There's no schedule
         RequestedTemp = temp;
@@ -1904,7 +1905,7 @@ void GoogleCommand(AdafruitIO_Data *data)
     else
     {
       if(temp < (Config.Celcius ? MinCelcius : MinFarenheit) || temp > (Config.Celcius ? MaxCelcius : MaxFarenheit))
-        strcpy(googleText, "temp error");        
+        strcpy(googleText, "temp error");
       else
       {
         // Save new temperature and disable scheduling
@@ -1919,7 +1920,7 @@ void GoogleCommand(AdafruitIO_Data *data)
 
     // Update display with new value
     strcpy(Config.LastUpdated, getTime(false));
-    Config.CRC = Calc_CRC();                        
+    Config.CRC = Calc_CRC();
     EEPROM.put(CONFIG_OFFSET, Config);
     UpdateTemperature();
   }
@@ -1932,7 +1933,7 @@ void IOSchedule(AdafruitIO_Data *data)
 {
   String  value;
   float   temp;
-  
+
   // Save initial value
   value = data->value();
   value.toUpperCase();
@@ -1949,22 +1950,22 @@ void IOSchedule(AdafruitIO_Data *data)
     // There was one
     Schedule.Enabled = true;
     EEPROM.put(SCHEDULE_OFFSET, Schedule);
-    EEPROM.commit();        
+    EEPROM.commit();
     Serial.printf("[%s] Scheduled temperature now set to %s %c\n", getTime(false), String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
-  } 
-  else 
+  }
+  else
   {
     // There's no schedule or value was "OFF"
     RequestedTemp = Config.MinTemp;
     Schedule.Enabled = false;
     EEPROM.put(SCHEDULE_OFFSET, Schedule);
-    EEPROM.commit();        
+    EEPROM.commit();
     Serial.printf("[%s] Temperature now set to %s %c\n", getTime(false), String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
   }
 
   // Update display with new value
   strcpy(Config.LastUpdated, getTime(false));
-  Config.CRC = Calc_CRC();                        
+  Config.CRC = Calc_CRC();
   EEPROM.put(CONFIG_OFFSET, Config);
   UpdateTemperature();
 }
@@ -1984,7 +1985,7 @@ void IOCommand(AdafruitIO_Data *data)
 float Calc_kWh(unsigned long HeatTime)
 {
   float energyUsed = 0.00;
-  
+
   // energyUsed = wattage * timeUsed (in hours) / 1000   (to get kWh used)
   energyUsed = (Config.Watts * (HeatTime / 3600.0F)) / 1000.0F;
   return(energyUsed);
@@ -1996,7 +1997,7 @@ float Calc_kWh(unsigned long HeatTime)
 float Calc_HeatingCost(unsigned long HeatTime)
 {
   float Cost = 0.00;
-  
+
   // Do I have a valid kWh cost?
   if(Config.kWh_Cost == 0.00F) return(0.00F);
 
@@ -2013,7 +2014,7 @@ float Calc_HeatingCost(unsigned long HeatTime)
 char *FusedMAC(void)
 {
   static char buf[15];
-  
+
   uint64_t chipid = ESP.getEfuseMac();
   sprintf(buf, "%04X", (uint16_t)(chipid>>32));
   sprintf(&buf[4], "%08X", (uint32_t)chipid);
@@ -2027,9 +2028,9 @@ int rssiToQualityPercentage(void)
 {
   int quality, rssi;
   rssi = WiFi.RSSI();
-  if(rssi <= -100) 
+  if(rssi <= -100)
     quality = 0;
-  else 
+  else
     if(rssi >= -50) quality = 100; quality = 2 * (rssi + 100);
   return quality;
 }
@@ -2039,21 +2040,21 @@ int rssiToQualityPercentage(void)
 //
 void renderRSSIIcon(void)
 {
-#ifdef OLED_Display  
+#ifdef OLED_Display
   #define RSSIICON_STARTX      99
   #define RSSIICON_STARTY      41
   #define RSSIICON_STARTHEIGHT 4
-#else  
-  #define RSSIICON_STARTX      69 
-  #define RSSIICON_STARTY      27 
+#else
+  #define RSSIICON_STARTX      69
+  #define RSSIICON_STARTY      27
   #define RSSIICON_STARTHEIGHT 3
 #endif
   #define RSSIICON_BARWIDTH    2
 
   int quality = rssiToQualityPercentage();
   if(quality != 0) display.fillRect(RSSIICON_STARTX, RSSIICON_STARTY, RSSIICON_BARWIDTH, RSSIICON_STARTHEIGHT, BLACK);
-  if(quality >= 45) display.fillRect(RSSIICON_STARTX + 3, RSSIICON_STARTY - 1, RSSIICON_BARWIDTH, RSSIICON_STARTHEIGHT + 1, BLACK);      
-  if(quality >= 70) display.fillRect(RSSIICON_STARTX + 6, RSSIICON_STARTY - 2, RSSIICON_BARWIDTH, RSSIICON_STARTHEIGHT + 2, BLACK);      
+  if(quality >= 45) display.fillRect(RSSIICON_STARTX + 3, RSSIICON_STARTY - 1, RSSIICON_BARWIDTH, RSSIICON_STARTHEIGHT + 1, BLACK);
+  if(quality >= 70) display.fillRect(RSSIICON_STARTX + 6, RSSIICON_STARTY - 2, RSSIICON_BARWIDTH, RSSIICON_STARTHEIGHT + 2, BLACK);
   if(quality >= 90) display.fillRect(RSSIICON_STARTX + 9, RSSIICON_STARTY - 3, RSSIICON_BARWIDTH, RSSIICON_STARTHEIGHT + 3, BLACK);
 }
 
@@ -2069,20 +2070,20 @@ bool findService(char *ScanName, int *Count)
   // Build name to search for on network
   sprintf(buf, "Thermo-%s", ScanName);
   strcpy(buf1, "Thermo-OTA");
-  
+
   // Do I need to start the mDNS service?
-  if(ArduinoOTA.getHostname().length() == 0) 
+  if(ArduinoOTA.getHostname().length() == 0)
   {
     Serial.print("Starting mDNS service... ");
     if(!MDNS.begin(buf1))
     {
      // Return TRUE as the code will think that I've found another device with the same location name
-     Serial.println("Failed!");    
+     Serial.println("Failed!");
      *Count = cntr;
      return(true);
     }
     else
-     Serial.println("OK!");    
+     Serial.println("OK!");
   }
 
   // Scan for devices that have Arduino OTA enabled
@@ -2090,34 +2091,34 @@ bool findService(char *ScanName, int *Count)
   {
     delay(500);
     MDNS_Services = MDNS.queryService("arduino", "tcp");
-    if(MDNS_Services != 0) 
+    if(MDNS_Services != 0)
     {
-      for(int i = 0; i < MDNS_Services; i++) 
+      for(int i = 0; i < MDNS_Services; i++)
       {
         // Did I find a thermostat?
         Serial.printf("  %d: %s (%s)\n", i+1, MDNS.hostname(i).c_str(), MDNS.IP(i).toString().c_str());
         if(MDNS.hostname(i).indexOf("Thermo-") != -1) ++cntr;
         if(MDNS.hostname(i).indexOf(buf) != -1) Found = true;
       }
-    } 
+    }
     if(MDNS_Services != 0) break; else Serial.printf("Scan %d, no services found...\n", j+1);
   }
-  
+
   // Return scan result
   *Count = cntr;
   return(Found);
 }
 
 //
-// Get time from NTP time server 
+// Get time from NTP time server
 //
-time_t getNTPTime(void) 
+time_t getNTPTime(void)
 {
   const int NTP_PACKET_SIZE = 48;
   byte packetBuffer[ NTP_PACKET_SIZE];
 
   // time.nist.gov NTP server
-  IPAddress timeServer(129, 6, 15, 28); 
+  IPAddress timeServer(129, 6, 15, 28);
 
   // Clear packet buffer
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
@@ -2180,13 +2181,13 @@ void ArduinoLogo(int Pause)
   display.setCursor(0, 0);
   display.setTextSize(1);
   display.setTextColor(BLACK, WHITE);
-#ifdef OLED_Display  
+#ifdef OLED_Display
   display.println(FormatText(FIRMWARE, CENTER));
-#endif  
+#endif
   display.println(FormatText("Powered by", CENTER));
   #ifdef Arduino_Logo_width && OLED_Display
     // Method 1:  Display the XBM logo
-    display.drawXBitmap((display.width() - Arduino_Logo_width)/2, display.height() - Arduino_Logo_height, Arduino_Logo_bits, Arduino_Logo_width, Arduino_Logo_height, BLACK);  
+    display.drawXBitmap((display.width() - Arduino_Logo_width)/2, display.height() - Arduino_Logo_height, Arduino_Logo_bits, Arduino_Logo_width, Arduino_Logo_height, BLACK);
   #else
     // Method 2:  Draw circles
     int i = display.width();
@@ -2195,21 +2196,21 @@ void ArduinoLogo(int Pause)
     display.println();
     display.println();
     display.println();
-  #ifdef OLED_Display  
+  #ifdef OLED_Display
       display.println(FormatText("ARDUINO", CENTER));
   #else
       display.println(FormatText(FIRMWARE, CENTER));
-  #endif    
+  #endif
     display.drawCircle((i/2)-8, h, 9, BLACK);
     display.drawCircle((i/2)-8, h, 8, BLACK);
     display.drawCircle((i/2)-8, h, 7, BLACK);
     display.drawCircle((i/2)+8, h, 9, BLACK);
     display.drawCircle((i/2)+8, h, 8, BLACK);
     display.drawCircle((i/2)+8, h, 7, BLACK);
-    display.drawLine((i/2)-12, h, (i/2)-4, h, BLACK); 
-    display.drawLine((i/2)+4, h, (i/2)+12, h, BLACK); 
-    display.drawLine((i/2)+8, h-4, (i/2)+8, h+4, BLACK); 
-  #endif    
+    display.drawLine((i/2)-12, h, (i/2)-4, h, BLACK);
+    display.drawLine((i/2)+4, h, (i/2)+12, h, BLACK);
+    display.drawLine((i/2)+8, h-4, (i/2)+8, h+4, BLACK);
+  #endif
     display.display();
   if(Pause > 0) delay(Pause);
 }
@@ -2223,7 +2224,7 @@ unsigned int Calc_CRC(void)
   uint crc = 0;
   char *ptr = (char *)&Config;
   byte b;
-  
+
   for(int j=0; j<sizeof(Config)-sizeof(Config.CRC); ptr++, j++)
   {
     b = (byte)*(ptr);
@@ -2232,7 +2233,7 @@ unsigned int Calc_CRC(void)
     {
       if ((crc & 0x80000000) != 0)
         crc = (uint)((crc << 1) ^ polynomial);
-      else            
+      else
         crc <<= 1;
     }
   }
@@ -2258,7 +2259,7 @@ void  ProcessClient(void)
 
   // Do I have a client to process?
   if(!WebClient) return;
-  
+
   // I have a client connecting
   DisplayTime = CurrentTime;
   strcpy(googleText, "WebClient");
@@ -2267,12 +2268,12 @@ void  ProcessClient(void)
   // Save current stats
   EEPROM.put(STATS_OFFSET, HeatingStats);
   EEPROM.commit();
-  
+
   // Loop here while the client is still connected
   ChartType = HOURLY_TEMP;
   while(WebClient.connected())
   {
-    if(WebClient.available()) 
+    if(WebClient.available())
     {
       Line = WebClient.readStringUntil('\n');
       if(Line == "\r")
@@ -2284,7 +2285,7 @@ void  ProcessClient(void)
         if(Reset || Conf || Post) ChartType = CHART_NONE;
         WebPageHead(WebClient, Location[Config.DeviceLocation], ChartType);
         WebClient.printf("<center><H3>Device = <a href=\"https://dweet.io/follow/Thermo-");
-        WebClient.printf("%s\" target=\"_blank\">%s</a>", FusedMAC(), FusedMAC());            
+        WebClient.printf("%s\" target=\"_blank\">%s</a>", FusedMAC(), FusedMAC());
         if(strcmp(Config.Master, FusedMAC()) == 0) WebClient.print(" / MASTER");
         WebClient.println("</H3></center>");
 
@@ -2303,20 +2304,20 @@ void  ProcessClient(void)
               if(Val.indexOf("&") != -1) Val = Val.substring(0, Val.indexOf("&"));
               Schedule.Day[j].SetTemp[i] = Val.toFloat();
               sprintf(buf, "HOUR_%d.%d", i, j);
-              Val = Line.substring(Line.indexOf(buf)+9);                
+              Val = Line.substring(Line.indexOf(buf)+9);
               if(Val.indexOf("&") != -1) Val = Val.substring(0, Val.indexOf("&"));
               if(Val != "-1")
               {
                 Schedule.Day[j].SetHour[i] = Val.toInt();
                 sprintf(buf, "MINUTE_%d.%d", i, j);
-                Val = Line.substring(Line.indexOf(buf)+11);                
+                Val = Line.substring(Line.indexOf(buf)+11);
                 if(Val.indexOf("&") != -1) Val = Val.substring(0, Val.indexOf("&"));
                 if(Val != "-1")
                 {
                   Schedule.Day[j].SetMinute[i] = Val.toInt();
                   Schedule.Day[j].Valid[i] = isValid = true;
                 }
-                else 
+                else
                   Schedule.Day[j].Valid[i] = false;
               } else Schedule.Day[j].Valid[i] = false;
             }
@@ -2341,12 +2342,12 @@ void  ProcessClient(void)
           if(isValid && Line.indexOf("COPY=") != -1) BroadcastSchedule(WebClient, Line);
 
           // Am I enabling the schedule?
-          if(isValid && Line.indexOf("ENABLED=") != -1) 
+          if(isValid && Line.indexOf("ENABLED=") != -1)
           {
-            Schedule.Enabled = true; 
+            Schedule.Enabled = true;
             RequestedTemp = ScheduledTemp(Config.MinTemp);
           }
-          else 
+          else
           {
             // Schedule is disabled, set temperature to Config.MinTemp
             Schedule.Enabled = false;
@@ -2361,22 +2362,22 @@ void  ProcessClient(void)
           }
 
           // Send back updated schedule
-          ChartType = CHART_NONE; 
+          ChartType = CHART_NONE;
           Scheduling = true;
         }
-        
+
         // Did they try to change the common name and got an error?
         if(NameError) WebClient.print("<center><font color=\"#FF0000\">Common Name can not be a Location Name!<font color=\"#000000\"><br><br>");
-        
+
         // Send back the requested chart or schedule
         if(!Scheduling)
           WebPageChart(WebClient, ChartType);
         else
           SendSchedule(WebClient, isValid);
-          
+
         // Send page bottom info
         WebClient.printf("<hr><center>%s / Firmware %s<br>", ARDUINO_VARIANT, FIRMWARE);
-        WebClient.printf("Temperature %s %c, Humidity %s%%, Heating is %s<br>Requested %s %c, Scheduling is %s<br>", 
+        WebClient.printf("Temperature %s %c, Humidity %s%%, Heating is %s<br>Requested %s %c, Scheduling is %s<br>",
           String(Last_T, 1).c_str(), (Config.Celcius ? 'C' : 'F'), String(Last_H, 0).c_str(), (HeatOn ? "On" : "Off"),
           String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'), (Schedule.Enabled ? "enabled" : "disabled"));
 
@@ -2392,26 +2393,26 @@ void  ProcessClient(void)
           if(!Scheduling) WebClient.println("<input type=\"button\" onclick=\"window.location.href='/Schedule'\" value=\"Schedule\">");
           WebClient.println("<script>function myFunction(Value) { window.location.href=Value + document.getElementById(\"form\").elements.namedItem(\"TYPE\").value; }</script>");
         }
-        if(Reset || Conf) 
+        if(Reset || Conf)
         {
-          if(Reset) 
+          if(Reset)
             WebClient.println("<hr><br><center><H1><font color=\"#FF0000\">Performing Factory Reset!<font color=\"#000000\"></H1></center>");
           else
             WebClient.println("<hr><br><center><H1><font color=\"#FF0000\">Entering Configuration Mode!<font color=\"#000000\"></H1></center>");
         }
-        else          
+        else
           WebClient.println("<hr>Created by <a href=\"mailto:claudegbeaudoin@hotmail.com?Subject=Google Thermostat\">Claude G. Beaudoin</a></center>");
-              
+
         // Finish HTML page
         WebClient.print("</body></html>");
         WebClient.println();
         WebClient.println();
         break;
-      } 
-      else 
+      }
+      else
       {
         // Check what the client request was for
-        if(Line.indexOf("GET") != -1) 
+        if(Line.indexOf("GET") != -1)
         {
           Val = Line.substring(0, Line.indexOf("HTTP")-1);
           Serial.printf("[%s] WebRequest = %s\n", getTime(false), Val.c_str());
@@ -2438,13 +2439,13 @@ void  ProcessClient(void)
             Val = Val.substring(Val.indexOf("=")+1);
             Val.replace("%22", ""); Val.replace("%20", " ");
             for(chk=0; chk<MaxLocations; chk++) if(strcmp(Location[chk], Val.c_str()) == 0) NameError = true;
-            if(Val.length() < sizeof(Config.CommonName) && !NameError) 
+            if(Val.length() < sizeof(Config.CommonName) && !NameError)
             {
               strcpy(Config.CommonName, Val.c_str());
               Config.CRC = Calc_CRC();
               EEPROM.put(CONFIG_OFFSET, Config);
               EEPROM.commit();
-            } 
+            }
           }
 #ifdef BackLight
           if(Line.indexOf("/CONTRAST=") != -1)
@@ -2460,9 +2461,9 @@ void  ProcessClient(void)
               display.setContrast(Config.Contrast);
             }
           }
-#endif          
+#endif
         }
-        if(Line.indexOf("POST") != -1) 
+        if(Line.indexOf("POST") != -1)
         {
           Val = Line.substring(0, Line.indexOf("HTTP")-1);
           Serial.printf("[%s] WebRequest = %s\n", getTime(false), Val.c_str());
@@ -2492,7 +2493,7 @@ void  ProcessClient(void)
     EEPROM.commit();
     WiFi.disconnect();
     ESP.restart();
-    while(1);    
+    while(1);
   }
 
   // Am I reconfiguring?
@@ -2507,10 +2508,10 @@ void  ProcessClient(void)
     EEPROM.commit();
     WiFi.disconnect();
     ESP.restart();
-    while(1);    
+    while(1);
   }
   strcpy(googleText, "");
-  UpdateTemperature();  
+  UpdateTemperature();
 }
 
 //
@@ -2519,14 +2520,14 @@ void  ProcessClient(void)
 void SendIcon(WiFiClient WebClient)
 {
   String HTML = "<!DOCTYPE html><html><head></head><body>Not Found</body></html>";
-  
+
   WebClient.println("HTTP/1.1 404 Not Found");
   WebClient.println("Content-type: text/html");
   WebClient.printf("Content-Length: %d\n", HTML.length());
   WebClient.println("Connection: close");
   WebClient.println();
   WebClient.printf("%s\n", HTML.c_str());
-  WebClient.println();  
+  WebClient.println();
 }
 
 //
@@ -2567,8 +2568,8 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
   float   Temperature, Humidity, ScaleMin, ScaleMax;
   String  Title, SubTitle, Labels, LeftAxisLabel, yAxisUnit, Legend, DataSet1, Set1Title, DataSet2, Set2Title, DataSet3, Type1, Type2, Type3;
   time_t  Today = now();
-  
-  ScaleMin= ScaleMax= 0.0;		//Beck 11/9/18
+
+  ScaleMin= ScaleMax= 0.0;    //Beck 11/9/18
 
   // Build data based on the chart type
   MaxDays = 22;       // You can change this up to 45 days.
@@ -2585,11 +2586,11 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
       // Build labels and datasets
       ScaleMin = 99.9;
       ScaleMax = 0.0;
-      for(i=0, j=hour(); i<24; i++) 
-      { 
-        sprintf(buf, "\"%02d:00\"%c", j, (i != 23 ? ',' : ']')); 
-        Labels += String(buf); 
-        if(HeatingStats.Hourly[j].Samples != 0) 
+      for(i=0, j=hour(); i<24; i++)
+      {
+        sprintf(buf, "\"%02d:00\"%c", j, (i != 23 ? ',' : ']'));
+        Labels += String(buf);
+        if(HeatingStats.Hourly[j].Samples != 0)
         {
           Temperature = HeatingStats.Hourly[j].Temperature / HeatingStats.Hourly[j].Samples;
           Humidity = HeatingStats.Hourly[j].Humidity / HeatingStats.Hourly[j].Samples;
@@ -2598,18 +2599,18 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
         {
           Temperature = HeatingStats.Hourly[j].Temperature;
           Humidity = HeatingStats.Hourly[j].Humidity;
-        }         
-        if(String(Humidity, 0) == "nan" || String(Humidity, 0) == "inf") Humidity = 0.00;        
-        if(String(Temperature, 1) == "nan" || String(Temperature, 1) == "inf") Temperature = 0.00;        
+        }
+        if(String(Humidity, 0) == "nan" || String(Humidity, 0) == "inf") Humidity = 0.00;
+        if(String(Temperature, 1) == "nan" || String(Temperature, 1) == "inf") Temperature = 0.00;
         DataSet1 += "\"" + String(Humidity, 0) + "\"" + String((i != 23 ? "," : "]"));
         DataSet2 += "\"" + String(Temperature, 1) + "\"" + String((i != 23 ? "," : "]"));
-        if(ChartType == HOURLY_COST) 
+        if(ChartType == HOURLY_COST)
         {
           if(Calc_HeatingCost(HeatingStats.Hourly[j].HeatingTime) < ScaleMin) ScaleMin = Calc_HeatingCost(HeatingStats.Hourly[j].HeatingTime);
           if(Calc_HeatingCost(HeatingStats.Hourly[j].HeatingTime) > ScaleMax) ScaleMax = Calc_HeatingCost(HeatingStats.Hourly[j].HeatingTime);
           DataSet3 += "\"" + String(Calc_HeatingCost(HeatingStats.Hourly[j].HeatingTime), 2) + "\"" + String((i != 23 ? "," : "]"));
         }
-        if(ChartType == HOURLY_KWH) 
+        if(ChartType == HOURLY_KWH)
         {
           if(Calc_kWh(HeatingStats.Hourly[j].HeatingTime) < ScaleMin) ScaleMin = Calc_kWh(HeatingStats.Hourly[j].HeatingTime);
           if(Calc_kWh(HeatingStats.Hourly[j].HeatingTime) > ScaleMax) ScaleMax = Calc_kWh(HeatingStats.Hourly[j].HeatingTime);
@@ -2622,7 +2623,7 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
           if(Temperature > ScaleMax) ScaleMax = Temperature;
           if(Humidity > ScaleMax) ScaleMax = Humidity;
         }
-        if(--j < 0) j=23; 
+        if(--j < 0) j=23;
       }
       SubTitle = "Hourly ";
       Type1 = Type2 = "Line";
@@ -2639,14 +2640,14 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
       // Build labels and datasets
       ScaleMin = 99.9;
       ScaleMax = 0.0;
-      for(i=0; i<MaxDays; i++) 
-      { 
-        if(i == 0 || i == MaxDays-1) 
+      for(i=0; i<MaxDays; i++)
+      {
+        if(i == 0 || i == MaxDays-1)
           sprintf(buf, "\"%s-%02d\"%c", monthShortStr(month(Today)), day(Today), (i != MaxDays-1 ? ',' : ']'));
-        else 
+        else
           { if(i % 3 == 0) sprintf(buf, "\"%s-%02d\",", monthShortStr(month(Today)), day(Today)); else strcpy(buf, "\"\","); }
-        Labels += String(buf); 
-        if(HeatingStats.Daily[i].Samples != 0) 
+        Labels += String(buf);
+        if(HeatingStats.Daily[i].Samples != 0)
         {
           Temperature = HeatingStats.Daily[i].Temperature / HeatingStats.Daily[i].Samples;
           Humidity = HeatingStats.Daily[i].Humidity / HeatingStats.Daily[i].Samples;
@@ -2655,18 +2656,18 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
         {
           Temperature = HeatingStats.Daily[i].Temperature;
           Humidity = HeatingStats.Daily[i].Humidity;
-        }         
-        if(String(Humidity, 0) == "nan" || String(Humidity, 0) == "inf") Humidity = 0.00;        
-        if(String(Temperature, 1) == "nan" || String(Temperature, 1) == "inf") Temperature = 0.00;        
+        }
+        if(String(Humidity, 0) == "nan" || String(Humidity, 0) == "inf") Humidity = 0.00;
+        if(String(Temperature, 1) == "nan" || String(Temperature, 1) == "inf") Temperature = 0.00;
         DataSet1 += "\"" + String(Humidity, 0) + "\"" + String((i != MaxDays-1 ? "," : "]"));
         DataSet2 += "\"" + String(Temperature, 1) + "\"" + String((i != MaxDays-1 ? "," : "]"));
-        if(ChartType == DAILY_COST) 
+        if(ChartType == DAILY_COST)
         {
           if(Calc_HeatingCost(HeatingStats.Daily[i].HeatingTime) < ScaleMin) ScaleMin = Calc_HeatingCost(HeatingStats.Daily[i].HeatingTime);
           if(Calc_HeatingCost(HeatingStats.Daily[i].HeatingTime) > ScaleMax) ScaleMax = Calc_HeatingCost(HeatingStats.Daily[i].HeatingTime);
           DataSet3 += "\"" + String(Calc_HeatingCost(HeatingStats.Daily[i].HeatingTime), 2) + "\"" + String((i != MaxDays-1 ? "," : "]"));
         }
-        if(ChartType == DAILY_KWH) 
+        if(ChartType == DAILY_KWH)
         {
           if(Calc_kWh(HeatingStats.Daily[i].HeatingTime) < ScaleMin) ScaleMin = Calc_kWh(HeatingStats.Daily[i].HeatingTime);
           if(Calc_kWh(HeatingStats.Daily[i].HeatingTime) > ScaleMax) ScaleMax = Calc_kWh(HeatingStats.Daily[i].HeatingTime);
@@ -2696,11 +2697,11 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
       // Build labels and datasets
       ScaleMin = 99.9;
       ScaleMax = 0.0;
-      for(i=0, j=month(); i<12; i++) 
-      { 
+      for(i=0, j=month(); i<12; i++)
+      {
         sprintf(buf, "\"%s\"%c", monthStr(j), (i != 11 ? ',' : ']'));
-        Labels += String(buf); 
-        if(HeatingStats.Monthly[0][j-1].Samples != 0) 
+        Labels += String(buf);
+        if(HeatingStats.Monthly[0][j-1].Samples != 0)
         {
           Temperature = HeatingStats.Monthly[0][j-1].Temperature / HeatingStats.Monthly[0][j-1].Samples;
           Humidity = HeatingStats.Monthly[0][j-1].Humidity / HeatingStats.Monthly[0][j-1].Samples;
@@ -2709,18 +2710,18 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
         {
           Temperature = HeatingStats.Monthly[0][j-1].Temperature;
           Humidity = HeatingStats.Monthly[0][j-1].Humidity;
-        }         
-        if(String(Humidity, 0) == "nan" || String(Humidity, 0) == "inf") Humidity = 0.00;        
-        if(String(Temperature, 1) == "nan" || String(Temperature, 1) == "inf") Temperature = 0.00;        
+        }
+        if(String(Humidity, 0) == "nan" || String(Humidity, 0) == "inf") Humidity = 0.00;
+        if(String(Temperature, 1) == "nan" || String(Temperature, 1) == "inf") Temperature = 0.00;
         DataSet1 += "\"" + String(Humidity, 0) + "\"" + String((i != 11 ? "," : "]"));
         DataSet2 += "\"" + String(Temperature, 1) + "\"" + String((i != 11 ? "," : "]"));
-        if(ChartType == MONTHLY_COST) 
+        if(ChartType == MONTHLY_COST)
         {
           if(Calc_HeatingCost(HeatingStats.Monthly[0][j-1].HeatingTime) < ScaleMin) ScaleMin = Calc_HeatingCost(HeatingStats.Monthly[0][j-1].HeatingTime);
           if(Calc_HeatingCost(HeatingStats.Monthly[0][j-1].HeatingTime) > ScaleMax) ScaleMax = Calc_HeatingCost(HeatingStats.Monthly[0][j-1].HeatingTime);
           DataSet3 += "\"" + String(Calc_HeatingCost(HeatingStats.Monthly[0][j-1].HeatingTime), 2) + "\"" + String((i != 11 ? "," : "]"));
         }
-        if(ChartType == MONTHLY_KWH) 
+        if(ChartType == MONTHLY_KWH)
         {
           if(Calc_kWh(HeatingStats.Monthly[0][j-1].HeatingTime) < ScaleMin) ScaleMin = Calc_kWh(HeatingStats.Monthly[0][j-1].HeatingTime);
           if(Calc_kWh(HeatingStats.Monthly[0][j-1].HeatingTime) > ScaleMax) ScaleMax = Calc_kWh(HeatingStats.Monthly[0][j-1].HeatingTime);
@@ -2750,30 +2751,30 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
       // Build labels and datasets
       ScaleMin = 99.9;
       ScaleMax = 0.0;
-      for(i=0, j=month(); i<12; i++) 
-      { 
+      for(i=0, j=month(); i<12; i++)
+      {
         sprintf(buf, "\"%s\"%c", monthShortStr(j), (i != 11 ? ',' : ']'));
-        Labels += String(buf); 
+        Labels += String(buf);
         if(ChartType == COMPARE_TEMP)
         {
-          if(HeatingStats.Monthly[0][j-1].Samples != 0) 
+          if(HeatingStats.Monthly[0][j-1].Samples != 0)
             Temperature = HeatingStats.Monthly[0][j-1].Temperature / HeatingStats.Monthly[0][j-1].Samples;
           else
             Temperature = HeatingStats.Monthly[0][j-1].Temperature;
           Humidity = HeatingStats.Monthly[1][j-1].Temperature;
         }
-        if(ChartType == COMPARE_COST) 
+        if(ChartType == COMPARE_COST)
         {
           Temperature = Calc_HeatingCost(HeatingStats.Monthly[0][j-1].HeatingTime);
           Humidity = Calc_HeatingCost(HeatingStats.Monthly[1][j-1].HeatingTime);
         }
-        if(ChartType == COMPARE_KWH) 
+        if(ChartType == COMPARE_KWH)
         {
           Temperature = Calc_kWh(HeatingStats.Monthly[0][j-1].HeatingTime);
           Humidity = Calc_kWh(HeatingStats.Monthly[1][j-1].HeatingTime);
         }
-        if(String(Humidity, 0) == "nan" || String(Humidity, 0) == "inf") Humidity = 0.00;        
-        if(String(Temperature, 1) == "nan" || String(Temperature, 1) == "inf") Temperature = 0.00;        
+        if(String(Humidity, 0) == "nan" || String(Humidity, 0) == "inf") Humidity = 0.00;
+        if(String(Temperature, 1) == "nan" || String(Temperature, 1) == "inf") Temperature = 0.00;
         DataSet1 += "\"" + String(Temperature, 1) + "\"" + String((i != 11 ? "," : "]"));
         DataSet2 += "\"" + String(Humidity, 1) + "\"" + String((i != 11 ? "," : "]"));
         if(Temperature < ScaleMin) ScaleMin = Temperature;
@@ -2799,7 +2800,7 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
 
   // Make sure min and max are not the same
   if(String(ScaleMin, 2) == String(ScaleMax, 2)) ScaleMax += 0.5;
-  
+
   // Fill in the chart data
   WebClient.printf("<center><canvas id=\"chart-01\" width=\"%d\" height=\"%d\" style=\"background-color:rgba(255,255,255,1.00);border-radius:5px;width:%dpx;height:%dpx;padding-left:0px;padding-right:0px;padding-top:0px;padding-bottom:0px\"></canvas>", ChartWidth, ChartHeight, ChartWidth, ChartHeight);
   WebClient.printf("<script>function MoreChartOptions(){} var ChartData = {labels : [%s", Labels.c_str());
@@ -2848,7 +2849,7 @@ void  WebPageChart(WiFiClient WebClient, int ChartType)
   WebClient.printf("scaleTickSizeBottom:5,scaleTickSizeTop:5,scaleTickSizeLeft:5,scaleTickSizeRight:5,graphMin:%s,graphMax:%s,barShowStroke:false,barBorderRadius:0,barStrokeStyle:\"solid\",\n", String(ScaleMin, 2).c_str(), String(ScaleMax, 2).c_str());
   WebClient.println("barStrokeWidth:1,barValueSpacing:15,barDatasetSpacing:0,scaleShowLabelBackdrop:true,scaleBackdropColor:'rgba(255,255,255,0.75)',scaleBackdropPaddingX:2,scaleBackdropPaddingY:2,");
   WebClient.println("animationEasing:'linear',animateRotate:true,animateScale:false,animationByDataset:true,animationLeftToRight:true,animationSteps:85,animation:true,");
-  WebClient.println("onAnimationComplete:function(){ MoreChartOptions() }}; DrawTheChart(ChartData,ChartOptions,\"chart-01\",\"Bar\");</script></center>");  
+  WebClient.println("onAnimationComplete:function(){ MoreChartOptions() }}; DrawTheChart(ChartData,ChartOptions,\"chart-01\",\"Bar\");</script></center>");
 }
 
 //
@@ -2859,7 +2860,7 @@ void  SendSchedule(WiFiClient WebClient, bool isValid)
   int     i, j, x;
   bool    today;
   String  Title;
-    
+
   Title = String(Location[Config.DeviceLocation]);
   if(strlen(Config.CommonName) != 0) Title += " (" + String(Config.CommonName) + ")";
   Title += " Thermostat";
@@ -2869,7 +2870,7 @@ void  SendSchedule(WiFiClient WebClient, bool isValid)
   for(i=0; i<7; i++)
   {
     today = (weekday() == i+1);
-    WebClient.printf("<td align=\"center\" colspan=2><font color=\"%s\">%s%s&nbsp%s%s<font color=\"#000000\"></td>", 
+    WebClient.printf("<td align=\"center\" colspan=2><font color=\"%s\">%s%s&nbsp%s%s<font color=\"#000000\"></td>",
       (today ? "#0000FF" : "#000000"), (today ? "<b>" : ""), dayStr(i+1), (today ? getTime(true) : ""), (today ? "</b>" : ""));
   }
   WebClient.println("</tr><td></td>");
@@ -2878,7 +2879,7 @@ void  SendSchedule(WiFiClient WebClient, bool isValid)
   for(j=0; j<4; j++)
   {
     WebClient.printf("<tr><td align=\"right\">Set %d</td>", j+1);
-    for(i=0; i<7; i++) 
+    for(i=0; i<7; i++)
     {
       WebClient.printf("<td align=\"left\"><select name=\"HOUR_%d.%d\">", j, i);
       WebClient.printf("<option value=\"-1\" %s>--</option>", (!Schedule.Day[i].Valid[j] ? "selected" : ""));
@@ -2889,7 +2890,7 @@ void  SendSchedule(WiFiClient WebClient, bool isValid)
       WebClient.printf("<option value=\"15\"%s>15</option>", ((Schedule.Day[i].Valid[j] && Schedule.Day[i].SetMinute[j] == 15) ? " selected" : ""));
       WebClient.printf("<option value=\"30\"%s>30</option>", ((Schedule.Day[i].Valid[j] && Schedule.Day[i].SetMinute[j] == 30) ? " selected" : ""));
       WebClient.printf("<option value=\"45\"%s>45</option></select></td>", ((Schedule.Day[i].Valid[j] && Schedule.Day[i].SetMinute[j] == 45) ? " selected" : ""));
-      WebClient.printf("<td align=\"left\"><input type=\"number\" name=\"TEMP_%d.%d\" min=\"%d\" max=\"%d\" step=\"0.5\" value=\"%s\"></td>", 
+      WebClient.printf("<td align=\"left\"><input type=\"number\" name=\"TEMP_%d.%d\" min=\"%d\" max=\"%d\" step=\"0.5\" value=\"%s\"></td>",
         j, i, (Config.Celcius ? MinCelcius : MinFarenheit), (Config.Celcius ? MaxCelcius : MaxFarenheit), (Schedule.Day[i].Valid[j] ? String(Schedule.Day[i].SetTemp[j], 1).c_str() : ""));
     }
     WebClient.println("</tr>");
@@ -2899,7 +2900,7 @@ void  SendSchedule(WiFiClient WebClient, bool isValid)
   WebClient.printf("<br><br><input type=\"submit\"></form>%s</center>", (isValid ? "<br><br>Schedule Updated!" : ""));
 }
 
-// 
+//
 // Find requested temperature from schedule
 //
 float ScheduledTemp(float Default)
@@ -2914,9 +2915,9 @@ float ScheduledTemp(float Default)
     for(int j=0; j<4; j++)
     {
       // Set Time2 to requested time
-      if(Schedule.Day[i].Valid[j]) 
+      if(Schedule.Day[i].Valid[j])
       {
-        Time2 = (i * OneDay) + (Schedule.Day[i].SetHour[j] * OneHour) + (Schedule.Day[i].SetMinute[j] * OneMinute); 
+        Time2 = (i * OneDay) + (Schedule.Day[i].SetHour[j] * OneHour) + (Schedule.Day[i].SetMinute[j] * OneMinute);
         if(Time1 >= Time2) temp = Schedule.Day[i].SetTemp[j];
       }
     }
@@ -2936,16 +2937,16 @@ void  BroadcastSchedule(WiFiClient WebClient, String Line)
 
   // Update the mDNS list
   Cntr = 0;
-  findService(Location[Config.DeviceLocation], &Cntr);          
+  findService(Location[Config.DeviceLocation], &Cntr);
 
   // If no mDNS services were found, just exit
-  if(MDNS_Services == 0 || Cntr == 0) 
+  if(MDNS_Services == 0 || Cntr == 0)
   {
     Serial.printf("[%s] No thermostats to broadcast too!\n", getTime(false));
     WebClient.println("<center><font color=\"#FF0000\">No other thermostats found!<font color=\"#000000\"></center>");
     return;
   }
-  
+
   // Find the thermostats and post the schedule to them
   for(i=Cntr=0; i<MDNS_Services; i++)
   {
@@ -2958,10 +2959,10 @@ void  BroadcastSchedule(WiFiClient WebClient, String Line)
       postData = "http://" + MDNS.IP(i).toString() + "/Schedule";
       http.setReuse(false);
       http.begin(postData);
-      
+
       // Remove the "&COPY=on" portion so that the other thermostats won't try to broadcast as well.
       httpCode = http.POST(Line.substring(0, Line.indexOf("&COPY")));
-      if(httpCode == HTTP_CODE_OK) 
+      if(httpCode == HTTP_CODE_OK)
       {
         Serial.println("OK!");
         WebClient.print("OK!</center>");
@@ -2972,7 +2973,7 @@ void  BroadcastSchedule(WiFiClient WebClient, String Line)
         Serial.printf("Failed! (%s)\n", http.errorToString(httpCode).c_str());
         WebClient.printf("Failed! (%s)</center>", http.errorToString(httpCode).c_str());
       }
-      
+
       // Close connection
       http.end();
     }
