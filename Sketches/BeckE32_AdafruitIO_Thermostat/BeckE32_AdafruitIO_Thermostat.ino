@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String szFileDate    = "November 10, 2018-j";
+const String szFileDate    = "November 10, 2018-s";
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
@@ -1350,8 +1350,9 @@ void AP_Config(void)
   int     Pos, Cntr, net, i;
   char    buf[32];
   String  Msg, value;
+  int			wCount= 0;
 
-  Serial << "AP_Config(): Begin" << endl;
+  Serial << "AP_Config(): Begin. Default address is 192.168.4.1" << endl;
   // Create server object on port 80
   WiFiServer server(80);
   WiFiClient client;
@@ -1366,7 +1367,8 @@ void AP_Config(void)
   }
 
   // Start web server
-  Serial.println("OK!\nStarting web server and waiting for a client...");
+  //Serial.println("OK!\nStarting web server and waiting for a client...");
+  Serial << "AP_Config(): OK!  Starting web server" << endl;
   Serial << "AP_Config(): Call WiFiServer.begin()" << endl;
   server.begin();
 
@@ -1389,7 +1391,9 @@ void AP_Config(void)
   display.println(FormatText("192.168.4.1", CENTER));
   display.display();
 
-  // Loop here until a client has connected and sent a good config record
+  Serial << "AP_Config(): Waiting for a client..." << endl;
+  //Loop here until a client has connected and sent a good config record
+  Serial << "AP_Config(): Call WiFiServer::available() every second until client found" << endl;
   while(!Done)
   {
 #ifdef BUILTIN_LED
@@ -1400,10 +1404,17 @@ void AP_Config(void)
       digitalWrite(LED_BUILTIN, LED_OFF); delay(100);
     }
 #endif
-    delay(1000);
-    client = server.available();
+    //delay(1000);
+    Serial << "x";
+    wCount++;
+    if(wCount > 50){
+    	wCount=0;
+    	Serial << endl;
+    }	//if(wCount>50)
+    client= server.available();
     if(client)
     {
+      Serial << endl << "AP_Config(): New client is available" << endl;
       // We have a new client!
       ClearStats = (Config.Init == DEVICETYPE && Config.CRC == Calc_CRC());
 #ifdef BUILTIN_LED
@@ -1632,8 +1643,8 @@ void AP_Config(void)
           // Check to see if the client request was "POST" or if the browser wants the favicon
           if(currentLine.endsWith("POST /")) Post = true;
           if(currentLine.endsWith("GET /favicon.ico")) Icon = true;
-        }
-      }
+        }	//if(client.available())
+      }	//while(client.connected())
 
       // Close the connection
       client.flush();
@@ -1650,11 +1661,14 @@ void AP_Config(void)
         while(1);
       }
       Icon = Post = false;
-    }
+    }	//if(client)
 #ifdef BUILTIN_LED
     digitalWrite(LED_BUILTIN, LED_OFF);
 #endif
-  }
+    delay(1000);
+  }	//while(!Done)
+  Serial << endl << "AP_Config(): Done" << endl;
+  return;
 }	//AP_Config
 
 
