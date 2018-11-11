@@ -1,5 +1,5 @@
-const String SketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String FileDate    = "November 10, 2018-a";
+const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
+const String szFileDate    = "November 10, 2018-j";
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
@@ -84,9 +84,7 @@ const String FileDate    = "November 10, 2018-a";
 #define FIRMWARE    "v0.0.14"
 #define DEVICETYPE  Thermostat
 
-//
-// Define OLED display variables
-//
+//Define OLED display variables
 #if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
   #define OLED_Display
   #define OLED_ADDR     0x3C  // Define I2C Oled Address
@@ -126,6 +124,7 @@ const String FileDate    = "November 10, 2018-a";
 #else
   #include "Adafruit_PCD8544.h"       // Modified Adafruit library
 #endif
+#include <Streaming.h>
 
 //
 // Define PINs used by sketch.  I have mapped the pins so that it uses the same GPIO pins from
@@ -436,8 +435,9 @@ void setup()
 
   // Display board name and firmware version
   Serial.begin(115200);
-  while(!Serial);
-  delay(1000);
+  Serial << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
+  //while(!Serial);
+  //delay(1000);
 
   // Ok, let's start...
   for(Cntr = 0; Cntr < 50; Cntr++) Serial.print("-");
@@ -546,6 +546,7 @@ void setup()
     }
   }
 
+	Serial << "setup(): Call AP_Config()" << endl;
   // If Init flag is not DEVICETYPE or CRC values doesn't match, then run first time init process
   if(Config.Init != DEVICETYPE || Config.SoftReboot >= 3 || Config.CRC != Calc_CRC()) AP_Config();
 
@@ -1296,9 +1297,8 @@ char *getDate(bool Short)
   return Buffer;
 }
 
-//
+
 // Return the total uptime
-//
 void UpTime(char *Buf)
 {
   int d, h, m, s;
@@ -1313,11 +1313,10 @@ void UpTime(char *Buf)
   CT -= (m * OneMinute);
   s = CT / OneSecond;
   sprintf(Buf, "%u day%s %02d:%02d:%02d", d, (d == 1 ? "" : "s"), h, m, s);
-}
+}	//UpTime
 
-//
+
 // Format text for a 14 character display (PCD8544) or 21 characters SSD1306 or SH1106
-//
 char *FormatText(char *Text, int Mode)
 {
   static char buf[25];
@@ -1335,12 +1334,11 @@ char *FormatText(char *Text, int Mode)
   if(Mode == RIGHT) sprintf(buf, "%14s", Text);
 #endif
   return buf;
-}
+}	//FormatText
 
-//
+
 // Start an Access Point server and present a web page for configuration
 // NOTE:  The default IP address for the server is 192.168.4.1
-//
 void AP_Config(void)
 {
   bool    Done = false;
@@ -1353,13 +1351,14 @@ void AP_Config(void)
   char    buf[32];
   String  Msg, value;
 
+  Serial << "AP_Config(): Begin" << endl;
   // Create server object on port 80
   WiFiServer server(80);
   WiFiClient client;
 
   // Config access point.
   String AP_SSID = "Thermostat-" + String(FusedMAC());
-  Serial.printf("\nConfiguring Access point \"%s\"...  ", AP_SSID.c_str());
+  Serial.printf("Configuring Access point \"%s\"...  ", AP_SSID.c_str());
   if(!WiFi.softAP(AP_SSID.c_str(), NULL))
   {
     Serial.println("Failed!\nUnable to initialize.");
@@ -1367,7 +1366,8 @@ void AP_Config(void)
   }
 
   // Start web server
-  Serial.println("OK!\nStarting web server and waiting for a client...\n");
+  Serial.println("OK!\nStarting web server and waiting for a client...");
+  Serial << "AP_Config(): Call WiFiServer.begin()" << endl;
   server.begin();
 
   // Display first time run info on LCD display
@@ -1655,11 +1655,10 @@ void AP_Config(void)
     digitalWrite(LED_BUILTIN, LED_OFF);
 #endif
   }
-}
+}	//AP_Config
 
-//
-// Post data to dweet.io
-//
+
+//Post data to dweet.io
 void DweetPost(void)
 {
   String  postData, response, MyLocation, ForLocation;
