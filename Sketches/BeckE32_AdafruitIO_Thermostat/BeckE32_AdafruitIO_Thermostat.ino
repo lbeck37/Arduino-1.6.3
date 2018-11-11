@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String szFileDate    = "November 10, 2018-s";
+const String szFileDate    = "November 11, 2018-e";
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
@@ -90,8 +90,8 @@ const String szFileDate    = "November 10, 2018-s";
   #define OLED_ADDR     0x3C  // Define I2C Oled Address
   #define OLED_Reset    16    // Heltec OLED reset pin
 #else
-  // Uncomment next three lines if you are using an I2C OLED display.
-  // Otherwise you are using a Nokia 5110 display
+  //Nokia 5110 display?
+	//Beck: 0.96" 128x64 OLED at 0x3C
   #define OLED_Display
   #define OLED_ADDR     0x3C  // Define I2C Oled Address
   #define OLED_Reset    -1    // Define the reset pin used for OLED module (If there is none, set to -1)
@@ -110,13 +110,17 @@ const String szFileDate    = "November 10, 2018-s";
 #include <Timezone.h>                 // Repository: https://github.com/JChristensen/Timezone
 #include <Adafruit_GFX.h>
 #ifdef OLED_Display
+#if 0
   #if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
     #include "Adafruit_SSD1306.h"     // Modified Adafruit library
   #else
     #include "Adafruit_SH1106.h"      // Modified Adafruit library
   #endif
-  #include "WiFi_Logo.h"
-  #include "Arduino_Logo.h"
+#endif	//0
+
+#include "Adafruit_SSD1306.h"     // Modified Adafruit library
+#include "WiFi_Logo.h"
+#include "Arduino_Logo.h"
 
   // Reverse the definition of what BLACK and WHITE are for the OLED display
   #define BLACK 1
@@ -126,7 +130,15 @@ const String szFileDate    = "November 10, 2018-s";
 #endif
 #include <Streaming.h>
 
-//
+/*
+#pragma GCC warning "Before #include SSD1306.h"
+#include "SSD1306.h"     						//Beck 11/11/18
+SSD1306  display(0x3c, SDA, SCL);  	//Beck 11/11/18
+*/
+
+//Beck 11/11/18
+//SDA and SCL are declared in pins_arduino.h as 21 and 22
+
 // Define PINs used by sketch.  I have mapped the pins so that it uses the same GPIO pins from
 // one board to another (as much as possible!).
 //
@@ -360,41 +372,37 @@ enum CHARTS
 // NOTE:  The software SPI does *NOT* work with the ESP32 module and Adafruit_PCD8544 library.
 //        Only use hardware...
 //
-#ifdef OLED_Display
-  #if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
-    Adafruit_SSD1306  display(OLED_Reset);
-  #else
-    Adafruit_SH1106   display(OLED_Reset);
-  #endif
-#else
-  Adafruit_PCD8544    display = Adafruit_PCD8544(DC, CS, RST);   // Using hardware SPI
-#endif
+#if 0
+	#ifdef OLED_Display
+		#if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
+			Adafruit_SSD1306  display(OLED_Reset);
+		#else
+			Adafruit_SH1106   display(OLED_Reset);
+		#endif
+	#else
+		Adafruit_PCD8544    display = Adafruit_PCD8544(DC, CS, RST);   // Using hardware SPI
+	#endif
+#endif 	//0
 
-//
+Adafruit_SSD1306  display(OLED_Reset);
+
 // Create temperature sensor, HTTPClient and webserver objects
-//
 DHT               dht(DHTPIN, DHT11);
 WiFiServer        WebServer(80);
 HTTPClient        http;
 
-//
 // Eastern Time Zone rule (this will need to be changed for other time zones and daylight savings rules)
-//
 TimeChangeRule myEDT = {"EDT", Second, Sun, Mar, 2, -240};  // Eastern Daylight Time = UTC - 4 hours
 TimeChangeRule myEST = {"EST", First, Sun, Nov, 2, -300};   // Eastern Standard Time = UTC - 5 hours
 Timezone myTZ(myEDT, myEST);
 
-//
 // Set up the Adafruit IO objects
-//
 AdafruitIO_WiFi io("", "", "", "");                             // Modified Adafruit library
 AdafruitIO_Feed *GoogleHome = io.feed("MASTER", false);         // Modified Adafruit library
 AdafruitIO_Feed *IO_Schedule = io.feed("Schedule", false);      // Modified Adafruit library
 AdafruitIO_Feed *IO_Location = io.feed("", false);              // Modified Adafruit library
 
-//
 // Define global variables
-//
 bool            WiFiConnected, LostWiFi, HeatOn, SensorError, DweetFailed, OTA_Update;
 float           temperature, humidity, RequestedTemp, Last_T, Last_H;
 char            googleText[20];
@@ -404,9 +412,7 @@ CONFIG          Config;
 STATS           HeatingStats;
 WEEK_SCHEDULE   Schedule;
 
-//
-// Setup function, runs before the main loop
-//
+
 void setup()
 {
   char  Time[32];
@@ -459,21 +465,28 @@ void setup()
   InitFlag = (Config.Init == DEVICETYPE && Config.CRC == Calc_CRC());
 
   // Initialize display object
-#ifdef OLED_Display
-  #if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
-    display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
-  #else
-    display.begin(SH1106_EXTERNALVCC, OLED_ADDR);
-  #endif
-#else
-  // Comment next line if you want full speed on PCD8544 LCD display.
-  // I've found that on some ESP32 boards running at full speed can be a problem.
-  // Your options are SPI_CLOCK_DIV4 or SPI_CLOCK_DIV8 or SPI_CLOCK_DIV16
-  // Lower clock divider gives faster updates on the LCD
-  #define PCD8544_SPI_CLOCK_DIV SPI_CLOCK_DIV16
-  display.begin();
-  display.setContrast(InitFlag ? Config.Contrast : 60);
-#endif
+#if 0
+	#ifdef OLED_Display
+		#if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
+			display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
+		#else
+			//display.begin(SH1106_EXTERNALVCC, OLED_ADDR);
+			display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
+		#endif
+	#else
+		// Comment next line if you want full speed on PCD8544 LCD display.
+		// I've found that on some ESP32 boards running at full speed can be a problem.
+		// Your options are SPI_CLOCK_DIV4 or SPI_CLOCK_DIV8 or SPI_CLOCK_DIV16
+		// Lower clock divider gives faster updates on the LCD
+		#define PCD8544_SPI_CLOCK_DIV SPI_CLOCK_DIV16
+		display.begin();
+		display.setContrast(InitFlag ? Config.Contrast : 60);
+	#endif
+#endif	//0
+
+	//display.init();		//Beck 11/11/18
+	display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);		//Beck 11/11/18
+
   ArduinoLogo(3000);
 
   // Read sensor until valid data is returned
