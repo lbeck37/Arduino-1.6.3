@@ -178,85 +178,85 @@ uint16_t EEPROMClass::length ()
 */
 uint8_t EEPROMClass::readByte (int address)
 {
-  uint8_t value;
+  uint8_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 int8_t EEPROMClass::readChar (int address)
 {
-  int8_t value;
+  int8_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 uint8_t EEPROMClass::readUChar (int address)
 {
-  uint8_t value;
+  uint8_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 int16_t EEPROMClass::readShort (int address)
 {
-  int16_t value;
+  int16_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 uint16_t EEPROMClass::readUShort (int address)
 {
-  uint16_t value;
+  uint16_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 int32_t EEPROMClass::readInt (int address)
 {
-  int32_t value;
+  int32_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 uint32_t EEPROMClass::readUInt (int address)
 {
-  uint32_t value;
+  uint32_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 int32_t EEPROMClass::readLong (int address)
 {
-  int32_t value;
+  int32_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 uint32_t EEPROMClass::readULong (int address)
 {
-  uint32_t value;
+  uint32_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 int64_t EEPROMClass::readLong64 (int address)
 {
-  int64_t value;
+  int64_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 uint64_t EEPROMClass::readULong64 (int address)
 {
-  uint64_t value;
+  uint64_t value= 0;
   return EEPROMClass::readAll (address, value);
 }
 
 float_t EEPROMClass::readFloat (int address)
 {
-  float_t value;
+  float_t value= 0.0;
   return EEPROMClass::readAll (address, value);
 }
 
 double_t EEPROMClass::readDouble (int address)
 {
-  double_t value;
+  double_t value= 0.0;
   return EEPROMClass::readAll (address, value);
 }
 
 bool EEPROMClass::readBool (int address)
 {
-  int8_t value;
+  int8_t value= 0;
   return EEPROMClass::readAll (address, value) ? 1 : 0;
 }
 
@@ -313,8 +313,10 @@ size_t EEPROMClass::readBytes (int address, void* value, size_t maxLen)
 
 template <class T> T EEPROMClass::readAll (int address, T &value)
 {
-  if (address < 0 || address + sizeof(T) > _size)
-    return value;
+  if (address < 0 || address + sizeof(T) > _size) {
+    //return value;
+  	return 0;
+  }
 
   memcpy((uint8_t*) &value, _data + address, sizeof(T));
   return value;

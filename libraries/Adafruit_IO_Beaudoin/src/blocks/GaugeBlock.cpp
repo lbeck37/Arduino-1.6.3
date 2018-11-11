@@ -25,7 +25,8 @@ String GaugeBlock::properties()
 {
   int w = 0;
 
-  if(ringWidth == "thin") {
+  //if(ringWidth == "thin") {
+  if (strcmp(ringWidth, "thin")) {
     w = 25;
   } else {
     w = 50;
