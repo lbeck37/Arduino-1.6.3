@@ -233,13 +233,15 @@ char DWEETNAME[32]    = "Thermo-eFusedMac";     // This will change to Thermo-'F
 // Define time constants (values are in millseconds)
 //
 #define OneSecond     1000            // One second
-#define OneMinute     60000           // One minute
+//#define OneMinute     60000           // One minute
 #define OneHour       3600000         // One hour
 #define OneDay        86400000        // One day
 #define DisplayDelay  10000           // Delay before turning off the display backlight (PCD8544 only)
 #define SensorDelay   15000           // Delay before reading the temperature sensor
 #define DweetDelay    15000           // Delay between post to Dweet.io
 
+static const unsigned long ulRollOver			= 4294967295UL;
+static const unsigned long ulOneMinute		=	60000UL;
 //
 // Define data structures stored in EEPROM memory
 // EEPROM memory is partitioned into 3 segments.  Config, Statistics and Schedule
@@ -646,9 +648,7 @@ void setup()
   Serial.println();
 }
 
-//
-// Main loop.  Runs forever.  Well, almost...
-//
+
 void loop(){
   int     chk, Cntr;
   float   temp;
@@ -664,8 +664,8 @@ void loop(){
   // before ending the action.  i.e. if I start an action one second before
   // the roll over value of 4,294,967,295 with a 3 second delay, I'd be waiting
   // for the clock to reach 4,294,969,295 which will never occur.
-  if(ulCurrentTime >= 4294967295UL - OneMinute)
-  {
+  //if(ulCurrentTime >= 4294967295UL - OneMinute)
+  if(ulCurrentTime >= (ulRollOver - ulOneMinute)){
     // Wait for the roll over
     Serial.printf("[%s] Waiting for clock roll over.\n", getTime(false));
     while(millis() > 100);
@@ -677,7 +677,7 @@ void loop(){
     delay(1000);
     ESP.restart();
     while(1);
-  }
+  }	//if(ulCurrentTime>=(ulRollOver-ulOneMinute))
 
   // Check if still connected to the WiFi Access Point
   WiFiConnected = (WiFi.status() == WL_CONNECTED);
@@ -776,7 +776,7 @@ void loop(){
 
       // Wait a bit before turning off the heat
       // This is so that the relay doesn't go on and off with small temperature differences
-      if(HeatOn && ((ulCurrentTime - ulHeatOnTime) >= OneMinute) && (temperature >= RequestedTemp)){
+      if(HeatOn && ((ulCurrentTime - ulHeatOnTime) >= ulOneMinute) && (temperature >= RequestedTemp)){
         // Turn off the heat
         HeatOn = false;
         digitalWrite(RelayPIN, RelayOFF);
@@ -821,8 +821,7 @@ void loop(){
 
 
 // Connect to WiFi Access point or to Adafruit IO
-void  WiFiConnect(void)
-{
+void  WiFiConnect(void){
   int   Cntr = 0;
 
   // Start by disconnecting from WiFi.  This is to re-initialize it
@@ -1003,11 +1002,9 @@ void  WiFiConnect(void)
   } //while(!WiFiConnected)
 } //WiFiConnect
 
-//
+
 // Initialize OTA functions
-//
-void  InitOTA(void)
-{
+void  InitOTA(void){
   ArduinoOTA.setHostname(HOSTNAME);
   ArduinoOTA.setPassword(OTA_PASS);
   ArduinoOTA.onStart([]()
@@ -1121,13 +1118,11 @@ void  InitOTA(void)
     ESP.restart();
   });
   ArduinoOTA.begin();
-}
+}	//InitOTA
 
-//
+
 // Update statistics
-//
-void  UpdateStats(void)
-{
+void  UpdateStats(void){
   int   Cntr;
 
   if(LastHour != hour())
@@ -1203,19 +1198,17 @@ void  UpdateStats(void)
   }
 
   // Time to do a auto-save on the statistical data?
-  if(ulCurrentTime - ulDataSave > 15 * OneMinute)
+  if(ulCurrentTime - ulDataSave > 15 * ulOneMinute)
   {
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
     ulDataSave = ulCurrentTime;
   }
-}
+}	//UpdateStats
 
-//
-// Update LCD display with new temperatue, humidity, time and RSSI signal level
-//
-void UpdateTemperature(void)
-{
+
+// Update LCD display with new temperature, humidity, time and RSSI signal level
+void UpdateTemperature(void){
   // Update display
   display.clearDisplay();
   display.setTextSize(1);
@@ -1265,13 +1258,11 @@ void UpdateTemperature(void)
   display.print(fLastHumid, 0);
   display.println("%");
   display.display();
-}
+}	//UpdateTemperature
 
-//
+
 // Get current time
-//
-char *getTime(bool Short)
-{
+char *getTime(bool Short){
   static char   Buffer[10];
 
   // Default buffer
@@ -1290,13 +1281,11 @@ char *getTime(bool Short)
   else
     sprintf(Buffer, "%02d:%02d:%02d", hour(), minute(), second());
   return Buffer;
-}
+}	//getTime
 
-//
+
 // Get current date
-//
-char *getDate(bool Short)
-{
+char *getDate(bool Short){
   static char   Buffer[50];
   String        Date;
 
@@ -1314,7 +1303,7 @@ char *getDate(bool Short)
     Date = String(dayStr(weekday())) + ", " + String(monthStr(month())) + " " + String(day()) + ", " + String(year());
   strcpy(Buffer, Date.c_str());
   return Buffer;
-}
+}	//getDate
 
 
 // Return the total uptime
@@ -1328,8 +1317,8 @@ void UpTime(char *Buf)
   CT -= (d * OneDay);
   h = CT / OneHour;
   CT -= (h * OneHour);
-  m = CT / OneMinute;
-  CT -= (m * OneMinute);
+  m = CT / ulOneMinute;
+  CT -= (m * ulOneMinute);
   s = CT / OneSecond;
   sprintf(Buf, "%u day%s %02d:%02d:%02d", d, (d == 1 ? "" : "s"), h, m, s);
 }	//UpTime
@@ -2941,7 +2930,7 @@ float ScheduledTemp(float Default)
   unsigned long Time1, Time2;
 
   // Set Time1 to current time
-  Time1 = ((weekday()-1) * OneDay) + (hour() * OneHour) + (minute() * OneMinute);
+  Time1 = ((weekday()-1) * OneDay) + (hour() * OneHour) + (minute() * ulOneMinute);
   for(int i=0; i<weekday(); i++)
   {
     for(int j=0; j<4; j++)
@@ -2949,7 +2938,7 @@ float ScheduledTemp(float Default)
       // Set Time2 to requested time
       if(Schedule.Day[i].Valid[j])
       {
-        Time2 = (i * OneDay) + (Schedule.Day[i].SetHour[j] * OneHour) + (Schedule.Day[i].SetMinute[j] * OneMinute);
+        Time2 = (i * OneDay) + (Schedule.Day[i].SetHour[j] * OneHour) + (Schedule.Day[i].SetMinute[j] * ulOneMinute);
         if(Time1 >= Time2) temp = Schedule.Day[i].SetTemp[j];
       }
     }
