@@ -35,8 +35,8 @@ const String FileDate    = "November 9, 2018-b";
 DHT_Unified dht(DATA_PIN, DHT11);
 
 // set up the 'temperature' and 'humidity' feeds
-AdafruitIO_Feed *temperature = io.feed("temperature");
-AdafruitIO_Feed *humidity = io.feed("humidity");
+AdafruitIO_Feed *fTemperatureReading = io.feed("temperature");
+AdafruitIO_Feed *fHumidityReading = io.feed("humidity");
 
 void setup() {
 
@@ -89,7 +89,7 @@ void loop() {
   Serial.println("F");
 
   // save fahrenheit (or celsius) to Adafruit IO
-  temperature->save(fahrenheit);
+  fTemperatureReading->save(fahrenheit);
 
   dht.humidity().getEvent(&event);
 
@@ -98,7 +98,7 @@ void loop() {
   Serial.println("%");
 
   // save humidity to Adafruit IO
-  humidity->save(event.relative_humidity);
+  fHumidityReading->save(event.relative_humidity);
 
   // wait 5 seconds (5000 milliseconds == 5 seconds)
   delay(5000);

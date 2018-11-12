@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String szFileDate    = "November 11, 2018-e";
+const String szFileDate    = "November 11, 2018-g";
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
@@ -404,10 +404,10 @@ AdafruitIO_Feed *IO_Location = io.feed("", false);              // Modified Adaf
 
 // Define global variables
 bool            WiFiConnected, LostWiFi, HeatOn, SensorError, DweetFailed, OTA_Update;
-float           temperature, humidity, RequestedTemp, Last_T, Last_H;
+float           temperature, humidity, RequestedTemp, fLastTemp, fLastHumid;
 char            googleText[20];
 int             MaxLocations, ExcludeLocation, LastHour, LastDay, LastMonth, MDNS_Services;
-unsigned long   CurrentTime, DisplayTime, TempReading, HeatOnTime, HourlyHeatOnTime, DweetTime, DataSave;
+unsigned long   ulCurrentTime, ulDisplayTime, ulTempReading, ulHeatOnTime, ulHourlyHeatOnTime, ulDweetTime, ulDataSave;
 CONFIG          Config;
 STATS           HeatingStats;
 WEEK_SCHEDULE   Schedule;
@@ -523,8 +523,8 @@ void setup()
 #endif
     if(!isnan(temperature))
     {
-      Last_T = temperature;
-      Last_H = humidity = dht.readHumidity();
+      fLastTemp = temperature;
+      fLastHumid = humidity = dht.readHumidity();
       Done = true;
       Serial.print("  OK!\n\nTemperature   = ");
       Serial.print(temperature, 1);
@@ -564,7 +564,7 @@ void setup()
   if(Config.Init != DEVICETYPE || Config.SoftReboot >= 3 || Config.CRC != Calc_CRC()) AP_Config();
 
   // Display heater size, kWh used, running cost
-  CurrentTime = 0;
+  ulCurrentTime = 0;
   Cntr = (Config.HeatingTime / 86400UL) * 24;
   //Serial.printf("Heating Time  = %02u:%02u:%02u\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
   Serial.printf("Heating Time  = %02lu:%02lu:%02lu\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
@@ -619,7 +619,7 @@ void setup()
   OTA_Update = HeatOn = SensorError = DweetFailed = LostWiFi = false;
   strcpy(googleText, "");
   UpdateTemperature();
-  DisplayTime = TempReading = DataSave = millis();
+  ulDisplayTime = ulTempReading = ulDataSave = millis();
 
   // Set RequestedTemp to either Config.MinTemp or if there's a schedule (and it's enabled), to the scheduled temperature
   Serial.printf("Scheduling is %sabled.\n", (Schedule.Enabled ? "en" : "dis"));
@@ -632,7 +632,7 @@ void setup()
   WebServer.begin();
 
   // Initialize variables for statistics
-  HourlyHeatOnTime = 0;
+  ulHourlyHeatOnTime = 0;
   LastHour = hour();
   LastDay = day();
   LastMonth = month();
@@ -649,15 +649,14 @@ void setup()
 //
 // Main loop.  Runs forever.  Well, almost...
 //
-void loop()
-{
+void loop(){
   int     chk, Cntr;
   float   temp;
   char    buf[32];
   String  MasterValue;
 
   // Save current time
-  CurrentTime = millis();
+  ulCurrentTime = millis();
 
   // If CurrentTime is about to roll over (go back to zero) wait for it to occur.
   // This occurs every 49.71 days.  It's to prevent the machine from initiating
@@ -665,7 +664,7 @@ void loop()
   // before ending the action.  i.e. if I start an action one second before
   // the roll over value of 4,294,967,295 with a 3 second delay, I'd be waiting
   // for the clock to reach 4,294,969,295 which will never occur.
-  if(CurrentTime >= 4294967295UL - OneMinute)
+  if(ulCurrentTime >= 4294967295UL - OneMinute)
   {
     // Wait for the roll over
     Serial.printf("[%s] Waiting for clock roll over.\n", getTime(false));
@@ -695,7 +694,7 @@ void loop()
 
   // Time to turn off the backlight?
 #ifdef BackLight
-  if(CurrentTime - DisplayTime >= DisplayDelay) digitalWrite(BackLight, LOW);
+  if(ulCurrentTime - ulDisplayTime >= DisplayDelay) digitalWrite(BackLight, LOW);
 #endif
 
   // If scheduling is enabled, check if it's time to change temperature
@@ -711,16 +710,15 @@ void loop()
   }
 
   // Is it time to read the temperature sensor?
-  if(CurrentTime - TempReading >= SensorDelay)
-  {
+  if((ulCurrentTime - ulTempReading) >= SensorDelay){
+  	Serial << "loop(): Reading temperatuuure" << endl;
     // If not connected to WiFi, try to reconnect
     if(!WiFiConnected) WiFi.reconnect();
 
     // Read temperature
-    TempReading = CurrentTime;
+    ulTempReading = ulCurrentTime;
     temperature = dht.readTemperature(!Config.Celcius);
-    if(!isnan(temperature))
-    {
+    if(!isnan(temperature)){
       // Reading was ok
       humidity = dht.readHumidity();
       SensorError = false;
@@ -770,53 +768,59 @@ void loop()
       // Do I need to turn on the heat?
       if(!HeatOn && fabs(temperature - RequestedTemp) >= 0.5F && temperature < RequestedTemp)
       {
+       Serial << "loop(): Reading temperatuuure" << endl;
         HeatOn = true;
-        HeatOnTime = HourlyHeatOnTime = CurrentTime;
+        ulHeatOnTime = ulHourlyHeatOnTime = ulCurrentTime;
         digitalWrite(RelayPIN, RelayON);
       }
 
       // Wait a bit before turning off the heat
       // This is so that the relay doesn't go on and off with small temperature differences
-      if(HeatOn && CurrentTime - HeatOnTime >= OneMinute && temperature >= RequestedTemp)
-      {
+      if(HeatOn && ((ulCurrentTime - ulHeatOnTime) >= OneMinute) && (temperature >= RequestedTemp)){
         // Turn off the heat
         HeatOn = false;
         digitalWrite(RelayPIN, RelayOFF);
 
         // Now add to the total heater on time in the config record
-        Config.HeatingTime += (CurrentTime - HeatOnTime) / OneSecond;
+        Config.HeatingTime += (ulCurrentTime - ulHeatOnTime) / OneSecond;
         Config.CRC = Calc_CRC();
         EEPROM.put(CONFIG_OFFSET, Config);
         EEPROM.commit();
 
         // Save heating time to statistics
-        HeatingStats.Hourly[LastHour].HeatingTime += (CurrentTime - HourlyHeatOnTime) / OneSecond;
-        HeatingStats.Daily[0].HeatingTime += (CurrentTime - HourlyHeatOnTime) / OneSecond;
-        HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (CurrentTime - HourlyHeatOnTime) / OneSecond;
-      }
+        HeatingStats.Hourly[LastHour].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+        HeatingStats.Daily[0].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+        HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+      }	//if(HeatOn&&((CurrentTime-HeatOnTime)>=OneMinute)...
 
       // Save the new temperature reading
-      Last_T = temperature;
-      Last_H = humidity;
-    } else SensorError = true;
+      fLastTemp = temperature;
+      fLastHumid = humidity;
+    }	//if(!isnan(temperature))
+    else{
+    		SensorError = true;
+    }	//if(!isnan(temperature))else
 
     // Update display with new values (or sensor error message)
     UpdateTemperature();
 
     // Post to Adafruit if needed
-    if(strlen(Config.IO_USER) != 0 && strlen(Config.IO_KEY) != 0) IO_Location->save(Last_T);
-  }
+    if((strlen(Config.IO_USER) != 0) && (strlen(Config.IO_KEY) != 0)){
+    	IO_Location->save(fLastTemp);
+    }	//if((strlen(Config.IO_USER)!=0)...
+  }	//if((CurrentTime-TempReading)>=SensorDelay)
 
-  // Time to dweet new values?
-  if(CurrentTime - DweetTime > DweetDelay) DweetPost();
+  //Time to dweet new values?
+  if((ulCurrentTime - ulDweetTime) > DweetDelay){
+  	DweetPost();
+  }	//if((CurrentTime-ulDweetTime)>DweetDelay)
 
   // Update stats if it's time...
   UpdateStats();
-}
+}	//loop
 
-//
+
 // Connect to WiFi Access point or to Adafruit IO
-//
 void  WiFiConnect(void)
 {
   int   Cntr = 0;
@@ -1132,21 +1136,21 @@ void  UpdateStats(void)
     HeatingStats.Hourly[LastHour].Temperature /= HeatingStats.Hourly[LastHour].Samples;
     HeatingStats.Hourly[LastHour].Humidity /= HeatingStats.Hourly[LastHour].Samples;
 
-    // If heat is on, reset HourlyHeatOnTime to CurrentTime
+    // If heat is on, reset uHourlyHeatOnTime to CurrentTime
     if(HeatOn)
     {
-      HeatingStats.Hourly[LastHour].HeatingTime += (CurrentTime - HourlyHeatOnTime) / OneSecond;
-      HeatingStats.Daily[0].HeatingTime += (CurrentTime - HourlyHeatOnTime) / OneSecond;
-      HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (CurrentTime - HourlyHeatOnTime) / OneSecond;
-      HourlyHeatOnTime = CurrentTime;
+      HeatingStats.Hourly[LastHour].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+      HeatingStats.Daily[0].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+      HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+      ulHourlyHeatOnTime = ulCurrentTime;
     }
     HeatingStats.Hourly[LastHour].Samples = 0;
 
     // Save new LastHour value and write back to EEPROM
     LastHour = hour();
     memset(&HeatingStats.Hourly[LastHour], NULL, sizeof(STAT_ENTRY));
-    HeatingStats.Hourly[LastHour].Temperature = Last_T;
-    HeatingStats.Hourly[LastHour].Humidity = Last_H;
+    HeatingStats.Hourly[LastHour].Temperature = fLastTemp;
+    HeatingStats.Hourly[LastHour].Humidity = fLastHumid;
     HeatingStats.Hourly[LastHour].Samples = 1;
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
@@ -1166,8 +1170,8 @@ void  UpdateStats(void)
     // Now clear current daily stats and write back to EEPROM
     LastDay = day();
     memset(&HeatingStats.Daily[0], NULL, sizeof(STAT_ENTRY));
-    HeatingStats.Daily[0].Temperature = Last_T;
-    HeatingStats.Daily[0].Humidity = Last_H;
+    HeatingStats.Daily[0].Temperature = fLastTemp;
+    HeatingStats.Daily[0].Humidity = fLastHumid;
     HeatingStats.Daily[0].Samples = 1;
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
@@ -1192,18 +1196,18 @@ void  UpdateStats(void)
     // Write back to EEPROM
     LastMonth = month();
     EEPROM.put(STATS_OFFSET, HeatingStats);
-    HeatingStats.Monthly[0][LastMonth-1].Temperature = Last_T;
-    HeatingStats.Monthly[0][LastMonth-1].Humidity = Last_H;
+    HeatingStats.Monthly[0][LastMonth-1].Temperature = fLastTemp;
+    HeatingStats.Monthly[0][LastMonth-1].Humidity = fLastHumid;
     HeatingStats.Monthly[0][LastMonth-1].Samples = 1;
     EEPROM.commit();
   }
 
   // Time to do a auto-save on the statistical data?
-  if(CurrentTime - DataSave > 15 * OneMinute)
+  if(ulCurrentTime - ulDataSave > 15 * OneMinute)
   {
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
-    DataSave = CurrentTime;
+    ulDataSave = ulCurrentTime;
   }
 }
 
@@ -1228,8 +1232,10 @@ void UpdateTemperature(void)
 #else
   display.setTextSize(2);
 #endif
-  if(Last_T < 10.0) display.print(" ");
-  display.print(Last_T, 1);
+  if(fLastTemp < 10.0){
+  	display.print(" ");
+  }
+  display.print(fLastTemp, 1);
   display.setTextSize(1);
   if(HeatOn) display.setTextColor(WHITE, BLACK);
   display.printf(" %c ", (Config.Celcius ? 'C' : 'F'));
@@ -1256,7 +1262,7 @@ void UpdateTemperature(void)
 #else
   display.printf("%s %s  ", getTime(true), dayShortStr(weekday()));
 #endif
-  display.print(Last_H, 0);
+  display.print(fLastHumid, 0);
   display.println("%");
   display.display();
 }
@@ -1694,7 +1700,7 @@ void DweetPost(void)
   char    buf[64], buf1[32];
 
   // If not connected to WiFi, just exit
-  if(!WiFiConnected) { DweetTime = millis(); return; }
+  if(!WiFiConnected) { ulDweetTime = millis(); return; }
 
 #ifdef BUILTIN_LED
   digitalWrite(LED_BUILTIN, LED_ON);
@@ -1751,7 +1757,7 @@ void DweetPost(void)
             // This is in response to a "Ok Google, set $ temperature to # degrees" command
 #ifdef BackLight
             digitalWrite(BackLight, HIGH);
-            DisplayTime = millis();
+            ulDisplayTime = millis();
 #endif
             i = response.indexOf("MINTEMP");
             if(i != -1)
@@ -1817,7 +1823,7 @@ void DweetPost(void)
 #endif
         http.setReuse(false);
         http.end();
-        DweetTime = millis();
+        ulDweetTime = millis();
         return;
       }
     }
@@ -1829,15 +1835,15 @@ void DweetPost(void)
   postData = "http://dweet.io/dweet/for/" + String(DWEETNAME);
   postData += "?Location=" + String(Location[Config.DeviceLocation]);
   if(strlen(Config.CommonName) != 0) postData += "&CommonName=" + String(Config.CommonName);
-  postData += "&Temperature=" + String(Last_T, 1);
-  postData += "&Humidity=" + String(Last_H, 0) + "%";
+  postData += "&Temperature=" + String(fLastTemp, 1);
+  postData += "&Humidity=" + String(fLastHumid, 0) + "%";
   postData += "&Heat=" + String(HeatOn ? "ON" : "OFF");
   postData += "&Schedule=" + String(Schedule.Enabled ? "Enabled" : "Disabled");
   postData += "&Requested=" + String(RequestedTemp, 1) + String(Config.Celcius ? " C" : " F");
-  postData += "&Cost=" + String("$ ") + String(Calc_HeatingCost(Config.HeatingTime + (HeatOn ? (CurrentTime - HeatOnTime) / OneSecond : 0)));
+  postData += "&Cost=" + String("$ ") + String(Calc_HeatingCost(Config.HeatingTime + (HeatOn ? (ulCurrentTime - ulHeatOnTime) / OneSecond : 0)));
   postData += "&Heater_Size=" + String(Config.Watts) + " watts";
   postData += "&kWh_Cost=" + String(Config.kWh_Cost) + String(" cents");
-  postData += "&kWh_Used=" + String(Calc_kWh(Config.HeatingTime + (HeatOn ? (CurrentTime - HeatOnTime) / OneSecond : 0))) + " kWh";
+  postData += "&kWh_Used=" + String(Calc_kWh(Config.HeatingTime + (HeatOn ? (ulCurrentTime - ulHeatOnTime) / OneSecond : 0))) + " kWh";
   postData += "&Firmware=" + String(FIRMWARE);
   postData += "&IP=" + WiFi.localIP().toString();
   postData += "&UpTime=" + String(buf1);
@@ -1855,7 +1861,7 @@ void DweetPost(void)
 
   // End connection and save dweet time
   http.end();
-  DweetTime = millis();
+  ulDweetTime = millis();
 #ifdef BUILTIN_LED
   digitalWrite(LED_BUILTIN, LED_OFF);
 #endif
@@ -1905,7 +1911,7 @@ void GoogleCommand(AdafruitIO_Data *data)
   if((MyLocation == ForLocation || (ForLocation == "HOME" && Config.DeviceLocation < ExcludeLocation) || CommonName == ForLocation) && strcmp(Config.LastUpdated, getTime(false)) != 0)
   {
     Serial.printf("[%s] MASTER = \"%s\"\n", getTime(false), value.c_str());
-    CurrentTime = DisplayTime = millis();
+    ulCurrentTime = ulDisplayTime = millis();
     if(value.indexOf("SCHEDULE") != -1)
     {
       // I'm being asked to run the schedule.  Check if there's a valid temperature first...
@@ -2287,7 +2293,7 @@ void  ProcessClient(void)
   if(!WebClient) return;
 
   // I have a client connecting
-  DisplayTime = CurrentTime;
+  ulDisplayTime = ulCurrentTime;
   strcpy(googleText, "WebClient");
   UpdateTemperature();
 
@@ -2404,7 +2410,7 @@ void  ProcessClient(void)
         // Send page bottom info
         WebClient.printf("<hr><center>%s / Firmware %s<br>", ARDUINO_VARIANT, FIRMWARE);
         WebClient.printf("Temperature %s %c, Humidity %s%%, Heating is %s<br>Requested %s %c, Scheduling is %s<br>",
-          String(Last_T, 1).c_str(), (Config.Celcius ? 'C' : 'F'), String(Last_H, 0).c_str(), (HeatOn ? "On" : "Off"),
+          String(fLastTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'), String(fLastHumid, 0).c_str(), (HeatOn ? "On" : "Off"),
           String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'), (Schedule.Enabled ? "enabled" : "disabled"));
 
         // Insert buttons for charts
