@@ -1,86 +1,20 @@
 const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String szFileDate    = "November 11, 2018-g";
+const String szFileDate    = "November 12, 2018-c";
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
 // Copyright (c) 2018 Claude G. Beaudoin (claudegbeaudoin @ hotmail.com)
-//
-// Programming level required:  Advanced
-//
-// Supported boards: Adafruit Feather ESP32, DOIT ESP32 DevKit, Heltec WiFi, Wemos Lolin32
-// Code will need to be modified for other board types.
-//
-// NOTE:  I have modified Adafruit's libraries and they are included in this distribution.
-//        The reason for this is mainly that Adafruit's display libraries have not yet been
-//        updated to support the ESP32 boards.  You get compiler errors and some functions just
-//        don't work anymore.  I'm sure they will get around to fixing them...
-//
-//        Also the Adafruit IO libraries.  Mainly the ->exist() and ->create() functions do not
-//        work and you had to hard code your WiFi network name / password along with your
-//        user name / API key.  The changes I have brought to the libraries are backwards
-//        compatible, so nothing was broken in adding (fixing) these libraries.
-//
 
-//
-// Code Revision History:
-//
-// MM-DD-YYYY---Version---Description--------------------------------------------------------
-// 31-03-2018   v0.0.14   Added option to clear statistics and schedule in AP_Config()
-//                        This is to allow changing of WiFi network without clearing
-//                        historical data and schedule.
-// 02-27-2018   v0.0.13   Code published to GitHub.
-// 02-24-2018             Added code to create Adafruit "Home Heating" dashboard.
-// 02-13-2018             Added code to broadcast schedule to all thermostats in network.
-// 02-12-2018   v0.0.12   Finished scheduling page and supporting code to run schedule.
-// 02-02-2018   v0.0.11   Finished statistical graphs.
-//                        Modified Adafruit_IO libraries to be able to use configuration data instead of hard coding
-//                        username and API key in the initial call to define the objects.
-// 01-23-2018   v0.0.10   Added support for SH1106 OLED display.  These displays are 128x64 pixels so had to adjust
-//                        several functions to accommodate.
-// 01-20-2018   v0.0.9    Added https://io.adafruit.com connection to receive Google Home commands for thermostats.
-//                        I've added this to prevent malicious hackers from posting to the Google dweet feed to
-//                        change your thermostat setting.  If you don't specify an Adafruit Username/API Key in the initial
-//                        setup, it will use dweet.io as the place to look for new Google Home commands.
-// 01-09-2018   v0.0.8    Code cleanup and support for Celcius or Farenheit
-//                        Added code for MASTER device support (this enables only one IFTTT script for all devices in network)
-//                        Added web server service for configuration and reporting.
-//                        Started working on graphs that are generated on the fly by https://livegap.com/
-// 01-08-2018   v0.0.7    Changed when the thermostat goes on to 0.5 degrees below requested temp
-// 01-07-2018   v0.0.6    Fixed bug where it was flooding dweet.io with post
-// 12-26-2017   v0.0.5    Started working on code for Heltec WiFi module
-//                        Added UpTime to dweet feed
-//                        Added calculation of heating cost.  Needed to add new fields in the Config record,
-//                        Heater size in watts, kWh cost in cents and total time the heater has been on.
-//                        Added CRC checksum in Config record
-//                        Added more error checking
-//                        Completed support for DOIT ESP32 DevKit V1
-//                        Added on some end case faults discovered with the DOIT ESP32 board specifically
-//                        in the handling of WiFi functions.
-// 12-24-2017   v0.0.4    Code cleanup and some additional error checking added.
-// 12-23-2017   v0.0.3    Added code to display the Arduino Logo at start up.
-//                        Finished code for dweet.io and Google home interface.
-//                        Finished NTP time server code
-// 12-17-2017   v0.0.2    Added code to get NTP server time
-//                        Added code to broadcast over UPD the device name to see if another
-//                        device has already that location name defined.
-//                        Added dweet.io device name in AP configuration with hyperlink to it.
-//                        Added display of RSSI signal level
-// 12-10-2017   v0.0.1    Start of project and initial code
-
-//
 // List of valid device types
-//
 // This is to avoid working on a project and re-using a development board that had
 // a previous configuration record stored in its EEPROM memory with the same init flag.
 // Basically, this is a list of projects I have developped thus far.
 //
-#define Vienna      0xCB01  // Vienna Superautomatica Espresso Maker controlled by Google Home
-#define Motorcycle  0xCB02  // Motorcycle Alarm System with GPS tracking and SMS notifications
+#define Vienna      0xCB01  //Vienna Superautomatica Espresso Maker controlled by Google Home
+#define Motorcycle  0xCB02  //Motorcycle Alarm System with GPS tracking and SMS notifications
 #define Thermostat  0xCB03  // Thermostat device controlled by Google Home
 
-//
 // Define firmware version and device type
-//
 #define FIRMWARE    "v0.0.14"
 #define DEVICETYPE  Thermostat
 
@@ -91,15 +25,13 @@ const String szFileDate    = "November 11, 2018-g";
   #define OLED_Reset    16    // Heltec OLED reset pin
 #else
   //Nokia 5110 display?
-	//Beck: 0.96" 128x64 OLED at 0x3C
+  //Beck: 0.96" 128x64 OLED at 0x3C
   #define OLED_Display
   #define OLED_ADDR     0x3C  // Define I2C Oled Address
   #define OLED_Reset    -1    // Define the reset pin used for OLED module (If there is none, set to -1)
 #endif
 
-//
 // Needed include files
-//
 #include <EEPROM.h>
 #include <ESPmDNS.h>
 #include <HTTPClient.h>
@@ -109,32 +41,14 @@ const String szFileDate    = "November 11, 2018-g";
 #include <TimeLib.h>                  // Repository: https://github.com/PaulStoffregen/Time
 #include <Timezone.h>                 // Repository: https://github.com/JChristensen/Timezone
 #include <Adafruit_GFX.h>
-#ifdef OLED_Display
-#if 0
-  #if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
-    #include "Adafruit_SSD1306.h"     // Modified Adafruit library
-  #else
-    #include "Adafruit_SH1106.h"      // Modified Adafruit library
-  #endif
-#endif	//0
-
-#include "Adafruit_SSD1306.h"     // Modified Adafruit library
+#include "Adafruit_SSD1306.h"     		// Modified Adafruit library?
 #include "WiFi_Logo.h"
 #include "Arduino_Logo.h"
-
-  // Reverse the definition of what BLACK and WHITE are for the OLED display
-  #define BLACK 1
-  #define WHITE 0
-#else
-  #include "Adafruit_PCD8544.h"       // Modified Adafruit library
-#endif
 #include <Streaming.h>
 
-/*
-#pragma GCC warning "Before #include SSD1306.h"
-#include "SSD1306.h"     						//Beck 11/11/18
-SSD1306  display(0x3c, SDA, SCL);  	//Beck 11/11/18
-*/
+//Reverse the definition of what BLACK and WHITE are for the OLED display
+#define BLACK 1
+#define WHITE 0
 
 //Beck 11/11/18
 //SDA and SCL are declared in pins_arduino.h as 21 and 22
@@ -142,96 +56,34 @@ SSD1306  display(0x3c, SDA, SCL);  	//Beck 11/11/18
 // Define PINs used by sketch.  I have mapped the pins so that it uses the same GPIO pins from
 // one board to another (as much as possible!).
 //
-#ifdef ARDUINO_FEATHER_ESP32
-// I2C SDA = GPIO 23, SCL = GPIO 22
-  #define VBATPIN       A13   // GPIO 35
-  #define DHTPIN        A10   // GPIO 27
-  #define RelayPIN      A1    // GPIO 25
-#ifndef OLED_Display
-  #define BackLight     A0    // GPIO 26
-#endif
-  #define DC            A8    // GPIO 15
-  #define CS            A7    // GPIO 32
-  #define RST           A6    // GPIO 14
-#endif
 #ifdef ARDUINO_ESP32_DEV
 // I2C SDA = GPIO 11, SCL = GPIO 22
   #define DHTPIN        A17   // GPIO 27
   #define RelayPIN      A18   // GPIO 25
-#ifndef OLED_Display
-  #define BackLight     A19   // GPIO 26
-#endif
   #define DC            A13   // GPIO 15
   #define CS            A4    // GPIO 32
   #define RST           A16   // GPIO 14
   #define SPI_CLK       SCK   // GPIO 18
   #define SPI_MOSI      MOSI  // GPIO 23
 #endif
-#ifdef ARDUINO_LOLIN32
-// I2C SDA = GPIO 21, SCL = GPIO 22
-  #define DHTPIN        A17   // GPIO 27
-  #define RelayPIN      A18   // GPIO 25
-#ifndef OLED_Display
-  #define BackLight     A19   // GPIO 26
-#endif
-  #define DC            A13   // GPIO 15
-  #define CS            A4    // GPIO 32
-  #define RST           A16   // GPIO 14
-  #define SPI_CLK       SCK   // GPIO 18
-  #define SPI_MOSI      MOSI  // GPIO 23
-#endif
-#ifdef ARDUINO_Heltec_WIFI_LoRa_32
-// I2C SDA = GPIO 4, SCL = GPIO 15 (For OLED display)
-  #define DHTPIN        A14   // GPIO 13
-  #define RelayPIN      A18   // GPIO 25
-#endif
-#ifdef ARDUINO_Heltec_WIFI_Kit_32
-// I2C SDA = GPIO 4, SCL = GPIO 15 (For OLED display)
-  #define DHTPIN        A14   // GPIO 13
-  #define RelayPIN      A18   // GPIO 25
-#endif
-#ifndef DHTPIN
-  #error Unsupported Board Type!
-#endif
 
-//
-// Define what turns on/off the LED_BUILTIN.
-// Some (stupid) boards need a LOW level to turn it on!
-//
-#ifdef BUILTIN_LED
-  #ifdef ARDUINO_LOLIN32
-    #define LED_ON    LOW
-    #define LED_OFF   HIGH
-  #else
-    #define LED_ON    HIGH
-    #define LED_OFF   LOW
-  #endif
-#endif
-
-//
 // Define OTA hostname/password and Dweet name
-//
 #define OTA_PASS      "admin"                   // Define your own password for updates
 char HOSTNAME[32]     = "Termo-location-OTA";   // 'location' will change to whatever the device location is
 char DWEETNAME[32]    = "Thermo-eFusedMac";     // This will change to Thermo-'FusedMacAddress'
 
-//
 // Define what signal level turns ON and OFF the thermostat relay
-//
 #define RelayON       HIGH
 #define RelayOFF      LOW
 
-//
 // Define temperature min/max values allowed
-//
 #define MinCelcius    5
 #define MaxCelcius    30
 #define MinFarenheit  41
 #define MaxFarenheit  86
 
-//
+
 // Define time constants (values are in millseconds)
-//
 #define OneSecond     1000            // One second
 //#define OneMinute     60000           // One minute
 #define OneHour       3600000         // One hour
@@ -240,13 +92,13 @@ char DWEETNAME[32]    = "Thermo-eFusedMac";     // This will change to Thermo-'F
 #define SensorDelay   15000           // Delay before reading the temperature sensor
 #define DweetDelay    15000           // Delay between post to Dweet.io
 
-static const unsigned long ulRollOver			= 4294967295UL;
-static const unsigned long ulOneMinute		=	60000UL;
-//
+static const unsigned long ulRollOver         = 4294967295UL;
+static const unsigned long ulOneMinute        = 60000UL;
+static const unsigned long ulDisplayPeriod    =  1000UL;
+static const unsigned long ulSavePeriod       = 15000UL;
+
 // Define data structures stored in EEPROM memory
 // EEPROM memory is partitioned into 3 segments.  Config, Statistics and Schedule
-//
-
 struct CONFIG
 {
   unsigned int      Init;             // Set to DEVICETYPE if valid data in structure
@@ -269,9 +121,7 @@ struct CONFIG
   unsigned int      CRC;              // CRC of all bytes up to this field.  Must always be the last on the Config record
 };
 
-//
 // Define structure for statistics
-//
 struct STAT_ENTRY
 {
   float             Temperature;      // Average temperature for period
@@ -287,9 +137,7 @@ struct STATS
   STAT_ENTRY        Monthly[2][12];   // Current and previous year's monthly statistics
 };
 
-//
 // Define heating schedule structure
-//
 struct SCHEDULE
 {
   int               SetHour[4];       // Hour at which to change temperature
@@ -304,14 +152,11 @@ struct WEEK_SCHEDULE
   SCHEDULE          Day[7];           // Schedule for each day of the week
 };
 
-//
 // Define EEPROM memory offsets for EEPROM.put function
-//
 #define CONFIG_OFFSET     0
 #define STATS_OFFSET      sizeof(CONFIG)
 #define SCHEDULE_OFFSET   sizeof(CONFIG) + sizeof(STATS)
 
-//
 // Define possible device locations
 //
 // The length of the location name is being limited by the display size.
@@ -342,16 +187,12 @@ char Location[][15] = {
   "Outdoor Shed"
 };
 
-//
 // Define text formating options for display
-//
 #define CENTER  1
 #define LEFT    2
 #define RIGHT   3
 
-//
 // Define chart types available
-//
 enum CHARTS
 {
   HOURLY_TEMP = 0,          // Hourly temperature/humidity
@@ -368,23 +209,6 @@ enum CHARTS
   COMPARE_KWH,              // Monthly temperature with last year's comparison bar chart
   CHART_NONE                // No chart
 };
-
-//
-// Create display object
-// NOTE:  The software SPI does *NOT* work with the ESP32 module and Adafruit_PCD8544 library.
-//        Only use hardware...
-//
-#if 0
-	#ifdef OLED_Display
-		#if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
-			Adafruit_SSD1306  display(OLED_Reset);
-		#else
-			Adafruit_SH1106   display(OLED_Reset);
-		#endif
-	#else
-		Adafruit_PCD8544    display = Adafruit_PCD8544(DC, CS, RST);   // Using hardware SPI
-	#endif
-#endif 	//0
 
 Adafruit_SSD1306  display(OLED_Reset);
 
@@ -407,95 +231,68 @@ AdafruitIO_Feed *IO_Location = io.feed("", false);              // Modified Adaf
 // Define global variables
 bool            WiFiConnected, LostWiFi, HeatOn, SensorError, DweetFailed, OTA_Update;
 float           temperature, humidity, RequestedTemp, fLastTemp, fLastHumid;
+//float           humidity, RequestedTemp, fLastTemp, fLastHumid;
 char            googleText[20];
 int             MaxLocations, ExcludeLocation, LastHour, LastDay, LastMonth, MDNS_Services;
-unsigned long   ulCurrentTime, ulDisplayTime, ulTempReading, ulHeatOnTime, ulHourlyHeatOnTime, ulDweetTime, ulDataSave;
+unsigned long   ulCurrentTime, ulDisplayTime, ulLastTemperatureTime, ulLastSaveTime;
+unsigned long   ulHeatOnTime,ulHourlyHeatOnTime, ulDweetTime, ulDataSave;
 CONFIG          Config;
 STATS           HeatingStats;
 WEEK_SCHEDULE   Schedule;
 
-
-void setup()
-{
-  char  Time[32];
+void setup(){
+  //char  Time[32];
   int   chk, Cntr;
   bool  Done, InitFlag;
 
   // Start by saving MaxLocations and DWEET name (used during first time configuration)
-  MaxLocations = sizeof(Location) / 15;
-  for(chk=0; chk<MaxLocations; chk++) { if(strcmp(Location[chk], "Basement") == 0) break; }
-  ExcludeLocation = chk;
+  MaxLocations= sizeof(Location) / 15;
+
+  for(chk=0; chk < MaxLocations; chk++){
+  	if(strcmp(Location[chk], "Basement") == 0){
+  		break;
+  	}	//if(strcmp(Location[chk],...
+  }	//for(chk=0;
+
+  ExcludeLocation= chk;
   sprintf(DWEETNAME, "Thermo-%s", FusedMAC());
 
   // Set pin modes and turn on the LCD backlight
   pinMode(RelayPIN, OUTPUT);
   digitalWrite(RelayPIN, RelayOFF);
 
-#ifdef BackLight
-  pinMode(BackLight, OUTPUT);
-  digitalWrite(BackLight, HIGH);
-#endif
-
-#ifdef BUILTIN_LED
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LED_ON);
-#endif
-
-  // Display board name and firmware version
+  //Display board name and firmware version
   Serial.begin(115200);
   Serial << "setup(): Begin " << szSketchName << ", " << szFileDate << endl;
-  //while(!Serial);
-  //delay(1000);
 
-  // Ok, let's start...
-  for(Cntr = 0; Cntr < 50; Cntr++) Serial.print("-");
+  //OK, let's start...
+  for(Cntr= 0; Cntr < 50; Cntr++){
+  		Serial.print("-");
+  }	//for(Cntr=0;...
   Serial.println("\nGoogle Home / Alexa Enabled WiFi Thermostat");
   Serial.printf("Running on %s / Firmware %s\n", ARDUINO_VARIANT, FIRMWARE);
 
   // Initialize EEPROM memory
-  if(!EEPROM.begin(sizeof(Config)+sizeof(HeatingStats)+sizeof(Schedule)))
-  {
+  if(!EEPROM.begin(sizeof(Config) + sizeof(HeatingStats) + sizeof(Schedule))){
     // Unable to initialize EEPROM memory.  Hang here.
     Serial.println("Failed to initialize EEPROM memory...");
     while(1);
-  }
+  }	//if(!EEPROM.begin(sizeof(Config)+...
 
   // Get EEPROM data
   EEPROM.get(CONFIG_OFFSET, Config);
   EEPROM.get(STATS_OFFSET, HeatingStats);
   EEPROM.get(SCHEDULE_OFFSET, Schedule);
-  InitFlag = (Config.Init == DEVICETYPE && Config.CRC == Calc_CRC());
+  InitFlag = ((Config.Init == DEVICETYPE) && (Config.CRC == Calc_CRC()));
 
-  // Initialize display object
-#if 0
-	#ifdef OLED_Display
-		#if defined(ARDUINO_Heltec_WIFI_LoRa_32) || defined(ARDUINO_Heltec_WIFI_Kit_32)
-			display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
-		#else
-			//display.begin(SH1106_EXTERNALVCC, OLED_ADDR);
-			display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);
-		#endif
-	#else
-		// Comment next line if you want full speed on PCD8544 LCD display.
-		// I've found that on some ESP32 boards running at full speed can be a problem.
-		// Your options are SPI_CLOCK_DIV4 or SPI_CLOCK_DIV8 or SPI_CLOCK_DIV16
-		// Lower clock divider gives faster updates on the LCD
-		#define PCD8544_SPI_CLOCK_DIV SPI_CLOCK_DIV16
-		display.begin();
-		display.setContrast(InitFlag ? Config.Contrast : 60);
-	#endif
-#endif	//0
-
-	//display.init();		//Beck 11/11/18
-	display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);		//Beck 11/11/18
+  display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);   //Beck 11/11/18
 
   ArduinoLogo(3000);
 
   // Read sensor until valid data is returned
-  temperature = NAN;
+  temperature= NAN;
   dht.begin();
-  while(isnan(temperature))
-  {
+  while(isnan(temperature)){
     Serial.print("Reading temperature sensor.");
     display.clearDisplay();
     display.setCursor(0, 0);
@@ -508,36 +305,34 @@ void setup()
     display.println();
     display.display();
     Cntr = 0;
-    do
-    {
+    do{									//while(++Cntr<21&&isnan(temperature))
       Serial.print(".");
       display.print(".");
       display.display();
-      if(InitFlag)
+      if(InitFlag){
         temperature = dht.readTemperature(!Config.Celcius);
-      else
+      }	//if(InitFlag)
+      else{
         temperature = dht.readTemperature();
+      }	//if(InitFlag)else
       delay(1000);
-#ifdef OLED_Display
-    } while(++Cntr < 21 && isnan(temperature));
-#else
-    } while(++Cntr < 14 && isnan(temperature));
-#endif
-    if(!isnan(temperature))
-    {
+    } while((++Cntr < 21) && isnan(temperature));
+
+    if(!isnan(temperature)){
       fLastTemp = temperature;
       fLastHumid = humidity = dht.readHumidity();
       Done = true;
       Serial.print("  OK!\n\nTemperature   = ");
       Serial.print(temperature, 1);
-      if(InitFlag)
+      if(InitFlag){
         Serial.printf(" %c\n", Config.Celcius ? 'C' : 'F');
-      else
+      }	//if(InitFlag)
+      else{
         Serial.println("C");
+      }	//if(InitFlag)else
       Serial.print("Humidity      = "); Serial.print(humidity, 0); Serial.println("%");
-    }
-    else
-    {
+    }	//if(!isnan(temperature))
+    else{
       // Failed to read temperature sensor.
       Serial.println("  Failed!\nCheck wiring...  Program halting.");
       display.clearDisplay();
@@ -551,19 +346,14 @@ void setup()
       display.println(FormatText("Check wiring...", CENTER));
       display.println();
       display.display();
-      while(1)
-      {
-#ifdef BUILTIN_LED
-        digitalWrite(LED_BUILTIN, LED_ON); delay(250);
-        digitalWrite(LED_BUILTIN, LED_OFF); delay(250);
-#endif
-      }
-    }
-  }
+    }	//if(!isnan(temperature))else
+  }	//while(isnan(temperature))			//Earlier: ERROR, this matches setup!
 
-	Serial << "setup(): Call AP_Config()" << endl;
+  Serial << "setup(): Call AP_Config()" << endl;
   // If Init flag is not DEVICETYPE or CRC values doesn't match, then run first time init process
-  if(Config.Init != DEVICETYPE || Config.SoftReboot >= 3 || Config.CRC != Calc_CRC()) AP_Config();
+  if((Config.Init != DEVICETYPE) || (Config.SoftReboot >= 3) || (Config.CRC != Calc_CRC())){
+      AP_Config();
+  }	//if((Config.Init!=DEVICETYPE)||...
 
   // Display heater size, kWh used, running cost
   ulCurrentTime = 0;
@@ -571,14 +361,19 @@ void setup()
   //Serial.printf("Heating Time  = %02u:%02u:%02u\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
   Serial.printf("Heating Time  = %02lu:%02lu:%02lu\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
   Serial.printf("Heater Size   = %d watts\n", Config.Watts);
-  Serial.print("Consumption   = "); Serial.print(Calc_kWh(Config.HeatingTime), 2); Serial.print(" kWh\n");
-  Serial.print("kWh cost      = "); Serial.print(Config.kWh_Cost, 1); Serial.println(" cents");
-  Serial.print("Running cost  = $ "); Serial.print(Calc_HeatingCost(Config.HeatingTime), 2); Serial.print("\n");
-  if(strlen(Config.IO_USER) == 0)
-  {
+  Serial.print("Consumption   = ");
+  Serial.print(Calc_kWh(Config.HeatingTime), 2);
+  Serial.print(" kWh\n");
+  Serial.print("kWh cost      = ");
+  Serial.print(Config.kWh_Cost, 1);
+  Serial.println(" cents");
+  Serial.print("Running cost  = $ ");
+  Serial.print(Calc_HeatingCost(Config.HeatingTime), 2);
+  Serial.print("\n");
+  if(strlen(Config.IO_USER) == 0){
     Serial.print("Master Device = ");
     Serial.printf("%s\n", (strcmp(Config.Master, FusedMAC()) == 0 ? "YES" : Config.Master));
-  }
+  }	//if(strlen(Config.IO_USER)==0)
   Serial.println();
 
   // Set HOSTNAME
@@ -615,19 +410,23 @@ void setup()
   InitOTA();
 
   // Print my Common Name if I have one defined
-  if(strlen(Config.CommonName) != 0) Serial.printf("Location '%s' has a common name of \"%s\"\n", Location[Config.DeviceLocation], Config.CommonName);
+  if(strlen(Config.CommonName) != 0){
+    Serial.printf("Location '%s' has a common name of \"%s\"\n",
+                   Location[Config.DeviceLocation], Config.CommonName);
+  } //if(strlen(Config.CommonName)!=0)
 
   // Default global variables and display initial temperature reading
   OTA_Update = HeatOn = SensorError = DweetFailed = LostWiFi = false;
   strcpy(googleText, "");
   UpdateTemperature();
-  ulDisplayTime = ulTempReading = ulDataSave = millis();
+  ulDisplayTime = ulLastTemperatureTime = ulDataSave = millis();
 
   // Set RequestedTemp to either Config.MinTemp or if there's a schedule (and it's enabled), to the scheduled temperature
   Serial.printf("Scheduling is %sabled.\n", (Schedule.Enabled ? "en" : "dis"));
   RequestedTemp = ScheduledTemp(Config.MinTemp);
   strcpy(googleText, "");
-  Serial.printf("Temperature will be set to %s %c\n", String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
+  Serial.printf("Temperature will be set to %s %c\n", String(RequestedTemp, 1).c_str(),
+                (Config.Celcius ? 'C' : 'F'));
 
   // Start WebServer
   Serial.println("Starting web service.");
@@ -640,23 +439,23 @@ void setup()
   LastMonth = month();
 
   // Init done, run program
-#ifdef BUILTIN_LED
-  digitalWrite(LED_BUILTIN, LED_OFF);
-#endif
   Serial.printf("\n%s %s\nRunning program...\n", getDate(false), getTime(false));
   for(Cntr = 0; Cntr < 50; Cntr++) Serial.print("-");
   Serial.println();
-}
+  return;
+}	///setup
 
 
 void loop(){
   int     chk, Cntr;
-  float   temp;
+  float   fScheduledTemp;
   char    buf[32];
   String  MasterValue;
+  float fTemperature;
+  bool		bTemperatureOK= false;
 
   // Save current time
-  ulCurrentTime = millis();
+  ulCurrentTime= millis();
 
   // If CurrentTime is about to roll over (go back to zero) wait for it to occur.
   // This occurs every 49.71 days.  It's to prevent the machine from initiating
@@ -677,147 +476,175 @@ void loop(){
     delay(1000);
     ESP.restart();
     while(1);
-  }	//if(ulCurrentTime>=(ulRollOver-ulOneMinute))
+  } //if(ulCurrentTime>=(ulRollOver-ulOneMinute))
 
   // Check if still connected to the WiFi Access Point
-  WiFiConnected = (WiFi.status() == WL_CONNECTED);
-  if(!WiFiConnected && !LostWiFi) { Serial.printf("[%s] Lost WiFi connection.  Attempting to reconnect...\n", getTime(false)); LostWiFi = true; }
-  if(WiFiConnected && LostWiFi) { Serial.printf("[%s] WiFi reconnected!\n", getTime(false)); LostWiFi = false; }
+  WiFiConnected= (WiFi.status() == WL_CONNECTED);
+  if(!WiFiConnected && !LostWiFi){
+    Serial.printf("[%s] Lost WiFi connection.  Attempting to reconnect...\n", getTime(false));
+    LostWiFi = true;
+  } //if(!WiFiConnected&&!LostWiFi)
+
+  if(WiFiConnected && LostWiFi){
+    Serial.printf("[%s] WiFi reconnected!\n", getTime(false)); LostWiFi = false;
+  } //if(WiFiConnected&&LostWiFi)
 
   // Handle OTA process and do nothing else if I'm in an OTA Update
   ArduinoOTA.handle();
-  if(OTA_Update) return;
-  if(strlen(Config.IO_USER) != 0 && strlen(Config.IO_KEY) != 0) io.run();
+  if(OTA_Update){
+    return;
+  } //if(OTA_Update)
+
+  if((strlen(Config.IO_USER) != 0) && (strlen(Config.IO_KEY) != 0)){
+    io.run();
+  } //if((strlen(Config.IO_USER)!=0)...
 
   // Check if I have a client connecting to web server
   ProcessClient();
 
-  // Time to turn off the backlight?
-#ifdef BackLight
-  if(ulCurrentTime - ulDisplayTime >= DisplayDelay) digitalWrite(BackLight, LOW);
-#endif
-
   // If scheduling is enabled, check if it's time to change temperature
-  if(Schedule.Enabled)
-  {
-    temp = ScheduledTemp(Config.MinTemp);
-    if(temp != RequestedTemp)
-    {
-      Serial.printf("[%s] Scheduled temperature now set to %s %c\n", getTime(false), String(temp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
-      sprintf(googleText, "Time = %s", String(temp, 1).c_str());
-      RequestedTemp = temp;
-    }
-  }
+  if(Schedule.Enabled){
+    fScheduledTemp= ScheduledTemp(Config.MinTemp);
+    if(fScheduledTemp != RequestedTemp){
+      Serial.printf("[%s] Scheduled temperature now set to %s %c\n",
+										getTime(false), String(fScheduledTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
+      sprintf(googleText, "Time = %s", String(fScheduledTemp, 1).c_str());
+      RequestedTemp = fScheduledTemp;
+    } //if(fScheduledTemp != RequestedTemp)
+  } //if(Schedule.Enabled)
 
   // Is it time to read the temperature sensor?
-  if((ulCurrentTime - ulTempReading) >= SensorDelay){
-  	Serial << "loop(): Reading temperatuuure" << endl;
-    // If not connected to WiFi, try to reconnect
-    if(!WiFiConnected) WiFi.reconnect();
-
-    // Read temperature
-    ulTempReading = ulCurrentTime;
-    temperature = dht.readTemperature(!Config.Celcius);
-    if(!isnan(temperature)){
+  if((ulCurrentTime - ulLastTemperatureTime) >= ulDisplayPeriod){
+    Serial << "loop(): Reading temperature" << endl;
+    fTemperature = dht.readTemperature(!Config.Celcius);
+    ulLastTemperatureTime= ulCurrentTime;
+    if(!isnan(fTemperature)){
       // Reading was ok
-      humidity = dht.readHumidity();
-      SensorError = false;
-
-      // Add temperature/humidity reading to hourly statistics
-      if(String(HeatingStats.Hourly[LastHour].Temperature, 1) == "nan" ||
-        String(HeatingStats.Hourly[LastHour].Temperature, 1) == "inf" ||
-        String(HeatingStats.Hourly[LastHour].Humidity, 0) == "nan" ||
-        String(HeatingStats.Hourly[LastHour].Humidity, 0) == "inf")
-      {
-        HeatingStats.Hourly[LastHour].Temperature = 0.00;
-        HeatingStats.Hourly[LastHour].Humidity = 0.00;
-        HeatingStats.Hourly[LastHour].Samples = 0;
-      }
-      HeatingStats.Hourly[LastHour].Temperature += temperature;
-      HeatingStats.Hourly[LastHour].Humidity += humidity;
-      ++HeatingStats.Hourly[LastHour].Samples;
-
-      // Add to daily statistics
-      if(String(HeatingStats.Daily[0].Temperature, 1) == "nan" ||
-        String(HeatingStats.Daily[0].Temperature, 1) == "inf" ||
-        String(HeatingStats.Daily[0].Humidity, 0) == "nan" ||
-        String(HeatingStats.Daily[0].Humidity, 0) == "inf")
-      {
-        HeatingStats.Daily[0].Temperature = 0.00;
-        HeatingStats.Daily[0].Humidity = 0.00;
-        HeatingStats.Daily[0].Samples = 0;
-      }
-      HeatingStats.Daily[0].Temperature += temperature;
-      HeatingStats.Daily[0].Humidity += humidity;
-      ++HeatingStats.Daily[0].Samples;
-
-      // Add to monthly statistics
-      if(String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "nan" ||
-        String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "inf" ||
-        String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "nan" ||
-        String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "inf")
-      {
-        HeatingStats.Monthly[0][LastMonth-1].Temperature = 0.00;
-        HeatingStats.Monthly[0][LastMonth-1].Humidity = 0.00;
-        HeatingStats.Monthly[0][LastMonth-1].Samples = 0;
-      }
-      HeatingStats.Monthly[0][LastMonth-1].Temperature += temperature;
-      HeatingStats.Monthly[0][LastMonth-1].Humidity += humidity;
-      ++HeatingStats.Monthly[0][LastMonth-1].Samples;
-
-      // Do I need to turn on the heat?
-      if(!HeatOn && fabs(temperature - RequestedTemp) >= 0.5F && temperature < RequestedTemp)
-      {
-       Serial << "loop(): Reading temperatuuure" << endl;
-        HeatOn = true;
-        ulHeatOnTime = ulHourlyHeatOnTime = ulCurrentTime;
-        digitalWrite(RelayPIN, RelayON);
-      }
-
-      // Wait a bit before turning off the heat
-      // This is so that the relay doesn't go on and off with small temperature differences
-      if(HeatOn && ((ulCurrentTime - ulHeatOnTime) >= ulOneMinute) && (temperature >= RequestedTemp)){
-        // Turn off the heat
-        HeatOn = false;
-        digitalWrite(RelayPIN, RelayOFF);
-
-        // Now add to the total heater on time in the config record
-        Config.HeatingTime += (ulCurrentTime - ulHeatOnTime) / OneSecond;
-        Config.CRC = Calc_CRC();
-        EEPROM.put(CONFIG_OFFSET, Config);
-        EEPROM.commit();
-
-        // Save heating time to statistics
-        HeatingStats.Hourly[LastHour].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-        HeatingStats.Daily[0].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-        HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-      }	//if(HeatOn&&((CurrentTime-HeatOnTime)>=OneMinute)...
-
+      humidity= dht.readHumidity();
+      bTemperatureOK= true;
+      SensorError= false;
       // Save the new temperature reading
-      fLastTemp = temperature;
+      fLastTemp = fTemperature;
       fLastHumid = humidity;
-    }	//if(!isnan(temperature))
+      // Update display with new values (or sensor error message)
+      UpdateTemperature();
+    } //if(!isnan(temperature))
     else{
-    		SensorError = true;
-    }	//if(!isnan(temperature))else
+       SensorError = true;
+    } //if(!isnan(temperature))else
+  }	//if((ulCurrentTime-ulLastTemperatureTime)>=ulDisplayPeriod)
 
-    // Update display with new values (or sensor error message)
-    UpdateTemperature();
+    if((ulCurrentTime - ulLastSaveTime) >= ulSavePeriod){
+      ulLastSaveTime= ulCurrentTime;
+      //Make sure we read the temp and humidity already in this function
+      if (!bTemperatureOK){
+				Serial << "loop(): Reading temperature" << endl;
+				fTemperature = dht.readTemperature(!Config.Celcius);
+				ulLastTemperatureTime= ulCurrentTime;
+				if(!isnan(fTemperature)){
+					// Reading was ok
+					humidity= dht.readHumidity();
+					bTemperatureOK= true;
+					// Save the new temperature reading
+					fLastTemp = fTemperature;
+					fLastHumid = humidity;
+					// Update display with new values (or sensor error message)
+					UpdateTemperature();
+				} //if(!isnan(temperature))
+      }	//if (!bTemperatureOK)
 
-    // Post to Adafruit if needed
-    if((strlen(Config.IO_USER) != 0) && (strlen(Config.IO_KEY) != 0)){
-    	IO_Location->save(fLastTemp);
-    }	//if((strlen(Config.IO_USER)!=0)...
-  }	//if((CurrentTime-TempReading)>=SensorDelay)
+      if (bTemperatureOK){
+				// Add temperature/humidity reading to hourly statistics
+				if(String(HeatingStats.Hourly[LastHour].Temperature, 1) == "nan" ||
+					String(HeatingStats.Hourly[LastHour].Temperature, 1) == "inf" ||
+					String(HeatingStats.Hourly[LastHour].Humidity, 0) == "nan" ||
+					String(HeatingStats.Hourly[LastHour].Humidity, 0) == "inf")
+				{
+					HeatingStats.Hourly[LastHour].Temperature = 0.00;
+					HeatingStats.Hourly[LastHour].Humidity = 0.00;
+					HeatingStats.Hourly[LastHour].Samples = 0;
+				}
+				HeatingStats.Hourly[LastHour].Temperature += fTemperature;
+				HeatingStats.Hourly[LastHour].Humidity += humidity;
+				++HeatingStats.Hourly[LastHour].Samples;
 
+				// Add to daily statistics
+				if(String(HeatingStats.Daily[0].Temperature, 1) == "nan" ||
+					String(HeatingStats.Daily[0].Temperature, 1) == "inf" ||
+					String(HeatingStats.Daily[0].Humidity, 0) == "nan" ||
+					String(HeatingStats.Daily[0].Humidity, 0) == "inf")
+				{
+					HeatingStats.Daily[0].Temperature = 0.00;
+					HeatingStats.Daily[0].Humidity = 0.00;
+					HeatingStats.Daily[0].Samples = 0;
+				}
+				HeatingStats.Daily[0].Temperature += fTemperature;
+				HeatingStats.Daily[0].Humidity += humidity;
+				++HeatingStats.Daily[0].Samples;
+
+				// Add to monthly statistics
+				if(String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "nan" ||
+					String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "inf" ||
+					String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "nan" ||
+					String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "inf")
+				{
+					HeatingStats.Monthly[0][LastMonth-1].Temperature = 0.00;
+					HeatingStats.Monthly[0][LastMonth-1].Humidity = 0.00;
+					HeatingStats.Monthly[0][LastMonth-1].Samples = 0;
+				}
+				HeatingStats.Monthly[0][LastMonth-1].Temperature += fTemperature;
+				HeatingStats.Monthly[0][LastMonth-1].Humidity += humidity;
+				++HeatingStats.Monthly[0][LastMonth-1].Samples;
+
+				// Do I need to turn on the heat?
+				if(!HeatOn && (fabs(fTemperature - RequestedTemp) >= 0.5F) && (fTemperature < RequestedTemp)){
+				 Serial << "loop(): Reading temperatuuure" << endl;
+					HeatOn = true;
+					ulHeatOnTime = ulHourlyHeatOnTime = ulCurrentTime;
+					digitalWrite(RelayPIN, RelayON);
+				}	//if(!HeatOn &&...
+
+				// Wait a bit before turning off the heat
+				// This is so that the relay doesn't go on and off with small temperature differences
+				if(HeatOn && ((ulCurrentTime - ulHeatOnTime) >= ulOneMinute) && (fTemperature >= RequestedTemp)){
+					// Turn off the heat
+					HeatOn= false;
+					digitalWrite(RelayPIN, RelayOFF);
+
+					// Now add to the total heater on time in the config record
+					Config.HeatingTime += (ulCurrentTime - ulHeatOnTime) / OneSecond;
+					Config.CRC= Calc_CRC();
+					EEPROM.put(CONFIG_OFFSET, Config);
+					EEPROM.commit();
+
+					// Save heating time to statistics
+					HeatingStats.Hourly[LastHour].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+					HeatingStats.Daily[0].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+					HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+				} //if(HeatOn&&...
+
+			// If not connected to WiFi, try to reconnect
+			if(!WiFiConnected){
+				WiFi.reconnect();
+			} //if(!WiFiConnected)
+
+			// Post to Adafruit if needed
+			if((strlen(Config.IO_USER) != 0) && (strlen(Config.IO_KEY) != 0)){
+				IO_Location->save(fLastTemp);
+			} //if((strlen(Config.IO_USER)!=0)...
+    }	//if(bTemperatureOK)
+  } //if((ulCurrentTime-ulLastSaveTime)>=ulSavePeriod)
+
+/*
   //Time to dweet new values?
   if((ulCurrentTime - ulDweetTime) > DweetDelay){
-  	DweetPost();
-  }	//if((CurrentTime-ulDweetTime)>DweetDelay)
+    DweetPost();
+  } //if((CurrentTime-ulDweetTime)>DweetDelay)
+*/
 
   // Update stats if it's time...
   UpdateStats();
-}	//loop
+} //loop
 
 
 // Connect to WiFi Access point or to Adafruit IO
@@ -1118,7 +945,7 @@ void  InitOTA(void){
     ESP.restart();
   });
   ArduinoOTA.begin();
-}	//InitOTA
+} //InitOTA
 
 
 // Update statistics
@@ -1204,7 +1031,7 @@ void  UpdateStats(void){
     EEPROM.commit();
     ulDataSave = ulCurrentTime;
   }
-}	//UpdateStats
+} //UpdateStats
 
 
 // Update LCD display with new temperature, humidity, time and RSSI signal level
@@ -1226,7 +1053,7 @@ void UpdateTemperature(void){
   display.setTextSize(2);
 #endif
   if(fLastTemp < 10.0){
-  	display.print(" ");
+    display.print(" ");
   }
   display.print(fLastTemp, 1);
   display.setTextSize(1);
@@ -1258,7 +1085,7 @@ void UpdateTemperature(void){
   display.print(fLastHumid, 0);
   display.println("%");
   display.display();
-}	//UpdateTemperature
+} //UpdateTemperature
 
 
 // Get current time
@@ -1281,7 +1108,7 @@ char *getTime(bool Short){
   else
     sprintf(Buffer, "%02d:%02d:%02d", hour(), minute(), second());
   return Buffer;
-}	//getTime
+} //getTime
 
 
 // Get current date
@@ -1303,7 +1130,7 @@ char *getDate(bool Short){
     Date = String(dayStr(weekday())) + ", " + String(monthStr(month())) + " " + String(day()) + ", " + String(year());
   strcpy(Buffer, Date.c_str());
   return Buffer;
-}	//getDate
+} //getDate
 
 
 // Return the total uptime
@@ -1321,7 +1148,7 @@ void UpTime(char *Buf)
   CT -= (m * ulOneMinute);
   s = CT / OneSecond;
   sprintf(Buf, "%u day%s %02d:%02d:%02d", d, (d == 1 ? "" : "s"), h, m, s);
-}	//UpTime
+} //UpTime
 
 
 // Format text for a 14 character display (PCD8544) or 21 characters SSD1306 or SH1106
@@ -1342,7 +1169,7 @@ char *FormatText(char *Text, int Mode)
   if(Mode == RIGHT) sprintf(buf, "%14s", Text);
 #endif
   return buf;
-}	//FormatText
+} //FormatText
 
 
 // Start an Access Point server and present a web page for configuration
@@ -1358,7 +1185,7 @@ void AP_Config(void)
   int     Pos, Cntr, net, i;
   char    buf[32];
   String  Msg, value;
-  int			wCount= 0;
+  int     wCount= 0;
 
   Serial << "AP_Config(): Begin. Default address is 192.168.4.1" << endl;
   // Create server object on port 80
@@ -1416,9 +1243,9 @@ void AP_Config(void)
     Serial << "x";
     wCount++;
     if(wCount > 50){
-    	wCount=0;
-    	Serial << endl;
-    }	//if(wCount>50)
+      wCount=0;
+      Serial << endl;
+    } //if(wCount>50)
     client= server.available();
     if(client)
     {
@@ -1651,8 +1478,8 @@ void AP_Config(void)
           // Check to see if the client request was "POST" or if the browser wants the favicon
           if(currentLine.endsWith("POST /")) Post = true;
           if(currentLine.endsWith("GET /favicon.ico")) Icon = true;
-        }	//if(client.available())
-      }	//while(client.connected())
+        } //if(client.available())
+      } //while(client.connected())
 
       // Close the connection
       client.flush();
@@ -1669,15 +1496,15 @@ void AP_Config(void)
         while(1);
       }
       Icon = Post = false;
-    }	//if(client)
+    } //if(client)
 #ifdef BUILTIN_LED
     digitalWrite(LED_BUILTIN, LED_OFF);
 #endif
     delay(1000);
-  }	//while(!Done)
+  } //while(!Done)
   Serial << endl << "AP_Config(): Done" << endl;
   return;
-}	//AP_Config
+} //AP_Config
 
 
 //Post data to dweet.io
