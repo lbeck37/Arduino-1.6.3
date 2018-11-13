@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String szFileDate    = "November 12, 2018-c";
+const String szFileDate    = "November 12, 2018-d";
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
@@ -236,6 +236,8 @@ char            googleText[20];
 int             MaxLocations, ExcludeLocation, LastHour, LastDay, LastMonth, MDNS_Services;
 unsigned long   ulCurrentTime, ulDisplayTime, ulLastTemperatureTime, ulLastSaveTime;
 unsigned long   ulHeatOnTime,ulHourlyHeatOnTime, ulDweetTime, ulDataSave;
+unsigned long		ulStartTime= millis();
+
 CONFIG          Config;
 STATS           HeatingStats;
 WEEK_SCHEDULE   Schedule;
@@ -456,6 +458,8 @@ void loop(){
 
   // Save current time
   ulCurrentTime= millis();
+  float fElapsedMillis= (float)(ulCurrentTime - ulStartTime);
+  float fElapsedSec= fElapsedMillis / 1000.0;
 
   // If CurrentTime is about to roll over (go back to zero) wait for it to occur.
   // This occurs every 49.71 days.  It's to prevent the machine from initiating
@@ -515,9 +519,9 @@ void loop(){
 
   // Is it time to read the temperature sensor?
   if((ulCurrentTime - ulLastTemperatureTime) >= ulDisplayPeriod){
-    Serial << "loop(): Reading temperature" << endl;
     fTemperature = dht.readTemperature(!Config.Celcius);
     ulLastTemperatureTime= ulCurrentTime;
+    Serial << fElapsedSec << " loop(): Read temperature for display= " << fTemperature << endl;
     if(!isnan(fTemperature)){
       // Reading was ok
       humidity= dht.readHumidity();
@@ -541,6 +545,7 @@ void loop(){
 				Serial << "loop(): Reading temperature" << endl;
 				fTemperature = dht.readTemperature(!Config.Celcius);
 				ulLastTemperatureTime= ulCurrentTime;
+		    Serial << fElapsedSec << " loop(): Read temperature for save= " << fTemperature << endl;
 				if(!isnan(fTemperature)){
 					// Reading was ok
 					humidity= dht.readHumidity();
