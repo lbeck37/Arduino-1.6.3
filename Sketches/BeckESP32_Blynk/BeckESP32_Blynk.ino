@@ -874,7 +874,7 @@ float fGetDegF(bool bTakeReading){
 
 
 float fRound(float fNum){
-  oSensors.requestTemperatures(); // Send the command to get temperatures
+  //oSensors.requestTemperatures(); // Send the command to get temperatures
   float fRounded= floor(fNum + 0.5);
   return fRounded;
 }  //fRound

@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String szFileDate    = "November 12, 2018-d";
+const String szFileDate    = "November 14, 2018-c";
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
@@ -41,13 +41,50 @@ const String szFileDate    = "November 12, 2018-d";
 #include <TimeLib.h>                  // Repository: https://github.com/PaulStoffregen/Time
 #include <Timezone.h>                 // Repository: https://github.com/JChristensen/Timezone
 #include <Adafruit_GFX.h>
-#include "Adafruit_SSD1306.h"     		// Modified Adafruit library?
+#include "Adafruit_SSD1306.h"         // Modified Adafruit library?
 #include "WiFi_Logo.h"
 #include "Arduino_Logo.h"
 #include <Streaming.h>
 
+//Beck 11/14/18 Needed for code brought in from BeckESP32_Blynk.ino
+#include <BeckLogLib.h>
+static const int    sSwitchOpen           = 0;
+static const int    sSwitchClosed         = 1;
+static const int    sOff                  = 0;
+static const int    sOn                   = 1;
+static const int    sNotInit              = -3737;
+static const int    sNumSwitches          = 4;
+//static const int    sMaxNumSwitches       = 4;
+static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
+static const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
+static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
+
+static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
+static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
+static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
+
+static int          asSwitchState[]       = {0, 0, 0, 0, 0};
+static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
+static float          fLastDegF             = 37.37;  //Last temperature reading.
+static int            sSetpointF            = 37;
+static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
+static unsigned long  ulNextHandlerMsec     = 0;
+static unsigned long  ulUpdateTimeoutMsec   = 0;
+static bool           bThermoOn             = true;   //Whether thermostat is running.
+static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
+static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
+static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
+
+
 //Reverse the definition of what BLACK and WHITE are for the OLED display
+#ifdef BLACK
+	#undef BLACK
+#endif
 #define BLACK 1
+
+#ifdef WHITE
+	#undef WHITE
+#endif
 #define WHITE 0
 
 //Beck 11/11/18
@@ -73,8 +110,8 @@ char HOSTNAME[32]     = "Termo-location-OTA";   // 'location' will change to wha
 char DWEETNAME[32]    = "Thermo-eFusedMac";     // This will change to Thermo-'FusedMacAddress'
 
 // Define what signal level turns ON and OFF the thermostat relay
-#define RelayON       HIGH
-#define RelayOFF      LOW
+#define RelayON       LOW     //Beck 11/13/18 Was HIGH and LOW
+#define RelayOFF      HIGH
 
 // Define temperature min/max values allowed
 #define MinCelcius    5
@@ -236,7 +273,7 @@ char            googleText[20];
 int             MaxLocations, ExcludeLocation, LastHour, LastDay, LastMonth, MDNS_Services;
 unsigned long   ulCurrentTime, ulDisplayTime, ulLastTemperatureTime, ulLastSaveTime;
 unsigned long   ulHeatOnTime,ulHourlyHeatOnTime, ulDweetTime, ulDataSave;
-unsigned long		ulStartTime= millis();
+unsigned long   ulStartTime= millis();
 
 CONFIG          Config;
 STATS           HeatingStats;
@@ -251,10 +288,10 @@ void setup(){
   MaxLocations= sizeof(Location) / 15;
 
   for(chk=0; chk < MaxLocations; chk++){
-  	if(strcmp(Location[chk], "Basement") == 0){
-  		break;
-  	}	//if(strcmp(Location[chk],...
-  }	//for(chk=0;
+    if(strcmp(Location[chk], "Basement") == 0){
+      break;
+    } //if(strcmp(Location[chk],...
+  } //for(chk=0;
 
   ExcludeLocation= chk;
   sprintf(DWEETNAME, "Thermo-%s", FusedMAC());
@@ -269,8 +306,8 @@ void setup(){
 
   //OK, let's start...
   for(Cntr= 0; Cntr < 50; Cntr++){
-  		Serial.print("-");
-  }	//for(Cntr=0;...
+      Serial.print("-");
+  } //for(Cntr=0;...
   Serial.println("\nGoogle Home / Alexa Enabled WiFi Thermostat");
   Serial.printf("Running on %s / Firmware %s\n", ARDUINO_VARIANT, FIRMWARE);
 
@@ -279,7 +316,7 @@ void setup(){
     // Unable to initialize EEPROM memory.  Hang here.
     Serial.println("Failed to initialize EEPROM memory...");
     while(1);
-  }	//if(!EEPROM.begin(sizeof(Config)+...
+  } //if(!EEPROM.begin(sizeof(Config)+...
 
   // Get EEPROM data
   EEPROM.get(CONFIG_OFFSET, Config);
@@ -307,16 +344,16 @@ void setup(){
     display.println();
     display.display();
     Cntr = 0;
-    do{									//while(++Cntr<21&&isnan(temperature))
+    do{                 //while(++Cntr<21&&isnan(temperature))
       Serial.print(".");
       display.print(".");
       display.display();
       if(InitFlag){
         temperature = dht.readTemperature(!Config.Celcius);
-      }	//if(InitFlag)
+      } //if(InitFlag)
       else{
         temperature = dht.readTemperature();
-      }	//if(InitFlag)else
+      } //if(InitFlag)else
       delay(1000);
     } while((++Cntr < 21) && isnan(temperature));
 
@@ -328,12 +365,12 @@ void setup(){
       Serial.print(temperature, 1);
       if(InitFlag){
         Serial.printf(" %c\n", Config.Celcius ? 'C' : 'F');
-      }	//if(InitFlag)
+      } //if(InitFlag)
       else{
         Serial.println("C");
-      }	//if(InitFlag)else
+      } //if(InitFlag)else
       Serial.print("Humidity      = "); Serial.print(humidity, 0); Serial.println("%");
-    }	//if(!isnan(temperature))
+    } //if(!isnan(temperature))
     else{
       // Failed to read temperature sensor.
       Serial.println("  Failed!\nCheck wiring...  Program halting.");
@@ -348,14 +385,14 @@ void setup(){
       display.println(FormatText("Check wiring...", CENTER));
       display.println();
       display.display();
-    }	//if(!isnan(temperature))else
-  }	//while(isnan(temperature))			//Earlier: ERROR, this matches setup!
+    } //if(!isnan(temperature))else
+  } //while(isnan(temperature))     //Earlier: ERROR, this matches setup!
 
   Serial << "setup(): Call AP_Config()" << endl;
   // If Init flag is not DEVICETYPE or CRC values doesn't match, then run first time init process
   if((Config.Init != DEVICETYPE) || (Config.SoftReboot >= 3) || (Config.CRC != Calc_CRC())){
       AP_Config();
-  }	//if((Config.Init!=DEVICETYPE)||...
+  } //if((Config.Init!=DEVICETYPE)||...
 
   // Display heater size, kWh used, running cost
   ulCurrentTime = 0;
@@ -375,7 +412,7 @@ void setup(){
   if(strlen(Config.IO_USER) == 0){
     Serial.print("Master Device = ");
     Serial.printf("%s\n", (strcmp(Config.Master, FusedMAC()) == 0 ? "YES" : Config.Master));
-  }	//if(strlen(Config.IO_USER)==0)
+  } //if(strlen(Config.IO_USER)==0)
   Serial.println();
 
   // Set HOSTNAME
@@ -445,7 +482,7 @@ void setup(){
   for(Cntr = 0; Cntr < 50; Cntr++) Serial.print("-");
   Serial.println();
   return;
-}	///setup
+} ///setup
 
 
 void loop(){
@@ -454,7 +491,7 @@ void loop(){
   char    buf[32];
   String  MasterValue;
   float fTemperature;
-  bool		bTemperatureOK= false;
+  bool    bTemperatureOK= false;
 
   // Save current time
   ulCurrentTime= millis();
@@ -511,7 +548,7 @@ void loop(){
     fScheduledTemp= ScheduledTemp(Config.MinTemp);
     if(fScheduledTemp != RequestedTemp){
       Serial.printf("[%s] Scheduled temperature now set to %s %c\n",
-										getTime(false), String(fScheduledTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
+                    getTime(false), String(fScheduledTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'));
       sprintf(googleText, "Time = %s", String(fScheduledTemp, 1).c_str());
       RequestedTemp = fScheduledTemp;
     } //if(fScheduledTemp != RequestedTemp)
@@ -536,108 +573,108 @@ void loop(){
     else{
        SensorError = true;
     } //if(!isnan(temperature))else
-  }	//if((ulCurrentTime-ulLastTemperatureTime)>=ulDisplayPeriod)
+  } //if((ulCurrentTime-ulLastTemperatureTime)>=ulDisplayPeriod)
 
     if((ulCurrentTime - ulLastSaveTime) >= ulSavePeriod){
       ulLastSaveTime= ulCurrentTime;
       //Make sure we read the temp and humidity already in this function
       if (!bTemperatureOK){
-				Serial << "loop(): Reading temperature" << endl;
-				fTemperature = dht.readTemperature(!Config.Celcius);
-				ulLastTemperatureTime= ulCurrentTime;
-		    Serial << fElapsedSec << " loop(): Read temperature for save= " << fTemperature << endl;
-				if(!isnan(fTemperature)){
-					// Reading was ok
-					humidity= dht.readHumidity();
-					bTemperatureOK= true;
-					// Save the new temperature reading
-					fLastTemp = fTemperature;
-					fLastHumid = humidity;
-					// Update display with new values (or sensor error message)
-					UpdateTemperature();
-				} //if(!isnan(temperature))
-      }	//if (!bTemperatureOK)
+        Serial << "loop(): Reading temperature" << endl;
+        fTemperature = dht.readTemperature(!Config.Celcius);
+        ulLastTemperatureTime= ulCurrentTime;
+        Serial << fElapsedSec << " loop(): Read temperature for save= " << fTemperature << endl;
+        if(!isnan(fTemperature)){
+          // Reading was ok
+          humidity= dht.readHumidity();
+          bTemperatureOK= true;
+          // Save the new temperature reading
+          fLastTemp = fTemperature;
+          fLastHumid = humidity;
+          // Update display with new values (or sensor error message)
+          UpdateTemperature();
+        } //if(!isnan(temperature))
+      } //if (!bTemperatureOK)
 
       if (bTemperatureOK){
-				// Add temperature/humidity reading to hourly statistics
-				if(String(HeatingStats.Hourly[LastHour].Temperature, 1) == "nan" ||
-					String(HeatingStats.Hourly[LastHour].Temperature, 1) == "inf" ||
-					String(HeatingStats.Hourly[LastHour].Humidity, 0) == "nan" ||
-					String(HeatingStats.Hourly[LastHour].Humidity, 0) == "inf")
-				{
-					HeatingStats.Hourly[LastHour].Temperature = 0.00;
-					HeatingStats.Hourly[LastHour].Humidity = 0.00;
-					HeatingStats.Hourly[LastHour].Samples = 0;
-				}
-				HeatingStats.Hourly[LastHour].Temperature += fTemperature;
-				HeatingStats.Hourly[LastHour].Humidity += humidity;
-				++HeatingStats.Hourly[LastHour].Samples;
+        // Add temperature/humidity reading to hourly statistics
+        if(String(HeatingStats.Hourly[LastHour].Temperature, 1) == "nan" ||
+          String(HeatingStats.Hourly[LastHour].Temperature, 1) == "inf" ||
+          String(HeatingStats.Hourly[LastHour].Humidity, 0) == "nan" ||
+          String(HeatingStats.Hourly[LastHour].Humidity, 0) == "inf")
+        {
+          HeatingStats.Hourly[LastHour].Temperature = 0.00;
+          HeatingStats.Hourly[LastHour].Humidity = 0.00;
+          HeatingStats.Hourly[LastHour].Samples = 0;
+        }
+        HeatingStats.Hourly[LastHour].Temperature += fTemperature;
+        HeatingStats.Hourly[LastHour].Humidity += humidity;
+        ++HeatingStats.Hourly[LastHour].Samples;
 
-				// Add to daily statistics
-				if(String(HeatingStats.Daily[0].Temperature, 1) == "nan" ||
-					String(HeatingStats.Daily[0].Temperature, 1) == "inf" ||
-					String(HeatingStats.Daily[0].Humidity, 0) == "nan" ||
-					String(HeatingStats.Daily[0].Humidity, 0) == "inf")
-				{
-					HeatingStats.Daily[0].Temperature = 0.00;
-					HeatingStats.Daily[0].Humidity = 0.00;
-					HeatingStats.Daily[0].Samples = 0;
-				}
-				HeatingStats.Daily[0].Temperature += fTemperature;
-				HeatingStats.Daily[0].Humidity += humidity;
-				++HeatingStats.Daily[0].Samples;
+        // Add to daily statistics
+        if(String(HeatingStats.Daily[0].Temperature, 1) == "nan" ||
+          String(HeatingStats.Daily[0].Temperature, 1) == "inf" ||
+          String(HeatingStats.Daily[0].Humidity, 0) == "nan" ||
+          String(HeatingStats.Daily[0].Humidity, 0) == "inf")
+        {
+          HeatingStats.Daily[0].Temperature = 0.00;
+          HeatingStats.Daily[0].Humidity = 0.00;
+          HeatingStats.Daily[0].Samples = 0;
+        }
+        HeatingStats.Daily[0].Temperature += fTemperature;
+        HeatingStats.Daily[0].Humidity += humidity;
+        ++HeatingStats.Daily[0].Samples;
 
-				// Add to monthly statistics
-				if(String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "nan" ||
-					String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "inf" ||
-					String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "nan" ||
-					String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "inf")
-				{
-					HeatingStats.Monthly[0][LastMonth-1].Temperature = 0.00;
-					HeatingStats.Monthly[0][LastMonth-1].Humidity = 0.00;
-					HeatingStats.Monthly[0][LastMonth-1].Samples = 0;
-				}
-				HeatingStats.Monthly[0][LastMonth-1].Temperature += fTemperature;
-				HeatingStats.Monthly[0][LastMonth-1].Humidity += humidity;
-				++HeatingStats.Monthly[0][LastMonth-1].Samples;
+        // Add to monthly statistics
+        if(String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "nan" ||
+          String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "inf" ||
+          String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "nan" ||
+          String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "inf")
+        {
+          HeatingStats.Monthly[0][LastMonth-1].Temperature = 0.00;
+          HeatingStats.Monthly[0][LastMonth-1].Humidity = 0.00;
+          HeatingStats.Monthly[0][LastMonth-1].Samples = 0;
+        }
+        HeatingStats.Monthly[0][LastMonth-1].Temperature += fTemperature;
+        HeatingStats.Monthly[0][LastMonth-1].Humidity += humidity;
+        ++HeatingStats.Monthly[0][LastMonth-1].Samples;
 
-				// Do I need to turn on the heat?
-				if(!HeatOn && (fabs(fTemperature - RequestedTemp) >= 0.5F) && (fTemperature < RequestedTemp)){
-				 Serial << "loop(): Reading temperatuuure" << endl;
-					HeatOn = true;
-					ulHeatOnTime = ulHourlyHeatOnTime = ulCurrentTime;
-					digitalWrite(RelayPIN, RelayON);
-				}	//if(!HeatOn &&...
+        // Do I need to turn on the heat?
+        if(!HeatOn && (fabs(fTemperature - RequestedTemp) >= 0.5F) && (fTemperature < RequestedTemp)){
+         Serial << "loop(): Reading temperatuuure" << endl;
+          HeatOn = true;
+          ulHeatOnTime = ulHourlyHeatOnTime = ulCurrentTime;
+          digitalWrite(RelayPIN, RelayON);
+        } //if(!HeatOn &&...
 
-				// Wait a bit before turning off the heat
-				// This is so that the relay doesn't go on and off with small temperature differences
-				if(HeatOn && ((ulCurrentTime - ulHeatOnTime) >= ulOneMinute) && (fTemperature >= RequestedTemp)){
-					// Turn off the heat
-					HeatOn= false;
-					digitalWrite(RelayPIN, RelayOFF);
+        // Wait a bit before turning off the heat
+        // This is so that the relay doesn't go on and off with small temperature differences
+        if(HeatOn && ((ulCurrentTime - ulHeatOnTime) >= ulOneMinute) && (fTemperature >= RequestedTemp)){
+          // Turn off the heat
+          HeatOn= false;
+          digitalWrite(RelayPIN, RelayOFF);
 
-					// Now add to the total heater on time in the config record
-					Config.HeatingTime += (ulCurrentTime - ulHeatOnTime) / OneSecond;
-					Config.CRC= Calc_CRC();
-					EEPROM.put(CONFIG_OFFSET, Config);
-					EEPROM.commit();
+          // Now add to the total heater on time in the config record
+          Config.HeatingTime += (ulCurrentTime - ulHeatOnTime) / OneSecond;
+          Config.CRC= Calc_CRC();
+          EEPROM.put(CONFIG_OFFSET, Config);
+          EEPROM.commit();
 
-					// Save heating time to statistics
-					HeatingStats.Hourly[LastHour].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-					HeatingStats.Daily[0].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-					HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-				} //if(HeatOn&&...
+          // Save heating time to statistics
+          HeatingStats.Hourly[LastHour].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+          HeatingStats.Daily[0].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+          HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
+        } //if(HeatOn&&...
 
-			// If not connected to WiFi, try to reconnect
-			if(!WiFiConnected){
-				WiFi.reconnect();
-			} //if(!WiFiConnected)
+      // If not connected to WiFi, try to reconnect
+      if(!WiFiConnected){
+        WiFi.reconnect();
+      } //if(!WiFiConnected)
 
-			// Post to Adafruit if needed
-			if((strlen(Config.IO_USER) != 0) && (strlen(Config.IO_KEY) != 0)){
-				IO_Location->save(fLastTemp);
-			} //if((strlen(Config.IO_USER)!=0)...
-    }	//if(bTemperatureOK)
+      // Post to Adafruit if needed
+      if((strlen(Config.IO_USER) != 0) && (strlen(Config.IO_KEY) != 0)){
+        IO_Location->save(fLastTemp);
+      } //if((strlen(Config.IO_USER)!=0)...
+    } //if(bTemperatureOK)
   } //if((ulCurrentTime-ulLastSaveTime)>=ulSavePeriod)
 
 /*
@@ -650,6 +687,180 @@ void loop(){
   // Update stats if it's time...
   UpdateStats();
 } //loop
+
+#if 1
+//Beck 11/14/18 Code from BeckESP32_Blynk.ino
+void HandleThermostat(){
+  String szLogString = "HandleThermostat()";
+  LogToBoth(szLogString);
+  //Only do anything if the thermostat is turned on.
+  if (bThermoOn){
+    float fDegF= fGetDegF(true);
+    float fRoundDegF= fRound(fDegF);
+    DebugHandleThermostat(fDegF);
+    if (bFurnaceOn){
+      if (fRoundDegF >= fThermoOffDegF){
+        if (++sThermoTimesCount >= sThermoTimesInRow){
+          TurnFurnaceOn(false);
+        } //if(sThermoTimesCount>=sThermoTimesInRow)
+      } //if(fRoundDegF>=fThermoOffDegF)
+      else{
+        sThermoTimesCount= 0;
+      } //if(fRoundDegF>=fThermoOffDegF)else
+    } //if(bFurnaceOn)
+    else{
+      if (fRoundDegF <= sSetpointF){
+        if (++sThermoTimesCount >= sThermoTimesInRow){
+          TurnFurnaceOn(true);
+        } //if(sThermoTimesCount>=sThermoTimesInRow)
+      } //if(fRoundDegF<sSetpointF)
+      else{
+        sThermoTimesCount= 0;
+      } //if(fRoundDegF<sSetpointF)else
+    } //if(bFurnaceOn)else
+  } //if(bThermoOn)
+  else{
+    LogToBoth(szLogString);
+    szLogString= " bThermoOn is false";
+    LogToBoth(szLogString);
+  }
+  //} //if(millis()>=ulNextHandlerMsec)
+  return;
+} //HandleThermostat
+
+
+void DebugHandleThermostat(float fDegF){
+  //String szLogString2= " ";
+  String szLogString = "HandleThermostat";
+  LogToBoth(szLogString);
+  szLogString= " DegF=";
+  LogToBoth(szLogString, fDegF);
+  szLogString= " SetpointF=";
+  LogToBoth(szLogString, sSetpointF);
+  szLogString= " OffDegF=";
+  LogToBoth(szLogString, fThermoOffDegF);
+  szLogString= " bFurnaceOn=";
+  LogToBoth(szLogString, bFurnaceOn);
+  szLogString= " OnCount=";
+  LogToBoth(szLogString, sThermoTimesCount);
+  return;
+} //DebugHandleThermostat
+
+
+void HandleFurnaceSwitch(){
+  String szLogString = "HandleFurnaceSwitch(): bFurnaceOn";
+  LogToBoth(szLogString, bFurnaceOn);
+  //Serial << LOG0 << "HandleFurnaceSwitch(): bThermoOn, bFurnaceOn " << bThermoOn << ", " << bFurnaceOn << endl;
+  //Make sure  switch state represents bHeatOn correctly.
+  if (bFurnaceOn){
+    //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOn" << endl;
+    asSwitchState[sFurnaceSwitchNum]= sOn;
+  } //if(bFurnaceOn)
+  else{
+    //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOff" << endl;
+    asSwitchState[sFurnaceSwitchNum]= sOff;
+  } //if(bFurnaceOn)else
+  SetSwitch(sFurnaceSwitchNum, asSwitchState[sFurnaceSwitchNum]);
+  return;
+} //HandleFurnaceSwitch
+
+
+void TurnFurnaceOn(bool bTurnOn){
+  if (bTurnOn){
+    String szLogString= "TurnFurnaceOn(): Furnace turned ON";
+    LogToBoth(szLogString);
+    bFurnaceOn= true;
+    SetFurnaceSwitch(sSwitchClosed);
+    sThermoTimesCount= 0;
+  } //if(bTurnOn)
+  else{
+    String szLogString= "TurnFurnaceOn(): Furnace turned OFF";
+    LogToBoth(szLogString);
+    bFurnaceOn= false;
+    SetFurnaceSwitch(sSwitchOpen);
+    sThermoTimesCount= 0;
+  } //if(bTurnOn)else
+  return;
+} //TurnFurnaceOn
+
+
+void SetThermoState(int sSwitchState){
+  asSwitchState[sThermoDummySwitch]= sSwitchState;
+  if (sSwitchState == sOn){
+    bThermoOn= true;
+  } //if(sState==sOn)
+  else{
+    bThermoOn= false;
+    bFurnaceOn= false;
+    sThermoTimesCount= 0;
+    SetFurnaceSwitch(sSwitchOpen);
+  } //if(sState==sOn)else
+  return;
+} //SetThermoState
+
+
+void SetFurnaceSwitch(int sSwitchState){
+  SetSwitch(sFurnaceSwitchNum, sSwitchState);
+  return;
+} //SetFurnaceSwitch
+
+
+void SetSwitch(int sSwitch, int sSwitchState){
+  int sSwitchPin= asSwitchPin[sSwitch];
+  bool bPinSetting;
+  asSwitchState[sSwitch]= sSwitchState;
+  //bDebugLog= bDebug;
+  if (abSwitchInverted[sSwitch]){
+    bPinSetting= !sSwitchState;
+  } //if(abSwitchInverted[sSwitch])
+  else{
+    bPinSetting= sSwitchState;
+  } //if(abSwitchInverted[sSwitch])else
+  //Serial << LOG0 << "SetSwitch(): sSwitch, sSwitchState, sSwitchPin, bPinSetting " << sSwitch << ", " << sSwitchState << ", " << sSwitchPin << ", " << bPinSetting <<  endl;
+  //Serial << LOG0 << "SetSwitch(): sSwitch, sSwitchState, sSwitchPin, bPinSetting" <<  endl;
+  String szLogString= "SetSwitch:  ";
+  szLogString += sSwitch;
+  szLogString += ",";
+  szLogString += sSwitchState;
+  szLogString += ",";
+  szLogString += sSwitchPin;
+  szLogString += ",";
+  szLogString += bPinSetting;
+  //LogToBoth(szLogString);
+
+  //Some switch positions don't have pins, just Blynk LEDs.
+  if (sSwitchPin >= 0){
+    digitalWrite(sSwitchPin, bPinSetting);
+    asSwitchState[sSwitch]= sSwitchState;
+  } //if(sSwitchPin>=0)
+  bDebugLog= true;
+  //HandleBlynkLEDs();
+  return;
+} //SetSwitch
+//End of adds from BeckESP32_Blynk.ino
+#endif  //0
+
+
+float fGetDegF(bool bTakeReading){
+  float fDegFReturn= 37.37;   //Value used for default in testing w/o reading sensor. fLastDegF
+  if (bTakeReading){
+    //oSensors.requestTemperatures(); // Send the command to get temperatures
+    //fDegFReturn= oSensors.getTempFByIndex(0);
+  	fDegFReturn = dht.readTemperature(!Config.Celcius);
+    fLastDegF= fDegFReturn;
+  } //if(bTakeReading)
+  else{
+    fDegFReturn= fLastDegF;
+  } //if(bTakeReading)else
+  return fDegFReturn;
+}  //fGetDegF
+
+
+float fRound(float fNum){
+  //oSensors.requestTemperatures(); // Send the command to get temperatures
+  float fRounded= floor(fNum + 0.5);
+  return fRounded;
+}  //fRound
 
 
 // Connect to WiFi Access point or to Adafruit IO
