@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String szFileDate    = "November 14, 2018-c";
+const String szFileDate    = "November 14, 2018-f";
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 //
 // Google Home / Alexa Enabled WiFi Thermostat
@@ -46,34 +46,7 @@ const String szFileDate    = "November 14, 2018-c";
 #include "Arduino_Logo.h"
 #include <Streaming.h>
 
-//Beck 11/14/18 Needed for code brought in from BeckESP32_Blynk.ino
 #include <BeckLogLib.h>
-static const int    sSwitchOpen           = 0;
-static const int    sSwitchClosed         = 1;
-static const int    sOff                  = 0;
-static const int    sOn                   = 1;
-static const int    sNotInit              = -3737;
-static const int    sNumSwitches          = 4;
-//static const int    sMaxNumSwitches       = 4;
-static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
-static const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
-static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
-
-static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
-static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
-static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
-
-static int          asSwitchState[]       = {0, 0, 0, 0, 0};
-static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-static float          fLastDegF             = 37.37;  //Last temperature reading.
-static int            sSetpointF            = 37;
-static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
-static unsigned long  ulNextHandlerMsec     = 0;
-static unsigned long  ulUpdateTimeoutMsec   = 0;
-static bool           bThermoOn             = true;   //Whether thermostat is running.
-static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
-static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
-static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
 
 
 //Reverse the definition of what BLACK and WHITE are for the OLED display
@@ -95,13 +68,19 @@ static long         sSystemHandlerSpacing; //Number of mSec between running syst
 //
 #ifdef ARDUINO_ESP32_DEV
 // I2C SDA = GPIO 11, SCL = GPIO 22
-  #define DHTPIN        A17   // GPIO 27
-  #define RelayPIN      A18   // GPIO 25
+/*
+#define _wDHTSensorPin        27
+#define _RelayPIN      25
+*/
+/*
+  #define _wDHTSensorPin        A17   // GPIO 27
+  #define _RelayPIN      A18   // GPIO 25
   #define DC            A13   // GPIO 15
   #define CS            A4    // GPIO 32
   #define RST           A16   // GPIO 14
   #define SPI_CLK       SCK   // GPIO 18
   #define SPI_MOSI      MOSI  // GPIO 23
+*/
 #endif
 
 // Define OTA hostname/password and Dweet name
@@ -121,18 +100,11 @@ char DWEETNAME[32]    = "Thermo-eFusedMac";     // This will change to Thermo-'F
 
 
 // Define time constants (values are in millseconds)
-#define OneSecond     1000            // One second
-//#define OneMinute     60000           // One minute
 #define OneHour       3600000         // One hour
 #define OneDay        86400000        // One day
 #define DisplayDelay  10000           // Delay before turning off the display backlight (PCD8544 only)
-#define SensorDelay   15000           // Delay before reading the temperature sensor
+//#define SensorDelay   15000           // Delay before reading the temperature sensor
 #define DweetDelay    15000           // Delay between post to Dweet.io
-
-static const unsigned long ulRollOver         = 4294967295UL;
-static const unsigned long ulOneMinute        = 60000UL;
-static const unsigned long ulDisplayPeriod    =  1000UL;
-static const unsigned long ulSavePeriod       = 15000UL;
 
 // Define data structures stored in EEPROM memory
 // EEPROM memory is partitioned into 3 segments.  Config, Statistics and Schedule
@@ -249,11 +221,6 @@ enum CHARTS
 
 Adafruit_SSD1306  display(OLED_Reset);
 
-// Create temperature sensor, HTTPClient and webserver objects
-DHT               dht(DHTPIN, DHT11);
-WiFiServer        WebServer(80);
-HTTPClient        http;
-
 // Eastern Time Zone rule (this will need to be changed for other time zones and daylight savings rules)
 TimeChangeRule myEDT = {"EDT", Second, Sun, Mar, 2, -240};  // Eastern Daylight Time = UTC - 4 hours
 TimeChangeRule myEST = {"EST", First, Sun, Nov, 2, -300};   // Eastern Standard Time = UTC - 5 hours
@@ -266,23 +233,88 @@ AdafruitIO_Feed *IO_Schedule = io.feed("Schedule", false);      // Modified Adaf
 AdafruitIO_Feed *IO_Location = io.feed("", false);              // Modified Adafruit library
 
 // Define global variables
-bool            WiFiConnected, LostWiFi, HeatOn, SensorError, DweetFailed, OTA_Update;
-float           temperature, humidity, RequestedTemp, fLastTemp, fLastHumid;
-//float           humidity, RequestedTemp, fLastTemp, fLastHumid;
+//bool            WiFiConnected, LostWiFi, _bHeatOn, SensorError, DweetFailed, OTA_Update;
+bool            WiFiConnected, LostWiFi, DweetFailed, OTA_Update;
+//float           temperature, humidity, RequestedTemp, _fLastDegF, _fLastHumid;
+float           RequestedTemp;
+//float           humidity, RequestedTemp, _fLastDegF, _fLastHumid;
 char            googleText[20];
 int             MaxLocations, ExcludeLocation, LastHour, LastDay, LastMonth, MDNS_Services;
-unsigned long   ulCurrentTime, ulDisplayTime, ulLastTemperatureTime, ulLastSaveTime;
+//unsigned long   _ulCurrentTime, ulDisplayTime, ulLastTemperatureTime, ulLastSaveTime;
+unsigned long   ulDisplayTime, ulLastTemperatureTime, ulLastSaveTime;
 unsigned long   ulHeatOnTime,ulHourlyHeatOnTime, ulDweetTime, ulDataSave;
 unsigned long   ulStartTime= millis();
+
+static const unsigned long ulRollOver         	= 4294967295UL;
 
 CONFIG          Config;
 STATS           HeatingStats;
 WEEK_SCHEDULE   Schedule;
 
+//Beginning of variables from Beck. 11/14/18
+static const int 		_RelayPIN      				= 25;
+static const int 		_wDHTSensorPin        = 27;
+static const int    sSwitchOpen           = 0;
+static const int    sSwitchClosed         = 1;
+static const int    sOff                  = 0;
+static const int    sOn                   = 1;
+static const int    sNotInit              = -3737;
+static const int    sNumSwitches          = 4;
+//static const int    sMaxNumSwitches       = 4;
+static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
+//static const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
+static const int    asSwitchPin[]         = {-1, 0, _RelayPIN, 0, 0};    //0 is not a switch, switches are at 1,2,3,4
+static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
+
+static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
+static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
+static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
+
+static int          asSwitchState[]       = {0, 0, 0, 0, 0};
+//static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
+//static float          fLastDegF             = 37.37;  //Last temperature reading.
+//static unsigned long  ulUpdateTimeoutMsec   = 0;
+
+/*
+static const unsigned long _ulOneMinute        	= 60000UL;
+static const unsigned long _ulReadDisplayPeriod =  2000UL;
+static const unsigned long ulSavePeriod       	= 10000UL;
+*/
+static const unsigned long 	_ulOneSecond        			=  1 * lMsecPerSec;
+static const unsigned long 	_ulOneMinute        			= 60 * lMsecPerSec;
+static const unsigned long 	_ulReadDisplayPeriod 			=  2 * lMsecPerSec;
+static const unsigned long  _ulThermoHandlerPeriod		= 10 * lMsecPerSec;
+static const unsigned long 	_ulSavePeriod       			= 10 * lMsecPerSec;
+
+static unsigned long  			_ulNextReadDisplayMsec		= 0;
+static unsigned long  			_ulNextThermoHandlerMsec	= 0;
+static unsigned long  			_ulNextSaveMsec						= 0;
+
+static int      _sSetpointF            = 37;
+static int			_sThermoTimesCount     = 0;      //Number of times temperature out of range
+static bool     _bThermoOn             = true;   //Whether thermostat is running.
+static bool     _bFurnaceOn            = false;  //If switch is on to turn on furnace.
+static bool			_bHeatOn							 = false;
+static float    _fThermoOffDegF        = _sSetpointF + fMaxHeatRangeF;
+
+bool						_bSensorOk			= true;
+float						_fLastDegF			= NAN;
+float						_fLastHumid			= NAN;
+float						_fElapsedSec		= 0.0;
+unsigned long   _ulCurrentTime	= 0;
+
+// Create temperature sensor, HTTPClient and webserver objects
+DHT               dht(_wDHTSensorPin, DHT11);
+WiFiServer        WebServer(80);
+HTTPClient        http;
+
+//********************************************************************* lMsecPerSec
 void setup(){
   //char  Time[32];
-  int   chk, Cntr;
-  bool  Done, InitFlag;
+  int   	chk, Cntr;
+  bool  	Done, InitFlag;
+  float 	fDegF;
+  float		_fLastHumid;
 
   // Start by saving MaxLocations and DWEET name (used during first time configuration)
   MaxLocations= sizeof(Location) / 15;
@@ -297,8 +329,8 @@ void setup(){
   sprintf(DWEETNAME, "Thermo-%s", FusedMAC());
 
   // Set pin modes and turn on the LCD backlight
-  pinMode(RelayPIN, OUTPUT);
-  digitalWrite(RelayPIN, RelayOFF);
+  pinMode(_RelayPIN, OUTPUT);
+  digitalWrite(_RelayPIN, RelayOFF);
 
   //Display board name and firmware version
   Serial.begin(115200);
@@ -329,9 +361,9 @@ void setup(){
   ArduinoLogo(3000);
 
   // Read sensor until valid data is returned
-  temperature= NAN;
+  fDegF= NAN;
   dht.begin();
-  while(isnan(temperature)){
+  while(isnan(fDegF)){
     Serial.print("Reading temperature sensor.");
     display.clearDisplay();
     display.setCursor(0, 0);
@@ -348,29 +380,32 @@ void setup(){
       Serial.print(".");
       display.print(".");
       display.display();
+    	fDegF = dht.readTemperature(true);
+/*
       if(InitFlag){
-        temperature = dht.readTemperature(!Config.Celcius);
+      	fDegF = dht.readTemperature(!Config.Celcius);
       } //if(InitFlag)
       else{
-        temperature = dht.readTemperature();
+      	fDegF = dht.readTemperature();
       } //if(InitFlag)else
+*/
       delay(1000);
-    } while((++Cntr < 21) && isnan(temperature));
+    } while((++Cntr < 21) && isnan(fDegF));
 
-    if(!isnan(temperature)){
-      fLastTemp = temperature;
-      fLastHumid = humidity = dht.readHumidity();
+    if(!isnan(fDegF)){
+      _fLastDegF 	= fDegF;
+      _fLastHumid = dht.readHumidity();
       Done = true;
       Serial.print("  OK!\n\nTemperature   = ");
-      Serial.print(temperature, 1);
+      Serial.print(fDegF, 1);
       if(InitFlag){
         Serial.printf(" %c\n", Config.Celcius ? 'C' : 'F');
       } //if(InitFlag)
       else{
         Serial.println("C");
       } //if(InitFlag)else
-      Serial.print("Humidity      = "); Serial.print(humidity, 0); Serial.println("%");
-    } //if(!isnan(temperature))
+      Serial.print("Humidity      = "); Serial.print(_fLastHumid, 0); Serial.println("%");
+    } //if(!isnan(fDegF))
     else{
       // Failed to read temperature sensor.
       Serial.println("  Failed!\nCheck wiring...  Program halting.");
@@ -395,7 +430,7 @@ void setup(){
   } //if((Config.Init!=DEVICETYPE)||...
 
   // Display heater size, kWh used, running cost
-  ulCurrentTime = 0;
+  _ulCurrentTime = 0;
   Cntr = (Config.HeatingTime / 86400UL) * 24;
   //Serial.printf("Heating Time  = %02u:%02u:%02u\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
   Serial.printf("Heating Time  = %02lu:%02lu:%02lu\n", numberOfHours(Config.HeatingTime) + Cntr, numberOfMinutes(Config.HeatingTime), numberOfSeconds(Config.HeatingTime));
@@ -455,9 +490,9 @@ void setup(){
   } //if(strlen(Config.CommonName)!=0)
 
   // Default global variables and display initial temperature reading
-  OTA_Update = HeatOn = SensorError = DweetFailed = LostWiFi = false;
+  OTA_Update= DweetFailed= LostWiFi= false;
   strcpy(googleText, "");
-  UpdateTemperature();
+  UpdateDisplay();
   ulDisplayTime = ulLastTemperatureTime = ulDataSave = millis();
 
   // Set RequestedTemp to either Config.MinTemp or if there's a schedule (and it's enabled), to the scheduled temperature
@@ -488,15 +523,20 @@ void setup(){
 void loop(){
   int     chk, Cntr;
   float   fScheduledTemp;
+  float 	fDegF;
+  float		fHumidity;
   char    buf[32];
   String  MasterValue;
-  float fTemperature;
+  //float fTemperature;
   bool    bTemperatureOK= false;
 
+/*
   // Save current time
-  ulCurrentTime= millis();
-  float fElapsedMillis= (float)(ulCurrentTime - ulStartTime);
-  float fElapsedSec= fElapsedMillis / 1000.0;
+  _ulCurrentTime= millis();
+  float fElapsedMillis= (float)(_ulCurrentTime - ulStartTime);
+  float _fElapsedSec= fElapsedMillis / 1000.0;
+*/
+  SaveCurrentTime();
 
   // If CurrentTime is about to roll over (go back to zero) wait for it to occur.
   // This occurs every 49.71 days.  It's to prevent the machine from initiating
@@ -504,8 +544,8 @@ void loop(){
   // before ending the action.  i.e. if I start an action one second before
   // the roll over value of 4,294,967,295 with a 3 second delay, I'd be waiting
   // for the clock to reach 4,294,969,295 which will never occur.
-  //if(ulCurrentTime >= 4294967295UL - OneMinute)
-  if(ulCurrentTime >= (ulRollOver - ulOneMinute)){
+  //if(_ulCurrentTime >= 4294967295UL - OneMinute)
+  if(_ulCurrentTime >= (ulRollOver - _ulOneMinute)){
     // Wait for the roll over
     Serial.printf("[%s] Waiting for clock roll over.\n", getTime(false));
     while(millis() > 100);
@@ -517,7 +557,7 @@ void loop(){
     delay(1000);
     ESP.restart();
     while(1);
-  } //if(ulCurrentTime>=(ulRollOver-ulOneMinute))
+  } //if(_ulCurrentTime>=(ulRollOver-_ulOneMinute))
 
   // Check if still connected to the WiFi Access Point
   WiFiConnected= (WiFi.status() == WL_CONNECTED);
@@ -554,47 +594,56 @@ void loop(){
     } //if(fScheduledTemp != RequestedTemp)
   } //if(Schedule.Enabled)
 
+  ReadDisplaySensor();
+  HandleThermostat();
+  SaveStats();
+
+/*
+#if 0
   // Is it time to read the temperature sensor?
-  if((ulCurrentTime - ulLastTemperatureTime) >= ulDisplayPeriod){
+  if((_ulCurrentTime - ulLastTemperatureTime) >= _ulReadDisplayPeriod){
     fTemperature = dht.readTemperature(!Config.Celcius);
-    ulLastTemperatureTime= ulCurrentTime;
-    Serial << fElapsedSec << " loop(): Read temperature for display= " << fTemperature << endl;
+    ulLastTemperatureTime= _ulCurrentTime;
+    Serial << _fElapsedSec << " loop(): Read temperature for display= " << fTemperature << endl;
     if(!isnan(fTemperature)){
       // Reading was ok
-      humidity= dht.readHumidity();
+      fHumidity= dht.readHumidity();
       bTemperatureOK= true;
-      SensorError= false;
+      _bSensorOk= true;
       // Save the new temperature reading
-      fLastTemp = fTemperature;
-      fLastHumid = humidity;
+      _fLastDegF = fTemperature;
+      _fLastHumid = fHumidity;
       // Update display with new values (or sensor error message)
-      UpdateTemperature();
+      UpdateDisplay();
     } //if(!isnan(temperature))
     else{
-       SensorError = true;
+       _bSensorOk = false;
     } //if(!isnan(temperature))else
-  } //if((ulCurrentTime-ulLastTemperatureTime)>=ulDisplayPeriod)
-
-    if((ulCurrentTime - ulLastSaveTime) >= ulSavePeriod){
-      ulLastSaveTime= ulCurrentTime;
-      //Make sure we read the temp and humidity already in this function
+  } //if((_ulCurrentTime-ulLastTemperatureTime)>=_ulReadDisplayPeriod)
+#endif
+*/
+/*
+    if((_ulCurrentTime - ulLastSaveTime) >= ulSavePeriod){
+      ulLastSaveTime= _ulCurrentTime;
+      //Make sure we read the temp and fHumidity already in this function
       if (!bTemperatureOK){
         Serial << "loop(): Reading temperature" << endl;
         fTemperature = dht.readTemperature(!Config.Celcius);
-        ulLastTemperatureTime= ulCurrentTime;
-        Serial << fElapsedSec << " loop(): Read temperature for save= " << fTemperature << endl;
+        ulLastTemperatureTime= _ulCurrentTime;
+        Serial << _fElapsedSec << " loop(): Read temperature for save= " << fTemperature << endl;
         if(!isnan(fTemperature)){
           // Reading was ok
-          humidity= dht.readHumidity();
+          fHumidity= dht.readHumidity();
           bTemperatureOK= true;
           // Save the new temperature reading
-          fLastTemp = fTemperature;
-          fLastHumid = humidity;
+          _fLastDegF = fTemperature;
+          _fLastHumid = fHumidity;
           // Update display with new values (or sensor error message)
-          UpdateTemperature();
+          UpdateDisplay();
         } //if(!isnan(temperature))
       } //if (!bTemperatureOK)
-
+*/
+/*
       if (bTemperatureOK){
         // Add temperature/humidity reading to hourly statistics
         if(String(HeatingStats.Hourly[LastHour].Temperature, 1) == "nan" ||
@@ -607,7 +656,7 @@ void loop(){
           HeatingStats.Hourly[LastHour].Samples = 0;
         }
         HeatingStats.Hourly[LastHour].Temperature += fTemperature;
-        HeatingStats.Hourly[LastHour].Humidity += humidity;
+        HeatingStats.Hourly[LastHour].Humidity += fHumidity;
         ++HeatingStats.Hourly[LastHour].Samples;
 
         // Add to daily statistics
@@ -621,7 +670,7 @@ void loop(){
           HeatingStats.Daily[0].Samples = 0;
         }
         HeatingStats.Daily[0].Temperature += fTemperature;
-        HeatingStats.Daily[0].Humidity += humidity;
+        HeatingStats.Daily[0].Humidity += fHumidity;
         ++HeatingStats.Daily[0].Samples;
 
         // Add to monthly statistics
@@ -635,35 +684,36 @@ void loop(){
           HeatingStats.Monthly[0][LastMonth-1].Samples = 0;
         }
         HeatingStats.Monthly[0][LastMonth-1].Temperature += fTemperature;
-        HeatingStats.Monthly[0][LastMonth-1].Humidity += humidity;
+        HeatingStats.Monthly[0][LastMonth-1].Humidity += fHumidity;
         ++HeatingStats.Monthly[0][LastMonth-1].Samples;
 
         // Do I need to turn on the heat?
-        if(!HeatOn && (fabs(fTemperature - RequestedTemp) >= 0.5F) && (fTemperature < RequestedTemp)){
+        if(!_bHeatOn && (fabs(fTemperature - RequestedTemp) >= 0.5F) && (fTemperature < RequestedTemp)){
          Serial << "loop(): Reading temperatuuure" << endl;
-          HeatOn = true;
-          ulHeatOnTime = ulHourlyHeatOnTime = ulCurrentTime;
-          digitalWrite(RelayPIN, RelayON);
-        } //if(!HeatOn &&...
+          _bHeatOn = true;
+          ulHeatOnTime = ulHourlyHeatOnTime = _ulCurrentTime;
+          digitalWrite(_RelayPIN, RelayON);
+        } //if(!_bHeatOn &&...
 
         // Wait a bit before turning off the heat
         // This is so that the relay doesn't go on and off with small temperature differences
-        if(HeatOn && ((ulCurrentTime - ulHeatOnTime) >= ulOneMinute) && (fTemperature >= RequestedTemp)){
+        if(_bHeatOn && ((_ulCurrentTime - ulHeatOnTime) >= _ulOneMinute) && (fTemperature >= RequestedTemp)){
           // Turn off the heat
-          HeatOn= false;
-          digitalWrite(RelayPIN, RelayOFF);
+          _bHeatOn= false;
+          digitalWrite(_RelayPIN, RelayOFF);
 
           // Now add to the total heater on time in the config record
-          Config.HeatingTime += (ulCurrentTime - ulHeatOnTime) / OneSecond;
+          Config.HeatingTime += (_ulCurrentTime - ulHeatOnTime) / _ulOneSecond;
           Config.CRC= Calc_CRC();
           EEPROM.put(CONFIG_OFFSET, Config);
           EEPROM.commit();
 
           // Save heating time to statistics
-          HeatingStats.Hourly[LastHour].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-          HeatingStats.Daily[0].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-          HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-        } //if(HeatOn&&...
+          HeatingStats.Hourly[LastHour].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+          HeatingStats.Daily[0].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+          HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+        } //if(_bHeatOn&&...
+*/
 
       // If not connected to WiFi, try to reconnect
       if(!WiFiConnected){
@@ -672,59 +722,174 @@ void loop(){
 
       // Post to Adafruit if needed
       if((strlen(Config.IO_USER) != 0) && (strlen(Config.IO_KEY) != 0)){
-        IO_Location->save(fLastTemp);
+        IO_Location->save(_fLastDegF);
       } //if((strlen(Config.IO_USER)!=0)...
-    } //if(bTemperatureOK)
-  } //if((ulCurrentTime-ulLastSaveTime)>=ulSavePeriod)
+    //} //if(bTemperatureOK)
+  //} //if((_ulCurrentTime-ulLastSaveTime)>=ulSavePeriod)
 
-/*
   //Time to dweet new values?
-  if((ulCurrentTime - ulDweetTime) > DweetDelay){
+  if((_ulCurrentTime - ulDweetTime) > DweetDelay){
     DweetPost();
   } //if((CurrentTime-ulDweetTime)>DweetDelay)
-*/
 
   // Update stats if it's time...
   UpdateStats();
 } //loop
 
-#if 1
+
+void SaveStats(){
+  //if (_bSensorOk){
+  if (_bSensorOk && (millis() >= _ulNextSaveMsec)){
+  	_ulNextSaveMsec= millis() + _ulSavePeriod;
+    // Add temperature/humidity reading to hourly statistics
+    if(String(HeatingStats.Hourly[LastHour].Temperature, 1) == "nan" ||
+      String(HeatingStats.Hourly[LastHour].Temperature, 1) == "inf" ||
+      String(HeatingStats.Hourly[LastHour].Humidity, 0) == "nan" ||
+      String(HeatingStats.Hourly[LastHour].Humidity, 0) == "inf")
+    {
+      HeatingStats.Hourly[LastHour].Temperature = 0.00;
+      HeatingStats.Hourly[LastHour].Humidity = 0.00;
+      HeatingStats.Hourly[LastHour].Samples = 0;
+    }
+    HeatingStats.Hourly[LastHour].Temperature += _fLastDegF;
+    HeatingStats.Hourly[LastHour].Humidity += _fLastHumid;
+    ++HeatingStats.Hourly[LastHour].Samples;
+
+    // Add to daily statistics
+    if(String(HeatingStats.Daily[0].Temperature, 1) == "nan" ||
+      String(HeatingStats.Daily[0].Temperature, 1) == "inf" ||
+      String(HeatingStats.Daily[0].Humidity, 0) == "nan" ||
+      String(HeatingStats.Daily[0].Humidity, 0) == "inf")
+    {
+      HeatingStats.Daily[0].Temperature = 0.00;
+      HeatingStats.Daily[0].Humidity = 0.00;
+      HeatingStats.Daily[0].Samples = 0;
+    }
+    HeatingStats.Daily[0].Temperature += _fLastDegF;
+    HeatingStats.Daily[0].Humidity += _fLastHumid;
+    ++HeatingStats.Daily[0].Samples;
+
+    // Add to monthly statistics
+    if(String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "nan" ||
+      String(HeatingStats.Monthly[0][LastMonth-1].Temperature, 1) == "inf" ||
+      String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "nan" ||
+      String(HeatingStats.Monthly[0][LastMonth-1].Humidity, 0) == "inf")
+    {
+      HeatingStats.Monthly[0][LastMonth-1].Temperature = 0.00;
+      HeatingStats.Monthly[0][LastMonth-1].Humidity = 0.00;
+      HeatingStats.Monthly[0][LastMonth-1].Samples = 0;
+    }
+    HeatingStats.Monthly[0][LastMonth-1].Temperature += _fLastDegF;
+    HeatingStats.Monthly[0][LastMonth-1].Humidity += _fLastHumid;
+    ++HeatingStats.Monthly[0][LastMonth-1].Samples;
+
+/*
+    // Do I need to turn on the heat?
+    if(!_bHeatOn && (fabs(_fLastDegF - RequestedTemp) >= 0.5F) && (_fLastDegF < RequestedTemp)){
+     Serial << "loop(): Reading temperatuuure" << endl;
+      _bHeatOn = true;
+      ulHeatOnTime = ulHourlyHeatOnTime = _ulCurrentTime;
+      digitalWrite(_RelayPIN, RelayON);
+    } //if(!_bHeatOn &&...
+
+    // Wait a bit before turning off the heat
+    // This is so that the relay doesn't go on and off with small temperature differences
+    if(_bHeatOn && ((_ulCurrentTime - ulHeatOnTime) >= _ulOneMinute) && (_fLastDegF >= RequestedTemp)){
+      // Turn off the heat
+      _bHeatOn= false;
+      digitalWrite(_RelayPIN, RelayOFF);
+
+      // Now add to the total heater on time in the config record
+      Config.HeatingTime += (_ulCurrentTime - ulHeatOnTime) / _ulOneSecond;
+      Config.CRC= Calc_CRC();
+      EEPROM.put(CONFIG_OFFSET, Config);
+      EEPROM.commit();
+
+      // Save heating time to statistics
+      HeatingStats.Hourly[LastHour].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+      HeatingStats.Daily[0].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+      HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+    } //if(_bHeatOn&&...
+*/
+  }	//if (_bSensorOk && (millis() >= _ulNextSaveMsec))
+	return;
+}	//SaveStats
+
+
+void SaveCurrentTime(){
+	// Save current time
+	_ulCurrentTime= millis();
+	float fElapsedMillis= (float)(_ulCurrentTime - ulStartTime);
+	_fElapsedSec= fElapsedMillis / 1000.0;
+	return;
+}	//SaveCurrentTime
+
+
+bool ReadDisplaySensor(){
+  float 	fDegF;
+  float		_fLastHumid;
+  bool		bOk						= true;
+
+	if(millis() >= _ulNextReadDisplayMsec){
+		_ulNextReadDisplayMsec= millis() + _ulReadDisplayPeriod;
+		ulLastTemperatureTime= _ulCurrentTime;
+		fDegF = dht.readTemperature(!Config.Celcius);
+		Serial << _fElapsedSec << " ReadDisplaySensor(): Read temperature= " << fDegF << endl;
+		if(!isnan(fDegF)){
+			// Reading was ok
+			_fLastDegF = fDegF;
+			_fLastHumid= dht.readHumidity();
+			_bSensorOk= true;
+			// Update display with new values (or sensor error message)
+			UpdateDisplay();
+		} //if(!isnan(fDegF))
+		else{
+			bOk					= false;
+			_bSensorOk 	= false;
+		} //if(!isnan(temperature))else
+	} //if(millis() >= _ulNextReadDisplayMsec)
+	return(bOk);
+}	//ReadDisplaySensor
+
+
 //Beck 11/14/18 Code from BeckESP32_Blynk.ino
 void HandleThermostat(){
-  String szLogString = "HandleThermostat()";
-  LogToBoth(szLogString);
-  //Only do anything if the thermostat is turned on.
-  if (bThermoOn){
-    float fDegF= fGetDegF(true);
-    float fRoundDegF= fRound(fDegF);
-    DebugHandleThermostat(fDegF);
-    if (bFurnaceOn){
-      if (fRoundDegF >= fThermoOffDegF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnFurnaceOn(false);
-        } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fRoundDegF>=fThermoOffDegF)
-      else{
-        sThermoTimesCount= 0;
-      } //if(fRoundDegF>=fThermoOffDegF)else
-    } //if(bFurnaceOn)
-    else{
-      if (fRoundDegF <= sSetpointF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnFurnaceOn(true);
-        } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fRoundDegF<sSetpointF)
-      else{
-        sThermoTimesCount= 0;
-      } //if(fRoundDegF<sSetpointF)else
-    } //if(bFurnaceOn)else
-  } //if(bThermoOn)
-  else{
-    LogToBoth(szLogString);
-    szLogString= " bThermoOn is false";
-    LogToBoth(szLogString);
-  }
-  //} //if(millis()>=ulNextHandlerMsec)
+  if (_bSensorOk && (millis() >= _ulNextThermoHandlerMsec)){
+    _ulNextThermoHandlerMsec= millis() + _ulThermoHandlerPeriod;
+		String szLogString = "HandleThermostat()";
+		LogToBoth(szLogString);
+		//Only do anything if the thermostat is turned on.
+		if (_bThermoOn){
+			//float fDegF= fGetDegF(true);
+			float fRoundDegF= fRound(_fLastDegF);
+			DebugHandleThermostat(_fLastDegF);
+			if (_bFurnaceOn){
+				if (fRoundDegF >= _fThermoOffDegF){
+					if (++_sThermoTimesCount >= sThermoTimesInRow){
+						TurnHeatOn(false);
+					} //if(_sThermoTimesCount>=sThermoTimesInRow)
+				} //if(fRoundDegF>=_fThermoOffDegF)
+				else{
+					_sThermoTimesCount= 0;
+				} //if(fRoundDegF>=_fThermoOffDegF)else
+			} //if(_bFurnaceOn)
+			else{
+				if (fRoundDegF <= _sSetpointF){
+					if (++_sThermoTimesCount >= sThermoTimesInRow){
+						TurnHeatOn(true);
+					} //if(_sThermoTimesCount>=sThermoTimesInRow)
+				} //if(fRoundDegF<_sSetpointF)
+				else{
+					_sThermoTimesCount= 0;
+				} //if(fRoundDegF<_sSetpointF)else
+			} //if(_bFurnaceOn)else
+		} //if(_bThermoOn)
+		else{
+			LogToBoth(szLogString);
+			szLogString= " _bThermoOn is false";
+			LogToBoth(szLogString);
+		} //if(_bThermoOn)else
+  } //if(_bSensorOk&&(millis()>=_ulNextThermoHandlerMsec))
   return;
 } //HandleThermostat
 
@@ -736,63 +901,81 @@ void DebugHandleThermostat(float fDegF){
   szLogString= " DegF=";
   LogToBoth(szLogString, fDegF);
   szLogString= " SetpointF=";
-  LogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, _sSetpointF);
   szLogString= " OffDegF=";
-  LogToBoth(szLogString, fThermoOffDegF);
-  szLogString= " bFurnaceOn=";
-  LogToBoth(szLogString, bFurnaceOn);
+  LogToBoth(szLogString, _fThermoOffDegF);
+  szLogString= " _bFurnaceOn=";
+  LogToBoth(szLogString, _bFurnaceOn);
   szLogString= " OnCount=";
-  LogToBoth(szLogString, sThermoTimesCount);
+  LogToBoth(szLogString, _sThermoTimesCount);
   return;
 } //DebugHandleThermostat
 
 
+/*
 void HandleFurnaceSwitch(){
-  String szLogString = "HandleFurnaceSwitch(): bFurnaceOn";
-  LogToBoth(szLogString, bFurnaceOn);
-  //Serial << LOG0 << "HandleFurnaceSwitch(): bThermoOn, bFurnaceOn " << bThermoOn << ", " << bFurnaceOn << endl;
+  String szLogString = "HandleFurnaceSwitch(): _bFurnaceOn";
+  LogToBoth(szLogString, _bFurnaceOn);
+  //Serial << LOG0 << "HandleFurnaceSwitch(): _bThermoOn, _bFurnaceOn " << _bThermoOn << ", " << _bFurnaceOn << endl;
   //Make sure  switch state represents bHeatOn correctly.
-  if (bFurnaceOn){
+  if (_bFurnaceOn){
     //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOn" << endl;
     asSwitchState[sFurnaceSwitchNum]= sOn;
-  } //if(bFurnaceOn)
+  } //if(_bFurnaceOn)
   else{
     //Serial << LOG0 << "HandleFurnaceSwitch(): Set asSwitchState[sFurnaceSwitchNum] to sOff" << endl;
     asSwitchState[sFurnaceSwitchNum]= sOff;
-  } //if(bFurnaceOn)else
+  } //if(_bFurnaceOn)else
   SetSwitch(sFurnaceSwitchNum, asSwitchState[sFurnaceSwitchNum]);
   return;
 } //HandleFurnaceSwitch
+*/
 
 
-void TurnFurnaceOn(bool bTurnOn){
+void TurnHeatOn(bool bTurnOn){
   if (bTurnOn){
-    String szLogString= "TurnFurnaceOn(): Furnace turned ON";
+  	//Turn heat ON
+    String szLogString= "TurnHeatOn(): Furnace turned ON";
     LogToBoth(szLogString);
-    bFurnaceOn= true;
+    _bFurnaceOn= true;
     SetFurnaceSwitch(sSwitchClosed);
-    sThermoTimesCount= 0;
+    _sThermoTimesCount= 0;
+    Serial << "loop(): Reading temperatuuure" << endl;
+    _bHeatOn= true;
+    ulHeatOnTime= ulHourlyHeatOnTime= _ulCurrentTime;
   } //if(bTurnOn)
   else{
-    String szLogString= "TurnFurnaceOn(): Furnace turned OFF";
+    //Turn heat OFF
+    String szLogString= "TurnHeatOn(): Furnace turned OFF";
     LogToBoth(szLogString);
-    bFurnaceOn= false;
+    _bFurnaceOn= false;
     SetFurnaceSwitch(sSwitchOpen);
-    sThermoTimesCount= 0;
+    _sThermoTimesCount= 0;
+
+    // Now add to the total heater on time in the config record
+    Config.HeatingTime += (_ulCurrentTime - ulHeatOnTime) / _ulOneSecond;
+    Config.CRC= Calc_CRC();
+    EEPROM.put(CONFIG_OFFSET, Config);
+    EEPROM.commit();
+
+    // Save heating time to statistics
+    HeatingStats.Hourly[LastHour].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+    HeatingStats.Daily[0].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+    HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
   } //if(bTurnOn)else
   return;
-} //TurnFurnaceOn
+} //TurnHeatOn
 
 
 void SetThermoState(int sSwitchState){
   asSwitchState[sThermoDummySwitch]= sSwitchState;
   if (sSwitchState == sOn){
-    bThermoOn= true;
+    _bThermoOn= true;
   } //if(sState==sOn)
   else{
-    bThermoOn= false;
-    bFurnaceOn= false;
-    sThermoTimesCount= 0;
+    _bThermoOn= false;
+    _bFurnaceOn= false;
+    _sThermoTimesCount= 0;
     SetFurnaceSwitch(sSwitchOpen);
   } //if(sState==sOn)else
   return;
@@ -837,8 +1020,6 @@ void SetSwitch(int sSwitch, int sSwitchState){
   //HandleBlynkLEDs();
   return;
 } //SetSwitch
-//End of adds from BeckESP32_Blynk.ino
-#endif  //0
 
 
 float fGetDegF(bool bTakeReading){
@@ -847,13 +1028,14 @@ float fGetDegF(bool bTakeReading){
     //oSensors.requestTemperatures(); // Send the command to get temperatures
     //fDegFReturn= oSensors.getTempFByIndex(0);
   	fDegFReturn = dht.readTemperature(!Config.Celcius);
-    fLastDegF= fDegFReturn;
+  	_fLastDegF= fDegFReturn;
   } //if(bTakeReading)
   else{
-    fDegFReturn= fLastDegF;
+    fDegFReturn= _fLastDegF;
   } //if(bTakeReading)else
   return fDegFReturn;
 }  //fGetDegF
+//End of adds from BeckESP32_Blynk.ino#endif  //0
 
 
 float fRound(float fNum){
@@ -1057,7 +1239,7 @@ void  InitOTA(void){
 #ifdef BackLight
     digitalWrite(BackLight, HIGH);      // Turn backlight on
 #endif
-    digitalWrite(RelayPIN, RelayOFF);   // Turn heater off during updates
+    digitalWrite(_RelayPIN, RelayOFF);   // Turn heater off during updates
     display.clearDisplay();
     display.setTextSize(1);
     display.setCursor(0, 0);
@@ -1175,20 +1357,20 @@ void  UpdateStats(void){
     HeatingStats.Hourly[LastHour].Humidity /= HeatingStats.Hourly[LastHour].Samples;
 
     // If heat is on, reset uHourlyHeatOnTime to CurrentTime
-    if(HeatOn)
+    if(_bHeatOn)
     {
-      HeatingStats.Hourly[LastHour].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-      HeatingStats.Daily[0].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-      HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (ulCurrentTime - ulHourlyHeatOnTime) / OneSecond;
-      ulHourlyHeatOnTime = ulCurrentTime;
+      HeatingStats.Hourly[LastHour].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+      HeatingStats.Daily[0].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+      HeatingStats.Monthly[0][LastMonth-1].HeatingTime += (_ulCurrentTime - ulHourlyHeatOnTime) / _ulOneSecond;
+      ulHourlyHeatOnTime = _ulCurrentTime;
     }
     HeatingStats.Hourly[LastHour].Samples = 0;
 
     // Save new LastHour value and write back to EEPROM
     LastHour = hour();
     memset(&HeatingStats.Hourly[LastHour], NULL, sizeof(STAT_ENTRY));
-    HeatingStats.Hourly[LastHour].Temperature = fLastTemp;
-    HeatingStats.Hourly[LastHour].Humidity = fLastHumid;
+    HeatingStats.Hourly[LastHour].Temperature = _fLastDegF;
+    HeatingStats.Hourly[LastHour].Humidity = _fLastHumid;
     HeatingStats.Hourly[LastHour].Samples = 1;
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
@@ -1208,8 +1390,8 @@ void  UpdateStats(void){
     // Now clear current daily stats and write back to EEPROM
     LastDay = day();
     memset(&HeatingStats.Daily[0], NULL, sizeof(STAT_ENTRY));
-    HeatingStats.Daily[0].Temperature = fLastTemp;
-    HeatingStats.Daily[0].Humidity = fLastHumid;
+    HeatingStats.Daily[0].Temperature = _fLastDegF;
+    HeatingStats.Daily[0].Humidity = _fLastHumid;
     HeatingStats.Daily[0].Samples = 1;
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
@@ -1234,24 +1416,24 @@ void  UpdateStats(void){
     // Write back to EEPROM
     LastMonth = month();
     EEPROM.put(STATS_OFFSET, HeatingStats);
-    HeatingStats.Monthly[0][LastMonth-1].Temperature = fLastTemp;
-    HeatingStats.Monthly[0][LastMonth-1].Humidity = fLastHumid;
+    HeatingStats.Monthly[0][LastMonth-1].Temperature = _fLastDegF;
+    HeatingStats.Monthly[0][LastMonth-1].Humidity = _fLastHumid;
     HeatingStats.Monthly[0][LastMonth-1].Samples = 1;
     EEPROM.commit();
   }
 
   // Time to do a auto-save on the statistical data?
-  if(ulCurrentTime - ulDataSave > 15 * ulOneMinute)
+  if(_ulCurrentTime - ulDataSave > 15 * _ulOneMinute)
   {
     EEPROM.put(STATS_OFFSET, HeatingStats);
     EEPROM.commit();
-    ulDataSave = ulCurrentTime;
+    ulDataSave = _ulCurrentTime;
   }
 } //UpdateStats
 
 
 // Update LCD display with new temperature, humidity, time and RSSI signal level
-void UpdateTemperature(void){
+void UpdateDisplay(void){
   // Update display
   display.clearDisplay();
   display.setTextSize(1);
@@ -1268,12 +1450,12 @@ void UpdateTemperature(void){
 #else
   display.setTextSize(2);
 #endif
-  if(fLastTemp < 10.0){
+  if(_fLastDegF < 10.0){
     display.print(" ");
   }
-  display.print(fLastTemp, 1);
+  display.print(_fLastDegF, 1);
   display.setTextSize(1);
-  if(HeatOn) display.setTextColor(WHITE, BLACK);
+  if(_bHeatOn) display.setTextColor(WHITE, BLACK);
   display.printf(" %c ", (Config.Celcius ? 'C' : 'F'));
   display.setTextColor(BLACK, WHITE);
   display.println();
@@ -1287,7 +1469,7 @@ void UpdateTemperature(void){
     if(strlen(googleText) != 0)
       display.println(FormatText(googleText, CENTER));
     else
-      display.println((DweetFailed ? FormatText("dweet failed", CENTER) : (SensorError ? FormatText("sensor", CENTER) : "")));
+      display.println((DweetFailed ? FormatText("dweet failed", CENTER) : (!_bSensorOk ? FormatText("sensor", CENTER) : "")));
     strcpy(googleText, "");
   }
   else
@@ -1298,10 +1480,10 @@ void UpdateTemperature(void){
 #else
   display.printf("%s %s  ", getTime(true), dayShortStr(weekday()));
 #endif
-  display.print(fLastHumid, 0);
+  display.print(_fLastHumid, 0);
   display.println("%");
   display.display();
-} //UpdateTemperature
+} //UpdateDisplay
 
 
 // Get current time
@@ -1360,9 +1542,9 @@ void UpTime(char *Buf)
   CT -= (d * OneDay);
   h = CT / OneHour;
   CT -= (h * OneHour);
-  m = CT / ulOneMinute;
-  CT -= (m * ulOneMinute);
-  s = CT / OneSecond;
+  m = CT / _ulOneMinute;
+  CT -= (m * _ulOneMinute);
+  s = CT / _ulOneSecond;
   sprintf(Buf, "%u day%s %02d:%02d:%02d", d, (d == 1 ? "" : "s"), h, m, s);
 } //UpTime
 
@@ -1499,7 +1681,9 @@ void AP_Config(void)
               client.print("<!DOCTYPE html><html><head><title>Thermostat Setup</title>");
               client.printf("</head><body><center><H1><U>Thermostat Configuration</U></H1><H3><font color=\"#FF0000\">Device = %s<font color=\"#000000\">", FusedMAC());
               client.printf("</H3>%s / Firmware %s", ARDUINO_VARIANT, FIRMWARE);
-              client.printf("<br>Temperature = %s C, Humidity = %s%%<br><br>", String(temperature, 1).c_str(), String(humidity, 0).c_str());
+
+              //client.printf("<br>Temperature = %s C, Humidity = %s%%<br><br>", String(temperature, 1).c_str(), String(humidity, 0).c_str());
+              client.printf("<br>Temperature = %s C, Humidity = %s%%<br><br>", String(_fLastDegF, 1).c_str(), String(_fLastHumid, 0).c_str());
 
               // If this was a POST continue reading to get parameters sent back
               if(Post)
@@ -1838,7 +2022,7 @@ void DweetPost(void)
 
           // Update new temperature
           DweetFailed = false;
-          UpdateTemperature();
+          UpdateDisplay();
         }
       }
     }
@@ -1867,15 +2051,15 @@ void DweetPost(void)
   postData = "http://dweet.io/dweet/for/" + String(DWEETNAME);
   postData += "?Location=" + String(Location[Config.DeviceLocation]);
   if(strlen(Config.CommonName) != 0) postData += "&CommonName=" + String(Config.CommonName);
-  postData += "&Temperature=" + String(fLastTemp, 1);
-  postData += "&Humidity=" + String(fLastHumid, 0) + "%";
-  postData += "&Heat=" + String(HeatOn ? "ON" : "OFF");
+  postData += "&Temperature=" + String(_fLastDegF, 1);
+  postData += "&Humidity=" + String(_fLastHumid, 0) + "%";
+  postData += "&Heat=" + String(_bHeatOn ? "ON" : "OFF");
   postData += "&Schedule=" + String(Schedule.Enabled ? "Enabled" : "Disabled");
   postData += "&Requested=" + String(RequestedTemp, 1) + String(Config.Celcius ? " C" : " F");
-  postData += "&Cost=" + String("$ ") + String(Calc_HeatingCost(Config.HeatingTime + (HeatOn ? (ulCurrentTime - ulHeatOnTime) / OneSecond : 0)));
+  postData += "&Cost=" + String("$ ") + String(Calc_HeatingCost(Config.HeatingTime + (_bHeatOn ? (_ulCurrentTime - ulHeatOnTime) / _ulOneSecond : 0)));
   postData += "&Heater_Size=" + String(Config.Watts) + " watts";
   postData += "&kWh_Cost=" + String(Config.kWh_Cost) + String(" cents");
-  postData += "&kWh_Used=" + String(Calc_kWh(Config.HeatingTime + (HeatOn ? (ulCurrentTime - ulHeatOnTime) / OneSecond : 0))) + " kWh";
+  postData += "&kWh_Used=" + String(Calc_kWh(Config.HeatingTime + (_bHeatOn ? (_ulCurrentTime - ulHeatOnTime) / _ulOneSecond : 0))) + " kWh";
   postData += "&Firmware=" + String(FIRMWARE);
   postData += "&IP=" + WiFi.localIP().toString();
   postData += "&UpTime=" + String(buf1);
@@ -1943,7 +2127,7 @@ void GoogleCommand(AdafruitIO_Data *data)
   if((MyLocation == ForLocation || (ForLocation == "HOME" && Config.DeviceLocation < ExcludeLocation) || CommonName == ForLocation) && strcmp(Config.LastUpdated, getTime(false)) != 0)
   {
     Serial.printf("[%s] MASTER = \"%s\"\n", getTime(false), value.c_str());
-    ulCurrentTime = ulDisplayTime = millis();
+    _ulCurrentTime = ulDisplayTime = millis();
     if(value.indexOf("SCHEDULE") != -1)
     {
       // I'm being asked to run the schedule.  Check if there's a valid temperature first...
@@ -1986,7 +2170,7 @@ void GoogleCommand(AdafruitIO_Data *data)
     strcpy(Config.LastUpdated, getTime(false));
     Config.CRC = Calc_CRC();
     EEPROM.put(CONFIG_OFFSET, Config);
-    UpdateTemperature();
+    UpdateDisplay();
   }
 }
 
@@ -2031,7 +2215,7 @@ void IOSchedule(AdafruitIO_Data *data)
   strcpy(Config.LastUpdated, getTime(false));
   Config.CRC = Calc_CRC();
   EEPROM.put(CONFIG_OFFSET, Config);
-  UpdateTemperature();
+  UpdateDisplay();
 }
 
 //
@@ -2325,9 +2509,9 @@ void  ProcessClient(void)
   if(!WebClient) return;
 
   // I have a client connecting
-  ulDisplayTime = ulCurrentTime;
+  ulDisplayTime = _ulCurrentTime;
   strcpy(googleText, "WebClient");
-  UpdateTemperature();
+  UpdateDisplay();
 
   // Save current stats
   EEPROM.put(STATS_OFFSET, HeatingStats);
@@ -2442,7 +2626,7 @@ void  ProcessClient(void)
         // Send page bottom info
         WebClient.printf("<hr><center>%s / Firmware %s<br>", ARDUINO_VARIANT, FIRMWARE);
         WebClient.printf("Temperature %s %c, Humidity %s%%, Heating is %s<br>Requested %s %c, Scheduling is %s<br>",
-          String(fLastTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'), String(fLastHumid, 0).c_str(), (HeatOn ? "On" : "Off"),
+          String(_fLastDegF, 1).c_str(), (Config.Celcius ? 'C' : 'F'), String(_fLastHumid, 0).c_str(), (_bHeatOn ? "On" : "Off"),
           String(RequestedTemp, 1).c_str(), (Config.Celcius ? 'C' : 'F'), (Schedule.Enabled ? "enabled" : "disabled"));
 
         // Insert buttons for charts
@@ -2575,7 +2759,7 @@ void  ProcessClient(void)
     while(1);
   }
   strcpy(googleText, "");
-  UpdateTemperature();
+  UpdateDisplay();
 }
 
 //
@@ -2973,7 +3157,7 @@ float ScheduledTemp(float Default)
   unsigned long Time1, Time2;
 
   // Set Time1 to current time
-  Time1 = ((weekday()-1) * OneDay) + (hour() * OneHour) + (minute() * ulOneMinute);
+  Time1 = ((weekday()-1) * OneDay) + (hour() * OneHour) + (minute() * _ulOneMinute);
   for(int i=0; i<weekday(); i++)
   {
     for(int j=0; j<4; j++)
@@ -2981,7 +3165,7 @@ float ScheduledTemp(float Default)
       // Set Time2 to requested time
       if(Schedule.Day[i].Valid[j])
       {
-        Time2 = (i * OneDay) + (Schedule.Day[i].SetHour[j] * OneHour) + (Schedule.Day[i].SetMinute[j] * ulOneMinute);
+        Time2 = (i * OneDay) + (Schedule.Day[i].SetHour[j] * OneHour) + (Schedule.Day[i].SetMinute[j] * _ulOneMinute);
         if(Time1 >= Time2) temp = Schedule.Day[i].SetTemp[j];
       }
     }
