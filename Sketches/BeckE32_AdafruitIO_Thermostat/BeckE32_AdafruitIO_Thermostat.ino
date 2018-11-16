@@ -1,5 +1,6 @@
-const String szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String szFileDate    = "November 14, 2018-u";
+const String 	szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
+const String 	szFileDate    = "November 15, 2018-f";
+const float		_fSettingF		=73.25;
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 // Google Home / Alexa Enabled WiFi Thermostat
 // Copyright (c) 2018 Claude G. Beaudoin (claudegbeaudoin @ hotmail.com)
@@ -257,8 +258,8 @@ static bool     _bThermoOn             	= true;   //Whether thermostat is runnin
 static bool     _bFurnaceOn            	= false;  //If switch is on to turn on furnace.
 static bool     _bHeatOn               	= false;
 
-static const float  _fMaxHeatRangeF			= 1.00;   //Temp above setpoint before heat is turned off
-static float      	_fSetpointF         = 76.2;		//Temperatures are rounded before comparing to setpoint
+static const float  _fMaxHeatRangeF			= 0.25;   //Temp above setpoint before heat is turned off
+static float      	_fSetpointF         = _fSettingF;		//Temperatures are rounded before comparing to setpoint
 static float    		_fThermoOffDegF     = _fSetpointF + _fMaxHeatRangeF;
 
 bool            _bSensorOk      = true;
