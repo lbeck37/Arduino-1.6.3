@@ -1,6 +1,6 @@
 const String 	szSketchName  = "BeckE32_AdafruitIO_Thermostat.ino";
-const String 	szFileDate    = "November 16, 2018-a";
-const float		_fSettingF		=73.20;
+const String 	szFileDate    = "November 16, 2018-c";
+const float		_fSettingF		=75.37;
 // 11/10/18 Beck: From Claude Beaudoin's Thermostat.ino
 // Google Home / Alexa Enabled WiFi Thermostat
 // Copyright (c) 2018 Claude G. Beaudoin (claudegbeaudoin @ hotmail.com)
