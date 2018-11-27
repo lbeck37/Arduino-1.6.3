@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "November 27, 2018A Lenny";
+const char szFileDate[]    = "November 27, 2018B Lenny";
 /*
 static const char szSketchName[]  = "BeckE8266_Blynk.ino";
 static const char szFileDate[]    = "November 27, 2018A Lenny";
@@ -28,11 +28,11 @@ static const char szFileDate[]    = "November 27, 2018A Lenny";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGE
+#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-#define DEV_REMOTE
+//#define DEV_REMOTE			// Changed to GARAGE 11/27/18
 
 #define OTA_SERVER   false     //Skip running OTA server
 #if 0
@@ -143,10 +143,12 @@ static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before
 
 //static const char   szRouterName[]        = "Aspot24";
 //static const char   szRouterName[]        = "HP7spot";
-static const char   szRouterName[]        = "LenSpot";
 //static const char   szRouterName[]        = "P291spot";
+//static const char   szRouterName[]        = "LenSpot";
+static const char   szRouterName[]        = "Aspot24";
 static const char   szRouterPW[]          = "Qazqaz11";
-static const char   acHostname[]          = "esp37";
+//static const char   acHostname[]          = "esp37";
+static const char   acHostname[]          = "BeckGarage";
 
 #ifdef DEBUG
   static const bool       bDebug                = true;    //Used to select places to disable bDebugLog.
