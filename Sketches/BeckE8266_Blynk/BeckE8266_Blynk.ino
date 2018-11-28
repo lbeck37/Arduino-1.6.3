@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "November 27, 2018B Lenny";
+const char szFileDate[]    = "Lenny 11/28/18c";
 /*
 static const char szSketchName[]  = "BeckE8266_Blynk.ino";
 static const char szFileDate[]    = "November 27, 2018A Lenny";
@@ -53,7 +53,7 @@ static const char szFileDate[]    = "November 27, 2018A Lenny";
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#define ONEWIRE_PIN       12
+#define ONEWIRE_PIN       12		//D5 is GPIO 12 on NodeMCU ESP8266
 
 //Define Virtual Pin names
 #define ReadF_V0          V0
@@ -139,7 +139,8 @@ static const long   lMsecPerSec           =     1000;
 
 static const int    sFurnaceSwitchNum     = 2;      //Was 1, switch number that turns furnace on and off.
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
-static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
+//static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
+//static const float  fMaxHeatRangeF        = 1.00;   //Temp above setpoint before heat is turned off
 
 //static const char   szRouterName[]        = "Aspot24";
 //static const char   szRouterName[]        = "HP7spot";
@@ -148,7 +149,7 @@ static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before
 static const char   szRouterName[]        = "Aspot24";
 static const char   szRouterPW[]          = "Qazqaz11";
 //static const char   acHostname[]          = "esp37";
-static const char   acHostname[]          = "BeckGarage";
+//static const char   acHostname[]          = "BeckGarage";
 
 #ifdef DEBUG
   static const bool       bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -169,27 +170,38 @@ static const char   acHostname[]          = "BeckGarage";
 #endif
 #ifdef GARAGE
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
-  static const char szProjectType[]    = "GARAGE";
-  static int sProjectType= sGarage;
+  static const char 	acHostname[]		= "BeckGarage";
+  static const char 	szProjectType[]	= "GARAGE";
+  static int 					sProjectType		= sGarage;
+  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
+  static int          sSetpointF      = 37;
+  static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef GARAGE_LOCAL
   char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
-  static const char szProjectType[]    = "GARAGE_LOCAL";
-  static int sProjectType= sGarageLocal;
+  static const char 	acHostname[]    = "BeckFireplace";
+  static const char 	szProjectType[]	= "GARAGE_LOCAL";
+  static int 					sProjectType		= sGarageLocal;
+  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
+  static int          sSetpointF      = 37;
+  static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef HEATER
   char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
+  static const char acHostname[]       = "BeckHeater";
   static const char szProjectType[]    = "HEATER";
-  static int sProjectType= sHeater;
+  static int sProjectType							 = sHeater;
 #endif
 #ifdef DEV_LOCAL
   //static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
-  static const char acBlynkAuthToken[]    = "9fc34bc2cbb34ddf8d392f7c562fb52e";   //Local server
+  static const char acBlynkAuthToken[]  = "9fc34bc2cbb34ddf8d392f7c562fb52e";   //Local server
+  static const char acHostname[]        = "BeckDevLocal";
   static const char szProjectType[]     = "DEV_LOCAL";
   static const int  sProjectType        = sDevLocal;
 #endif
 #ifdef DEV_REMOTE
   static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
+  static const char acHostname[]        = "BeckDevRemote";
   static const char szProjectType[]     = "DEV_REMOTE";
   static const int  sProjectType        = sDevRemote;
 #endif
@@ -225,13 +237,13 @@ static long         lLineCount            = 0;      //Serial Monitor uses for cl
 //static long         lLineCount2           = 0;      //For Blynk terminal window.
 //static long         lNumLoops             = 1;
 static float          fLastDegF             = 37.37;  //Last temperature reading.
-static int            sSetpointF            = 37;
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
 static unsigned long  ulUpdateTimeoutMsec   = 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bFurnaceOn            = false;  //If switch is on to turn on furnace.
-static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
+//static int            sSetpointF            = 37;
+//static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool         bDebugLog             = true;   //Used to limit number of printouts.
 static bool         bUpdating             = false;   //Turns off Blynk.
@@ -291,7 +303,7 @@ void SetupWiFi(){
   } //if(eWiFiStatus==WL_CONNECTED)else
 
   switch (sProjectType){
-    case sGarageLocal:
+    //case sGarageLocal:
     case sDevLocal:
       Serial << LOG0 << " setup(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
       Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
@@ -551,27 +563,27 @@ void HandleThermostat(){
   //Only do anything if the thermostat is turned on.
   if (bThermoOn){
     float fDegF= fGetDegF(true);
-    float fRoundDegF= fRound(fDegF);
+    //float fRoundDegF= fRound(fDegF);
     DebugHandleThermostat(fDegF);
     if (bFurnaceOn){
-      if (fRoundDegF >= fThermoOffDegF){
+      if (fDegF >= fThermoOffDegF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnFurnaceOn(false);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fRoundDegF>=fThermoOffDegF)
+      } //if(fDegF>=fThermoOffDegF)
       else{
         sThermoTimesCount= 0;
-      } //if(fRoundDegF>=fThermoOffDegF)else
+      } //if(fDegF>=fThermoOffDegF)else
     } //if(bFurnaceOn)
     else{
-      if (fRoundDegF <= sSetpointF){
+      if (fDegF <= sSetpointF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnFurnaceOn(true);
         } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fRoundDegF<sSetpointF)
+      } //if(fDegF<sSetpointF)
       else{
         sThermoTimesCount= 0;
-      } //if(fRoundDegF<sSetpointF)else
+      } //if(fDegF<sSetpointF)else
     } //if(bFurnaceOn)else
   } //if(bThermoOn)
   else{
