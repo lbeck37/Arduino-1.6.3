@@ -1,14 +1,14 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 11/29/18c";
+const char szFileDate[]    = "Lenny 11/29/18g";
 
-//Uncomment out desired implementation. THERMO_DEV
+//Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-#define FIREPLACE
+//#define FIREPLACE
 //#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-//#define DEV_REMOTE      // Changed to GARAGE 11/27/18
+#define THERMO_DEV
 
 #define OTA_SERVER   false     //Skip running OTA server
 #if 0
@@ -113,7 +113,7 @@ static const int    sGarage               = 3;
 static const int    sGarageLocal          = 4;
 static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
-static const int    sDevRemote            = 7;
+static const int    sThermoDev            = 7;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
 
 static const long   lSerialMonitorBaud    = 115200;
@@ -148,9 +148,9 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const char   acHostname[]    = "BeckFireplace";
   static const char   szProjectType[] = "FIREPLACE";
   static int          sProjectType    = sFireplace;
-  static const float  fMaxHeatRangeF  = 0.20;   //Temp above setpoint before heat is turned off
-  static int          sSetpointF      = 74;
-  static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
+  static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
+  static float        fSetpointF      = 74;
+  static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef GARAGE
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
@@ -158,8 +158,8 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const char   szProjectType[] = "GARAGE";
   static int          sProjectType    = sGarage;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
-  static int          sSetpointF      = 37;
-  static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
+  static float        fSetpointF      = 37;
+  static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef GARAGE_LOCAL
   char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
@@ -167,8 +167,8 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const char   szProjectType[] = "GARAGE_LOCAL";
   static int          sProjectType    = sGarageLocal;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
-  static int          sSetpointF      = 37;
-  static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
+  static float        fSetpointF      = 37;
+  static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef HEATER
   char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
@@ -183,11 +183,15 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const char szProjectType[]     = "DEV_LOCAL";
   static const int  sProjectType        = sDevLocal;
 #endif
-#ifdef DEV_REMOTE
+#ifdef THERMO_DEV
   static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
-  static const char acHostname[]        = "BeckDevRemote";
-  static const char szProjectType[]     = "DEV_REMOTE";
-  static const int  sProjectType        = sDevRemote;
+  static const char acHostname[]        = "BeckThermoDev";
+  static const char szProjectType[]     = "THERMO_DEV";
+  static const int  sProjectType        = sThermoDev;
+  static const float  fMaxHeatRangeF  	= 1.00;   //Temp above setpoint before heat is turned off
+  //static int          sSetpointF      	= 70;
+  static float        fSetpointF      	= 70;
+  static float        fThermoOffDegF  	= fSetpointF + fMaxHeatRangeF;
 #endif
 
 WidgetTerminal      oTerminal(Terminal_V7);
@@ -297,7 +301,6 @@ void SetupWiFi(){
   } //if(eWiFiStatus==WL_CONNECTED)else
 
   switch (sProjectType){
-    //case sGarageLocal:
     case sDevLocal:
       Serial << LOG0 << " setup(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
       Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
@@ -454,7 +457,7 @@ void SetupSystem(){
   String szLogString = "SetupSystem()";
   LogToBoth(szLogString);
   switch (sProjectType){
-  case sDevRemote:
+  case sThermoDev:
   case sDevLocal:
       sSystemHandlerSpacing = 10 * lMsecPerSec;
       break;
@@ -499,6 +502,7 @@ void HandleSystem(){
       case sFireplace:
       case sGarage:
       case sGarageLocal:
+      case sThermoDev:
         HandleThermostat();
         //HandleBlynkLEDs();
         HandleHeatSwitch();
@@ -507,7 +511,6 @@ void HandleSystem(){
         HandleHeater();
         break;
       case sDevLocal:
-      case sDevRemote:
         HandleDevelopment();
         break;
       default:
@@ -561,15 +564,15 @@ void HandleThermostat(){
       } //if(fDegF>=fThermoOffDegF)else
     } //if(bHeatOn)
     else{
-      if (fDegF <= sSetpointF){
+      if (fDegF <= fSetpointF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnHeatOn(true);
           sThermoTimesCount= 0;
         } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fDegF<sSetpointF)
+      } //if(fDegF<fSetpointF)
       else{
         sThermoTimesCount= 0;
-      } //if(fDegF<sSetpointF)else
+      } //if(fDegF<fSetpointF)else
     } //if(bHeatOn)else
     DebugHandleThermostat(fDegF);
   } //if(bThermoOn)
@@ -590,7 +593,7 @@ void DebugHandleThermostat(float fDegF){
   szLogString= " DegF=";
   LogToBoth(szLogString, fDegF);
   szLogString= " SetpointF=";
-  LogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, fSetpointF);
   szLogString= " OffDegF=";
   LogToBoth(szLogString, fThermoOffDegF);
   szLogString= " bHeatOn=";
@@ -938,45 +941,51 @@ void SendIntToBlynk(int sVirtualPin, int sValue){
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
 //and pass a variable in the "param" object.
 BLYNK_READ(ReadF_V0){
+/*
   bool bTakeReading= true;
   float fDegF= fGetDegF(bTakeReading);
   String szLogString= "Read ReadF_V0 ";
   //LogToBoth(szLogString, fDegF);
-
   //Blynk.virtualWrite(ReadF_V0, fRound(fDegF));
-  Blynk.virtualWrite(ReadF_V0, fDegF);
+*/
+
+  Blynk.virtualWrite(ReadF_V0, fLastDegF);
 } //BLYNK_READ(ReadF_V0)
 
 
 BLYNK_READ(ReadF_V1){
+/*
   bool bTakeReading= false;
   float fDegF= fGetDegF(bTakeReading);
   String szLogString= "Read ReadF_V1 ";
   LogToBoth(szLogString, fDegF);
 
   Blynk.virtualWrite(ReadF_V1, fDegF);
+*/
+  Blynk.virtualWrite(ReadF_V1, fLastDegF);
 } //BLYNK_READ(ReadF_V1)
 
 
 BLYNK_WRITE(SetSetpointF_V2){
   int sSetpointParam= param.asInt();
-  sSetpointF= sSetpointParam;
-  fThermoOffDegF= sSetpointF + fMaxHeatRangeF;
+  fSetpointF= sSetpointParam;
+  fThermoOffDegF= fSetpointF + fMaxHeatRangeF;
   String szLogString= "SetSetpointF_V2 ";
-  LogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, fSetpointF);
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  SendIntToBlynk(GetSetpointF_V3, sSetpointF);
+  //SendIntToBlynk(GetSetpointF_V3, fSetpointF);
+  Blynk.virtualWrite(GetSetpointF_V3, fSetpointF);
   return;
 } //BLYNK_WRITE(Switch_2V15)
 
 
 BLYNK_READ(GetSetpointF_V3){
-  int sReturnF= sSetpointF;
+  float fReturnF= fSetpointF;
   String szLogString= "GetSetpointF_V3 ";
-  LogToBoth(szLogString, sSetpointF);
+  LogToBoth(szLogString, fReturnF);
 
-  Blynk.virtualWrite(GetSetpointF_V3, sReturnF);
+  Blynk.virtualWrite(GetSetpointF_V3, fReturnF);
 } //BLYNK_READ(GetSetpointF_V3)
 
 
@@ -989,8 +998,9 @@ BLYNK_WRITE(ThermoSwitch_V4){
   HandleHeatSwitch();
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  SendIntToBlynk(GetSetpointF_V3, sSetpointF);
-  //HandleBlynkLEDs();
+  //Blynk.virtualWrite(sVirtualPin, sValue);
+  //SendIntToBlynk(GetSetpointF_V3, sSetpointF);
+  Blynk.virtualWrite(GetSetpointF_V3, fSetpointF);
   return;
 } //BLYNK_WRITE(ThermoSwitch_V4)
 
