@@ -1,10 +1,10 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 11/28/18q";
+const char szFileDate[]    = "Lenny 11/29/18c";
 
-//Uncomment out desired implementation.
+//Uncomment out desired implementation. THERMO_DEV
 //#define FRONT_LIGHTS
-//#define FIREPLACE
-#define GARAGE
+#define FIREPLACE
+//#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
@@ -28,6 +28,16 @@ const char szFileDate[]    = "Lenny 11/28/18q";
 #include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+
+//For I2C OLED display
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
+static const int	sSDA_GPIO_Pin= 0;
+static const int	sSCL_GPIO_Pin= 2;
+
 
 #define ONEWIRE_PIN       12    //D5 is GPIO 12 on NodeMCU ESP8266
 
@@ -138,7 +148,7 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const char   acHostname[]    = "BeckFireplace";
   static const char   szProjectType[] = "FIREPLACE";
   static int          sProjectType    = sFireplace;
-  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
+  static const float  fMaxHeatRangeF  = 0.20;   //Temp above setpoint before heat is turned off
   static int          sSetpointF      = 74;
   static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
 #endif
@@ -228,8 +238,7 @@ void setup()
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
-
-  //Wire.begin();
+  SetupDisplay();
   SetupWiFi();
   SetupSwitches();
   SetupSystem();
@@ -251,12 +260,23 @@ void loop() {
       Serial << LOG0 << " loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
       if (millis() > ulUpdateTimeoutMsec) {
         bUpdating = false;
-        Serial << LOG0 << " loop(): Set bUpdating to " << bUpdating
-            << endl;
+        Serial << LOG0 << " loop(): Set bUpdating to " << bUpdating << endl;
       } //if(millis()>ulUpdateTimeoutMsec)
     } //if(!bUpdating)else
   } //if(!bSkipBlynk)
 } //loop
+
+
+void SetupDisplay(){
+  Serial << LOG0 << " SetupDisplay(): Call Wire.begin(sSDA_GPIO_Pin, sSCL_GPIO_Pin)" << endl;
+  Wire.begin(sSDA_GPIO_Pin, sSCL_GPIO_Pin);
+  Serial << LOG0 << " SetupDisplay(): Call oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
+  oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+  // Clear the buffer.
+  Serial << LOG0 << " SetupDisplay(): Call oDisplay.clearDisplay()" << endl;
+  oDisplay.clearDisplay();
+	return;
+}	//SetupDisplay
 
 
 void SetupWiFi(){
