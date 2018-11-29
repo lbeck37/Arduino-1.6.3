@@ -1,29 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 11/28/18p";
-/*
-static const char szSketchName[]  = "BeckE8266_Blynk.ino";
-static const char szFileDate[]    = "November 27, 2018A Lenny";
-*/
-//static const char szSketchName[]  = "BlynkBeck.ino";
-//static const char szFileDate[]    = "November 28, 2016B Lenny";
-// 9/16/16 Work on getting Garage to build and run.
-// 1/06/16 Building from eclipseArduino
-// 12/28/15 Change name from Blynk_Beck.ino, pin numbers for Blynk switches 3 and 4 and baud to 15200.
-// 12/27/15 Add DEV_REMOTE.
-// 12/26/15 Switch to C1200spot from dlinky.
-// 12/24/15 Switch Garage to be local server, switch IPof local server.
-// 12/21/15 Added Auth Token for HEATER project for testing.
-// 12/18/15 Added Auth Token for DEV_LOCAL project for testing.
-// 12/17/15 Add HandleSystem() to take care of relays also in loop().
-// 12/16/15 Implement thermostat for GARAGE version.
-// 12/15/15 Remove unused state virtual pins, implement thermostat for GARAGE version.
-// 12/14/15 Rearrange virtual pins, build GARAGE version.
-// 12/13/15 Merge in support for Fireplace.
-// 12/12/15 Created from Blynk_LightTimer.ino
-//Open issues:
-//  - Switches 3 and 4 LEDs are not working.
-//  - Add virtual pin and LED for turning on DEBUG.
-//  - Get LEDs off at beginning.
+const char szFileDate[]    = "Lenny 11/28/18q";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -32,7 +8,7 @@ static const char szFileDate[]    = "November 27, 2018A Lenny";
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-//#define DEV_REMOTE			// Changed to GARAGE 11/27/18
+//#define DEV_REMOTE      // Changed to GARAGE 11/27/18
 
 #define OTA_SERVER   false     //Skip running OTA server
 #if 0
@@ -53,7 +29,7 @@ static const char szFileDate[]    = "November 27, 2018A Lenny";
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#define ONEWIRE_PIN       12		//D5 is GPIO 12 on NodeMCU ESP8266
+#define ONEWIRE_PIN       12    //D5 is GPIO 12 on NodeMCU ESP8266
 
 //Define Virtual Pin names
 #define ReadF_V0          V0
@@ -116,10 +92,8 @@ static const int    sOff                  = 0;
 static const int    sOn                   = 1;
 static const int    sNotInit              = -3737;
 static const int    sNumSwitches          = 4;
-//static const int    sMaxNumSwitches       = 4;
 static const int    sHeatSwitchGPIO       = 5;
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
-//static const int    asSwitchPin[]         = {-1, 4, 5, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
 static const int    asSwitchPin[]         = {-1, 4, sHeatSwitchGPIO, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 //(3) types of sketches are supported: front lights, fireplace and garage
@@ -131,7 +105,6 @@ static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sDevRemote            = 7;
 static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
-//static const int    sMaxFDelta            = 2;  //Amount room temp can rise above setpoint.
 
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
@@ -141,17 +114,12 @@ static const long   lMsecPerSec           =     1000;
 
 static const int    sHeatSwitchNum     = 2;      //Was 1, switch number that turns Heat on and off.
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
-//static const float  fMaxHeatRangeF        = 2.00;   //Temp above setpoint before heat is turned off
-//static const float  fMaxHeatRangeF        = 1.00;   //Temp above setpoint before heat is turned off
 
-//static const char   szRouterName[]        = "Aspot24";
 //static const char   szRouterName[]        = "HP7spot";
 //static const char   szRouterName[]        = "P291spot";
 //static const char   szRouterName[]        = "LenSpot";
 static const char   szRouterName[]        = "Aspot24";
 static const char   szRouterPW[]          = "Qazqaz11";
-//static const char   acHostname[]          = "esp37";
-//static const char   acHostname[]          = "BeckGarage";
 
 #ifdef DEBUG
   static const bool       bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -167,27 +135,27 @@ static const char   szRouterPW[]          = "Qazqaz11";
 #endif
 #ifdef FIREPLACE
   char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
-  static const char 	acHostname[]		= "BeckFireplace";
-  static const char 	szProjectType[]	= "FIREPLACE";
-  static int 					sProjectType		= sFireplace;
+  static const char   acHostname[]    = "BeckFireplace";
+  static const char   szProjectType[] = "FIREPLACE";
+  static int          sProjectType    = sFireplace;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
   static int          sSetpointF      = 74;
   static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef GARAGE
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
-  static const char 	acHostname[]		= "BeckGarage";
-  static const char 	szProjectType[]	= "GARAGE";
-  static int 					sProjectType		= sGarage;
+  static const char   acHostname[]    = "BeckGarage";
+  static const char   szProjectType[] = "GARAGE";
+  static int          sProjectType    = sGarage;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
   static int          sSetpointF      = 37;
   static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef GARAGE_LOCAL
   char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
-  static const char 	acHostname[]    = "BeckGarageLocal";
-  static const char 	szProjectType[]	= "GARAGE_LOCAL";
-  static int 					sProjectType		= sGarageLocal;
+  static const char   acHostname[]    = "BeckGarageLocal";
+  static const char   szProjectType[] = "GARAGE_LOCAL";
+  static int          sProjectType    = sGarageLocal;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
   static int          sSetpointF      = 37;
   static float        fThermoOffDegF  = sSetpointF + fMaxHeatRangeF;
@@ -196,7 +164,7 @@ static const char   szRouterPW[]          = "Qazqaz11";
   char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
   static const char acHostname[]       = "BeckHeater";
   static const char szProjectType[]    = "HEATER";
-  static int sProjectType							 = sHeater;
+  static int sProjectType              = sHeater;
 #endif
 #ifdef DEV_LOCAL
   //static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
@@ -508,11 +476,6 @@ void HandleSystem(){
       case sFrontLights:
         HandleFrontLights();
         break;
-/*
-      case sFireplace:
-        HandleFireplace();
-        break;
-*/
       case sFireplace:
       case sGarage:
       case sGarageLocal:
@@ -565,7 +528,6 @@ void HandleThermostat(){
   //Only do anything if the thermostat is turned on.
   if (bThermoOn){
     float fDegF= fGetDegF(true);
-    //float fRoundDegF= fRound(fDegF);
     //DebugHandleThermostat(fDegF);
     if (bHeatOn){
       if (fDegF >= fThermoOffDegF){
@@ -709,26 +671,6 @@ void HandleBlynkLEDs(){
 } //HandleBlynkLEDs
 
 
-/*
-void HandleHeatSwitch(){
-  String szLogString = "HandleHeatSwitch(): bHeatOn";
-  //LogToBoth(szLogString, bHeatOn);
-  //Serial << LOG0 << "HandleHeatSwitch(): bThermoOn, bHeatOn " << bThermoOn << ", " << bHeatOn << endl;
-  //Make sure  switch state represents bHeatOn correctly.
-  if (bHeatOn){
-    //Serial << LOG0 << "HandleHeatSwitch(): Set asSwitchState[sHeatSwitchNum] to sOn" << endl;
-    asSwitchState[sHeatSwitchNum]= sOn;
-  } //if(bHeatOn)
-  else{
-    //Serial << LOG0 << "HandleHeatSwitch(): Set asSwitchState[sHeatSwitchNum] to sOff" << endl;
-    asSwitchState[sHeatSwitchNum]= sOff;
-  } //if(bHeatOn)else
-  SetSwitch(sHeatSwitchNum, asSwitchState[sHeatSwitchNum]);
-  return;
-} //HandleHeatSwitch
-*/
-
-
 void HandleHeatSwitch(){
   if (bHeatOn){
     SetSwitch(sHeatSwitchNum, sOn);
@@ -791,8 +733,6 @@ void SetSwitch(int sSwitch, int sSwitchState){
   else{
     bPinSetting= sSwitchState;
   } //if(abSwitchInverted[sSwitch])else
-  //Serial << LOG0 << "SetSwitch(): sSwitch, sSwitchState, sSwitchPin, bPinSetting " << sSwitch << ", " << sSwitchState << ", " << sSwitchPin << ", " << bPinSetting <<  endl;
-  //Serial << LOG0 << "SetSwitch(): sSwitch, sSwitchState, sSwitchPin, bPinSetting" <<  endl;
   String szLogString= "SetSwitch:  ";
   szLogString += sSwitch;
   szLogString += ",";
@@ -809,7 +749,6 @@ void SetSwitch(int sSwitch, int sSwitchState){
     asSwitchState[sSwitch]= sSwitchState;
   } //if(sSwitchPin>=0)
   bDebugLog= true;
-  //HandleBlynkLEDs();
   return;
 } //SetSwitch
 
@@ -844,17 +783,6 @@ String szAddZeros(int sValue, int sNumDigits){
   return szReturn;
 } //szAddZeros
 
-/*
-int sTerminalPrintVersion(){
-  Serial << LOG0 << " sTerminalPrintVersion: Begin" << endl;
-  oTerminal.println(F("Blynk v" BLYNK_VERSION ": Device started"));
-  oTerminal.println("-------------");
-  oTerminal.println("Type 'Marco' and get a reply, or type");
-  oTerminal.println("anything else and get it printed back.");
-  oTerminal.flush();
-  return 1;
-} //sTerminalPrintVersion
-*/
 
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
@@ -1071,13 +999,6 @@ BLYNK_WRITE(Switch_1V10){
   String szLogString= "Set Switch_1V10 ";
   szLogString += sSetting;
   LogToBoth(szLogString);
-/*
-  //Test writing to LCD
-  LCDWidget.clear();
-  int sCharPos= 0;   //Position 0-15
-  int sLineNum= 0;   //Line 0-1
-  LCDWidget.print(0, 0, "Relay #0 set to: ");
-*/
   if (sSetting == 1){
     sSwitchSetting= sSwitchClosed;
   }
@@ -1330,26 +1251,4 @@ BLYNK_WRITE(TimerB_4V27){
 
 
 //WidgetLED oLED1(LED_4V28) is constructed earlier
-
-/*
-BLYNK_WRITE(Terminal_V7)
-{
-  Serial << LOG0 << " BLYNK_WRITE(Terminal_V7): Received Parameter= " <<  param.asStr() << endl;
-  // if you type "Marco" into Terminal Widget - it will respond: "Polo:"
-  if (String("Marco") == param.asStr()) {
-      oTerminal.println("You said: 'Marco'") ;
-      oTerminal.println("I said: 'Polo'") ;
-  } else {
-
-  // Send it back
-  oTerminal.print("You said:");
-  oTerminal.write(param.getBuffer(), param.getLength());
-  oTerminal.println();
-  }
-
-  // Ensure everything is sent
-  oTerminal.flush();
-  return;
-} //BLYNK_WRITE(Terminal_V7)
-*/
 //Last line.
