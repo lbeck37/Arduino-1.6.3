@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 11/29/18x";
+const char szFileDate[]    = "Lenny 11/30/18g";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -35,11 +35,22 @@ const char szFileDate[]    = "Lenny 11/29/18x";
 #include <Adafruit_SSD1306.h>
 
 Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
+/*
 static const int	sSDA_GPIO_Pin= 0;
 static const int	sSCL_GPIO_Pin= 2;
+*/
+/*
+static const int	sSDA_GPIO_Pin= 2;
+static const int	sSCL_GPIO_Pin= 14;
+static const int  sHeatSwitchGPIO	=  5;		//GPIO 5 is D1 on NodeMCU and labeled D2
+*/
+static const int	sSDA_GPIO				=  4;		//I2C, GPIO 4 is D2 on NodeMCU
+static const int	sSCL_GPIO				=  5;		//I2C, GPIO 5 is D1 on NodeMCU and labeled D2
 
+static const int	sOneWireGPIO		= 12;		//GPIO 12 is D6 on NodeMCU
+static const int  sHeatSwitchGPIO	= 14;		//GPIO 14 is D5 on NodeMCU
 
-#define ONEWIRE_PIN       12    //D5 is GPIO 12 on NodeMCU ESP8266
+//#define sOneWireGPIO       12    			//GPIO 12 is D6 on NodeMCU ESP8266
 
 //Define Virtual Pin names
 #define ReadF_V0          V0
@@ -102,7 +113,6 @@ static const int    sOff                  = 0;
 static const int    sOn                   = 1;
 static const int    sNotInit              = -3737;
 static const int    sNumSwitches          = 4;
-static const int    sHeatSwitchGPIO       = 5;
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 static const int    asSwitchPin[]         = {-1, 4, sHeatSwitchGPIO, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
@@ -114,15 +124,13 @@ static const int    sGarageLocal          = 4;
 static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sThermoDev            = 7;
-static const int    sOneWirePin           = ONEWIRE_PIN;  //Dallas DS18B20 Temperature Sensor
-
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
-static const int    sHeatSwitchNum     = 2;      //Was 1, switch number that turns Heat on and off.
+static const int    sHeatSwitchNum     		= 2;      //Was 1, switch number that turns Heat on and off.
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
 //static const char   szRouterName[]        = "P291spot";
@@ -202,10 +210,10 @@ WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
 
 //Maxim/Dallas OneWire sensors
-/* Set up a oneWire instance to communicate with any OneWire device*/
-OneWire         oOneWire(sOneWirePin);
+//Set up a oneWire instance to communicate with any OneWire device
+OneWire         oOneWire(sOneWireGPIO);
 
-/* Tell Dallas Temperature Library to use oneWire Library */
+//Tell Dallas Temperature Library to use oneWire Library
 DallasTemperature oSensors(&oOneWire);
 
 #if OTA_SERVER
@@ -235,9 +243,11 @@ void setup()
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
-  SetupDisplay();
-  //UpdateDisplay();
   SetupWiFi();
+  SetupI2C();
+  SetupDisplay();
+  UpdateDisplay();
+  //SetupWiFi();
   SetupSwitches();
   SetupSystem();
   return;
@@ -265,12 +275,15 @@ void loop() {
 } //loop
 
 
-void SetupDisplay(){
-  Serial << LOG0 << "SetupDisplay(): Call Wire.begin(sSDA_GPIO_Pin, sSCL_GPIO_Pin)" << endl;
-  Wire.begin(sSDA_GPIO_Pin, sSCL_GPIO_Pin);
-
+void SetupI2C(){
+  Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
+  Wire.begin(sSDA_GPIO, sSCL_GPIO);
   ScanForI2CDevices();
+	return;
+}	//SetupI2C
 
+
+void SetupDisplay(){
   Serial << LOG0 << "SetupDisplay(): Call oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
 
@@ -283,7 +296,8 @@ void SetupDisplay(){
 }	//SetupDisplay
 
 
-void UpdateDisplay(void) {
+void UpdateDisplay(void){
+  Serial << LOG0 << "UpdateDisplay(): Begin" << endl;
 	oDisplay.setTextSize(2);
 	oDisplay.setTextColor(WHITE);
 	oDisplay.setCursor(0,0);
