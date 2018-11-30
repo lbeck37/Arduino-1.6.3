@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 11/30/18g";
+const char szFileDate[]    = "Lenny 11/30/18y";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -34,23 +34,11 @@ const char szFileDate[]    = "Lenny 11/30/18g";
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
-/*
-static const int	sSDA_GPIO_Pin= 0;
-static const int	sSCL_GPIO_Pin= 2;
-*/
-/*
-static const int	sSDA_GPIO_Pin= 2;
-static const int	sSCL_GPIO_Pin= 14;
-static const int  sHeatSwitchGPIO	=  5;		//GPIO 5 is D1 on NodeMCU and labeled D2
-*/
 static const int	sSDA_GPIO				=  4;		//I2C, GPIO 4 is D2 on NodeMCU
 static const int	sSCL_GPIO				=  5;		//I2C, GPIO 5 is D1 on NodeMCU and labeled D2
 
 static const int	sOneWireGPIO		= 12;		//GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO	= 14;		//GPIO 14 is D5 on NodeMCU
-
-//#define sOneWireGPIO       12    			//GPIO 12 is D6 on NodeMCU ESP8266
 
 //Define Virtual Pin names
 #define ReadF_V0          V0
@@ -209,17 +197,6 @@ WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
 
-//Maxim/Dallas OneWire sensors
-//Set up a oneWire instance to communicate with any OneWire device
-OneWire         oOneWire(sOneWireGPIO);
-
-//Tell Dallas Temperature Library to use oneWire Library
-DallasTemperature oSensors(&oOneWire);
-
-#if OTA_SERVER
-  ESP8266WebServer    oESP8266WebServer(80);
-#endif
-
 //UpdaterClass    Update; //Declaration at the end of cores\esp8266\Updater.h from BSP
 
 const char*     acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
@@ -236,6 +213,18 @@ static bool           bHeatOn            = false;  //If switch is on to turn on 
 static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool         bDebugLog             = true;   //Used to limit number of printouts.
 static bool         bUpdating             = false;   //Turns off Blynk.
+
+//Create objects
+Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
+
+//Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
+OneWire         		oOneWire(sOneWireGPIO);
+DallasTemperature 	oSensors(&oOneWire);
+
+#if OTA_SERVER
+  ESP8266WebServer	oESP8266WebServer(80);
+#endif
+
 
 void setup()
 {
@@ -314,10 +303,6 @@ void UpdateDisplay(void){
 void ScanForI2CDevices(void){
 	byte ucError, ucAddress;
   int nDevices;
-  //Serial.println("ScanForDevices(): Begin");
-  //Serial << LOG0 << "ScanForI2CDevices(): Begin" << endl;
-
-  //Serial.println("Scanning...");
   nDevices = 0;
   for(ucAddress = 1; ucAddress < 127; ucAddress++ )
   {
@@ -328,8 +313,6 @@ void ScanForI2CDevices(void){
     ucError = Wire.endTransmission();
 
     if (ucError == 0){
-    	//SetDevicePresent(ucAddress);
-      //Serial.print("I2C device found at address 0x");
       Serial << LOG0 << "ScanForI2CDevices(): I2C device found at address 0x";
       if (ucAddress<16){
         Serial.print("0");
@@ -350,10 +333,6 @@ void ScanForI2CDevices(void){
  if (nDevices == 0){
     Serial.println("No I2C devices found\n");
  }	//if(nDevices==0)
-/*
-  else
-    Serial.println("done");
-*/
   return;
 }	//ScanForDevices
 
@@ -570,8 +549,6 @@ void HandleHttpServer(void){
 
 void HandleSystem(){
   if (millis() >= ulNextHandlerMsec){
-    String szLogString = "HandleSystem()";
-    LogToBoth(szLogString);
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
     switch (sProjectType){
       case sFrontLights:
@@ -623,12 +600,9 @@ void HandleFrontLights(){
 
 
 void HandleThermostat(){
-  String szLogString = "HandleThermostat()";
-  LogToBoth(szLogString);
-  //Only do anything if the thermostat is turned on.
+  //Only do something if the thermostat is turned on.
   if (bThermoOn){
     float fDegF= fGetDegF(true);
-    //DebugHandleThermostat(fDegF);
     if (bHeatOn){
       if (fDegF >= fThermoOffDegF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
@@ -654,29 +628,17 @@ void HandleThermostat(){
     DebugHandleThermostat(fDegF);
   } //if(bThermoOn)
   else{
-    LogToBoth(szLogString);
-    szLogString= " bThermoOn is false";
+    String szLogString= " bThermoOn is false";
     LogToBoth(szLogString);
   }
-  //} //if(millis()>=ulNextHandlerMsec)
   return;
 } //HandleThermostat
 
 
 void DebugHandleThermostat(float fDegF){
-  //String szLogString2= " ";
-  String szLogString = "HandleThermostat";
-  //LogToBoth(szLogString);
-  szLogString= " DegF=";
-  LogToBoth(szLogString, fDegF);
-  szLogString= " SetpointF=";
-  LogToBoth(szLogString, fSetpointF);
-  szLogString= " OffDegF=";
-  LogToBoth(szLogString, fThermoOffDegF);
-  szLogString= " bHeatOn=";
-  LogToBoth(szLogString, bHeatOn);
-  szLogString= " OnCount=";
-  LogToBoth(szLogString, sThermoTimesCount);
+  String szLogString= String(bHeatOn) + "" + String(sThermoTimesCount) + " DSO:" +
+  		          String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
+  LogToBoth(szLogString);
   return;
 } //DebugHandleThermostat
 
@@ -701,7 +663,7 @@ void DebugHandleBlynkLEDs(){
 
 void HandleBlynkLEDs(){
   String szLogString = "HandleBlynkLEDs()";
-  LogToBoth(szLogString);
+  //LogToBoth(szLogString);
   //DebugHandleBlynkLEDs();
   //Only send data back to Blynk if state of LED has changed.
   //static int asSwitchLastState[]= {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
