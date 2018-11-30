@@ -1,4 +1,4 @@
-#define SKETCH_HEAD "\nBeckE32_SSD1306SimpleDemo.ino, Apr 17, 2018-a Lenny, Sloeber 4.2"
+#define SKETCH_HEAD "\nBeckE32_SSD1306SimpleDemo.ino, Nov 29, 2018-a Lenny"
 // Include the correct display library
 // For a connection via I2C using Wire include
 #include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
@@ -34,7 +34,8 @@ const char WiFi_Logo_bits[] PROGMEM = {
   };
 // Initialize the OLED display using Wire library
 //SSD1306  display(0x3c, D3, D5);
-SSD1306  display(0x3c, 21, 22);
+//SSD1306  display(0x3c, 21, 22);		//ESP32
+SSD1306  display(0x3c, 0, 2);			//NodeMCU ESP826
 
 #define DEMO_DURATION 3000
 typedef void (*Demo)(void);
@@ -55,6 +56,7 @@ void setup() {
   display.flipScreenVertically();
   display.setFont(ArialMT_Plain_10);
 
+	Serial.println(SKETCH_HEAD);
 	Serial.println("setup(): Done");
 	return;
 }	//setup

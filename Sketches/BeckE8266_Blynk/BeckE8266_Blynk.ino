@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 11/29/18g";
+const char szFileDate[]    = "Lenny 11/29/18x";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -125,9 +125,7 @@ static const long   lMsecPerSec           =     1000;
 static const int    sHeatSwitchNum     = 2;      //Was 1, switch number that turns Heat on and off.
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
-//static const char   szRouterName[]        = "HP7spot";
 //static const char   szRouterName[]        = "P291spot";
-//static const char   szRouterName[]        = "LenSpot";
 static const char   szRouterName[]        = "Aspot24";
 static const char   szRouterPW[]          = "Qazqaz11";
 
@@ -184,14 +182,13 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const int  sProjectType        = sDevLocal;
 #endif
 #ifdef THERMO_DEV
-  static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
-  static const char acHostname[]        = "BeckThermoDev";
-  static const char szProjectType[]     = "THERMO_DEV";
-  static const int  sProjectType        = sThermoDev;
-  static const float  fMaxHeatRangeF  	= 1.00;   //Temp above setpoint before heat is turned off
-  //static int          sSetpointF      	= 70;
-  static float        fSetpointF      	= 70;
-  static float        fThermoOffDegF  	= fSetpointF + fMaxHeatRangeF;
+  static const char 	acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
+  static const char 	acHostname[]        = "BeckThermoDev";
+  static const char 	szProjectType[]     = "THERMO_DEV";
+  static const int  	sProjectType        = sThermoDev;
+  static const float  fMaxHeatRangeF  		= 1.00;   //Temp above setpoint before heat is turned off
+  static float        fSetpointF      		= 70;
+  static float        fThermoOffDegF  		= fSetpointF + fMaxHeatRangeF;
 #endif
 
 WidgetTerminal      oTerminal(Terminal_V7);
@@ -222,16 +219,12 @@ const char*     acServerIndex = "<form method='POST' action='/update' enctype='m
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
 static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
-//static long         lLineCount2           = 0;      //For Blynk terminal window.
-//static long         lNumLoops             = 1;
 static float          fLastDegF             = 37.37;  //Last temperature reading.
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
 static unsigned long  ulUpdateTimeoutMsec   = 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bHeatOn            = false;  //If switch is on to turn on Heat.
-//static int            sSetpointF            = 37;
-//static float        fThermoOffDegF        = sSetpointF + fMaxHeatRangeF;
 static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool         bDebugLog             = true;   //Used to limit number of printouts.
 static bool         bUpdating             = false;   //Turns off Blynk.
@@ -240,9 +233,10 @@ void setup()
 {
   sSetupTime();
   Serial.begin(lSerialMonitorBaud);
-  Serial << endl << LOG0 << " setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  Serial << LOG0 << " setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
+  Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
+  Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   SetupDisplay();
+  //UpdateDisplay();
   SetupWiFi();
   SetupSwitches();
   SetupSystem();
@@ -261,10 +255,10 @@ void loop() {
       HandleSystem();
     } //if(!bUpdating)
     else {
-      Serial << LOG0 << " loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
+      Serial << LOG0 << "loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
       if (millis() > ulUpdateTimeoutMsec) {
         bUpdating = false;
-        Serial << LOG0 << " loop(): Set bUpdating to " << bUpdating << endl;
+        Serial << LOG0 << "loop(): Set bUpdating to " << bUpdating << endl;
       } //if(millis()>ulUpdateTimeoutMsec)
     } //if(!bUpdating)else
   } //if(!bSkipBlynk)
@@ -272,45 +266,115 @@ void loop() {
 
 
 void SetupDisplay(){
-  Serial << LOG0 << " SetupDisplay(): Call Wire.begin(sSDA_GPIO_Pin, sSCL_GPIO_Pin)" << endl;
+  Serial << LOG0 << "SetupDisplay(): Call Wire.begin(sSDA_GPIO_Pin, sSCL_GPIO_Pin)" << endl;
   Wire.begin(sSDA_GPIO_Pin, sSCL_GPIO_Pin);
-  Serial << LOG0 << " SetupDisplay(): Call oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
+
+  ScanForI2CDevices();
+
+  Serial << LOG0 << "SetupDisplay(): Call oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+
   // Clear the buffer.
-  Serial << LOG0 << " SetupDisplay(): Call oDisplay.clearDisplay()" << endl;
+  Serial << LOG0 << "SetupDisplay(): Call oDisplay.clearDisplay()" << endl;
   oDisplay.clearDisplay();
+  Serial << LOG0 << "SetupDisplay(): Call oDisplay.display()" << endl;
+  oDisplay.display();
 	return;
 }	//SetupDisplay
 
 
+void UpdateDisplay(void) {
+	oDisplay.setTextSize(2);
+	oDisplay.setTextColor(WHITE);
+	oDisplay.setCursor(0,0);
+	oDisplay.println("+3.101");
+	oDisplay.println("+3.202");
+	oDisplay.println("+3.303");
+	oDisplay.println("+3.404");
+	oDisplay.display();
+	delay(5000);
+	oDisplay.clearDisplay();
+}	//UpdateDisplay
+
+
+void ScanForI2CDevices(void){
+	byte ucError, ucAddress;
+  int nDevices;
+  //Serial.println("ScanForDevices(): Begin");
+  //Serial << LOG0 << "ScanForI2CDevices(): Begin" << endl;
+
+  //Serial.println("Scanning...");
+  nDevices = 0;
+  for(ucAddress = 1; ucAddress < 127; ucAddress++ )
+  {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire.beginTransmission(ucAddress);
+    ucError = Wire.endTransmission();
+
+    if (ucError == 0){
+    	//SetDevicePresent(ucAddress);
+      //Serial.print("I2C device found at address 0x");
+      Serial << LOG0 << "ScanForI2CDevices(): I2C device found at address 0x";
+      if (ucAddress<16){
+        Serial.print("0");
+      }	//if(ucAddress<16)
+      Serial.println(ucAddress,HEX);
+      //Serial.println("  !");
+      nDevices++;
+    }	//if(ucError==0)
+    else if (ucError==4) {
+      //Serial.print("Unknown error at address 0x");
+      Serial << LOG0 << "ScanForI2CDevices(): Unknown error at address 0x";
+      if (ucAddress<16) {
+        Serial.print("0");
+      }	//if(ucAddress<16)
+      Serial.println(ucAddress,HEX);
+    }	//else if(ucError==4)
+  }
+ if (nDevices == 0){
+    Serial.println("No I2C devices found\n");
+ }	//if(nDevices==0)
+/*
+  else
+    Serial.println("done");
+*/
+  return;
+}	//ScanForDevices
+
+
 void SetupWiFi(){
   WiFi.mode(WIFI_AP_STA);
-  Serial << LOG0 << " SetupServer(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
+  Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
   WiFi.begin(szRouterName, szRouterPW);
+
   //wl_status_t eWiFiStatus= WiFi.waitForConnectResult();
+  Serial << LOG0 << "SetupWiFi(): Call WiFi.waitForConnectResult()" << endl;
   wl_status_t eWiFiStatus= (wl_status_t)WiFi.waitForConnectResult();
+
   if(eWiFiStatus == WL_CONNECTED) {
-    Serial << LOG0 << " SetupServer(): WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
+    Serial << LOG0 << "SetupWiFi(): WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
     #if OTA_SERVER
       SetupServer();
     #endif
   } //if(eWiFiStatus==WL_CONNECTED)
   else {
     //Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
-    Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
+    Serial << LOG0 << "SetupWiFi(): ERROR: WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
   } //if(eWiFiStatus==WL_CONNECTED)else
 
   switch (sProjectType){
     case sDevLocal:
-      Serial << LOG0 << " setup(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
+      Serial << LOG0 << "SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
       Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
       break;
     default:
-      Serial << LOG0 << " SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
+      Serial << LOG0 << "SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
       Blynk.config(acBlynkAuthToken);
       break;
   } //switch
-  Serial << LOG0 << " SetupWiFi(): Blynk.config() returned" << endl;
+  Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
   return;
 } //SetupWiFi
 
@@ -504,7 +568,6 @@ void HandleSystem(){
       case sGarageLocal:
       case sThermoDev:
         HandleThermostat();
-        //HandleBlynkLEDs();
         HandleHeatSwitch();
         break;
       case sHeater:
@@ -833,9 +896,7 @@ String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
   szHeader += " ";
-  //szTermString += szTime;
   szHeader += szGetTime(millis());
-  //szHeader += " ";
   return szHeader;
 } //szLogLineHeader
 
@@ -941,27 +1002,11 @@ void SendIntToBlynk(int sVirtualPin, int sValue){
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
 //and pass a variable in the "param" object.
 BLYNK_READ(ReadF_V0){
-/*
-  bool bTakeReading= true;
-  float fDegF= fGetDegF(bTakeReading);
-  String szLogString= "Read ReadF_V0 ";
-  //LogToBoth(szLogString, fDegF);
-  //Blynk.virtualWrite(ReadF_V0, fRound(fDegF));
-*/
-
   Blynk.virtualWrite(ReadF_V0, fLastDegF);
 } //BLYNK_READ(ReadF_V0)
 
 
 BLYNK_READ(ReadF_V1){
-/*
-  bool bTakeReading= false;
-  float fDegF= fGetDegF(bTakeReading);
-  String szLogString= "Read ReadF_V1 ";
-  LogToBoth(szLogString, fDegF);
-
-  Blynk.virtualWrite(ReadF_V1, fDegF);
-*/
   Blynk.virtualWrite(ReadF_V1, fLastDegF);
 } //BLYNK_READ(ReadF_V1)
 
@@ -974,9 +1019,7 @@ BLYNK_WRITE(SetSetpointF_V2){
   LogToBoth(szLogString, fSetpointF);
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  //SendIntToBlynk(GetSetpointF_V3, fSetpointF);
   Blynk.virtualWrite(GetSetpointF_V3, fSetpointF);
-  return;
 } //BLYNK_WRITE(Switch_2V15)
 
 
@@ -998,8 +1041,6 @@ BLYNK_WRITE(ThermoSwitch_V4){
   HandleHeatSwitch();
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  //Blynk.virtualWrite(sVirtualPin, sValue);
-  //SendIntToBlynk(GetSetpointF_V3, sSetpointF);
   Blynk.virtualWrite(GetSetpointF_V3, fSetpointF);
   return;
 } //BLYNK_WRITE(ThermoSwitch_V4)

@@ -1,5 +1,5 @@
 // Beck 2/13/17, from Adafruit example ssd1306_128x64_i2c.ino
-#define SKETCH_HEAD "\n****\nBeckE32_OLEDDisplayExample.ino, Apr 18, 2018-c"
+#define SKETCH_HEAD "\n****\nBeckE32_OLEDDisplayExample.ino, Nov 29, 2018a"
 /*********************************************************************
 This is an example for our Monochrome OLEDs based on SSD1306 drivers
 This example is for a 128x64 size display using I2C to communicate
@@ -52,7 +52,8 @@ void setup()   {
   Serial.begin(115200);
 	Serial.println(SKETCH_HEAD);
 	Serial.println("Setup(): Call Wire.begin(21, 22)");
-  Wire.begin(21, 22);		//Beck 1-3-18
+  //Wire.begin(21, 22);		//ESP32
+  Wire.begin(0,2);		//NodeMCU ESP8266
   ScanForI2CDevices();
 
   Serial.println("Setup(): Call display.begin()");
