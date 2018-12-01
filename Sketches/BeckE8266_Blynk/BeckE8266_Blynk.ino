@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 11/30/18ad";
+const char szFileDate[]    = "Lenny 12/01/18f";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -279,7 +279,18 @@ void SetupDisplay(){
   Serial << LOG0 << "SetupDisplay(): Call oDisplay.clearDisplay()" << endl;
   oDisplay.clearDisplay();
   Serial << LOG0 << "SetupDisplay(): Call oDisplay.display()" << endl;
+  Serial << LOG0 << "SetupDisplay(): Display nothing" << endl;
   oDisplay.display();
+  Serial << LOG0 << "SetupDisplay(): Wait 3 sec" << endl;
+  delay(3000);
+
+  Serial << LOG0 << "SetupDisplay(): Call oDisplay.clearDisplay()" << endl;
+  oDisplay.clearDisplay();
+	oDisplay.println("Hello");
+  Serial << LOG0 << "SetupDisplay(): Display Hello" << endl;
+  oDisplay.display();
+  Serial << LOG0 << "SetupDisplay(): Wait 3 sec" << endl;
+  delay(3000);
 	return;
 }	//SetupDisplay
 
@@ -287,7 +298,6 @@ void SetupDisplay(){
 void UpdateDisplay(void){
   Serial << LOG0 << "UpdateDisplay(): fLastDegF= " << fLastDegF << endl;
 	oDisplay.clearDisplay();
-	oDisplay.display();
 	oDisplay.setTextSize(2);
 	oDisplay.setTextColor(WHITE);
 	oDisplay.setCursor(0,0);
@@ -298,13 +308,18 @@ void UpdateDisplay(void){
 	oDisplay.println("+3.404");
 */
 	//oDisplay.println("Now 79.82");	//fLastDegF fSetpointF fThermoOffDegF
-  String szLogString= "Now " + String(fLastDegF);
-	oDisplay.println(szLogString);
-	oDisplay.println("Set 80.00");
-	oDisplay.println("Off 81.00");
+  String szDisplayLine= "Now " + String(fLastDegF);
+	oDisplay.println(szDisplayLine);
+
+  szDisplayLine= "Set " + String(fSetpointF);
+	oDisplay.println(szDisplayLine);
+
+  szDisplayLine= "Off " + String(fThermoOffDegF);
+	oDisplay.println(szDisplayLine);
+  Serial << LOG0 << "UpdateDisplay(): Call oDisplay.display() " << endl;
 	oDisplay.display();
-	//delay(5000);
-	//oDisplay.clearDisplay();
+  Serial << LOG0 << "UpdateDisplay(): Wait 3 sec " << endl;
+	delay(3000);
 }	//UpdateDisplay
 
 
@@ -645,7 +660,7 @@ void HandleThermostat(){
 
 
 void DebugHandleThermostat(float fDegF){
-  String szLogString= String(bHeatOn) + "" + String(sThermoTimesCount) + " NSO:" +
+  String szLogString= String(bHeatOn) + String(sThermoTimesCount) + " " +
   		          String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
   LogToBoth(szLogString);
   return;
