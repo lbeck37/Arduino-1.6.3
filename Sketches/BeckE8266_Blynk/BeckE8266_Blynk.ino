@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 11/30/18y";
+const char szFileDate[]    = "Lenny 11/30/18ad";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -204,7 +204,7 @@ const char*     acServerIndex = "<form method='POST' action='/update' enctype='m
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
 static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
-static float          fLastDegF             = 37.37;  //Last temperature reading.
+static float          fLastDegF             = 37.88;  //Last temperature reading.
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
 static unsigned long  ulUpdateTimeoutMsec   = 0;
@@ -236,7 +236,6 @@ void setup()
   SetupI2C();
   SetupDisplay();
   UpdateDisplay();
-  //SetupWiFi();
   SetupSwitches();
   SetupSystem();
   return;
@@ -286,17 +285,26 @@ void SetupDisplay(){
 
 
 void UpdateDisplay(void){
-  Serial << LOG0 << "UpdateDisplay(): Begin" << endl;
+  Serial << LOG0 << "UpdateDisplay(): fLastDegF= " << fLastDegF << endl;
+	oDisplay.clearDisplay();
+	oDisplay.display();
 	oDisplay.setTextSize(2);
 	oDisplay.setTextColor(WHITE);
 	oDisplay.setCursor(0,0);
+/*
 	oDisplay.println("+3.101");
 	oDisplay.println("+3.202");
 	oDisplay.println("+3.303");
 	oDisplay.println("+3.404");
+*/
+	//oDisplay.println("Now 79.82");	//fLastDegF fSetpointF fThermoOffDegF
+  String szLogString= "Now " + String(fLastDegF);
+	oDisplay.println(szLogString);
+	oDisplay.println("Set 80.00");
+	oDisplay.println("Off 81.00");
 	oDisplay.display();
-	delay(5000);
-	oDisplay.clearDisplay();
+	//delay(5000);
+	//oDisplay.clearDisplay();
 }	//UpdateDisplay
 
 
@@ -560,6 +568,7 @@ void HandleSystem(){
       case sThermoDev:
         HandleThermostat();
         HandleHeatSwitch();
+        UpdateDisplay();
         break;
       case sHeater:
         HandleHeater();
@@ -636,7 +645,7 @@ void HandleThermostat(){
 
 
 void DebugHandleThermostat(float fDegF){
-  String szLogString= String(bHeatOn) + "" + String(sThermoTimesCount) + " DSO:" +
+  String szLogString= String(bHeatOn) + "" + String(sThermoTimesCount) + " NSO:" +
   		          String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
   LogToBoth(szLogString);
   return;
@@ -945,7 +954,7 @@ void BlynkLogLine(String szString, float fValue){
 
 
 float fGetDegF(bool bTakeReading){
-  float fDegFReturn= 37.37;   //Value used for default in testing w/o reading sensor. fLastDegF
+  float fDegFReturn= 37.99;   //Value used for default in testing w/o reading sensor. fLastDegF
   if (bTakeReading){
     oSensors.requestTemperatures(); // Send the command to get temperatures
     fDegFReturn= oSensors.getTempFByIndex(0);
