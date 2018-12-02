@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/02/18a";
+const char szFileDate[]    = "Lenny 12/02/18n";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -34,11 +34,11 @@ const char szFileDate[]    = "Lenny 12/02/18a";
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-static const int	sSDA_GPIO				=  4;		//I2C, GPIO 4 is D2 on NodeMCU
-static const int	sSCL_GPIO				=  5;		//I2C, GPIO 5 is D1 on NodeMCU and labeled D2
+static const int  sSDA_GPIO       =  4;   //I2C, GPIO 4 is D2 on NodeMCU
+static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and labeled D2
 
-static const int	sOneWireGPIO		= 12;		//GPIO 12 is D6 on NodeMCU
-static const int  sHeatSwitchGPIO	= 14;		//GPIO 14 is D5 on NodeMCU
+static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
+static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 
 //Define Virtual Pin names
 #define ReadF_V0          V0
@@ -100,9 +100,12 @@ static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
 static const int    sOn                   = 1;
 static const int    sNotInit              = -3737;
-static const int    sNumSwitches          = 4;
+static const int		sNoSwitch							= -1;
+static const int    sNumSwitches          = 1;
+static const int    sHeatSwitchNum        = 1;      //Switch number that turns Heat on and off.
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
-static const int    asSwitchPin[]         = {-1, 4, sHeatSwitchGPIO, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
+//static const int    asSwitchPin[]         = {-1, 4, sHeatSwitchGPIO, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
+static const int    asSwitchPin[]         = {-1, sHeatSwitchGPIO, sNoSwitch, sNoSwitch, sNoSwitch};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 //(3) types of sketches are supported: front lights, fireplace and garage
 static const int    sFrontLights          = 1;
@@ -118,7 +121,6 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
-static const int    sHeatSwitchNum     		= 2;      //Was 1, switch number that turns Heat on and off.
 static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
 //static const char   szRouterName[]        = "P291spot";
@@ -178,18 +180,18 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const int  sProjectType        = sDevLocal;
 #endif
 #ifdef THERMO_DEV
-  static const char 	acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
-  static const char 	acHostname[]        = "BeckThermoDev";
-  static const char 	szProjectType[]     = "THERMO_DEV";
-  static const int  	sProjectType        = sThermoDev;
-  static const float  fMaxHeatRangeF  		= 1.00;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF      		= 70;
-  static float        fThermoOffDegF  		= fSetpointF + fMaxHeatRangeF;
+  static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
+  static const char   acHostname[]        = "BeckThermoDev";
+  static const char   szProjectType[]     = "THERMO_DEV";
+  static const int    sProjectType        = sThermoDev;
+  static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
+  static float        fSetpointF          = 70;
+  static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
 #endif
 
+//Set up Blynk Widgets
 WidgetTerminal      oTerminal(Terminal_V7);
 WidgetLCD           LCDWidget(1);
-
 //LED for thermostat state has no actual switch but it will live as unused switch #0.
 WidgetLED           oLED0(ThermoLED_V5);
 WidgetLED           oLED1(LED_1V13);
@@ -198,8 +200,6 @@ WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
 
 //UpdaterClass    Update; //Declaration at the end of cores\esp8266\Updater.h from BSP
-
-const char*     acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 
 static int          asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
@@ -215,14 +215,15 @@ static bool         bDebugLog             = true;   //Used to limit number of pr
 static bool         bUpdating             = false;   //Turns off Blynk.
 
 //Create objects
-Adafruit_SSD1306 		oDisplay(-1);		//Looks like -1 is default
+Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
 
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
-OneWire         		oOneWire(sOneWireGPIO);
-DallasTemperature 	oSensors(&oOneWire);
+OneWire             oOneWire(sOneWireGPIO);
+DallasTemperature   oSensors(&oOneWire);
 
 #if OTA_SERVER
-  ESP8266WebServer	oESP8266WebServer(80);
+	const char*     acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+  ESP8266WebServer  oESP8266WebServer(80);
 #endif
 
 
@@ -243,7 +244,6 @@ void setup()
 
 
 void loop() {
-//#ifndef SKIP_SERVER
 #if OTA_SERVER
   HandleHttpServer();
 #endif
@@ -267,60 +267,37 @@ void SetupI2C(){
   Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
   ScanForI2CDevices();
-	return;
-}	//SetupI2C
+  return;
+} //SetupI2C
 
 
 void SetupDisplay(){
   Serial << LOG0 << "SetupDisplay(): Call oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
-
   // Clear the buffer.
-  Serial << LOG0 << "SetupDisplay(): Call oDisplay.clearDisplay()" << endl;
   oDisplay.clearDisplay();
-  Serial << LOG0 << "SetupDisplay(): Call oDisplay.display()" << endl;
-  Serial << LOG0 << "SetupDisplay(): Display nothing" << endl;
   oDisplay.display();
-  Serial << LOG0 << "SetupDisplay(): Wait 3 sec" << endl;
-  delay(3000);
-
-  Serial << LOG0 << "SetupDisplay(): Call oDisplay.clearDisplay()" << endl;
-  oDisplay.clearDisplay();
-	oDisplay.println("Hello");
-  Serial << LOG0 << "SetupDisplay(): Display Hello" << endl;
-  oDisplay.display();
-  Serial << LOG0 << "SetupDisplay(): Wait 3 sec" << endl;
-  delay(3000);
-	return;
-}	//SetupDisplay
+  delay(10);
+  return;
+} //SetupDisplay
 
 
 void UpdateDisplay(void){
-  Serial << LOG0 << "UpdateDisplay(): fLastDegF= " << fLastDegF << endl;
-	oDisplay.clearDisplay();
-	oDisplay.setTextSize(2);
-	oDisplay.setTextColor(WHITE);
-	oDisplay.setCursor(0,0);
-/*
-	oDisplay.println("+3.101");
-	oDisplay.println("+3.202");
-	oDisplay.println("+3.303");
-	oDisplay.println("+3.404");
-*/
-	//oDisplay.println("Now 79.82");	//fLastDegF fSetpointF fThermoOffDegF
+  oDisplay.clearDisplay();
+  oDisplay.setTextSize(2);
+  oDisplay.setTextColor(WHITE);
+  oDisplay.setCursor(0,0);
   String szDisplayLine= "Now " + String(fLastDegF);
-	oDisplay.println(szDisplayLine);
+  oDisplay.println(szDisplayLine);
 
   szDisplayLine= "Set " + String(fSetpointF);
-	oDisplay.println(szDisplayLine);
+  oDisplay.println(szDisplayLine);
 
   szDisplayLine= "Off " + String(fThermoOffDegF);
-	oDisplay.println(szDisplayLine);
-  Serial << LOG0 << "UpdateDisplay(): Call oDisplay.display() " << endl;
-	oDisplay.display();
-  Serial << LOG0 << "UpdateDisplay(): Wait 3 sec " << endl;
-	delay(3000);
-}	//UpdateDisplay
+  oDisplay.println(szDisplayLine);
+  oDisplay.display();
+  delay(10);
+} //UpdateDisplay
 
 
 void SetupWiFi(){
@@ -420,14 +397,15 @@ void SetupSwitches(){
   String szLogString = "SetupSwitches()";
   LogToBoth(szLogString);
   for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
-    pinMode(asSwitchPin[sSwitch], OUTPUT);
-    SetSwitch(sSwitch, sSwitchOpen);
+  	if(asSwitchPin[sSwitch] != sNoSwitch){
+			pinMode(asSwitchPin[sSwitch], OUTPUT);
+			SetSwitch(sSwitch, sSwitchOpen);
+  	}	//if(asSwitchPin[sSwitch]!=sNoSwitch)
   } //for
   return;
 } //SetupSwitches
 
 
-//#ifndef SKIP_SERVER
 #if OTA_SERVER
 void HandleHttpServer(void){
   oESP8266WebServer.handleClient();
@@ -435,6 +413,7 @@ void HandleHttpServer(void){
   return;
 } //HandleHttpServer
 #endif
+
 
 void HandleSystem(){
   if (millis() >= ulNextHandlerMsec){
@@ -527,7 +506,7 @@ void HandleThermostat(){
 
 void DebugHandleThermostat(float fDegF){
   String szLogString= String(bHeatOn) + String(sThermoTimesCount) + " " +
-  		          String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
+                String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
   LogToBoth(szLogString);
   return;
 } //DebugHandleThermostat
@@ -841,7 +820,7 @@ String szGetTime(long lMsec){
 
 
 void ScanForI2CDevices(void){
-	byte ucError, ucAddress;
+  byte ucError, ucAddress;
   int nDevices;
   nDevices = 0;
   for(ucAddress = 1; ucAddress < 127; ucAddress++ )
@@ -856,25 +835,25 @@ void ScanForI2CDevices(void){
       Serial << LOG0 << "ScanForI2CDevices(): I2C device found at address 0x";
       if (ucAddress<16){
         Serial.print("0");
-      }	//if(ucAddress<16)
+      } //if(ucAddress<16)
       Serial.println(ucAddress,HEX);
       //Serial.println("  !");
       nDevices++;
-    }	//if(ucError==0)
+    } //if(ucError==0)
     else if (ucError==4) {
       //Serial.print("Unknown error at address 0x");
       Serial << LOG0 << "ScanForI2CDevices(): Unknown error at address 0x";
       if (ucAddress<16) {
         Serial.print("0");
-      }	//if(ucAddress<16)
+      } //if(ucAddress<16)
       Serial.println(ucAddress,HEX);
-    }	//else if(ucError==4)
+    } //else if(ucError==4)
   }
  if (nDevices == 0){
     Serial.println("No I2C devices found\n");
- }	//if(nDevices==0)
+ }  //if(nDevices==0)
   return;
-}	//ScanForDevices
+} //ScanForDevices
 
 
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
@@ -1319,7 +1298,6 @@ BLYNK_WRITE(TimerB_4V27){
   SetSwitch(sSwitchNumber, sSwitchSetting);
   return;
 } //BLYNK_WRITE(TimerB_4V27)
-
 
 //WidgetLED oLED1(LED_4V28) is constructed earlier
 //Last line.
