@@ -5,7 +5,10 @@
     #include <ESP8266WiFi.h>
 #endif
 #include "fauxmoESP.h"
-#include "credentials.h"
+//#include "credentials.h"
+
+#define WIFI_SSID "Aspot24"
+#define WIFI_PASS "Qazqaz11"
 
 #define SERIAL_BAUDRATE                 115200
 #define LED                             2

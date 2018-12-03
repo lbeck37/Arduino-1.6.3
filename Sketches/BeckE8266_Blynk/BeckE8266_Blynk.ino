@@ -1,14 +1,14 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/02/18n";
+const char szFileDate[]    = "Lenny 12/02/18r";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
-//#define GARAGE
+#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-#define THERMO_DEV
+//#define THERMO_DEV
 
 #define OTA_SERVER   false     //Skip running OTA server
 #if 0
@@ -39,6 +39,7 @@ static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and lab
 
 static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
+//static const int  sAlexaSwitchGPIO = 15;   //GPIO 15 is D8 on NodeMCU
 
 //Define Virtual Pin names
 #define ReadF_V0          V0

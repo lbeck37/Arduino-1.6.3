@@ -3,6 +3,29 @@
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.2] 2018-10-08
+### Fixed
+- Removed symlinks to allow Arduino track the library
+
+### Changed
+- Debug messages moved to PROGMEME
+
+## [3.0.1] 2018-08-29
+### Fixed
+- Possible segmentation fault in getDeviceName
+
+## [3.0.0] 2018-08-15
+### Changed
+- Completely new paradigm, emulating Philips Hue API instead of Belkin Wemo API
+- onSetState signature has changed to accommodate the brightness value
+- onGetState no longer exists
+
+### Added
+- DEBUG_FAUXMO_VERBOSE setting for verbose debug output (defaults to false)
+
+## [2.4.3] 2018-06-23
+Dummy version to force PlatformIO parsing
+
 ## [2.4.2] 2018-01-14
 ### Fixed
 - Removed a Serial.print

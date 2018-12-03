@@ -1,0 +1,30 @@
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+TSetStateCallback       KEYWORD1
+
+#######################################
+# Classes (KEYWORD1)
+#######################################
+
+fauxmoESP               KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+addDevice               KEYWORD2
+renameDevice            KEYWORD2
+getDeviceName           KEYWORD2
+onSetState              KEYWORD2
+enable                  KEYWORD2
+handle                  KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
