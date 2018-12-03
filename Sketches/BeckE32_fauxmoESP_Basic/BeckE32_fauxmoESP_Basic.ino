@@ -67,7 +67,7 @@ void setup() {
 
     // Add virtual devices
     fauxmo.addDevice("light 1");
-	fauxmo.addDevice("light 2");
+	  fauxmo.addDevice("light 2");
 
     // You can add more devices
 	//fauxmo.addDevice("light 3");

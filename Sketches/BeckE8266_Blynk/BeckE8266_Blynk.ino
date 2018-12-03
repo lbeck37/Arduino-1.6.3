@@ -1,10 +1,10 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/02/18r";
+const char szFileDate[]    = "Lenny 12/03/18p";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-//#define FIREPLACE
-#define GARAGE
+#define FIREPLACE
+//#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
@@ -28,12 +28,14 @@ const char szFileDate[]    = "Lenny 12/02/18r";
 #include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <fauxmoESP.h>
 
 //For I2C OLED display
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+static const int  sAlexaPin       =  2;   //GPIO 2 is D4 and Blue LED on NodeMCU
 static const int  sSDA_GPIO       =  4;   //I2C, GPIO 4 is D2 on NodeMCU
 static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and labeled D2
 
@@ -222,6 +224,8 @@ Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
+fauxmoESP Alexa;		//Alexa emulation of Phillips Hue Bulb
+
 #if OTA_SERVER
 	const char*     acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
   ESP8266WebServer  oESP8266WebServer(80);
@@ -236,6 +240,7 @@ void setup()
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   SetupWiFi();
   SetupI2C();
+  SetupAlexa();
   SetupDisplay();
   UpdateDisplay();
   SetupSwitches();
@@ -262,14 +267,6 @@ void loop() {
     } //if(!bUpdating)else
   } //if(!bSkipBlynk)
 } //loop
-
-
-void SetupI2C(){
-  Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
-  Wire.begin(sSDA_GPIO, sSCL_GPIO);
-  ScanForI2CDevices();
-  return;
-} //SetupI2C
 
 
 void SetupDisplay(){
@@ -371,6 +368,72 @@ String szWiFiStatus(wl_status_t eWiFiStatus){
 } //szWiFiStatus
 
 
+void SetupAlexa(){
+  String szLogString = "SetupAlexa()";
+  LogToBoth(szLogString);
+
+  //Relay and LED at GPIO 2 (D4)
+  pinMode(sAlexaPin, OUTPUT);
+  digitalWrite(sAlexaPin, HIGH);
+
+  // You have to call enable(true) once you have a WiFi connection
+  // You can enable or disable the library at any moment
+  // Disabling it will prevent the devices from being discovered and switched
+  Alexa.enable(true);
+  Alexa.enable(false);
+  Alexa.enable(true);
+
+  // You can use different ways to invoke alexa to modify the devices state:
+  // "Alexa, turn light one on" ("light one" is the name of the first device below)
+  // "Alexa, turn on light one"
+  // "Alexa, set light one to fifty" (50 means 50% of brightness)
+
+  // Add virtual devices
+  Alexa.addDevice("light 1");
+  //fauxmo.addDevice("light 2");
+
+  // fauxmoESP 2.0.0 has changed the callback signature to add the device_id,
+  // this way it's easier to match devices to action without having to compare strings.
+  Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
+		{
+		//String szLogString = "onSetState()";
+		char szLogString[100];
+/*
+    Serial.printf("[MAIN] Device #%d (%s) state: %s value: %d\n", device_id, device_name,
+										state ? "ON" : "OFF", value);
+*/
+/*
+      Serial << "Alexa: Device #" << device_id << "(" << device_name <<
+      		") state: " << (state ? "ON" : "OFF") << " value: " << value << endl;
+*/
+    sprintf(szLogString, "DoAlexaCommand(): Device #%d (%s) state: %s value: %d",
+						device_id, device_name, (state ? "ON " : "OFF"), value);
+		LogToBoth(szLogString);
+		digitalWrite(sAlexaPin, !state);
+		});	//Alexa.onSetState
+  return;
+} //SetupAlexa
+
+
+void HandleAlexa(){
+  Alexa.handle();
+  return;
+} //HandleAlexa
+
+
+void DoAlexaCommand(){
+  return;
+} //DoAlexaCommand
+
+
+void SetupI2C(){
+  Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
+  Wire.begin(sSDA_GPIO, sSCL_GPIO);
+  ScanForI2CDevices();
+  return;
+} //SetupI2C
+
+
 int sSetupTime(){
   //setTime(0,0,0, 0,0,0);  //hr, min, sec, day, month, year
   return 1;
@@ -417,6 +480,7 @@ void HandleHttpServer(void){
 
 
 void HandleSystem(){
+	HandleAlexa();
   if (millis() >= ulNextHandlerMsec){
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
     switch (sProjectType){
