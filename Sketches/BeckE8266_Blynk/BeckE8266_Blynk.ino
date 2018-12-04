@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/03/18v";
+const char szFileDate[]    = "Lenny 12/03/18z";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -158,6 +158,7 @@ static bool         	bUpdating             = false;   //Turns off Blynk.
   char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
   static const char   acHostname[]    = "BeckFireplace";
   static const char   szProjectType[] = "FIREPLACE";
+  static const char   szAlexaName[]   = "Fireplace";
   static int          sProjectType    = sFireplace;
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
   static float        fSetpointF      = 74;
@@ -199,6 +200,7 @@ static bool         	bUpdating             = false;   //Turns off Blynk.
   static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char   acHostname[]        = "BeckThermoDev";
   static const char   szProjectType[]     = "THERMO_DEV";
+  static const char   szAlexaName[]     	= "Larry's Device";
   static const int    sProjectType        = sThermoDev;
   static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
   static float        fSetpointF          = 70;
@@ -381,37 +383,23 @@ void SetupAlexa(){
 			break;
 	} //switch
   if(bAlexaOn){
-		//Relay and LED at GPIO 2 (D4)
-		//pinMode(sAlexaPin, OUTPUT);
-		//digitalWrite(sAlexaPin, HIGH);
-
 		// You have to call enable(true) once you have a WiFi connection
 		// You can enable or disable the library at any moment
 		// Disabling it will prevent the devices from being discovered and switched
-		//Beck 12/3/18 I don't know wy we do enable, disable, enable but it is necessary
+		//Beck 12/3/18 I don't know why we do enable, disable, enable but it is necessary
 		Alexa.enable(true);
 		Alexa.enable(false);
 		Alexa.enable(true);
 
-		// You can use different ways to invoke alexa to modify the devices state:
+		// You can use different ways to invoke Alexa to modify the devices state:
 		// "Alexa, turn light one on" ("light one" is the name of the first device below)
 		// "Alexa, turn on light one"
 		// "Alexa, set light one to fifty" (50 means 50% of brightness)
 
 		// Add virtual devices
-		switch (sProjectType){
-			case sFireplace:
-				Alexa.addDevice("light 1");
-				break;
-			case sThermoDev:
-				Alexa.addDevice("light 2");
-				break;
-			default:
-				String szLogString= "SetupAlexa(): Bad switch";
-				LogToBoth(szLogString, sProjectType);
-				break;
-		} //switch
+		Alexa.addDevice(szAlexaName);
 
+		//Define the callback
 		Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
 			{
 			DoAlexaCommand(device_id, device_name, state, value);
