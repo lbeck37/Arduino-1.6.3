@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/03/18p";
+const char szFileDate[]    = "Lenny 12/03/18s";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -41,7 +41,6 @@ static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and lab
 
 static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
-//static const int  sAlexaSwitchGPIO = 15;   //GPIO 15 is D8 on NodeMCU
 
 //Define Virtual Pin names
 #define ReadF_V0          V0
@@ -104,11 +103,12 @@ static const int    sOff                  = 0;
 static const int    sOn                   = 1;
 static const int    sNotInit              = -3737;
 static const int		sNoSwitch							= -1;
-static const int    sNumSwitches          = 1;
+static const int    sNumSwitches          = 2;
 static const int    sHeatSwitchNum        = 1;      //Switch number that turns Heat on and off.
+static const int    sAlexaSwitchNum       = 2;      //Switch number that Alexa turns on and off.
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 //static const int    asSwitchPin[]         = {-1, 4, sHeatSwitchGPIO, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
-static const int    asSwitchPin[]         = {-1, sHeatSwitchGPIO, sNoSwitch, sNoSwitch, sNoSwitch};    //0 is not a switch, switches are at 1,2,3,4
+static const int    asSwitchPin[]         = {-1, sHeatSwitchGPIO, sAlexaPin, sNoSwitch, sNoSwitch};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 //(3) types of sketches are supported: front lights, fireplace and garage
 static const int    sFrontLights          = 1;
@@ -379,6 +379,7 @@ void SetupAlexa(){
   // You have to call enable(true) once you have a WiFi connection
   // You can enable or disable the library at any moment
   // Disabling it will prevent the devices from being discovered and switched
+  //Beck 12/3/18 I don't know wy we do enable, disable, enable but it is necessary
   Alexa.enable(true);
   Alexa.enable(false);
   Alexa.enable(true);
@@ -390,26 +391,10 @@ void SetupAlexa(){
 
   // Add virtual devices
   Alexa.addDevice("light 1");
-  //fauxmo.addDevice("light 2");
 
-  // fauxmoESP 2.0.0 has changed the callback signature to add the device_id,
-  // this way it's easier to match devices to action without having to compare strings.
   Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
 		{
-		//String szLogString = "onSetState()";
-		char szLogString[100];
-/*
-    Serial.printf("[MAIN] Device #%d (%s) state: %s value: %d\n", device_id, device_name,
-										state ? "ON" : "OFF", value);
-*/
-/*
-      Serial << "Alexa: Device #" << device_id << "(" << device_name <<
-      		") state: " << (state ? "ON" : "OFF") << " value: " << value << endl;
-*/
-    sprintf(szLogString, "DoAlexaCommand(): Device #%d (%s) state: %s value: %d",
-						device_id, device_name, (state ? "ON " : "OFF"), value);
-		LogToBoth(szLogString);
-		digitalWrite(sAlexaPin, !state);
+  	DoAlexaCommand(device_id, device_name, state, value);
 		});	//Alexa.onSetState
   return;
 } //SetupAlexa
@@ -421,10 +406,15 @@ void HandleAlexa(){
 } //HandleAlexa
 
 
-void DoAlexaCommand(){
+void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
+	char szLogString[100];
+  sprintf(szLogString, "DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
+					ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
+	LogToBoth(szLogString);
+	//digitalWrite(sAlexaPin, !bState);
+	SetAlexaSwitch(bState);
   return;
 } //DoAlexaCommand
-
 
 void SetupI2C(){
   Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
@@ -815,25 +805,16 @@ void TurnHeatOn(bool bTurnOn){
 } //TurnHeatOn
 
 
-void SetThermoState(int sSwitchState){
-  asSwitchState[sThermoDummySwitch]= sSwitchState;
-  if (sSwitchState == sOn){
-    bThermoOn= true;
-  } //if(sState==sOn)
-  else{
-    bThermoOn= false;
-    bHeatOn= false;
-    sThermoTimesCount= 0;
-    SetHeatSwitch(sSwitchOpen);
-  } //if(sState==sOn)else
-  return;
-} //SetThermoState
-
-
 void SetHeatSwitch(int sSwitchState){
   SetSwitch(sHeatSwitchNum, sSwitchState);
   return;
 } //SetHeatSwitch
+
+
+void SetAlexaSwitch(int sSwitchState){
+  SetSwitch(sAlexaSwitchNum, sSwitchState);
+  return;
+} //SetAlexaSwitch
 
 
 void SetSwitch(int sSwitch, int sSwitchState){
@@ -1081,8 +1062,9 @@ BLYNK_WRITE(ThermoSwitch_V4){
   int sParam= param.asInt();
   String szLogString= "ThermoSwitch_V4 ";
   LogToBoth(szLogString, sParam);
-  SetThermoState(sParam);
-  HandleHeatSwitch();
+  //SetThermoState(sParam);
+  //HandleHeatSwitch();
+  TurnHeatOn((bool)sParam);
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.
   Blynk.virtualWrite(GetSetpointF_V3, fSetpointF);
