@@ -1,14 +1,14 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/03/18s";
+const char szFileDate[]    = "Lenny 12/03/18v";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
-#define FIREPLACE
+//#define FIREPLACE
 //#define GARAGE
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-//#define THERMO_DEV
+#define THERMO_DEV
 
 #define OTA_SERVER   false     //Skip running OTA server
 #if 0
@@ -107,7 +107,6 @@ static const int    sNumSwitches          = 2;
 static const int    sHeatSwitchNum        = 1;      //Switch number that turns Heat on and off.
 static const int    sAlexaSwitchNum       = 2;      //Switch number that Alexa turns on and off.
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
-//static const int    asSwitchPin[]         = {-1, 4, sHeatSwitchGPIO, 15, 16};    //0 is not a switch, switches are at 1,2,3,4
 static const int    asSwitchPin[]         = {-1, sHeatSwitchGPIO, sAlexaPin, sNoSwitch, sNoSwitch};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 //(3) types of sketches are supported: front lights, fireplace and garage
@@ -124,16 +123,29 @@ static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 
-static const long   sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
+static const long   	sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
-//static const char   szRouterName[]        = "P291spot";
-static const char   szRouterName[]        = "Aspot24";
-static const char   szRouterPW[]          = "Qazqaz11";
+static const char   	szRouterName[]        = "Aspot24";
+static const char   	szRouterPW[]          = "Qazqaz11";
+
+static int          	asSwitchState[]       = {0, 0, 0, 0, 0};
+static int          	asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
+static long         	lLineCount            = 0;      //Serial Monitor uses for clarity.
+static float          fLastDegF             = 37.88;  //Last temperature reading.
+static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
+static unsigned long  ulNextHandlerMsec     = 0;
+static unsigned long  ulUpdateTimeoutMsec   = 0;
+static bool           bThermoOn             = true;   //Whether thermostat is running.
+static bool           bHeatOn            		= false;  //If switch is on to turn on Heat.
+static bool           bAlexaOn            	= false;  //Only projects that use Alexa set this true.
+static long         	sSystemHandlerSpacing; //Number of mSec between running system handlers
+static bool         	bDebugLog             = true;   //Used to limit number of printouts.
+static bool         	bUpdating             = false;   //Turns off Blynk.
 
 #ifdef DEBUG
-  static const bool       bDebug                = true;    //Used to select places to disable bDebugLog.
+  static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
 #else
-  static const bool       bDebug                = false;   //Used to select places to disable bDebugLog.
+  static const bool   bDebug                = false;   //Used to select places to disable bDebugLog.
 #endif
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
@@ -150,6 +162,7 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
   static float        fSetpointF      = 74;
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
+  fauxmoESP 					Alexa;										//Alexa emulation of Phillips Hue Bulb
 #endif
 #ifdef GARAGE
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
@@ -190,6 +203,7 @@ static const char   szRouterPW[]          = "Qazqaz11";
   static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
   static float        fSetpointF          = 70;
   static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
+  fauxmoESP 					Alexa;										//Alexa emulation of Phillips Hue Bulb
 #endif
 
 //Set up Blynk Widgets
@@ -204,27 +218,12 @@ WidgetLED           oLED4(LED_4V28);
 
 //UpdaterClass    Update; //Declaration at the end of cores\esp8266\Updater.h from BSP
 
-static int          asSwitchState[]       = {0, 0, 0, 0, 0};
-static int          asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-static long         lLineCount            = 0;      //Serial Monitor uses for clarity.
-static float          fLastDegF             = 37.88;  //Last temperature reading.
-static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
-static unsigned long  ulNextHandlerMsec     = 0;
-static unsigned long  ulUpdateTimeoutMsec   = 0;
-static bool           bThermoOn             = true;   //Whether thermostat is running.
-static bool           bHeatOn            = false;  //If switch is on to turn on Heat.
-static long         sSystemHandlerSpacing; //Number of mSec between running system handlers
-static bool         bDebugLog             = true;   //Used to limit number of printouts.
-static bool         bUpdating             = false;   //Turns off Blynk.
-
 //Create objects
 Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
 
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
-
-fauxmoESP Alexa;		//Alexa emulation of Phillips Hue Bulb
 
 #if OTA_SERVER
 	const char*     acServerIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
@@ -369,41 +368,61 @@ String szWiFiStatus(wl_status_t eWiFiStatus){
 
 
 void SetupAlexa(){
-  String szLogString = "SetupAlexa()";
+  String szLogString= "SetupAlexa(): Begin";
   LogToBoth(szLogString);
+	switch (sProjectType){
+		case sFireplace:
+		case sThermoDev:
+			//Only these projects use Alexa
+	  	bAlexaOn= true;
+			break;
+		default:
+			bAlexaOn= false;
+			break;
+	} //switch
+  if(bAlexaOn){
+		//Relay and LED at GPIO 2 (D4)
+		//pinMode(sAlexaPin, OUTPUT);
+		//digitalWrite(sAlexaPin, HIGH);
 
-  //Relay and LED at GPIO 2 (D4)
-  pinMode(sAlexaPin, OUTPUT);
-  digitalWrite(sAlexaPin, HIGH);
+		// You have to call enable(true) once you have a WiFi connection
+		// You can enable or disable the library at any moment
+		// Disabling it will prevent the devices from being discovered and switched
+		//Beck 12/3/18 I don't know wy we do enable, disable, enable but it is necessary
+		Alexa.enable(true);
+		Alexa.enable(false);
+		Alexa.enable(true);
 
-  // You have to call enable(true) once you have a WiFi connection
-  // You can enable or disable the library at any moment
-  // Disabling it will prevent the devices from being discovered and switched
-  //Beck 12/3/18 I don't know wy we do enable, disable, enable but it is necessary
-  Alexa.enable(true);
-  Alexa.enable(false);
-  Alexa.enable(true);
+		// You can use different ways to invoke alexa to modify the devices state:
+		// "Alexa, turn light one on" ("light one" is the name of the first device below)
+		// "Alexa, turn on light one"
+		// "Alexa, set light one to fifty" (50 means 50% of brightness)
 
-  // You can use different ways to invoke alexa to modify the devices state:
-  // "Alexa, turn light one on" ("light one" is the name of the first device below)
-  // "Alexa, turn on light one"
-  // "Alexa, set light one to fifty" (50 means 50% of brightness)
+		// Add virtual devices
+		switch (sProjectType){
+			case sFireplace:
+				Alexa.addDevice("light 1");
+				break;
+			case sThermoDev:
+				Alexa.addDevice("light 2");
+				break;
+			default:
+				String szLogString= "SetupAlexa(): Bad switch";
+				LogToBoth(szLogString, sProjectType);
+				break;
+		} //switch
 
-  // Add virtual devices
-  Alexa.addDevice("light 1");
-
-  Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
-		{
-  	DoAlexaCommand(device_id, device_name, state, value);
-		});	//Alexa.onSetState
+		Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
+			{
+			DoAlexaCommand(device_id, device_name, state, value);
+			} );	//Alexa.onSetState
+  }	//if(bAlexaOn)
+  else{
+		szLogString = "SetupAlexa(): Alexa is not enabled for project ";
+		LogToBoth(szLogString, sProjectType);
+  }	//if(bAlexaOn)else
   return;
 } //SetupAlexa
-
-
-void HandleAlexa(){
-  Alexa.handle();
-  return;
-} //HandleAlexa
 
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
@@ -411,7 +430,6 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
   sprintf(szLogString, "DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
 					ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
 	LogToBoth(szLogString);
-	//digitalWrite(sAlexaPin, !bState);
 	SetAlexaSwitch(bState);
   return;
 } //DoAlexaCommand
@@ -500,6 +518,14 @@ void HandleSystem(){
   } //if(millis()>=ulNextHandlerMsec)
   return;
 } //HandleSystem
+
+
+void HandleAlexa(){
+  if(bAlexaOn){
+  	Alexa.handle();
+  }	//if(bAlexaOn)
+  return;
+} //HandleAlexa
 
 
 void HandleDevelopment(){
@@ -687,103 +713,6 @@ float fRound(float fNum){
   float fRounded= floor(fNum + 0.5);
   return fRounded;
 }  //fRound
-
-
-#if OTA_SERVER
-void SetupServer(void) {
-    MDNS.begin(acHostname);
-    oESP8266WebServer.on("/", HTTP_GET, [](){
-      oESP8266WebServer.sendHeader("Connection", "close");
-      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-      oESP8266WebServer.send(200, "text/html", acServerIndex);
-    });
-    oESP8266WebServer.on("/update", HTTP_POST, []() {
-      oESP8266WebServer.sendHeader("Connection", "close");
-      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-      oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
-      ESP.restart();
-    },[](){
-      HandleUpdate();
-    });
-    oESP8266WebServer.begin();
-    MDNS.addService("http", "tcp", 80);
-    Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
-//#endif
-  return;
-} //SetupServer
-
-
-void HandleUpdate() {
-  //upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
-  HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
-  if (stHTTPUpload.status == UPLOAD_FILE_START) {
-    PauseBlynk();
-    Serial.setDebugOutput(true);
-    WiFiUDP::stopAll();
-    uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-    Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_START" << endl;
-    Serial << LOG0 << " HandleUpdate(): ulMaxSketchSpace  = " << ulMaxSketchSpace << endl;
-    Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
-    Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
-    Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
-    Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
-    Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
-    if (!Update.begin(ulMaxSketchSpace)) { //start with max available size
-      Update.printError(Serial);
-    } //if(!Update.begin(maxSketchSpace))
-  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)
-  else if (stHTTPUpload.status == UPLOAD_FILE_WRITE) {
-    //Serial << LOG0 << " Handle /update HTTP_POST: UPLOAD_FILE_WRITE, upload.currentSize= " << stHTTPUpload.currentSize << endl;
-    if (Update.write(stHTTPUpload.buf, stHTTPUpload.currentSize)
-        != stHTTPUpload.currentSize) {
-      Update.printError(Serial);
-    } //if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
-  } //else if(upload.status==UPLOAD_FILE_WRITE)
-  else if (stHTTPUpload.status == UPLOAD_FILE_END) {
-    Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_END" << endl;
-    Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
-    Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
-    Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
-    Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
-    Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
-    HandleFileEnd(stHTTPUpload);
-#if false
-    if (Update.end(true)) { //true to set the size to the current progress
-      //Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
-      Serial << LOG0
-          << " HandleUpdate(): UPLOAD_FILE_END (rebooting?), upload.totalSize= "
-          << stHTTPUpload.totalSize << endl;
-    } //if(Update.end(true))
-    else {
-      Update.printError(Serial);
-    } //if(Update.end(true))else
-    Serial.setDebugOutput(false);
-#endif
-  } //else if(upload.status==UPLOAD_FILE_END)
-  yield();
-  return;
-} //HandleUpdate
-
-
-void HandleFileEnd(HTTPUpload& stHTTPUploadLocal) {
-  if (Update.end(true)) { //true to set the size to the current progress
-    Serial << LOG0 << " HandleFileEnd(): UPLOAD_FILE_END (rebooting?), upload.totalSize= " << stHTTPUploadLocal.totalSize << endl;
-  } //if(Update.end(true))
-  else {
-    Update.printError(Serial);
-  } //if(Update.end(true))else
-  Serial.setDebugOutput(false);
-  return;
-} //HandleFileEnd
-
-
-void PauseBlynk() {
-    bUpdating= true;
-    Serial << LOG0 << " PauseBlynk(): Set bUpdating to " << bUpdating << endl;
-    ulUpdateTimeoutMsec= millis() + 20000;
-  return;
-} //PauseBlynk
-#endif
 
 
 void TurnHeatOn(bool bTurnOn){
@@ -1347,4 +1276,101 @@ BLYNK_WRITE(TimerB_4V27){
 } //BLYNK_WRITE(TimerB_4V27)
 
 //WidgetLED oLED1(LED_4V28) is constructed earlier
+
+
+#if OTA_SERVER
+void SetupServer(void) {
+    MDNS.begin(acHostname);
+    oESP8266WebServer.on("/", HTTP_GET, [](){
+      oESP8266WebServer.sendHeader("Connection", "close");
+      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
+      oESP8266WebServer.send(200, "text/html", acServerIndex);
+    });
+    oESP8266WebServer.on("/update", HTTP_POST, []() {
+      oESP8266WebServer.sendHeader("Connection", "close");
+      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
+      oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
+      ESP.restart();
+    },[](){
+      HandleUpdate();
+    });
+    oESP8266WebServer.begin();
+    MDNS.addService("http", "tcp", 80);
+    Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
+//#endif
+  return;
+} //SetupServer
+
+
+void HandleUpdate() {
+  //upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
+  HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
+  if (stHTTPUpload.status == UPLOAD_FILE_START) {
+    PauseBlynk();
+    Serial.setDebugOutput(true);
+    WiFiUDP::stopAll();
+    uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+    Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_START" << endl;
+    Serial << LOG0 << " HandleUpdate(): ulMaxSketchSpace  = " << ulMaxSketchSpace << endl;
+    Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
+    Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
+    Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
+    Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
+    Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
+    if (!Update.begin(ulMaxSketchSpace)) { //start with max available size
+      Update.printError(Serial);
+    } //if(!Update.begin(maxSketchSpace))
+  } //if(WiFi.waitForConnectResult()==WL_CONNECTED)
+  else if (stHTTPUpload.status == UPLOAD_FILE_WRITE) {
+    //Serial << LOG0 << " Handle /update HTTP_POST: UPLOAD_FILE_WRITE, upload.currentSize= " << stHTTPUpload.currentSize << endl;
+    if (Update.write(stHTTPUpload.buf, stHTTPUpload.currentSize)
+        != stHTTPUpload.currentSize) {
+      Update.printError(Serial);
+    } //if(Update.write(upload.buf, upload.currentSize) != upload.currentSize)
+  } //else if(upload.status==UPLOAD_FILE_WRITE)
+  else if (stHTTPUpload.status == UPLOAD_FILE_END) {
+    Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_END" << endl;
+    Serial << LOG0 << " HandleUpdate(): Update filename   = " << stHTTPUpload.filename << endl;
+    Serial << LOG0 << " HandleUpdate(): Update name       = " << stHTTPUpload.name << endl;
+    Serial << LOG0 << " HandleUpdate(): Update type       = " << stHTTPUpload.type << endl;
+    Serial << LOG0 << " HandleUpdate(): Update totalSize  = " << stHTTPUpload.totalSize << endl;
+    Serial << LOG0 << " HandleUpdate(): Update currentSize= " << stHTTPUpload.currentSize << endl;
+    HandleFileEnd(stHTTPUpload);
+#if false
+    if (Update.end(true)) { //true to set the size to the current progress
+      //Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+      Serial << LOG0
+          << " HandleUpdate(): UPLOAD_FILE_END (rebooting?), upload.totalSize= "
+          << stHTTPUpload.totalSize << endl;
+    } //if(Update.end(true))
+    else {
+      Update.printError(Serial);
+    } //if(Update.end(true))else
+    Serial.setDebugOutput(false);
+#endif
+  } //else if(upload.status==UPLOAD_FILE_END)
+  yield();
+  return;
+} //HandleUpdate
+
+
+void HandleFileEnd(HTTPUpload& stHTTPUploadLocal) {
+  if (Update.end(true)) { //true to set the size to the current progress
+    Serial << LOG0 << " HandleFileEnd(): UPLOAD_FILE_END (rebooting?), upload.totalSize= " << stHTTPUploadLocal.totalSize << endl;
+  } //if(Update.end(true))
+  else {
+    Update.printError(Serial);
+  } //if(Update.end(true))else
+  Serial.setDebugOutput(false);
+  return;
+} //HandleFileEnd
+
+
+void PauseBlynk() {
+    bUpdating= true;
+    Serial << LOG0 << " PauseBlynk(): Set bUpdating to " << bUpdating << endl;
+    ulUpdateTimeoutMsec= millis() + 20000;
+  return;
+} //PauseBlynk
+#endif
 //Last line.
