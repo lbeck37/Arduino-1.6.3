@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/03/18z";
+const char szFileDate[]    = "Lenny 12/04/18j";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -10,7 +10,8 @@ const char szFileDate[]    = "Lenny 12/03/18z";
 //#define DEV_LOCAL
 #define THERMO_DEV
 
-#define OTA_SERVER   false     //Skip running OTA server
+#define OTA_SERVER   false     //Enable and run OTA server
+
 #if 0
   #define SKIP_BLYNK      true
   #define DEBUG         true
@@ -310,6 +311,8 @@ void SetupWiFi(){
 
   if(eWiFiStatus == WL_CONNECTED) {
     Serial << LOG0 << "SetupWiFi(): WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
+    //Serial.printf("\nHTTPUpdateServer ready! Open http://%s.local/update in your browser\n", host);
+    Serial << LOG0 << "SetupWiFi(): IP address= " << WiFi.localIP() << endl;
     #if OTA_SERVER
       SetupServer();
     #endif
@@ -1285,7 +1288,6 @@ void SetupServer(void) {
     oESP8266WebServer.begin();
     MDNS.addService("http", "tcp", 80);
     Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
-//#endif
   return;
 } //SetupServer
 
