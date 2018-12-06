@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/06/18a";
+const char szFileDate[]    = "Lenny 12/06/18";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -18,6 +18,7 @@ const char szFileDate[]    = "Lenny 12/06/18a";
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
+#include <BeckMiniLib.h>
 #include <Streaming.h>
 #include <Time.h>
 #include <ESP8266WiFi.h>
@@ -91,7 +92,7 @@ static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 #define Unassigned_V30    V30
 #define Unassigned_V31    V31
 
-#define LOG0    szLogLineHeader(++lLineCount)
+//#define LOG0    szLogLineHeader(++lLineCount)
 
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk          = true;
@@ -118,11 +119,13 @@ static const int    sGarageLocal          = 4;
 static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sThermoDev            = 7;
+/*
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
+*/
 
 static const long   	sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
@@ -131,7 +134,6 @@ static const char   	szRouterPW[]          = "Qazqaz11";
 
 static int          	asSwitchState[]       = {0, 0, 0, 0, 0};
 static int          	asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-static long         	lLineCount            = 0;      //Serial Monitor uses for clarity.
 static float          fLastDegF             = 37.88;  //Last temperature reading.
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
@@ -142,6 +144,8 @@ static bool           bAlexaOn            	= false;  //Only projects that use Al
 static long         	sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool         	bDebugLog             = true;   //Used to limit number of printouts.
 static bool         	bUpdating             = false;   //Turns off Blynk.
+
+//long         	lLineCount            = 0;      //Serial Monitor uses for clarity.
 
 #ifdef DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -768,6 +772,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
 } //SetSwitch
 
 
+/*
 String szGetTime(long lMsec){
   String  szString;
 
@@ -783,6 +788,7 @@ String szGetTime(long lMsec){
   szString+= String(szAddZeros(sMsec, 3)) + " ";     //Send with trailing blank to seperate from next field.
   return szString;
 } //szGetTime
+*/
 
 
 void ScanForI2CDevices(void){
@@ -822,6 +828,7 @@ void ScanForI2CDevices(void){
 } //ScanForDevices
 
 
+/*
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
 String szAddZeros(int sValue, int sNumDigits){
   String szReturn;
@@ -834,6 +841,7 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
+*/
 
 
 // You can send commands from Terminal to your hardware. Just use
@@ -858,6 +866,7 @@ void WriteTerminalString(String szString){
 } //WriteTerminalString
 
 
+/*
 String szLogLineHeader(long lLineCount){
   String szHeader= "";
   szHeader += lLineCount;
@@ -865,6 +874,7 @@ String szLogLineHeader(long lLineCount){
   szHeader += szGetTime(millis());
   return szHeader;
 } //szLogLineHeader
+*/
 
 
 //LogToBoth() and BlynkLogLine()have multiple versions

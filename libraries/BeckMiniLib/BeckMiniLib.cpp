@@ -18,6 +18,7 @@
   const int       sServoPin          = 16;
 #endif  //ESP32
 
+long         lLineCount            = 0;      //Serial Monitor uses for clarity.
 
 String szGetTime(long lMsec){
   String  szString;
@@ -33,4 +34,27 @@ String szGetTime(long lMsec){
   szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
   return szString;
 } //szGetTime
+
+
+//szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
+String szAddZeros(int sValue, int sNumDigits){
+  String szReturn;
+  if ((sNumDigits == 3) && (sValue < 100)){
+    szReturn= "0";
+  } //if((sNumDigits==3)&&(sValue<100)
+  if (sValue < 10){
+    szReturn += "0";
+  } //if(lValue<10)
+  szReturn += String(sValue);
+  return szReturn;
+} //szAddZeros
+
+
+String szLogLineHeader(long lLineCount){
+  String szHeader= "";
+  szHeader += lLineCount;
+  szHeader += " ";
+  szHeader += szGetTime(millis());
+  return szHeader;
+} //szLogLineHeader
 //Last line.

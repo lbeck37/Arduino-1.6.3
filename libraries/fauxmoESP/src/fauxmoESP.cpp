@@ -28,16 +28,19 @@ THE SOFTWARE.
 #include <Arduino.h>
 #include "fauxmoESP.h"
 
-#define BECK_DEBUG		true
-#define DEBUG_MSG_FAUXMO Serial.printf
+#include <BeckMiniLib.h>
+#define BECK_DEBUG						true
+//#define DEBUG_MSG_FAUXMO 			Serial.printf
+#define DEBUG_MSG_FAUXMO 			Serial << LOG0 << " "; Serial.printf
+#define DEBUG_FAUXMO_VERBOSE	true
 // -----------------------------------------------------------------------------
 // UDP
 // -----------------------------------------------------------------------------
 
 void fauxmoESP::_sendUDPResponse() {
 
-	DEBUG_MSG_FAUXMO("[FAUXMO] Responding to M-SEARCH request\n");
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_sendUDPResponse(): Begin\n");
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::_sendUDPResponse(): Begin\n");
+	DEBUG_MSG_FAUXMO("[FAUXMO] _sendUDPResponse(): Responding to M-SEARCH request\n");
 
 	IPAddress ip = WiFi.localIP();
     String mac = WiFi.macAddress();
@@ -75,7 +78,7 @@ void fauxmoESP::_handleUDP() {
         data[len] = 0;
 
 		#if DEBUG_FAUXMO_VERBOSE
-			DEBUG_MSG_FAUXMO("[FAUXMO] UDP packet received\n%s", (const char *) data);
+			//DEBUG_MSG_FAUXMO("[FAUXMO] _handleUDP(): UDP packet received\n%s", (const char *) data);
 		#endif
 			//if(BECK_DEBUG) Serial.printf("fauxmoESP::_handleUDP(): UDP packet received\n|%s|\n", (const char *) data);
 
@@ -102,11 +105,9 @@ void fauxmoESP::_sendTCPResponse(AsyncClient *client, const char * code, char * 
 	);
 
 	#if DEBUG_FAUXMO_VERBOSE
-		DEBUG_MSG_FAUXMO("[FAUXMO] Response:\n%s%s\n", headers, body);
+		DEBUG_MSG_FAUXMO("[FAUXMO] _sendTCPResponse(): Response:\n%s%s\n", headers, body);
 	#endif
-	if(BECK_DEBUG){
-		Serial.printf("fauxmoESP::_sendTCPResponse():  Response |Header| |Body|:\n|%s|\n|%s|\n", headers, body);
-	}	//if(BECK_DEBUG)
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::_sendTCPResponse():  Response |Header| |Body|:\n|%s|\n|%s|\n", headers, body);
 	client->write(headers);
 	client->write(body);
 	return;
@@ -114,7 +115,7 @@ void fauxmoESP::_sendTCPResponse(AsyncClient *client, const char * code, char * 
 
 
 String fauxmoESP::_deviceJson(unsigned char id) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_deviceJson(): Begin\n");
+	if(BECK_DEBUG) Serial << LOG0 << "fauxmoESP::_deviceJson(): Begin" << endl;
 	if (id >= _devices.size()) return "{}";
 
 	String mac = WiFi.macAddress();
@@ -132,15 +133,15 @@ String fauxmoESP::_deviceJson(unsigned char id) {
     );
 
 	return String(buffer);
-
 }
 
-void fauxmoESP::_onTCPDescription(AsyncClient *client, void *data, size_t len) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPDescription(): Begin\n");
-    (void) data;
-    (void) len;
 
-	DEBUG_MSG_FAUXMO("[FAUXMO] Handling /description.xml request\n");
+void fauxmoESP::_onTCPDescription(AsyncClient *client, void *data, size_t len) {
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPDescription(): Begin\n");
+  (void) data;
+  (void) len;
+
+	DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPDescription(): Handling /description.xml request\n");
 
 	IPAddress ip = WiFi.localIP();
     String mac = WiFi.macAddress();
@@ -161,8 +162,8 @@ void fauxmoESP::_onTCPDescription(AsyncClient *client, void *data, size_t len) {
 }
 
 void fauxmoESP::_onTCPList(AsyncClient *client, void *data, size_t len) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPList(): Begin\n");
-	DEBUG_MSG_FAUXMO("[FAUXMO] Handling list request\n");
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPList(): Begin\n");
+	DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPList(): Handling list request\n");
 
 	char * p = (char *) data;
 	p[len] = 0;
@@ -193,14 +194,14 @@ void fauxmoESP::_onTCPList(AsyncClient *client, void *data, size_t len) {
 }
 
 void fauxmoESP::_onTCPControl(AsyncClient *client, void *data, size_t len) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPControl(): Begin\n");
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPControl(): Begin\n");
 	char * p = (char *) data;
 	p[len] = 0;
 	String request = String(p);
 
 	// "devicetype" request
 	if (request.indexOf("devicetype") > 0) {
-		DEBUG_MSG_FAUXMO("[FAUXMO] Handling devicetype request\n");
+		DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPControl(): Handling devicetype request\n");
 		_sendTCPResponse(client, "200 OK", (char *) "[{\"success\":{\"username\": \"2WLEDHardQrI3WHYTHoMcXHgEspsM8ZZRpSKtBQr\"}}]", "application/json");
 		return;
 	}
@@ -208,7 +209,7 @@ void fauxmoESP::_onTCPControl(AsyncClient *client, void *data, size_t len) {
 	// "state" request
 	if (request.indexOf("state") > 0) {
 
-		DEBUG_MSG_FAUXMO("[FAUXMO] Handling state request\n");
+		DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPControl(): Handling state request\n");
 
 		// Get the index
 		int pos = request.indexOf("lights");
@@ -250,13 +251,14 @@ void fauxmoESP::_onTCPControl(AsyncClient *client, void *data, size_t len) {
 
 
 void fauxmoESP::_onTCPData(AsyncClient *client, void *data, size_t len) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPData(): Begin\n");
-    if (!_enabled) return;
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPData(): Begin\n");
+	if(BECK_DEBUG) Serial << LOG0 << "fauxmoESP::_onTCPData(): Begin" << endl;
+  if (!_enabled) return;
 
 	#if DEBUG_FAUXMO_VERBOSE
     	char * p = (char *) data;
     	p[len] = 0;
-		DEBUG_MSG_FAUXMO("[FAUXMO] TCP request\n%s\n", p);
+		DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPData(): TCP request\n%s\n", p);
 	#endif
 
     {
@@ -286,7 +288,7 @@ void fauxmoESP::_onTCPData(AsyncClient *client, void *data, size_t len) {
 }
 
 void fauxmoESP::_onTCPClient(AsyncClient *client) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPClient(): Begin\n");
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPClient(): Begin\n");
 	if (_enabled) {
 	    for (unsigned char i = 0; i < TCP_MAX_CLIENTS; i++) {
 
@@ -303,26 +305,26 @@ void fauxmoESP::_onTCPClient(AsyncClient *client) {
 	                _tcpClients[i]->free();
 	                _tcpClients[i] = NULL;
 	                delete c;
-	                DEBUG_MSG_FAUXMO("[FAUXMO] Client #%d disconnected\n", i);
+	                DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPClient(): Client #%d disconnected\n", i);
 	            }, 0);
 
 	            client->onError([i](void *s, AsyncClient *c, int8_t error) {
-	                DEBUG_MSG_FAUXMO("[FAUXMO] Error %s (%d) on client #%d\n", c->errorToString(error), error, i);
+	                DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPClient(): Error %s (%d) on client #%d\n", c->errorToString(error), error, i);
 	            }, 0);
 
 	            client->onTimeout([i](void *s, AsyncClient *c, uint32_t time) {
-	                DEBUG_MSG_FAUXMO("[FAUXMO] Timeout on client #%d at %i\n", i, time);
+	                DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPClient(): Timeout on client #%d at %i\n", i, time);
 	                c->close();
 	            }, 0);
 
-	            DEBUG_MSG_FAUXMO("[FAUXMO] Client #%d connected\n", i);
+	            DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPClient(): Client #%d connected\n", i);
 	            return;
 	        }
 	    }
-		DEBUG_MSG_FAUXMO("[FAUXMO] Rejecting - Too many connections\n");
+		DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPClient(): Rejecting - Too many connections\n");
 	}	//if(_enabled)
 	else {
-		DEBUG_MSG_FAUXMO("[FAUXMO] Rejecting - Disabled\n");
+		DEBUG_MSG_FAUXMO("[FAUXMO] _onTCPClient(): Rejecting - Disabled\n");
 	}	//if(_enabled)else
 	client->onDisconnect([](void *s, AsyncClient *c) {
 											 c->free();
@@ -336,9 +338,10 @@ void fauxmoESP::_onTCPClient(AsyncClient *client) {
 // Devices
 // -----------------------------------------------------------------------------
 unsigned char fauxmoESP::addDevice(const char * device_name) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::addDevice(): Begin\n");
-    fauxmoesp_device_t device;
-    unsigned int device_id = _devices.size();
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::addDevice(): Begin\n");
+	if(BECK_DEBUG) Serial << LOG0 << "fauxmoESP::addDevice(): Begin" << endl;
+  fauxmoesp_device_t 		device;
+  unsigned int 					device_id 	= _devices.size();
 
     // init properties
     device.name = strdup(device_name);
@@ -355,19 +358,20 @@ unsigned char fauxmoESP::addDevice(const char * device_name) {
 
 
 bool fauxmoESP::renameDevice(unsigned char id, const char * device_name) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::renameDevice(): Begin\n");
-    if (0 <= id && id <= _devices.size()) {
-        free(_devices[id].name);
-        _devices[id].name = strdup(device_name);
-        DEBUG_MSG_FAUXMO("[FAUXMO] Device #%d renamed to '%s'\n", id, device_name);
-        return true;
-    }
-    return false;
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::renameDevice(): Begin\n");
+	if (0 <= id && id <= _devices.size()) {
+		free(_devices[id].name);
+		_devices[id].name = strdup(device_name);
+		DEBUG_MSG_FAUXMO("[FAUXMO] renameDevice(): Device #%d renamed to '%s'\n", id, device_name);
+		return true;
+	}
+	return false;
 }	//renameDevice
 
 
 char * fauxmoESP::getDeviceName(unsigned char id, char * device_name, size_t len) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::getDeviceName(): Begin\n");
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::getDeviceName(): Begin\n");
+	if(BECK_DEBUG) Serial << LOG0 << "fauxmoESP::getDeviceName(): Begin" << endl;
     if ((0 <= id) && (id <= _devices.size()) && (device_name != NULL)) {
         strncpy(device_name, _devices[id].name, len);
     }
@@ -385,13 +389,13 @@ void fauxmoESP::handle() {
 
 void fauxmoESP::enable(bool enable) {
 	//if(BECK_DEBUG) Serial.printf("fauxmoESP::enable(): Begin\n");
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::enable(): %s\n", enable ? "Enable" : "Disable");
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::enable(): %s\n", enable ? "Enable" : "Disable");
 	if (enable == _enabled) return;
     _enabled = enable;
 	if (_enabled) {
-		DEBUG_MSG_FAUXMO("[FAUXMO] Enabled\n");
+		DEBUG_MSG_FAUXMO("[FAUXMO] enable(): Enabled\n");
 	} else {
-		DEBUG_MSG_FAUXMO("[FAUXMO] Disabled\n");
+		DEBUG_MSG_FAUXMO("[FAUXMO] enable(): Disabled\n");
 	}
 
     if (_enabled){
@@ -411,7 +415,7 @@ void fauxmoESP::enable(bool enable) {
         #else
             _udp.beginMulticast(WiFi.localIP(), UDP_MULTICAST_IP, UDP_MULTICAST_PORT);
         #endif
-        DEBUG_MSG_FAUXMO("[FAUXMO] UDP server started\n");
+        DEBUG_MSG_FAUXMO("[FAUXMO] enable(): UDP server started\n");
 	}
     return;
 }	//enable
