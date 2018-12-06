@@ -69,14 +69,14 @@ void fauxmoESP::_sendUDPResponse() {
 void fauxmoESP::_handleUDP() {
 	int len = _udp.parsePacket();
     if (len > 0) {
-		unsigned char data[len+1];
+    		unsigned char data[len+1];
         _udp.read(data, len);
         data[len] = 0;
 
 		#if DEBUG_FAUXMO_VERBOSE
 			DEBUG_MSG_FAUXMO("[FAUXMO] UDP packet received\n%s", (const char *) data);
 		#endif
-			if(BECK_DEBUG) Serial.printf("fauxmoESP::_handleUDP(): UDP packet received\n|%s|\n", (const char *) data);
+			//if(BECK_DEBUG) Serial.printf("fauxmoESP::_handleUDP(): UDP packet received\n|%s|\n", (const char *) data);
 
 			String request = (const char *) data;
         if (request.indexOf("M-SEARCH") >= 0) {
@@ -84,15 +84,15 @@ void fauxmoESP::_handleUDP() {
                 _sendUDPResponse();
             }
         }
-    }
-}
+    }	//if(len>0)
+    return;
+}	//_handleUDP
 
 
 // -----------------------------------------------------------------------------
 // TCP
 // -----------------------------------------------------------------------------
 void fauxmoESP::_sendTCPResponse(AsyncClient *client, const char * code, char * body, const char * mime) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_sendTCPResponse(): Begin\n");
 	char headers[strlen_P(FAUXMO_TCP_HEADERS) + 32];
 	snprintf_P(
 		headers, sizeof(headers),
@@ -103,11 +103,14 @@ void fauxmoESP::_sendTCPResponse(AsyncClient *client, const char * code, char * 
 	#if DEBUG_FAUXMO_VERBOSE
 		DEBUG_MSG_FAUXMO("[FAUXMO] Response:\n%s%s\n", headers, body);
 	#endif
-
+	if(BECK_DEBUG){
+		Serial.printf("fauxmoESP::_sendTCPResponse():  Response |Header| |Body|:\n|%s|\n|%s|\n", headers, body);
+	}	//if(BECK_DEBUG)
 	client->write(headers);
 	client->write(body);
+	return;
+}	//_sendTCPResponse
 
-}
 
 String fauxmoESP::_deviceJson(unsigned char id) {
 	if(BECK_DEBUG) Serial.printf("fauxmoESP::_deviceJson(): Begin\n");
