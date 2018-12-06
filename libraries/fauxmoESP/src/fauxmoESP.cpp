@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "fauxmoESP.h"
 
 #define BECK_DEBUG		true
+#define DEBUG_MSG_FAUXMO Serial.printf
 // -----------------------------------------------------------------------------
 // UDP
 // -----------------------------------------------------------------------------
@@ -36,7 +37,7 @@ THE SOFTWARE.
 void fauxmoESP::_sendUDPResponse() {
 
 	DEBUG_MSG_FAUXMO("[FAUXMO] Responding to M-SEARCH request\n");
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::_sendUDPResponse(): Begin\n\n");
+	if(BECK_DEBUG) Serial.printf("fauxmoESP::_sendUDPResponse(): Begin\n");
 
 	IPAddress ip = WiFi.localIP();
     String mac = WiFi.macAddress();
@@ -189,8 +190,6 @@ void fauxmoESP::_onTCPList(AsyncClient *client, void *data, size_t len) {
 	}
 
 	_sendTCPResponse(client, "200 OK", (char *) response.c_str(), "application/json");
-
-
 }
 
 void fauxmoESP::_onTCPControl(AsyncClient *client, void *data, size_t len) {
@@ -289,13 +288,10 @@ void fauxmoESP::_onTCPData(AsyncClient *client, void *data, size_t len) {
 void fauxmoESP::_onTCPClient(AsyncClient *client) {
 	if(BECK_DEBUG) Serial.printf("fauxmoESP::_onTCPClient(): Begin\n");
 	if (_enabled) {
-
 	    for (unsigned char i = 0; i < TCP_MAX_CLIENTS; i++) {
 
 	        if (!_tcpClients[i] || !_tcpClients[i]->connected()) {
-
 	            _tcpClients[i] = client;
-
 	            client->onAck([i](void *s, AsyncClient *c, size_t len, uint32_t time) {
 	            }, 0);
 
@@ -321,29 +317,24 @@ void fauxmoESP::_onTCPClient(AsyncClient *client) {
 
 	            DEBUG_MSG_FAUXMO("[FAUXMO] Client #%d connected\n", i);
 	            return;
-
 	        }
-
 	    }
-
 		DEBUG_MSG_FAUXMO("[FAUXMO] Rejecting - Too many connections\n");
-
-	} else {
+	}	//if(_enabled)
+	else {
 		DEBUG_MSG_FAUXMO("[FAUXMO] Rejecting - Disabled\n");
-	}
-
-    client->onDisconnect([](void *s, AsyncClient *c) {
-        c->free();
-        delete c;
-    });
+	}	//if(_enabled)else
+	client->onDisconnect([](void *s, AsyncClient *c) {
+											 c->free();
+											 delete c;
+											 });
     client->close(true);
+}	//_onTCPClient
 
-}
 
 // -----------------------------------------------------------------------------
 // Devices
 // -----------------------------------------------------------------------------
-
 unsigned char fauxmoESP::addDevice(const char * device_name) {
 	if(BECK_DEBUG) Serial.printf("fauxmoESP::addDevice(): Begin\n");
     fauxmoesp_device_t device;
@@ -360,8 +351,8 @@ unsigned char fauxmoESP::addDevice(const char * device_name) {
     DEBUG_MSG_FAUXMO("[FAUXMO] Device '%s' added as #%d\n", device_name, device_id);
 
     return device_id;
+}	//addDevice
 
-}
 
 bool fauxmoESP::renameDevice(unsigned char id, const char * device_name) {
 	if(BECK_DEBUG) Serial.printf("fauxmoESP::renameDevice(): Begin\n");
@@ -372,7 +363,8 @@ bool fauxmoESP::renameDevice(unsigned char id, const char * device_name) {
         return true;
     }
     return false;
-}
+}	//renameDevice
+
 
 char * fauxmoESP::getDeviceName(unsigned char id, char * device_name, size_t len) {
 	if(BECK_DEBUG) Serial.printf("fauxmoESP::getDeviceName(): Begin\n");
@@ -380,18 +372,20 @@ char * fauxmoESP::getDeviceName(unsigned char id, char * device_name, size_t len
         strncpy(device_name, _devices[id].name, len);
     }
     return device_name;
-}
+}	//getDeviceName
+
 
 // -----------------------------------------------------------------------------
 // Public API
 // -----------------------------------------------------------------------------
-
 void fauxmoESP::handle() {
     if (_enabled) _handleUDP();
-}
+}	//handle
+
 
 void fauxmoESP::enable(bool enable) {
-	if(BECK_DEBUG) Serial.printf("fauxmoESP::enable(): Begin\n");
+	//if(BECK_DEBUG) Serial.printf("fauxmoESP::enable(): Begin\n");
+	if(BECK_DEBUG) Serial.printf("fauxmoESP::enable(): %s\n", enable ? "Enable" : "Disable");
 	if (enable == _enabled) return;
     _enabled = enable;
 	if (_enabled) {
@@ -400,16 +394,16 @@ void fauxmoESP::enable(bool enable) {
 		DEBUG_MSG_FAUXMO("[FAUXMO] Disabled\n");
 	}
 
-    if (_enabled) {
-
-		// Start TCP server
-		if (NULL == _server) {
-			_server = new AsyncServer(TCP_PORT);
+    if (_enabled){
+    	// Start TCP server
+    	//if (NULL == _server) {
+    	if (_server == NULL) {
+    		_server = new AsyncServer(TCP_PORT);
 	    	_server->onClient([this](void *s, AsyncClient* c) {
 	        	_onTCPClient(c);
 	    	}, 0);
-		}
-	    _server->begin();
+		}	//if server==NULL)
+	  _server->begin();
 
 		// UDP setup
 		#ifdef ESP32
