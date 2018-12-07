@@ -1,6 +1,3 @@
-const char szSketchName[]  = "BeckE8266_NTPClientESP8266.ino";
-const char szFileDate[]    = "Lenny 12/06/18b";
-
 /*
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
 
@@ -19,48 +16,53 @@ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABI
 FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.IN NO EVENT SHALL <COPYRIGHT HOLDER> OR
 CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
 CONSEQUENTIAL DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-	ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
-		NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-	ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-	The views and conclusions contained in the software and documentation are those of the
-	authors and should not be interpreted as representing official policies, either expressed
-	or implied, of German Martin
+The views and conclusions contained in the software and documentation are those of the
+authors and should not be interpreted as representing official policies, either expressed
+or implied, of German Martin
 */
-
 /*
- Name:		NtpClient.ino
+ Name:		NtpClientAvr.ino
  Created:	20/08/2016
  Author:	gmag11@gmail.com
  Editor:	http://www.visualmicro.com
 */
 
-#include <BeckNTPLib.h>
+#include <TimeLib.h>
+#include <NtpClientLib.h>
+#include <SPI.h>
+#include <EthernetUdp.h>
+#include <Ethernet.h>
+#include <Dns.h>
+#include <Dhcp.h>
 
-#ifndef WIFI_CONFIG_H
-#define YOUR_WIFI_SSID "Aspot24"
-#define YOUR_WIFI_PASSWD "Qazqaz11"
-#endif // !WIFI_CONFIG_H
+// Enter a MAC address for your controller below.
+// Newer Ethernet shields have a MAC address printed on a sticker on the shield
+byte mac[] = {
+	0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02
+};
+
+EthernetClient client;
 
 void setup()
-{	
-	static WiFiEventHandler e1, e2;
-
+{
 	Serial.begin(115200);
-  Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  Serial << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
-	WiFi.mode(WIFI_STA);
-	WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
-	pinMode(2, OUTPUT);
-	digitalWrite(2, HIGH);
-
-	NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
-		if (ntpEvent) {
+	if (Ethernet.begin(mac) == 0) {
+		Serial.println("Failed to configure Ethernet using DHCP");
+		// no point in carrying on, so do nothing forevermore:
+		for (;;)
+			;
+	}
+	NTP.onNTPSyncEvent([](NTPSyncEvent_t error) {
+		if (error) {
 			Serial.print("Time Sync error: ");
-			if (ntpEvent == noResponse)
+			if (error == noResponse)
 				Serial.println("NTP server not reachable");
-			else if (ntpEvent == invalidAddress)
+			else if (error == invalidAddress)
 				Serial.println("Invalid NTP server address");
 		}
 		else {
@@ -68,12 +70,8 @@ void setup()
 			Serial.println(NTP.getTimeDateString(NTP.getLastNTPSync()));
 		}
 	});
-	WiFi.onEvent([](WiFiEvent_t e) {
-		Serial.printf("Event wifi -----> %d\n", e);
-	});
-	e1 = WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
-	e2 = WiFi.onStationModeDisconnected(onSTADisconnected);
-
+	NTP.begin("es.pool.ntp.org", 1, true);
+	NTP.setInterval(63);
 }
 
 void loop()
@@ -85,15 +83,14 @@ void loop()
 		//Serial.println(millis() - last);
 		last = millis();
 		Serial.print(i); Serial.print(" ");
-		Serial.print(NTP.getTimeDateString()); Serial.print(" ");
+		Serial.print(NTP.getTimeDateString()); Serial.print(". ");
 		Serial.print(NTP.isSummerTime() ? "Summer Time. " : "Winter Time. ");
-		Serial.print("WiFi is ");
-		Serial.print(WiFi.isConnected() ? "connected" : "not connected"); Serial.print(". ");
-		Serial.print("Uptime: ");
+				Serial.print("Uptime: ");
 		Serial.print(NTP.getUptimeString()); Serial.print(" since ");
 		Serial.println(NTP.getTimeDateString(NTP.getFirstSync()).c_str());
 
 		i++;
 	}
 	delay(0);
+	Ethernet.maintain(); // Check DHCP for renewal
 }

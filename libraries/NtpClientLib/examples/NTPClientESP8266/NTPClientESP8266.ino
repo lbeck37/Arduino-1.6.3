@@ -1,6 +1,3 @@
-const char szSketchName[]  = "BeckE8266_NTPClientESP8266.ino";
-const char szFileDate[]    = "Lenny 12/06/18b";
-
 /*
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
 
@@ -36,20 +33,34 @@ CONSEQUENTIAL DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE G
  Editor:	http://www.visualmicro.com
 */
 
-#include <BeckNTPLib.h>
+#include <TimeLib.h>
+#include "WifiConfig.h"
+#include <NtpClientLib.h>
+#include <ESP8266WiFi.h>
 
 #ifndef WIFI_CONFIG_H
-#define YOUR_WIFI_SSID "Aspot24"
-#define YOUR_WIFI_PASSWD "Qazqaz11"
+#define YOUR_WIFI_SSID "YOUR_WIFI_SSID"
+#define YOUR_WIFI_PASSWD "YOUR_WIFI_PASSWD"
 #endif // !WIFI_CONFIG_H
+
+void onSTAGotIP(WiFiEventStationModeGotIP ipInfo) {
+	Serial.printf("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
+	NTP.begin("pool.ntp.org", 1, true);
+	NTP.setInterval(63);
+	digitalWrite(2, LOW);
+}
+
+void onSTADisconnected(WiFiEventStationModeDisconnected event_info) {
+	Serial.printf("Disconnected from SSID: %s\n", event_info.ssid.c_str());
+	Serial.printf("Reason: %d\n", event_info.reason);
+	digitalWrite(2, HIGH);
+}
 
 void setup()
 {	
 	static WiFiEventHandler e1, e2;
 
 	Serial.begin(115200);
-  Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  Serial << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
 	pinMode(2, OUTPUT);
