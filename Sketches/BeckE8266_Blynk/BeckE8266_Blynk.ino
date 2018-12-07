@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/06/18";
+const char szFileDate[]    = "Lenny 12/06/18p";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -10,10 +10,10 @@ const char szFileDate[]    = "Lenny 12/06/18";
 //#define DEV_LOCAL
 #define THERMO_DEV
 
-#define OTA_SERVER   false     //Enable and run OTA server
+#define OTA_SERVER   true     //Enable and run OTA server
 
 #if 0
-  #define SKIP_BLYNK      true
+  #define SKIP_BLYNK    true
   #define DEBUG         true
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
@@ -422,12 +422,14 @@ void SetupAlexa(){
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
 	char szLogString[100];
-  sprintf(szLogString, "DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
+	Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
 					ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
-	LogToBoth(szLogString);
+	//LogToBoth(szLogString);
 	SetAlexaSwitch(bState);
+	Serial << "DoAlexaComman(): Return" << endl;
   return;
 } //DoAlexaCommand
+
 
 void SetupI2C(){
   Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;

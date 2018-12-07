@@ -29,10 +29,10 @@ THE SOFTWARE.
 #include "fauxmoESP.h"
 
 #include <BeckMiniLib.h>
-#define BECK_DEBUG						true
+#define BECK_DEBUG						false
 //#define DEBUG_MSG_FAUXMO 			Serial.printf
-#define DEBUG_MSG_FAUXMO 			Serial << LOG0 << " "; Serial.printf
-#define DEBUG_FAUXMO_VERBOSE	true
+//#define DEBUG_MSG_FAUXMO 			Serial << LOG0 << " "; Serial.printf
+#define DEBUG_FAUXMO_VERBOSE	false
 // -----------------------------------------------------------------------------
 // UDP
 // -----------------------------------------------------------------------------
