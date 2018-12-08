@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 12/07/18f";
+const char szFileDate[]    = "Lenny 12/07/18g";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -31,6 +31,9 @@ void setup(){
   WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
   pinMode(2, OUTPUT);
   digitalWrite(2, HIGH);
+
+  int		wTimeZone= -7;
+  NTP.setTimeZone(wTimeZone);
 
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
     if (ntpEvent) {
