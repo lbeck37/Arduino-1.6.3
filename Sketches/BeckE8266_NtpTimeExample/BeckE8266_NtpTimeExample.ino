@@ -37,6 +37,10 @@ CONSEQUENTIAL DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE G
 */
 
 #include <BeckNtpLib.h>
+#include <NtpClientLib.h>		//Just for Eclipse resolving
+#include <ESP8266WiFi.h>		//Just for Eclipse resolving
+#include <Streaming.h>			//Just for Eclipse resolving
+#include <BeckMiniLib.h>
 
 #ifndef WIFI_CONFIG_H
 #define YOUR_WIFI_SSID "Aspot24"

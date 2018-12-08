@@ -1,4 +1,6 @@
 #include <BeckNTPLib.h>
+#include <NtpClientLib.h>		//Just for Eclipse resolving
+#include <ESP8266WiFi.h>		//Just for Eclipse resolving
 
 String 	szNtpServer 			= "pool.ntp.org";
 int			wTimeOffset				= 1;
