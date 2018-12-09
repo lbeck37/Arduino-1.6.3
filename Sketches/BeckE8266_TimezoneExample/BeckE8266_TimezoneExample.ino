@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_TimezoneExample.ino";
-const char szFileDate[]    = "Lenny 12/08/18d";
+const char szFileDate[]    = "Lenny 12/08/18m";
 /**
    Arduino ESP8266 UDP NTP Client
    v. 1.1
@@ -30,6 +30,9 @@ char ssid[] = "Aspot24";  //  your network SSID (name)
 char pass[] = "Qazqaz11";       // your network password
 #endif
 
+//Unix time starts on Jan 1 1970. In seconds, that's 2,208,988,800
+const time_t lSeventyYears = 2208988800UL;
+
 unsigned int localPort = 2390;      // local port to listen for UDP packets
 
 IPAddress timeServerIP; // time.nist.gov NTP server address
@@ -58,12 +61,12 @@ TimeChangeRule usEST = {"EST", First , Sun, Nov, 2, -300};   //Eastern Standard 
 Timezone usET(usEDT, usEST);
 
 //US Mountain Time Zone (Boise)
-TimeChangeRule usMDT = {"MDT", Second, Sun, Mar, 2, -360};  //Eastern Daylight Time = UTC - 6 hours
-TimeChangeRule usMST = {"MST", First , Sun, Nov, 2, -420};   //Eastern Standard Time = UTC - 7 hours
-Timezone usMT(usMDT, usMST);
+TimeChangeRule oMDT_Rule = {"MDT", Second, Sun, Mar, 2, -360};  //Eastern Daylight Time = UTC - 6 hours
+TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -420};   //Eastern Standard Time = UTC - 7 hours
+Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
 
-void setup()
-{
+
+void setup(){
   Serial.begin(115200);
   delay(500);
   Serial.printf("\nsetup(): Sketch: %s, %s\n", szSketchName, szFileDate);
@@ -88,11 +91,11 @@ void setup()
   udp.begin(localPort);
   Serial.print("Local port: ");
   Serial.println(udp.localPort());
-}
+}	//setup
 
-void loop()
-{
-  //get a random server from the pool
+
+void loop(){
+  //get a server from the pool
   WiFi.hostByName(ntpServerName, timeServerIP);
 
   sendNTPpacket(timeServerIP); // send an NTP packet to a time server
@@ -111,43 +114,35 @@ void loop()
 
     //the timestamp starts at byte 40 of the received packet and is four bytes,
     // or two words, long. First, esxtract the two words:
-
     unsigned long highWord = word(packetBuffer[40], packetBuffer[41]);
     unsigned long lowWord = word(packetBuffer[42], packetBuffer[43]);
     // combine the four bytes (two words) into a long integer
     // this is NTP time (seconds since Jan 1 1900):
-    unsigned long secsSince1900 = highWord << 16 | lowWord;
-    Serial.print("Seconds since Jan 1 1900 = " );
-    Serial.println(secsSince1900);
 
-    // now convert NTP time into everyday time:
-    Serial.print("Unix time = ");
-    // Unix time starts on Jan 1 1970. In seconds, that's 2208988800:
-    const unsigned long seventyYears = 2208988800UL;
-    // subtract seventy years:
-    unsigned long epoch = secsSince1900 - seventyYears;
-    // print Unix time:
-    Serial.println(epoch);
+    //unsigned long secsSince1900 = highWord << 16 | lowWord;
+    time_t lSecsSince1900 = highWord << 16 | lowWord;
 
-    TimeChangeRule *tcr;
-    time_t utc;
-    utc = epoch;
+    //Subtract seventy years:
+    time_t 	lUTC_Secs= (lSecsSince1900 - lSeventyYears);
 
-    printTime(utc, "UTC", "Universal Coordinated Time");
-    printTime(CE.toLocal(utc, &tcr), tcr -> abbrev, "Bratislava");
-    printTime(usET.toLocal(utc, &tcr), tcr -> abbrev, "New York");
-    printTime(usMT.toLocal(utc, &tcr), tcr -> abbrev, "Boise");
-    printTime(ausET.toLocal(utc, &tcr), tcr -> abbrev, "Sydney");
+    TimeChangeRule *pTimeChangeRule;
+
+    printTime(lUTC_Secs, "UTC", "Universal Coordinated Time");
+    time_t	lBoiseTime= oMT_Timezone.toLocal (lUTC_Secs, &pTimeChangeRule);
+    printTime(lBoiseTime, pTimeChangeRule->abbrev, "Boise");
+
+    printTime(CE.toLocal   (lUTC_Secs, &pTimeChangeRule), pTimeChangeRule->abbrev, "Bratislava");
+    printTime(usET.toLocal (lUTC_Secs, &pTimeChangeRule), pTimeChangeRule->abbrev, "New York");
+    printTime(ausET.toLocal(lUTC_Secs, &pTimeChangeRule), pTimeChangeRule->abbrev, "Sydney");
     Serial.println("");
-
   }
   // wait ten seconds before asking for the time again
   delay(10000);
-}
+}	//loop
+
 
 // send an NTP request to the time server at the given address
-unsigned long sendNTPpacket(IPAddress& address)
-{
+unsigned long sendNTPpacket(IPAddress& address){
   Serial.println("sending NTP packet...");
   // set all bytes in the buffer to 0
   memset(packetBuffer, 0, NTP_PACKET_SIZE);
@@ -179,18 +174,10 @@ void printTime(time_t t, char *tz, char *loc)
   Serial.print(' ');
   Serial.print(dayShortStr(weekday(t)));
   Serial.print(' ');
-
-/*
-  sPrintI00(day(t));
-  Serial.print(' ');
-  Serial.print(monthShortStr(month(t)));
-  Serial.print(' ');
-*/
-
   Serial.print(monthShortStr( month(t) ));
   Serial.print(' ');
-  sPrintI00( day(t) );
-  //Serial.print(', ');
+  sPrintI00(day(t));
+  //Serial.print(', ');	//I guess a single quote is not the same as a double (' != ")
   Serial.print(", ");
 
   Serial.print(year(t));
