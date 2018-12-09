@@ -25,7 +25,7 @@ void setup(){
   static WiFiEventHandler 	e2;
 
   Serial.begin(115200);
-  Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
+  //Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   WiFi.mode(WIFI_STA);
   WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
