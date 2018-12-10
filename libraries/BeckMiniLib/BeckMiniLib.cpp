@@ -1,4 +1,4 @@
-//BeckMiniLib.cpp, Dec 16, 2017, Lenny-a
+//BeckMiniLib.cpp, Beck Dec 9, 2018
 #include <BeckMiniLib.h>
 #include <BeckNtpLib.h>
 
@@ -51,12 +51,12 @@ String szAddZeros(int sValue, int sNumDigits){
 } //szAddZeros
 
 
-String szLogLineHeader(long lLineCount){
+String szLogLineHeader(void){
   String szHeader= "";
-  szHeader += lLineCount;
+  szHeader += ++lLineCount;
   szHeader += " ";
-  szHeader += szGetTime(millis());
-  //szHeader += szFormatTimeString(lBoiseSec);
+  //szHeader += szGetTime(millis());
+  szHeader += szFormatTimeString();
   return szHeader;
 } //szLogLineHeader
 //Last line.

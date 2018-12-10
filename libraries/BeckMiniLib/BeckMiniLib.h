@@ -1,9 +1,9 @@
-//BeckMiniLib.h, Dec 6, 2018, Lenny
+//BeckMiniLib.h, Dec 9, 2018, Lenny
 #pragma once
 #include <Streaming.h>
 #include <Time.h>
 
-#define LOG0    szLogLineHeader(++lLineCount)
+#define LOG0    szLogLineHeader()
 
 extern long         lLineCount;
 //extern const char   szVersionDate[];
@@ -18,5 +18,5 @@ static const long   lMsecPerSec           =     1000;
 
 String    szGetTime         (long lMsec);
 String    szAddZeros        (int sValue, int sNumDigits);
-String    szLogLineHeader   (long lLineCount);
+String    szLogLineHeader   (void);
 //Last line.

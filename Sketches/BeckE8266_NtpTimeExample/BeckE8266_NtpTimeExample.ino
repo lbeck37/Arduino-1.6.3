@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 12/09/18e";
+const char szFileDate[]    = "Lenny 12/09/18g";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -15,17 +15,22 @@ const char szFileDate[]    = "Lenny 12/09/18e";
 #include <Timezone.h>
 #include <stdio.h>
 #include <time.h>
+#include <BeckOTALib.h>
 
 #ifndef WIFI_CONFIG_H
 #define YOUR_WIFI_SSID "Aspot24"
 #define YOUR_WIFI_PASSWD "Qazqaz11"
 #endif // !WIFI_CONFIG_H
 
+static const char   acHostname[]= "BeckNtpExample";
+
+/*
 //US Mountain Time Zone (Boise)
 TimeChangeRule oMDT_Rule = {"MDT", Second, Sun, Mar, 2, -420};	//Mountain Daylight Time = UTC - 7 hours
 TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -480};  //Mountain Standard Time = UTC - 8 hours
 
 Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
+*/
 
 void setup(){
   static WiFiEventHandler 	e1;
@@ -36,6 +41,7 @@ void setup(){
   WiFi.mode(WIFI_STA);
   WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
 
+  SetupOTAServer(acHostname);
   SetupNTP();
 
   WiFi.onEvent([](WiFiEvent_t e) {
@@ -51,6 +57,7 @@ void loop(){
   static int i 		= 0;
   static int last = 0;
 
+	HandleOTAServer();
   if ((millis() - last) > 5100) {
     //Serial.println(millis() - last);
     last = millis();
@@ -65,13 +72,13 @@ void loop(){
     i++;
 
     time_t	lCurrentSec= now();
-    Serial << LOG0 << "loop(): Raw: " << szFormatDateString(lCurrentSec) << ", "
-    		<< szFormatTimeString(lCurrentSec) << endl;
+    Serial << LOG0 << "loop(): Raw: " << szFormatDateString() << ", "
+    		<< szFormatTimeString() << endl;
 
 		TimeChangeRule *pTimeChangeRule;
 		time_t		lBoiseSec= oMT_Timezone.toLocal (lCurrentSec, &pTimeChangeRule);
-    Serial << LOG0 << "loop(): Corrected: " << szFormatDateString(lBoiseSec) << ", "
-    		<< szFormatTimeString(lBoiseSec) << endl;
+    Serial << LOG0 << "loop(): Corrected: " << szFormatDateString() << ", "
+    		<< szFormatTimeString() << endl;
 
 }	//if((millis()-last)>5100)
   delay(0);

@@ -1,12 +1,12 @@
-//Beck 12/0/18 BeckOTALib.cpp
+//BeckOTALib.cpp, Beck 12/0/18
 
 #include <BeckMiniLib.h>
 #include <BeckOTALib.h>
 
-const char*     		acServerIndex 				= "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
-ESP8266WebServer  	oESP8266WebServer(80);
-unsigned long  			ulUpdateTimeoutMsec   = 0;
-bool         				bUpdating             = false;   //Turns off Blynk.
+const char*         acServerIndex         = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+unsigned long       ulUpdateTimeoutMsec   = 0;
+bool                bUpdating             = false;   //Turns off Blynk.
+ESP8266WebServer    oESP8266WebServer(80);
 
 
 void HandleOTAServer(void){
@@ -17,23 +17,26 @@ void HandleOTAServer(void){
 
 
 void SetupOTAServer(const char *acHostname) {
-    MDNS.begin(acHostname);
-    oESP8266WebServer.on("/", HTTP_GET, [](){
-      oESP8266WebServer.sendHeader("Connection", "close");
-      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-      oESP8266WebServer.send(200, "text/html", acServerIndex);
-    });
-    oESP8266WebServer.on("/update", HTTP_POST, []() {
-      oESP8266WebServer.sendHeader("Connection", "close");
-      oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-      oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
-      ESP.restart();
-    },[](){
-    	HandleOTAUpdate();
-    });
-    oESP8266WebServer.begin();
-    MDNS.addService("http", "tcp", 80);
-    Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
+  Serial << LOG0 << "SetupOTAServer(): acHostname= " << acHostname << endl;
+	MDNS.begin(acHostname);
+	oESP8266WebServer.on("/", HTTP_GET, [](){
+		oESP8266WebServer.sendHeader("Connection", "close");
+		oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
+		oESP8266WebServer.send(200, "text/html", acServerIndex);
+	});
+
+	oESP8266WebServer.on("/update", HTTP_POST, []() {
+		oESP8266WebServer.sendHeader("Connection", "close");
+		oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
+		oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
+		ESP.restart();
+	},[](){
+		HandleOTAUpdate();
+	});
+
+	oESP8266WebServer.begin();
+	MDNS.addService("http", "tcp", 80);
+	Serial << LOG0 << " SetupServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
   return;
 } //SetupOTAServer
 
@@ -83,7 +86,7 @@ void HandleOTAUpdate() {
       Update.printError(Serial);
     } //if(Update.end(true))else
     Serial.setDebugOutput(false);
-#endif	//false
+#endif  //false
   } //else if(upload.status==UPLOAD_FILE_END)
   yield();
   return;

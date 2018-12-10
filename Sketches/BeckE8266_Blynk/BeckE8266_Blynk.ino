@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/09/18p";
+const char szFileDate[]    = "Lenny 12/09/18z";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -16,10 +16,8 @@ const char szFileDate[]    = "Lenny 12/09/18p";
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
-#define OTA_SERVER   true     //Enable and run OTA server
-#define OTA_OLD_CODE   false     //Code moved to Beck
-
 #include <BeckMiniLib.h>
+#include <BeckNTPLib.h>
 #include <NtpClientLib.h>
 #include <Streaming.h>
 #include <Time.h>
@@ -239,6 +237,8 @@ void setup()
   Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   SetupWiFi();
+  SetupOTAServer(acHostname);
+  SetupNTP();
   SetupI2C();
   SetupAlexa();
   SetupDisplay();
@@ -291,7 +291,10 @@ void SetupWiFi(){
     Serial << LOG0 << "SetupWiFi(): WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
     //Serial.printf("\nHTTPUpdateServer ready! Open http://%s.local/update in your browser\n", host);
     Serial << LOG0 << "SetupWiFi(): IP address= " << WiFi.localIP() << endl;
+/*
     SetupOTAServer(acHostname);
+    SetupNTP();
+*/
   } //if(eWiFiStatus==WL_CONNECTED)
   else {
     //Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
@@ -553,7 +556,7 @@ void HandleThermostat(){
         sThermoTimesCount= 0;
       } //if(fDegF<fSetpointF)else
     } //if(bHeatOn)else
-    DebugHandleThermostat(fDegF);
+    LogThermostatData(fDegF);
   } //if(bThermoOn)
   else{
     String szLogString= " bThermoOn is false";
@@ -563,16 +566,12 @@ void HandleThermostat(){
 } //HandleThermostat
 
 
-void DebugHandleThermostat(float fDegF){
-/*
-  String szLogString= String(bHeatOn) + String(sThermoTimesCount) + " " +
-                String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
-*/
-  String szLogString= String(bHeatOn) + String(sThermoTimesCount) + " 37 " +
+void LogThermostatData(float fDegF){
+  String szLogString= " " + String(bHeatOn) + String(sThermoTimesCount) + " " +
                 String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
   LogToBoth(szLogString);
   return;
-} //DebugHandleThermostat
+} //LogThermostatData
 
 
 void DebugHandleBlynkLEDs(){
@@ -595,7 +594,6 @@ void DebugHandleBlynkLEDs(){
 
 void HandleBlynkLEDs(){
   String szLogString = "HandleBlynkLEDs()";
-  //LogToBoth(szLogString);
   //DebugHandleBlynkLEDs();
   //Only send data back to Blynk if state of LED has changed.
   //static int asSwitchLastState[]= {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
@@ -759,25 +757,6 @@ void SetSwitch(int sSwitch, int sSwitchState){
 } //SetSwitch
 
 
-/*
-String szGetTime(long lMsec){
-  String  szString;
-
-  int sDays    =    lMsec                                               / lMsecPerDay ;
-  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
-  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
-  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
-  int sMsec    =    lMsec % lMsecPerSec;
-  szString = String(sDays) + ":";
-  szString+= String(szAddZeros(sHours, 2)) + ":";
-  szString+= String(szAddZeros(sMinutes, 2)) + ":";
-  szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";     //Send with trailing blank to seperate from next field.
-  return szString;
-} //szGetTime
-*/
-
-
 void ScanForI2CDevices(void){
   byte ucError, ucAddress;
   int nDevices;
@@ -813,22 +792,6 @@ void ScanForI2CDevices(void){
  }  //if(nDevices==0)
   return;
 } //ScanForDevices
-
-
-/*
-//szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
-String szAddZeros(int sValue, int sNumDigits){
-  String szReturn;
-  if ((sNumDigits == 3) && (sValue < 100)){
-    szReturn= "0";
-  } //if((sNumDigits==3)&&(sValue<100)
-  if (sValue < 10){
-    szReturn += "0";
-  } //if(lValue<10)
-  szReturn += String(sValue);
-  return szReturn;
-} //szAddZeros
-*/
 
 
 // You can send commands from Terminal to your hardware. Just use
@@ -884,7 +847,7 @@ void LogToBoth(String szLogString, float fLogValue){
 
 
 void BlynkLogLine(String szString){
-  String szTermString= szLogLineHeader(lLineCount);
+  String szTermString= szLogLineHeader();
   szTermString += szString;
   WriteTerminalLine(szTermString);
   return;
@@ -892,7 +855,7 @@ void BlynkLogLine(String szString){
 
 
 void BlynkLogLine(String szString, String szLogValue){
-  String szTermString= szLogLineHeader(lLineCount);
+  String szTermString= szLogLineHeader();
   szTermString += szString;
   szTermString +=  " ";
   szTermString +=  szLogValue;
@@ -902,7 +865,7 @@ void BlynkLogLine(String szString, String szLogValue){
 
 
 void BlynkLogLine(String szString, int sValue){
-  String szTermString= szLogLineHeader(lLineCount);
+  String szTermString= szLogLineHeader();
   szTermString += szString;
   szTermString +=  " ";
   szTermString +=  sValue;
@@ -912,7 +875,7 @@ void BlynkLogLine(String szString, int sValue){
 
 
 void BlynkLogLine(String szString, float fValue){
-  String szTermString= szLogLineHeader(lLineCount);
+  String szTermString= szLogLineHeader();
   szTermString += szString;
   szTermString +=  fValue;
   WriteTerminalLine(szTermString);

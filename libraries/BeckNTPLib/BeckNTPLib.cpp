@@ -1,13 +1,27 @@
-//Beck 12/0/18 BeckNTPLib.cpp
+//BeckNTPLib.cpp, Beck 12/9/18
+#include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 #include <NtpClientLib.h>   //Just for Eclipse resolving
 #include <ESP8266WiFi.h>    //Just for Eclipse resolving
+#include <Streaming.h>
 
 String  szNtpServer       = "pool.ntp.org";
 int     wTimeOffset       = 1;
 bool    bDaylightSavings  = true;
 
+//US Mountain Time Zone (Boise)
+TimeChangeRule oMDT_Rule = {"MDT", Second, Sun, Mar, 2, -420};	//Mountain Daylight Time = UTC - 7 hours
+TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -480};  //Mountain Standard Time = UTC - 8 hours
+
+Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
+
+TimeChangeRule *pTimeChangeRule;
+
 void SetupNTP(){
+  static WiFiEventHandler 	oEventHandler1;
+  static WiFiEventHandler 	oEventHandler2;
+
+  Serial << LOG0 << "SetupNTP(): Setup NTP.onNTPSyncEvent" << endl;
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
     if (ntpEvent) {
       Serial.print("Time Sync error: ");
@@ -21,6 +35,17 @@ void SetupNTP(){
       Serial.println(NTP.getTimeDateString(NTP.getLastNTPSync()));
     }
   });
+
+  Serial << LOG0 << "SetupNTP(): Setup WiFi.onEvent" << endl;
+  WiFi.onEvent([](WiFiEvent_t e) {
+    Serial.printf("Event wifi -----> %d\n", e);
+  });
+
+  Serial << LOG0 << "SetupNTP(): Setup WiFi.onStationModeGotIP" << endl;
+  oEventHandler1= WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
+
+  Serial << LOG0 << "SetupNTP(): Setup WiFi.onStationModeDisconnected" << endl;
+  oEventHandler2= WiFi.onStationModeDisconnected(onSTADisconnected);
   return;
 } //SetupNTP
 
@@ -55,27 +80,47 @@ String szPrintDigits(int digits) {
 } //szPrintDigits
 
 
-String szFormatTimeString(time_t lCurrentTime) {
-    String szReturnString = "";
-    szReturnString += szPrintDigits(hour(lCurrentTime));
-    szReturnString += ":";
-    szReturnString += szPrintDigits(minute(lCurrentTime));
-    szReturnString += ":";
-    szReturnString += szPrintDigits(second(lCurrentTime));
+String szFormatTimeString(void) {
+	time_t		lBoiseTime= oMT_Timezone.toLocal (now(), &pTimeChangeRule);
 
-    return szReturnString;
+	String szReturnString = "";
+	szReturnString += szPrintDigits(hour(lBoiseTime));
+	szReturnString += ":";
+	szReturnString += szPrintDigits(minute(lBoiseTime));
+	szReturnString += ":";
+	szReturnString += szPrintDigits(second(lBoiseTime));
+	szReturnString += ":";
+	return szReturnString;
 } //szFormatTimeString
 
 
-String szFormatDateString(time_t lCurrentTime){
+String szFormatDateString(void){
+	time_t		lBoiseTime= oMT_Timezone.toLocal (now(), &pTimeChangeRule);
+
   String szReturnString = "";
-  //szReturnString += szPrintDigits(day(lCurrentTime));
-  szReturnString += szPrintDigits(month(lCurrentTime));
+  szReturnString += szPrintDigits(month(lBoiseTime));
   szReturnString += "/";
-  //szReturnString += szPrintDigits(month(lCurrentTime));
-  szReturnString += szPrintDigits(day(lCurrentTime));
+  szReturnString += szPrintDigits(day(lBoiseTime));
   szReturnString += "/";
-  szReturnString += String(year(lCurrentTime));
+  szReturnString += String(year(lBoiseTime));
   return szReturnString;
 } //szFormatDateString
+
+/*Old code
+String szGetTime(long lMsec){
+  String  szString;
+
+  int sDays    =    lMsec                                               / lMsecPerDay ;
+  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
+  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
+  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
+  int sMsec    =    lMsec % lMsecPerSec;
+  szString = String(sDays) + ":";
+  szString+= String(szAddZeros(sHours, 2)) + ":";
+  szString+= String(szAddZeros(sMinutes, 2)) + ":";
+  szString+= String(szAddZeros(sSeconds, 2)) + ".";
+  szString+= String(szAddZeros(sMsec, 3)) + " ";     //Send with trailing blank to seperate from next field.
+  return szString;
+} //szGetTime
+*/
 //Last line.
