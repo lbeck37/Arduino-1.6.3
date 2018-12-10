@@ -19,18 +19,4 @@ static const long   lMsecPerSec           =     1000;
 String    szGetTime         (long lMsec);
 String    szAddZeros        (int sValue, int sNumDigits);
 String    szLogLineHeader   (long lLineCount);
-
-/*Stripped to use in fauxmo.cpp the Arduino library
-extern const int       sUpButtonPin;
-extern const int       sDownButtonPin;
-extern const byte      cI2C_SDA_Pin;
-extern const byte      cI2C_SCL_Pin;
-extern const byte      cSPI_A0CmdData_Pin;
-extern const byte      cSPI_MISO_Pin;
-extern const byte      cSPI_MOSI_Pin;
-extern const byte      cSPI_CLK_Pin;
-extern const byte      cSPI_Select_Pin;
-extern const int       sServoPin;
-extern const byte      cBogusResetPin;
-extern const byte      cHW_SPI;
-*/
+//Last line.

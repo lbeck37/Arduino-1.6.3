@@ -1,5 +1,6 @@
 //BeckMiniLib.cpp, Dec 16, 2017, Lenny-a
 #include <BeckMiniLib.h>
+#include <BeckNtpLib.h>
 
 //Digital Pins
 #ifdef ESP32
@@ -55,6 +56,7 @@ String szLogLineHeader(long lLineCount){
   szHeader += lLineCount;
   szHeader += " ";
   szHeader += szGetTime(millis());
+  //szHeader += szFormatTimeString(lBoiseSec);
   return szHeader;
 } //szLogLineHeader
 //Last line.

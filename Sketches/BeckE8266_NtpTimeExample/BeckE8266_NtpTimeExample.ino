@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 12/08/18b";
+const char szFileDate[]    = "Lenny 12/09/18e";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -21,50 +21,23 @@ const char szFileDate[]    = "Lenny 12/08/18b";
 #define YOUR_WIFI_PASSWD "Qazqaz11"
 #endif // !WIFI_CONFIG_H
 
-/*
-TimeChangeRule usMDT = {"MDT", Second, Sun, Mar, 2, -360};
-TimeChangeRule usMST = {"MST", First , Sun, Nov, 2, -420};
-Timezone usMT(usMDT, usMST);
-*/
 //US Mountain Time Zone (Boise)
-/*
-TimeChangeRule oMDT_Rule = {"MDT", Second, Sun, Mar, 2, -360};  //Eastern Daylight Time = UTC - 6 hours
-TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -420};   //Eastern Standard Time = UTC - 7 hours
-*/
-TimeChangeRule oMDT_Rule = {"MDT", Second, Sun, Mar, 2, -420};  //Eastern Daylight Time = UTC - 6 hours
-TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -480};   //Eastern Standard Time = UTC - 7 hours
+TimeChangeRule oMDT_Rule = {"MDT", Second, Sun, Mar, 2, -420};	//Mountain Daylight Time = UTC - 7 hours
+TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -480};  //Mountain Standard Time = UTC - 8 hours
+
 Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
-
-
 
 void setup(){
   static WiFiEventHandler 	e1;
   static WiFiEventHandler 	e2;
 
   Serial.begin(115200);
-  //Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   WiFi.mode(WIFI_STA);
   WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
-  pinMode(2, OUTPUT);
-  digitalWrite(2, HIGH);
 
-  int		wTimeZone= -7;
-  NTP.setTimeZone(wTimeZone);
+  SetupNTP();
 
-  NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
-    if (ntpEvent) {
-      Serial.print("Time Sync error: ");
-      if (ntpEvent == noResponse)
-        Serial.println("NTP server not reachable");
-      else if (ntpEvent == invalidAddress)
-        Serial.println("Invalid NTP server address");
-    }
-    else {
-      Serial.print("Got NTP time: ");
-      Serial.println(NTP.getTimeDateString(NTP.getLastNTPSync()));
-    }
-  });
   WiFi.onEvent([](WiFiEvent_t e) {
     Serial.printf("Event wifi -----> %d\n", e);
   });
