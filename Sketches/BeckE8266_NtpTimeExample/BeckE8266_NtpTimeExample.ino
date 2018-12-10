@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 12/10/18k";
+const char szFileDate[]    = "Lenny 12/10/18p";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -15,10 +15,6 @@ const char szFileDate[]    = "Lenny 12/10/18k";
 #include <TimeLib.h>
 #include <Timezone.h>
 
-/*
-#define YOUR_WIFI_SSID "Aspot24"
-#define YOUR_WIFI_PASSWD "Qazqaz11"
-*/
 static const char   	szRouterName[]        = "Aspot24";
 static const char   	szRouterPW[]          = "Qazqaz11";
 
@@ -30,16 +26,16 @@ void setup(){
   static WiFiEventHandler 	e2;
 
   Serial.begin(115200);
-  Serial << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+
   WiFi.mode(WIFI_STA);
-  //WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
   WiFi.begin(szRouterName, szRouterPW);
 
   SetupOTAServer(acHostname);
   SetupNTP();
 
-  WiFi.onEvent([](WiFiEvent_t e) {
-    Serial.printf("Event wifi -----> %d\n", e);
+  WiFi.onEvent([](WiFiEvent_t oWiFiEvent) {
+    Serial.printf("WiFi event, oWiFiEvent= %d\n", oWiFiEvent);
   });
   e1= WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
   e2= WiFi.onStationModeDisconnected(onSTADisconnected);

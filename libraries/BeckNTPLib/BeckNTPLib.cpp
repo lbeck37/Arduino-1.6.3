@@ -25,13 +25,10 @@ void SetupNTP(){
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
 	if (ntpEvent) {
 		Serial.print("Time Sync error: ");
-		//Serial << LOG0 << "SetupNTP(): Sync error: ";
 		if (ntpEvent == noResponse)
 			Serial.println("NTP server not reachable");
-			//Serial << "NTP server not reachable" << endl;
 		else if (ntpEvent == invalidAddress)
 			Serial.println("Invalid NTP server address");
-			//Serial << "Invalid NTP server address" << endl;
 	}	//if (ntpEvent)
   else{
   	Serial << LOG0 << "SetupNTP(): Got NTP time: " <<
@@ -42,7 +39,6 @@ void SetupNTP(){
   Serial << LOG0 << "SetupNTP(): Setup WiFi.onEvent" << endl;
   WiFi.onEvent([](WiFiEvent_t oEvent) {
     Serial.printf("Event wifi -----> %d\n", oEvent);
-    //Serial << LOG0 << "SetupNTP(): WiFi event occurred= " << oEvent << endl;
  });
 
   Serial << LOG0 << "SetupNTP(): Setup WiFi.onStationModeGotIP" << endl;
