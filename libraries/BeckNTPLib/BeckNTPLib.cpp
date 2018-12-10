@@ -18,8 +18,8 @@ Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
 TimeChangeRule *pTimeChangeRule;
 
 void SetupNTP(){
-  static WiFiEventHandler 	oEventHandler1;
-  static WiFiEventHandler 	oEventHandler2;
+  static WiFiEventHandler 	WiFiEventHandler1;
+  static WiFiEventHandler 	WiFiEventHandler2;
 
   Serial << LOG0 << "SetupNTP(): Setup NTP.onNTPSyncEvent" << endl;
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
@@ -41,11 +41,11 @@ void SetupNTP(){
     Serial.printf("Event wifi -----> %d\n", oEvent);
  });
 
-  Serial << LOG0 << "SetupNTP(): Setup WiFi.onStationModeGotIP" << endl;
-  oEventHandler1= WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
+  Serial << LOG0 << "SetupNTP(): Setup handler for WiFi.onStationModeGotIP" << endl;
+  WiFiEventHandler1= WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
 
-  Serial << LOG0 << "SetupNTP(): Setup WiFi.onStationModeDisconnected" << endl;
-  oEventHandler2= WiFi.onStationModeDisconnected(onSTADisconnected);
+  Serial << LOG0 << "SetupNTP(): Setup handler for WiFi.onStationModeDisconnected" << endl;
+  WiFiEventHandler2= WiFi.onStationModeDisconnected(onSTADisconnected);
   return;
 } //SetupNTP
 
@@ -105,22 +105,4 @@ String szFormatDateString(void){
   szReturnString += String(year(lBoiseTime));
   return szReturnString;
 } //szFormatDateString
-
-/*Old code
-String szGetTime(long lMsec){
-  String  szString;
-
-  int sDays    =    lMsec                                               / lMsecPerDay ;
-  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
-  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
-  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
-  int sMsec    =    lMsec % lMsecPerSec;
-  szString = String(sDays) + ":";
-  szString+= String(szAddZeros(sHours, 2)) + ":";
-  szString+= String(szAddZeros(sMinutes, 2)) + ":";
-  szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";     //Send with trailing blank to seperate from next field.
-  return szString;
-} //szGetTime
-*/
 //Last line.

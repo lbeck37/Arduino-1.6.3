@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 12/10/18p";
+const char szFileDate[]    = "Lenny 12/10/18t";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -7,6 +7,8 @@ const char szFileDate[]    = "Lenny 12/10/18p";
  Editor:  http://www.visualmicro.com
 */
 #include <BeckMiniLib.h>
+//#include <BeckWiFiLib.h>
+//#include <BeckBlynkLib.h>
 #include <BeckOTALib.h>
 #include <BeckNtpLib.h>
 #include <NtpClientLib.h>   //Just for Eclipse resolving
@@ -22,23 +24,17 @@ static const char   acHostname[]			= "BeckThermoDev";
 static const int		wLoopMilliDelay		= 5100;
 
 void setup(){
-  static WiFiEventHandler 	e1;
-  static WiFiEventHandler 	e2;
-
   Serial.begin(115200);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
 
+  Serial << LOG0 << "setup(): Call WiFi.mode(WIFI_STA)" << endl;
   WiFi.mode(WIFI_STA);
+
+  Serial << LOG0 << "setup(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
   WiFi.begin(szRouterName, szRouterPW);
 
   SetupOTAServer(acHostname);
   SetupNTP();
-
-  WiFi.onEvent([](WiFiEvent_t oWiFiEvent) {
-    Serial.printf("WiFi event, oWiFiEvent= %d\n", oWiFiEvent);
-  });
-  e1= WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
-  e2= WiFi.onStationModeDisconnected(onSTADisconnected);
   return;
 } //setup
 

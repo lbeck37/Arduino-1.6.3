@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/09/18z";
+const char szFileDate[]    = "Lenny 12/10/18d";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -9,6 +9,21 @@ const char szFileDate[]    = "Lenny 12/09/18z";
 //#define HEATER
 //#define DEV_LOCAL
 #define THERMO_DEV
+
+/*
+enum eProjectType{
+	eFrontLights	= 1,
+	eFireplace,
+	eGarage,
+	eGarageLocal,
+	eHeater,
+	eDevLocal,
+	eThermoDev,
+	eLastProject
+};
+*/
+
+//static eProjectType		eCurrentProject= eThermoDev;
 
 #if 0
   #define SKIP_BLYNK    true
@@ -229,7 +244,6 @@ Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
-
 void setup()
 {
   sSetupTime();
@@ -239,6 +253,7 @@ void setup()
   SetupWiFi();
   SetupOTAServer(acHostname);
   SetupNTP();
+  SetupBlynk();
   SetupI2C();
   SetupAlexa();
   SetupDisplay();
@@ -279,7 +294,9 @@ void SetupDisplay(){
 
 
 void SetupWiFi(){
+  Serial << LOG0 << "SetupWiFi(): Call WiFi.mode(WIFI_AP_STA)" << endl;
   WiFi.mode(WIFI_AP_STA);
+
   Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
   WiFi.begin(szRouterName, szRouterPW);
 
@@ -301,6 +318,7 @@ void SetupWiFi(){
     Serial << LOG0 << "SetupWiFi(): ERROR: WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
   } //if(eWiFiStatus==WL_CONNECTED)else
 
+/*
   switch (sProjectType){
     case sDevLocal:
       Serial << LOG0 << "SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
@@ -312,6 +330,7 @@ void SetupWiFi(){
       break;
   } //switch
   Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
+*/
   return;
 } //SetupWiFi
 
@@ -404,6 +423,22 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
 	Serial << "DoAlexaComman(): Return" << endl;
   return;
 } //DoAlexaCommand
+
+
+void SetupBlynk(void){
+  switch (sProjectType){
+    case sDevLocal:
+      Serial << LOG0 << "SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
+      Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
+      break;
+    default:
+      Serial << LOG0 << "SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
+      Blynk.config(acBlynkAuthToken);
+      break;
+  } //switch
+  Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
+	return;
+}	//SetupBlynk
 
 
 void SetupI2C(){
