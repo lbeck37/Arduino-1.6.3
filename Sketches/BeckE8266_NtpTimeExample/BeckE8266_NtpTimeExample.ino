@@ -1,36 +1,29 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 12/09/18g";
+const char szFileDate[]    = "Lenny 12/10/18k";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
  Author:  gmag11@gmail.com
  Editor:  http://www.visualmicro.com
 */
+#include <BeckMiniLib.h>
+#include <BeckOTALib.h>
 #include <BeckNtpLib.h>
 #include <NtpClientLib.h>   //Just for Eclipse resolving
 #include <ESP8266WiFi.h>    //Just for Eclipse resolving
 #include <Streaming.h>      //Just for Eclipse resolving
-#include <BeckMiniLib.h>
 #include <TimeLib.h>
 #include <Timezone.h>
-#include <stdio.h>
-#include <time.h>
-#include <BeckOTALib.h>
-
-#ifndef WIFI_CONFIG_H
-#define YOUR_WIFI_SSID "Aspot24"
-#define YOUR_WIFI_PASSWD "Qazqaz11"
-#endif // !WIFI_CONFIG_H
-
-static const char   acHostname[]= "BeckNtpExample";
 
 /*
-//US Mountain Time Zone (Boise)
-TimeChangeRule oMDT_Rule = {"MDT", Second, Sun, Mar, 2, -420};	//Mountain Daylight Time = UTC - 7 hours
-TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -480};  //Mountain Standard Time = UTC - 8 hours
-
-Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
+#define YOUR_WIFI_SSID "Aspot24"
+#define YOUR_WIFI_PASSWD "Qazqaz11"
 */
+static const char   	szRouterName[]        = "Aspot24";
+static const char   	szRouterPW[]          = "Qazqaz11";
+
+static const char   acHostname[]			= "BeckThermoDev";
+static const int		wLoopMilliDelay		= 5100;
 
 void setup(){
   static WiFiEventHandler 	e1;
@@ -39,7 +32,8 @@ void setup(){
   Serial.begin(115200);
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   WiFi.mode(WIFI_STA);
-  WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
+  //WiFi.begin(YOUR_WIFI_SSID, YOUR_WIFI_PASSWD);
+  WiFi.begin(szRouterName, szRouterPW);
 
   SetupOTAServer(acHostname);
   SetupNTP();
@@ -54,33 +48,14 @@ void setup(){
 
 
 void loop(){
-  static int i 		= 0;
-  static int last = 0;
+  static unsigned long ulLastMilli = 0;
 
 	HandleOTAServer();
-  if ((millis() - last) > 5100) {
-    //Serial.println(millis() - last);
-    last = millis();
-    Serial.print(i); Serial.print(" ");
-    Serial.print(NTP.getTimeDateString()); Serial.print(" ");
-    Serial.print(NTP.isSummerTime() ? "Summer Time. " : "Winter Time. ");
-    Serial.print("WiFi is ");
-    Serial.print(WiFi.isConnected() ? "connected" : "not connected"); Serial.print(". ");
-    Serial.print("Uptime: ");
-    Serial.print(NTP.getUptimeString()); Serial.print(" since ");
-    Serial.println(NTP.getTimeDateString(NTP.getFirstSync()).c_str());
-    i++;
-
-    time_t	lCurrentSec= now();
-    Serial << LOG0 << "loop(): Raw: " << szFormatDateString() << ", "
-    		<< szFormatTimeString() << endl;
-
-		TimeChangeRule *pTimeChangeRule;
-		time_t		lBoiseSec= oMT_Timezone.toLocal (lCurrentSec, &pTimeChangeRule);
+  if ((millis() - ulLastMilli) > wLoopMilliDelay) {
+    ulLastMilli = millis();
     Serial << LOG0 << "loop(): Corrected: " << szFormatDateString() << ", "
     		<< szFormatTimeString() << endl;
-
-}	//if((millis()-last)>5100)
+  }	//if((millis()-ulLastMilli)>sLoopMilliDelay)
   delay(0);
   return;
 }	//loop

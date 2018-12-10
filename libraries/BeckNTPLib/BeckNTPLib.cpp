@@ -1,4 +1,4 @@
-//BeckNTPLib.cpp, Beck 12/9/18
+//BeckNTPLib.cpp, Beck 12/10/18
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 #include <NtpClientLib.h>   //Just for Eclipse resolving
@@ -23,23 +23,27 @@ void SetupNTP(){
 
   Serial << LOG0 << "SetupNTP(): Setup NTP.onNTPSyncEvent" << endl;
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
-    if (ntpEvent) {
-      Serial.print("Time Sync error: ");
-      if (ntpEvent == noResponse)
-        Serial.println("NTP server not reachable");
-      else if (ntpEvent == invalidAddress)
-        Serial.println("Invalid NTP server address");
-    }
-    else {
-      Serial.print("Got NTP time: ");
-      Serial.println(NTP.getTimeDateString(NTP.getLastNTPSync()));
+	if (ntpEvent) {
+		Serial.print("Time Sync error: ");
+		//Serial << LOG0 << "SetupNTP(): Sync error: ";
+		if (ntpEvent == noResponse)
+			Serial.println("NTP server not reachable");
+			//Serial << "NTP server not reachable" << endl;
+		else if (ntpEvent == invalidAddress)
+			Serial.println("Invalid NTP server address");
+			//Serial << "Invalid NTP server address" << endl;
+	}	//if (ntpEvent)
+  else{
+  	Serial << LOG0 << "SetupNTP(): Got NTP time: " <<
+              NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
     }
   });
 
   Serial << LOG0 << "SetupNTP(): Setup WiFi.onEvent" << endl;
-  WiFi.onEvent([](WiFiEvent_t e) {
-    Serial.printf("Event wifi -----> %d\n", e);
-  });
+  WiFi.onEvent([](WiFiEvent_t oEvent) {
+    Serial.printf("Event wifi -----> %d\n", oEvent);
+    //Serial << LOG0 << "SetupNTP(): WiFi event occurred= " << oEvent << endl;
+ });
 
   Serial << LOG0 << "SetupNTP(): Setup WiFi.onStationModeGotIP" << endl;
   oEventHandler1= WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
@@ -89,7 +93,7 @@ String szFormatTimeString(void) {
 	szReturnString += szPrintDigits(minute(lBoiseTime));
 	szReturnString += ":";
 	szReturnString += szPrintDigits(second(lBoiseTime));
-	szReturnString += ":";
+	szReturnString += " ";
 	return szReturnString;
 } //szFormatTimeString
 
