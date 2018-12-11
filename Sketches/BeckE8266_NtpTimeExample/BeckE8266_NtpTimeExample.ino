@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 12/10/18aa";
+const char szFileDate[]    = "Lenny 12/10/18ab";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -26,18 +26,10 @@ void setup(){
   Serial.begin(115200);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
 
-#if false
-  Serial << LOG0 << "setup(): Call WiFi.mode(WIFI_STA)" << endl;
-  WiFi.mode(WIFI_STA);
-
-  Serial << LOG0 << "setup(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
-#else
   SetupWiFi(szRouterName, szRouterPW);
-#endif
-
   SetupOTAServer(acHostname);
   SetupNTP();
+
   return;
 } //setup
 
