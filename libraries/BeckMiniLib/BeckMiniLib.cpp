@@ -60,15 +60,17 @@ String szAddZeros(int sValue, int sNumDigits){
 
 String szLogLineHeader(void){
 	String 					szHeader					= "";
+	String 					szThousanths			= "";
 	unsigned long 	ulCurrentMillis		= millis();
-	char						szThousanths[10];
+	char						szDaysFloat[10];
 
 	//Compute a float with N.NNN with a leading zero representing days uptime
-	//Starts out "0.00" for quite a while for 0.001 of day to happen, 85 minutes?
+	//Starts out "0.00", 0.01 of a day is 864 seconds or 14.4 minutes
 	float		fDays	= ((float)ulCurrentMillis / (float)lMsecPerDay);
+	//sprintf(szDaysFloat, "%05.3f", fDays);	//Didn't work, printed %.3f
 
-  //szHeader += ++lLineCount;
   szHeader += fDays;
+  //szHeader += szDaysFloat;
   szHeader += " ";
   //szHeader += szGetTime(millis());
   szHeader += szFormatTimeString();		//szFormatTimeString has a space at the end
@@ -77,10 +79,28 @@ String szLogLineHeader(void){
   //Follow "." with the lowest 3 digits of the msec count
   int wNumChar= szHeader.length();
   szHeader.setCharAt((wNumChar - 1), '.');
-  //sprintf(szThousanths, "%03d", (ulCurrentMillis % lMsecPerSec));
-  //szHeader += szThousanths;
-  szHeader += (ulCurrentMillis % lMsecPerSec);
-  szHeader += " ";
+  //szHeader += (ulCurrentMillis % lMsecPerSec);
+  szThousanths= (ulCurrentMillis % lMsecPerSec);
+
+  //Make sure it is 3 digits, pad wit zeros if not
+  wNumChar= szThousanths.length();
+	switch (wNumChar){
+		case 0:
+			szThousanths += "000";
+			break;
+		case 1:
+			szThousanths += "00";
+			break;
+		case 2:
+			szThousanths += "0";
+			break;
+		default:
+			break;
+	} //switch
+
+  //szHeader += (ulCurrentMillis % lMsecPerSec);
+  szHeader += szThousanths;
+  szHeader += " ";				//Adds a trailing space
   return szHeader;
 } //szLogLineHeader
 //Last line.

@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/10/18y";
+const char szFileDate[]    = "Lenny 12/10/18ah";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -111,7 +111,7 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
   static const char   szAlexaName[]   = "Fireplace";
   static int          sProjectType    = sFireplace;
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF      = 74;
+  static float        fSetpointF      = 70.0;
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
   fauxmoESP 					Alexa;										//Alexa emulation of Phillips Hue Bulb
 #endif
