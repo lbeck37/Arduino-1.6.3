@@ -1,20 +1,25 @@
-//BeckMiniLib.h, Dec 9, 2018, Lenny
+//BeckMiniLib.h, Dec 10, 2018, Lenny
 #pragma once
 #include <Streaming.h>
 #include <Time.h>
 
-#define LOG0    szLogLineHeader()
+extern const long		lMsecPerSec;
+extern const long		lMsecPerMin;
+extern const long		lMsecPerHour;
+extern const long		lMsecPerDay;
+extern const long   lSerialMonitorBaud;
 
 extern long         lLineCount;
-//extern const char   szVersionDate[];
 
-//extern int          sProjectType_;
+#define LOG0    szLogLineHeader()
 
+/*
 static const long   lSerialMonitorBaud    = 115200;
 static const long   lMsecPerDay           = 86400000;
 static const long   lMsecPerHour          =  3600000;
 static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
+*/
 
 String    szGetTime         (long lMsec);
 String    szAddZeros        (int sValue, int sNumDigits);

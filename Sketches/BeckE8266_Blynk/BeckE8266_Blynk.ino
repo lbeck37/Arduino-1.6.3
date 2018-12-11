@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/10/18k";
+const char szFileDate[]    = "Lenny 12/10/18y";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -20,6 +20,7 @@ const char szFileDate[]    = "Lenny 12/10/18k";
 #include <BeckWiFiLib.h>
 #include <BeckOTALib.h>
 #include <BeckNTPLib.h>
+#include <BeckBlynkLib.h>
 #include <NtpClientLib.h>
 #include <Streaming.h>
 #include <Time.h>
@@ -41,56 +42,6 @@ static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and lab
 
 static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
-
-//Define Virtual Pin names
-#define ReadF_V0          V0
-#define ReadF_V1          V1
-#define SetSetpointF_V2   V2
-#define GetSetpointF_V3   V3
-#define ThermoSwitch_V4   V4
-#define ThermoLED_V5      V5
-
-#define AtoD_1V6      V6
-
-#define Terminal_V7       V7
-#define LCD_Line0_V8      V8
-#define LCD_Line1_V9      V9
-
-//Relay #1
-#define Switch_1V10       V10
-#define TimerA_1V11       V11
-#define TimerB_1V12       V12
-#define LED_1V13          V13
-
-#define AtoD_2V14     V14
-
-//Relay #2
-#define Switch_2V15       V15
-#define TimerA_2V16       V16
-#define TimerB_2V17       V17
-#define LED_2V18          V18
-
-#define AtoD_3V19     V19
-
-//Relay #3
-#define Switch_3V20       V20
-#define TimerA_3V21       V21
-#define TimerB_3V22       V22
-#define LED_3V23          V23
-
-#define AtoD_4V24     V24
-
-//Relay #4
-#define Switch_4V25       V25
-#define TimerA_4V26       V26
-#define TimerB_4V27       V27
-#define LED_4V28          V28
-
-#define Unassigned_V29    V29
-#define Unassigned_V30    V30
-#define Unassigned_V31    V31
-
-//#define LOG0    szLogLineHeader(++lLineCount)
 
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk          = true;
@@ -135,15 +86,11 @@ static int          	asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNot
 static float          fLastDegF             = 37.88;  //Last temperature reading.
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
-//static unsigned long  ulUpdateTimeoutMsec   = 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bHeatOn            		= false;  //If switch is on to turn on Heat.
 static bool           bAlexaOn            	= false;  //Only projects that use Alexa set this true.
 static long         	sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool         	bDebugLog             = true;   //Used to limit number of printouts.
-//static bool         	bUpdating             = false;   //Turns off Blynk.
-
-//long         	lLineCount            = 0;      //Serial Monitor uses for clarity.
 
 #ifdef DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -324,10 +271,8 @@ void SetupAlexa(){
 
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
-	char szLogString[100];
 	Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
 					ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
-	//LogToBoth(szLogString);
 	SetAlexaSwitch(bState);
 	Serial << "DoAlexaComman(): Return" << endl;
   return;
@@ -511,7 +456,7 @@ void HandleThermostat(){
 
 
 void LogThermostatData(float fDegF){
-  String szLogString= " " + String(bHeatOn) + String(sThermoTimesCount) + " " +
+  String szLogString= String(bHeatOn) + String(sThermoTimesCount) + " " +
                 String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
   LogToBoth(szLogString);
   return;

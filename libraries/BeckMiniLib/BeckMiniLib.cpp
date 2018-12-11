@@ -2,6 +2,13 @@
 #include <BeckMiniLib.h>
 #include <BeckNtpLib.h>
 
+const long		lMsecPerSec					= 1000;
+const long		lMsecPerMin					= 60 * lMsecPerSec;
+const long		lMsecPerHour				= 60 * lMsecPerMin;
+const long		lMsecPerDay					= 24 * lMsecPerHour;
+
+const long   	lSerialMonitorBaud  = 115200;
+
 //Digital Pins
 #ifdef ESP32
   //BlynkBeck uses pins 4, 5, 15, 16
@@ -52,11 +59,28 @@ String szAddZeros(int sValue, int sNumDigits){
 
 
 String szLogLineHeader(void){
-  String szHeader= "";
-  szHeader += ++lLineCount;
+	String 					szHeader					= "";
+	unsigned long 	ulCurrentMillis		= millis();
+	char						szThousanths[10];
+
+	//Compute a float with N.NNN with a leading zero representing days uptime
+	//Starts out "0.00" for quite a while for 0.001 of day to happen, 85 minutes?
+	float		fDays	= ((float)ulCurrentMillis / (float)lMsecPerDay);
+
+  //szHeader += ++lLineCount;
+  szHeader += fDays;
   szHeader += " ";
   //szHeader += szGetTime(millis());
-  szHeader += szFormatTimeString();
+  szHeader += szFormatTimeString();		//szFormatTimeString has a space at the end
+
+  //Replace the space with a decimal point
+  //Follow "." with the lowest 3 digits of the msec count
+  int wNumChar= szHeader.length();
+  szHeader.setCharAt((wNumChar - 1), '.');
+  //sprintf(szThousanths, "%03d", (ulCurrentMillis % lMsecPerSec));
+  //szHeader += szThousanths;
+  szHeader += (ulCurrentMillis % lMsecPerSec);
+  szHeader += " ";
   return szHeader;
 } //szLogLineHeader
 //Last line.
