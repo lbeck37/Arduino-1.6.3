@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/10/18ah";
+const char szFileDate[]    = "Lenny 12/15/18e";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -27,6 +27,7 @@ const char szFileDate[]    = "Lenny 12/10/18ah";
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp8266.h>
+#include <BlynkTimer.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <fauxmoESP.h>
@@ -115,14 +116,29 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
   fauxmoESP 					Alexa;										//Alexa emulation of Phillips Hue Bulb
 #endif
+#ifdef THERMO_DEV
+  static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
+  static const char   acHostname[]        = "BeckThermoDev";
+  static const char   szProjectType[]     = "THERMO_DEV";
+  static const int    sProjectType        = sThermoDev;
+  static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
+  static float        fSetpointF          = 70;
+  static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
+  static const char   szAlexaName[]     	= "Larry's Device";
+
+  fauxmoESP 					Alexa;		//Alexa emulation of Phillips Hue Bulb
+#endif
 #ifdef GARAGE
-  char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
-  static const char   acHostname[]    = "BeckGarage";
-  static const char   szProjectType[] = "GARAGE";
-  static int          sProjectType    = sGarage;
-  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF      = 37;
-  static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
+  static const char 	acBlynkAuthToken[] 	= "5e9c5f0ae3f8467597983a6fa9d11101";
+  static const char   acHostname[]    		= "BeckGarage";
+  static const char   szProjectType[] 		= "GARAGE";
+  static int          sProjectType    		= sGarage;
+  static const float  fMaxHeatRangeF  		= 1.00;   //Temp above setpoint before heat is turned off
+  static float        fSetpointF      		= 37;
+  static float        fThermoOffDegF  		= fSetpointF + fMaxHeatRangeF;
+  static const char   szAlexaName[]     	= "Garage";
+
+  fauxmoESP 					Alexa;		//Alexa emulation of Phillips Hue Bulb
 #endif
 #ifdef GARAGE_LOCAL
   char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
@@ -146,17 +162,6 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
   static const char szProjectType[]     = "DEV_LOCAL";
   static const int  sProjectType        = sDevLocal;
 #endif
-#ifdef THERMO_DEV
-  static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
-  static const char   acHostname[]        = "BeckThermoDev";
-  static const char   szProjectType[]     = "THERMO_DEV";
-  static const char   szAlexaName[]     	= "Larry's Device";
-  static const int    sProjectType        = sThermoDev;
-  static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF          = 70;
-  static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
-  fauxmoESP 					Alexa;										//Alexa emulation of Phillips Hue Bulb
-#endif
 
 //Set up Blynk Widgets
 WidgetTerminal      oTerminal(Terminal_V7);
@@ -176,6 +181,7 @@ Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
+BlynkTimer 					oBlynkTimer;
 
 void setup()
 {
@@ -279,6 +285,13 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
 } //DoAlexaCommand
 
 
+void BlynkTimerEvent()
+{
+ Blynk.virtualWrite(ReadF_V0, fLastDegF);
+ return;
+}	//BlynkTimerEvent
+
+
 void SetupBlynk(void){
   switch (sProjectType){
     case sDevLocal:
@@ -290,7 +303,9 @@ void SetupBlynk(void){
       Blynk.config(acBlynkAuthToken);
       break;
   } //switch
-  Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
+  // Setup a function to be called every second
+  oBlynkTimer.setInterval(1000L, BlynkTimerEvent);
+  //Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
 	return;
 }	//SetupBlynk
 
@@ -354,6 +369,7 @@ void HandleSystem(){
         HandleThermostat();
         HandleHeatSwitch();
         UpdateDisplay();
+        //UpdateBlynk();
         break;
       case sHeater:
         HandleHeater();
@@ -387,7 +403,16 @@ void UpdateDisplay(void){
   oDisplay.println(szDisplayLine);
   oDisplay.display();
   delay(10);
+  return;
 } //UpdateDisplay
+
+
+/*
+void UpdateBlynk(void){
+  Blynk.virtualWrite(ReadF_V0, fLastDegF);
+  return;
+} //UpdateBlynk
+*/
 
 
 void HandleAlexa(){
