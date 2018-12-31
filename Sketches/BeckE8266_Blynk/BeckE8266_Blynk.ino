@@ -27,7 +27,7 @@ const char szFileDate[]    = "Lenny 12/15/18e";
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp8266.h>
-#include <BlynkTimer.h>
+#include <Blynk/BlynkTimer.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <fauxmoESP.h>
