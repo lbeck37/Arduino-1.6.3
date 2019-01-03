@@ -18,9 +18,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifndef __ESP8266_H__
-#define __ESP8266_H__
+//#ifndef __ESP8266_H__
+//#define __ESP8266_H__
 
+#pragma once
 #include "Arduino.h"
 
 #define  VERSION_18   		0X18
@@ -682,4 +683,4 @@ class ESP8266 {
 	#define ESP8266
 #endif
 
-#endif /* #ifndef __ESP8266_H__ */
+//#endif /* #ifndef __ESP8266_H__ */
