@@ -1,5 +1,6 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/15/18e";
+//const char szFileDate[]    = "Lenny 12/10/18y";
+const char szFileDate[]    = "Lenny 1/3/19b";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -54,7 +55,7 @@ static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
 static const int    sOn                   = 1;
 static const int    sNotInit              = -3737;
-static const int		sNoSwitch							= -1;
+static const int    sNoSwitch             = -1;
 static const int    sNumSwitches          = 2;
 static const int    sHeatSwitchNum        = 1;      //Switch number that turns Heat on and off.
 static const int    sAlexaSwitchNum       = 2;      //Switch number that Alexa turns on and off.
@@ -77,21 +78,21 @@ static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 */
 
-static const long   	sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
+static const long     sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
-static const char   	szRouterName[]        = "Aspot24";
-static const char   	szRouterPW[]          = "Qazqaz11";
+static const char     szRouterName[]        = "Aspot24";
+static const char     szRouterPW[]          = "Qazqaz11";
 
-static int          	asSwitchState[]       = {0, 0, 0, 0, 0};
-static int          	asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
+static int            asSwitchState[]       = {0, 0, 0, 0, 0};
+static int            asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
 static float          fLastDegF             = 37.88;  //Last temperature reading.
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
-static bool           bHeatOn            		= false;  //If switch is on to turn on Heat.
-static bool           bAlexaOn            	= false;  //Only projects that use Alexa set this true.
-static long         	sSystemHandlerSpacing; //Number of mSec between running system handlers
-static bool         	bDebugLog             = true;   //Used to limit number of printouts.
+static bool           bHeatOn               = false;  //If switch is on to turn on Heat.
+static bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
+static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
+static bool           bDebugLog             = true;   //Used to limit number of printouts.
 
 #ifdef DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -114,7 +115,7 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
   static float        fSetpointF      = 70.0;
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
-  fauxmoESP 					Alexa;										//Alexa emulation of Phillips Hue Bulb
+  fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
 #endif
 #ifdef THERMO_DEV
   static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
@@ -124,21 +125,21 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
   static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
   static float        fSetpointF          = 70;
   static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
-  static const char   szAlexaName[]     	= "Larry's Device";
+  static const char   szAlexaName[]       = "Larry's Device";
 
-  fauxmoESP 					Alexa;		//Alexa emulation of Phillips Hue Bulb
+  fauxmoESP           Alexa;    //Alexa emulation of Phillips Hue Bulb
 #endif
 #ifdef GARAGE
-  static const char 	acBlynkAuthToken[] 	= "5e9c5f0ae3f8467597983a6fa9d11101";
-  static const char   acHostname[]    		= "BeckGarage";
-  static const char   szProjectType[] 		= "GARAGE";
-  static int          sProjectType    		= sGarage;
-  static const float  fMaxHeatRangeF  		= 1.00;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF      		= 37;
-  static float        fThermoOffDegF  		= fSetpointF + fMaxHeatRangeF;
-  static const char   szAlexaName[]     	= "Garage";
+  static const char   acBlynkAuthToken[]  = "5e9c5f0ae3f8467597983a6fa9d11101";
+  static const char   acHostname[]        = "BeckGarage";
+  static const char   szProjectType[]     = "GARAGE";
+  static int          sProjectType        = sGarage;
+  static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
+  static float        fSetpointF          = 37;
+  static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
+  static const char   szAlexaName[]       = "Garage";
 
-  fauxmoESP 					Alexa;		//Alexa emulation of Phillips Hue Bulb
+  fauxmoESP           Alexa;    //Alexa emulation of Phillips Hue Bulb
 #endif
 #ifdef GARAGE_LOCAL
   char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
@@ -181,7 +182,7 @@ Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
-BlynkTimer 					oBlynkTimer;
+BlynkTimer          oBlynkTimer;
 
 void setup()
 {
@@ -204,7 +205,7 @@ void setup()
 
 
 void loop() {
-	HandleOTAServer();
+  HandleOTAServer();
   if (!bSkipBlynk) {
     if (!bUpdating) {
       Blynk.run();
@@ -235,52 +236,52 @@ void SetupDisplay(){
 void SetupAlexa(){
   String szLogString= "SetupAlexa(): Begin";
   LogToBoth(szLogString);
-	switch (sProjectType){
-		case sFireplace:
-		case sThermoDev:
-			//Only these projects use Alexa
-	  	bAlexaOn= true;
-			break;
-		default:
-			bAlexaOn= false;
-			break;
-	} //switch
+  switch (sProjectType){
+    case sFireplace:
+    case sThermoDev:
+      //Only these projects use Alexa
+      bAlexaOn= true;
+      break;
+    default:
+      bAlexaOn= false;
+      break;
+  } //switch
   if(bAlexaOn){
-		// You have to call enable(true) once you have a WiFi connection
-		// You can enable or disable the library at any moment
-		// Disabling it will prevent the devices from being discovered and switched
-		//Beck 12/3/18 I don't know why we do enable, disable, enable but it is necessary
-		Alexa.enable(true);
-		Alexa.enable(false);
-		Alexa.enable(true);
+    // You have to call enable(true) once you have a WiFi connection
+    // You can enable or disable the library at any moment
+    // Disabling it will prevent the devices from being discovered and switched
+    //Beck 12/3/18 I don't know why we do enable, disable, enable but it is necessary
+    Alexa.enable(true);
+    Alexa.enable(false);
+    Alexa.enable(true);
 
-		// You can use different ways to invoke Alexa to modify the devices state:
-		// "Alexa, turn light one on" ("light one" is the name of the first device below)
-		// "Alexa, turn on light one"
-		// "Alexa, set light one to fifty" (50 means 50% of brightness)
+    // You can use different ways to invoke Alexa to modify the devices state:
+    // "Alexa, turn light one on" ("light one" is the name of the first device below)
+    // "Alexa, turn on light one"
+    // "Alexa, set light one to fifty" (50 means 50% of brightness)
 
-		// Add virtual devices
-		Alexa.addDevice(szAlexaName);
+    // Add virtual devices
+    Alexa.addDevice(szAlexaName);
 
-		//Define the callback
-		Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
-			{
-			DoAlexaCommand(device_id, device_name, state, value);
-			} );	//Alexa.onSetState
-  }	//if(bAlexaOn)
+    //Define the callback
+    Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
+      {
+      DoAlexaCommand(device_id, device_name, state, value);
+      } );  //Alexa.onSetState
+  } //if(bAlexaOn)
   else{
-		szLogString = "SetupAlexa(): Alexa is not enabled for project ";
-		LogToBoth(szLogString, sProjectType);
-  }	//if(bAlexaOn)else
+    szLogString = "SetupAlexa(): Alexa is not enabled for project ";
+    LogToBoth(szLogString, sProjectType);
+  } //if(bAlexaOn)else
   return;
 } //SetupAlexa
 
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
-	Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
-					ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
-	SetAlexaSwitch(bState);
-	Serial << "DoAlexaComman(): Return" << endl;
+  Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
+          ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
+  SetAlexaSwitch(bState);
+  Serial << "DoAlexaComman(): Return" << endl;
   return;
 } //DoAlexaCommand
 
@@ -289,7 +290,7 @@ void BlynkTimerEvent()
 {
  Blynk.virtualWrite(ReadF_V0, fLastDegF);
  return;
-}	//BlynkTimerEvent
+} //BlynkTimerEvent
 
 
 void SetupBlynk(void){
@@ -306,8 +307,8 @@ void SetupBlynk(void){
   // Setup a function to be called every second
   oBlynkTimer.setInterval(1000L, BlynkTimerEvent);
   //Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
-	return;
-}	//SetupBlynk
+  return;
+} //SetupBlynk
 
 
 void SetupI2C(){
@@ -345,17 +346,17 @@ void SetupSwitches(){
   String szLogString = "SetupSwitches()";
   LogToBoth(szLogString);
   for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
-  	if(asSwitchPin[sSwitch] != sNoSwitch){
-			pinMode(asSwitchPin[sSwitch], OUTPUT);
-			SetSwitch(sSwitch, sSwitchOpen);
-  	}	//if(asSwitchPin[sSwitch]!=sNoSwitch)
+    if(asSwitchPin[sSwitch] != sNoSwitch){
+      pinMode(asSwitchPin[sSwitch], OUTPUT);
+      SetSwitch(sSwitch, sSwitchOpen);
+    } //if(asSwitchPin[sSwitch]!=sNoSwitch)
   } //for
   return;
 } //SetupSwitches
 
 
 void HandleSystem(){
-	HandleAlexa();
+  HandleAlexa();
   if (millis() >= ulNextHandlerMsec){
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
     switch (sProjectType){
@@ -417,8 +418,8 @@ void UpdateBlynk(void){
 
 void HandleAlexa(){
   if(bAlexaOn){
-  	Alexa.handle();
-  }	//if(bAlexaOn)
+    Alexa.handle();
+  } //if(bAlexaOn)
   return;
 } //HandleAlexa
 
