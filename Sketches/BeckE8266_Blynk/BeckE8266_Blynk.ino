@@ -1,6 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-//const char szFileDate[]    = "Lenny 12/10/18y";
-const char szFileDate[]    = "Lenny 1/4/19ac";
+const char szFileDate[]    = "Lenny 1/5/19d";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -70,13 +69,7 @@ static const int    sGarageLocal          = 4;
 static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sThermoDev            = 7;
-/*
-static const long   lSerialMonitorBaud    = 115200;
-static const long   lMsecPerDay           = 86400000;
-static const long   lMsecPerHour          =  3600000;
-static const long   lMsecPerMin           =    60000;
-static const long   lMsecPerSec           =     1000;
-*/
+static const long   lBlynkTimerInterval   = 1000L;
 
 static const long     sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
@@ -208,11 +201,12 @@ void loop() {
   HandleOTAServer();
   if (!bSkipBlynk) {
     if (!bUpdating) {
-      Blynk.run();
+        Blynk.run();
+        //oBlynkTimer.run();
       HandleSystem();
     } //if(!bUpdating)
     else {
-      Serial << LOG0 << "loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
+      //Serial << LOG0 << "loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
       if (millis() > ulUpdateTimeoutMsec) {
         bUpdating = false;
         Serial << LOG0 << "loop(): Set bUpdating to " << bUpdating << endl;
@@ -288,6 +282,7 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
 
 void BlynkTimerEvent()
 {
+ //Serial << LOG0 << "BlynkTimerEvent(): Call Blynk.virtualWrite()" << endl;
  Blynk.virtualWrite(ReadF_V0, fLastDegF);
  return;
 } //BlynkTimerEvent
@@ -305,7 +300,8 @@ void SetupBlynk(void){
       break;
   } //switch
   // Setup a function to be called every second
-  oBlynkTimer.setInterval(1000L, BlynkTimerEvent);
+  //oBlynkTimer.setInterval(1000L, BlynkTimerEvent);
+  oBlynkTimer.setInterval(lBlynkTimerInterval, BlynkTimerEvent);
   //Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
   return;
 } //SetupBlynk
