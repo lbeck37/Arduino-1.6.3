@@ -46,7 +46,8 @@ void HandleOTAUpdate() {
   HTTPUpload& stHTTPUpload = oESP8266WebServer.upload();
   if (stHTTPUpload.status == UPLOAD_FILE_START) {
     PauseBlynk();
-    Serial.setDebugOutput(true);
+    //Serial.setDebugOutput(true);
+    Serial.setDebugOutput(false);		//Beck 1/5/19
     WiFiUDP::stopAll();
     uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_START" << endl;
