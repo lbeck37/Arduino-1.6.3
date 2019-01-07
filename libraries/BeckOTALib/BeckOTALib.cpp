@@ -37,6 +37,7 @@ void SetupOTAServer(const char *acHostname) {
 	oESP8266WebServer.begin();
 	MDNS.addService("http", "tcp", 80);
 	Serial << LOG0 << "SetupOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
+  Serial << "SetupOTAServer(): Access this device using " << WiFi.localIP() << " or " << acHostname << ".local" << endl;
   return;
 } //SetupOTAServer
 

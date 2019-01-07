@@ -31,7 +31,7 @@ void setup() {
   }	//if(!MDNS.begin(szDNSName))
   else {
     Serial << "setup(): mDNS responder started for " << szDNSName << endl;
-    MDNS.addService("http", "tcp", 80);
+    //MDNS.addService("http", "tcp", 80);
     Serial << "setup(): Access this device using " << WiFi.localIP() << " or " << szDNSName << ".local" << endl;
   }	//if(!MDNS.begin(szDNSName))else
 
