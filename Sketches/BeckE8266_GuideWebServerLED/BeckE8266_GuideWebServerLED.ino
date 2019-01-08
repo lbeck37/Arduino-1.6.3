@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_GuideWebServerLED.ino";
-const char szFileDate[]    = "Lenny 1/7/19j";
+const char szFileDate[]    = "Lenny 1/7/19m";
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -49,10 +49,11 @@ void setup(void){
 
 void SetupmDNS(){
   Serial << "SetupmDNS(): Begin" << endl;
-  if (MDNS.begin("esp8266")) {              // Start the mDNS responder for esp8266.local
-    Serial << "SetupmDNS(): mDNS responder started" << endl;
-  } else {
-    Serial << "SetupmDNS(): Error setting up MDNS responder!" << endl;
+  if (MDNS.begin(szDNSName)) {              // Start the mDNS responder for esp8266.local
+    Serial << "SetupmDNS(): mDNS responder started for " << szDNSName << endl;
+  }
+  else {
+    Serial << "SetupmDNS(): Error setting up MDNS responder for " << szDNSName << endl;
   }
   return;
 } //SetupmDNS
