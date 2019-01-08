@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_GuideWebServerLED.ino";
-const char szFileDate[]    = "Lenny 1/7/19m";
+const char szFileDate[]    = "Lenny 1/7/19p";
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -24,7 +24,6 @@ void SetupWebServer();
 void setup(void){
   Serial.begin(115200);         // Start the Serial communication to send messages to the computer
   delay(10);
-  //Serial.println('\n');
   Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   Serial << "setup(): Connecting to " << szRouterName << " using " << szRouterPW << endl;
 
@@ -35,9 +34,10 @@ void setup(void){
 
   while (WiFi.status() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
     delay(250);
-    Serial.print('.');
+    //Serial.print('.');
+    Serial << "." ;
   }
-  Serial << "setup(): Connected to " << WiFi.SSID() << endl;
+  Serial << endl << "setup(): Connected to " << WiFi.SSID() << endl;
   Serial << "setup(): IP address: " << WiFi.localIP() << endl;
 
   SetupmDNS();
