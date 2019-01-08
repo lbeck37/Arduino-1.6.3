@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_GuideWebServerPOST.ino";
-const char szFileDate[]    = "Lenny 1/8/19b";
+const char szFileDate[]    = "Lenny 1/8/19c";
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -91,24 +91,6 @@ void loop(void){
   return;
 } //loop
 
-
-/*
-void handleRoot() {
-  //When URI / is requested, send a web page with a button to toggle the LED
-  Serial << "handleRoot(): Begin" << endl;
-  pWiFiConfigServer->send(200, "text/html",
-      "<form action=\"/LED\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
-  return;
-} //handleRoot
-
-void handleLED() {
-  //If a POST request is made to URI /LED
-  digitalWrite(led,!digitalRead(led));      // Change the state of the LED
-  pWiFiConfigServer->sendHeader("Location","/");
-  pWiFiConfigServer->send(303);
-  return;
-} //handleLED
-*/
 
 void handleRoot() {
   //When URI / is requested, send a web page with fields for user name and hidden password
