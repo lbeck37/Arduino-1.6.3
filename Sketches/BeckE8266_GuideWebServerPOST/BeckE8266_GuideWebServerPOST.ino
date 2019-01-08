@@ -1,5 +1,5 @@
-const char szSketchName[]  = "BeckE8266_GuideWebServerLED.ino";
-const char szFileDate[]    = "Lenny 1/8/19d";
+const char szSketchName[]  = "BeckE8266_GuideWebServerPOST.ino";
+const char szFileDate[]    = "Lenny 1/8/19b";
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -16,6 +16,10 @@ static const char     szDNSName[]           = "beckdev1";
 
 static const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
 static const char     szAccessPointPW[]     = "Qazqaz11";
+
+void handleRoot();
+void handleLogin();
+void handleNotFound();
 
 //Not sure why only these functions need prototypes
 void SetupmDNS();
@@ -63,10 +67,10 @@ void SetupWebServer(){
   Serial << "SetupWebServer(): Construct Web Server" << endl;
   pWiFiConfigServer= new ESP8266WebServer(80);
 
-  pWiFiConfigServer->on("/", HTTP_GET, handleRoot);     //Function to call when a client requests URI "/"
-  pWiFiConfigServer->on("/LED", HTTP_POST, handleLED);  //Function to call when a POST request is made to URI "/LED"
-  pWiFiConfigServer->onNotFound(handleNotFound);        //When a client requests an unknown URI
-  pWiFiConfigServer->begin();                           //Actually start the server
+  pWiFiConfigServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"
+  pWiFiConfigServer->on("/login", HTTP_POST, handleLogin);  //Function to call when a POST request is made to URI "/LED"
+  pWiFiConfigServer->onNotFound(handleNotFound);            //When a client requests an unknown URI
+  pWiFiConfigServer->begin();                               //Actually start the server
 
   Serial << "SetupWebServer(): HTTP server started" << endl;
   return;
@@ -88,23 +92,14 @@ void loop(void){
 } //loop
 
 
+/*
 void handleRoot() {
   //When URI / is requested, send a web page with a button to toggle the LED
+  Serial << "handleRoot(): Begin" << endl;
   pWiFiConfigServer->send(200, "text/html",
       "<form action=\"/LED\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
   return;
 } //handleRoot
-
-/*
-server.send(200, "text/html", "<form action=\"/LED\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
-"<form
-    action  =\"/LED\"
-    method  =\"POST\">
-    <input
-      type    =\"submit\"
-      value   =\"Toggle LED\">
-  </form>"
-*/
 
 void handleLED() {
   //If a POST request is made to URI /LED
@@ -113,6 +108,30 @@ void handleLED() {
   pWiFiConfigServer->send(303);
   return;
 } //handleLED
+*/
+
+void handleRoot() {
+  //When URI / is requested, send a web page with fields for user name and hidden password
+  pWiFiConfigServer->send(200, "text/html",
+      "<form action=\"/login\" method=\"POST\"><input type=\"text\" name=\"username\" placeholder=\"Username\"></br><input type=\"password\" name=\"password\" placeholder=\"Password\"></br><input type=\"submit\" value=\"Login\"></form><p>Try 'John Doe' and 'password123' ...</p>");
+  return;
+} //handleRoot
+
+
+void handleLogin() {
+  //If a POST request is made to URI /login
+  Serial << "handleLogin(): Begin" << endl;
+  if( ! pWiFiConfigServer->hasArg("username") || ! pWiFiConfigServer->hasArg("password")
+      || pWiFiConfigServer->arg("username") == NULL || pWiFiConfigServer->arg("password") == NULL) { // If the POST request doesn't have username and password data
+    pWiFiConfigServer->send(400, "text/plain", "400: Invalid Request");         // The request is invalid, so send HTTP status 400
+    return;
+  }
+  if(pWiFiConfigServer->arg("username") == "John Doe" && pWiFiConfigServer->arg("password") == "password123") { // If both the username and the password are correct
+    pWiFiConfigServer->send(200, "text/html", "<h1>Welcome, " + pWiFiConfigServer->arg("username") + "!</h1><p>Login successful</p>");
+  } else {                                                                              // Username and password don't match
+    pWiFiConfigServer->send(401, "text/plain", "401: Unauthorized");
+  }
+} //handleLogin
 
 
 void handleNotFound(){
