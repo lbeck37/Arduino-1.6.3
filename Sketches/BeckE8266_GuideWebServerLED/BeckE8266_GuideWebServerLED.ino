@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_GuideWebServerLED.ino";
-const char szFileDate[]    = "Lenny 1/7/19p";
+const char szFileDate[]    = "Lenny 1/8/19b";
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -7,7 +7,8 @@ const char szFileDate[]    = "Lenny 1/7/19p";
 #include <ESP8266WebServer.h>
 #include <Streaming.h>
 
-ESP8266WebServer      server(80);    // Create web server that listens for HTTP request on port 80
+//ESP8266WebServer      server(80);    // Create web server that listens for HTTP request on port 80
+ESP8266WebServer        *pWiFiConfigServer;
 
 static const int      led                   = 2;
 static const char     szRouterName[]        = "Aspot24";
@@ -20,6 +21,7 @@ static const char     szAccessPointPW[]     = "Qazqaz11";
 //Not sure why only these functions need prototypes
 void SetupmDNS();
 void SetupWebServer();
+
 
 void setup(void){
   Serial.begin(115200);         // Start the Serial communication to send messages to the computer
@@ -34,7 +36,6 @@ void setup(void){
 
   while (WiFi.status() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
     delay(250);
-    //Serial.print('.');
     Serial << "." ;
   }
   Serial << endl << "setup(): Connected to " << WiFi.SSID() << endl;
@@ -60,12 +61,14 @@ void SetupmDNS(){
 
 
 void SetupWebServer(){
-  Serial << "SetupWebServer(): Begin" << endl;
-  server.on("/", HTTP_GET, handleRoot);     // Call the 'handleRoot' function when a client requests URI "/"
-  server.on("/LED", HTTP_POST, handleLED);  // Call the 'handleLED' function when a POST request is made to URI "/LED"
-  server.onNotFound(handleNotFound);        // When a client requests an unknown URI (i.e. something other than "/"), call function "handleNotFound"
+  Serial << "SetupWebServer(): Construct Web Server" << endl;
+  pWiFiConfigServer= new ESP8266WebServer(80);
 
-  server.begin();                           // Actually start the server
+  pWiFiConfigServer->on("/", HTTP_GET, handleRoot);     //Function to call when a client requests URI "/"
+  pWiFiConfigServer->on("/LED", HTTP_POST, handleLED);  //Function to call when a POST request is made to URI "/LED"
+  pWiFiConfigServer->onNotFound(handleNotFound);        //When a client requests an unknown URI
+  pWiFiConfigServer->begin();                           //Actually start the server
+
   Serial << "SetupWebServer(): HTTP server started" << endl;
   return;
 } //SetupWebServer
@@ -76,16 +79,22 @@ void SetupAccessPoint(){
   WiFi.softAP(szAccessPointSSID, szAccessPointPW);             // Start the access point
   Serial << "SetupAccessPoint(): Access Point " << szAccessPointSSID << " started" << endl;
   Serial << "SetupAccessPoint(): IP address: " << WiFi.softAPIP() << endl;
+  return;
 } //SetupAccessPoint
 
 
 void loop(void){
-  server.handleClient();                    // Listen for HTTP requests from clients
-}
+  pWiFiConfigServer->handleClient();    //Listen for HTTP requests from clients
+  return;
+} //loop
 
-void handleRoot() {                         // When URI / is requested, send a web page with a button to toggle the LED
-  server.send(200, "text/html", "<form action=\"/LED\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
-}
+
+void handleRoot() {
+  //When URI / is requested, send a web page with a button to toggle the LED
+  pWiFiConfigServer->send(200, "text/html",
+      "<form action=\"/LED\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
+  return;
+} //handleRoot
 
 /*
 server.send(200, "text/html", "<form action=\"/LED\" method=\"POST\"><input type=\"submit\" value=\"Toggle LED\"></form>");
@@ -96,17 +105,19 @@ server.send(200, "text/html", "<form action=\"/LED\" method=\"POST\"><input type
       type    =\"submit\"
       value   =\"Toggle LED\">
   </form>"
-
 */
 
-void handleLED() {                          // If a POST request is made to URI /LED
+void handleLED() {
+  //If a POST request is made to URI /LED
   digitalWrite(led,!digitalRead(led));      // Change the state of the LED
-  server.sendHeader("Location","/");        // Add a header to respond with a new location for the browser to go to the home page again
-  server.send(303);                         // Send it back to the browser with an HTTP status 303 (See Other) to redirect
+  pWiFiConfigServer->sendHeader("Location","/");
+  pWiFiConfigServer->send(303);
+  return;
 } //handleLED
 
 
 void handleNotFound(){
-  server.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+  pWiFiConfigServer->send(404, "text/plain", "404: Not found");
+  return;
 } //handleNotFound
 //Last line.
