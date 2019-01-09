@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_GuideWebServerPOST.ino";
-const char szFileDate[]    = "Lenny 1/8/19c";
+const char szFileDate[]    = "Lenny 1/8/19n";
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -18,7 +18,7 @@ static const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
 static const char     szAccessPointPW[]     = "Qazqaz11";
 
 void handleRoot();
-void handleLogin();
+void HandleWiFiCredentials();
 void handleNotFound();
 
 //Not sure why only these functions need prototypes
@@ -68,7 +68,7 @@ void SetupWebServer(){
   pWiFiConfigServer= new ESP8266WebServer(80);
 
   pWiFiConfigServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"
-  pWiFiConfigServer->on("/login", HTTP_POST, handleLogin);  //Function to call when a POST request is made to URI "/LED"
+  pWiFiConfigServer->on("/WiFiSubmit", HTTP_POST, HandleWiFiCredentials);  //Function to call when a POST request is made to URI "/LED"
   pWiFiConfigServer->onNotFound(handleNotFound);            //When a client requests an unknown URI
   pWiFiConfigServer->begin();                               //Actually start the server
 
@@ -95,25 +95,19 @@ void loop(void){
 void handleRoot() {
   //When URI / is requested, send a web page with fields for user name and hidden password
   pWiFiConfigServer->send(200, "text/html",
-      "<form action=\"/login\" method=\"POST\"><input type=\"text\" name=\"username\" placeholder=\"Username\"></br><input type=\"password\" name=\"password\" placeholder=\"Password\"></br><input type=\"submit\" value=\"Login\"></form><p>Try 'John Doe' and 'password123' ...</p>");
+      "<form action=\"/WiFiSubmit\" method=\"POST\"><input type=\"text\" name=\"WiFi_SSID\" placeholder=\"WiFi SSID\"></br><input type=\"text\" name=\"WiFiPassword\" placeholder=\"WiFi Password\"></br><input type=\"submit\" value=\"Submit\"></form>");
   return;
 } //handleRoot
 
 
-void handleLogin() {
-  //If a POST request is made to URI /login
-  Serial << "handleLogin(): Begin" << endl;
-  if( ! pWiFiConfigServer->hasArg("username") || ! pWiFiConfigServer->hasArg("password")
-      || pWiFiConfigServer->arg("username") == NULL || pWiFiConfigServer->arg("password") == NULL) { // If the POST request doesn't have username and password data
-    pWiFiConfigServer->send(400, "text/plain", "400: Invalid Request");         // The request is invalid, so send HTTP status 400
-    return;
-  }
-  if(pWiFiConfigServer->arg("username") == "John Doe" && pWiFiConfigServer->arg("password") == "password123") { // If both the username and the password are correct
-    pWiFiConfigServer->send(200, "text/html", "<h1>Welcome, " + pWiFiConfigServer->arg("username") + "!</h1><p>Login successful</p>");
-  } else {                                                                              // Username and password don't match
-    pWiFiConfigServer->send(401, "text/plain", "401: Unauthorized");
-  }
-} //handleLogin
+void HandleWiFiCredentials() {
+  //If a POST request is made to URI /WiFiSubmit
+  Serial << "HandleWiFiCredentials(): Begin" << endl;
+  Serial << "HandleWiFiCredentials(): WiFi SSID= " << pWiFiConfigServer->arg("WiFi_SSID") << endl;
+  Serial << "HandleWiFiCredentials(): Password = " << pWiFiConfigServer->arg("WiFiPassword") << endl;
+  pWiFiConfigServer->send(200, "text/html", "<h1>Received " + pWiFiConfigServer->arg("WiFi_SSID") + " for WiFi SSID");
+  return;
+} //HandleWiFiCredentials
 
 
 void handleNotFound(){
