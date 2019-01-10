@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_GuideWebServerPOST.ino";
-const char szFileDate[]    = "Lenny 1/9/19p";
+const char szFileDate[]    = "Lenny 1/9/19r";
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -17,7 +17,8 @@ static const char     szDNSName[]           = "beckdev1";
 static const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
 static const char     szAccessPointPW[]     = "Qazqaz11";
 
-IPAddress             _oIPAddress;
+IPAddress             _oStationIPAddress;
+IPAddress             _oAccessPtIPAddress;
 
 void handleRoot();
 void HandleWiFiCredentials();
@@ -25,6 +26,7 @@ void handleNotFound();
 
 //Not sure why only these functions need prototypes
 IPAddress SetupWiFi();
+IPAddress SetupAccessPoint();
 void      SetupmDNS();
 void      SetupWebServer(IPAddress oIPAddress);
 
@@ -33,12 +35,18 @@ void setup(void){
   delay(10);
   Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   pinMode(led, OUTPUT);
-  _oIPAddress= SetupWiFi();
+  _oStationIPAddress= SetupWiFi();
   SetupmDNS();
-  SetupWebServer(_oIPAddress);
-  SetupAccessPoint();
+  _oAccessPtIPAddress= SetupAccessPoint();
+  SetupWebServer(_oAccessPtIPAddress);
   return;
 } //setup
+
+
+void loop(void){
+  pWiFiConfigServer->handleClient();    //Listen for HTTP requests from clients
+  return;
+} //loop
 
 
 IPAddress SetupWiFi(){
@@ -53,6 +61,14 @@ IPAddress SetupWiFi(){
   Serial << endl << "SetupWiFi(): Connected to " << WiFi.SSID() <<" at " << WiFi.localIP() << endl;
   return(WiFi.localIP());
 } //SetupWiFi
+
+
+IPAddress SetupAccessPoint(){
+  WiFi.softAP(szAccessPointSSID, szAccessPointPW);             // Start the access point
+  _oAccessPtIPAddress= WiFi.softAPIP();
+  Serial << "SetupAccessPoint(): " << szAccessPointSSID << " started at " << _oAccessPtIPAddress << endl;
+  return(WiFi.softAPIP());
+} //SetupAccessPoint
 
 
 void SetupmDNS(){
@@ -77,19 +93,6 @@ void SetupWebServer(IPAddress oIPAddress){
   Serial << "SetupWebServer(): HTTP server started at " << oIPAddress << endl;
   return;
 } //SetupWebServer
-
-
-void SetupAccessPoint(){
-  WiFi.softAP(szAccessPointSSID, szAccessPointPW);             // Start the access point
-  Serial << "SetupAccessPoint(): " << szAccessPointSSID << " started at " << WiFi.softAPIP() << endl;
-  return;
-} //SetupAccessPoint
-
-
-void loop(void){
-  pWiFiConfigServer->handleClient();    //Listen for HTTP requests from clients
-  return;
-} //loop
 
 
 void handleRoot() {
