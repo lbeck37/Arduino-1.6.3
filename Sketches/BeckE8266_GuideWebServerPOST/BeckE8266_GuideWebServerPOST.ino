@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_GuideWebServerPOST.ino";
-const char szFileDate[]    = "Lenny 1/9/19r";
+const char szFileDate[]    = "Lenny 1/9/19w";
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -7,28 +7,26 @@ const char szFileDate[]    = "Lenny 1/9/19r";
 #include <ESP8266WebServer.h>
 #include <Streaming.h>
 
-ESP8266WebServer      *pWiFiConfigServer;
-
 static const int      led                   = 2;
 static const int      wWebServerPort        = 80;
 static const char     szRouterName[]        = "Aspot24";
 static const char     szRouterPW[]          = "Qazqaz11";
-static const char     szDNSName[]           = "beckdev1";
 static const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
 static const char     szAccessPointPW[]     = "Qazqaz11";
+char                  szDNSName[]           = "beckdev1";
 
+ESP8266WebServer      *pConfigWiFiServer;
 IPAddress             _oStationIPAddress;
 IPAddress             _oAccessPtIPAddress;
 
-void handleRoot();
-void HandleWiFiCredentials();
-void handleNotFound();
-
-//Not sure why only these functions need prototypes
-IPAddress SetupWiFi();
-IPAddress SetupAccessPoint();
-void      SetupmDNS();
-void      SetupWebServer(IPAddress oIPAddress);
+//Function prototypes
+IPAddress SetupWiFi             ();
+IPAddress SetupAccessPoint      ();
+void      SetupWebServer        (IPAddress oIPAddress);
+void      SetupmDNS             (IPAddress oIPAddress, char* szName);
+void      handleRoot            ();
+void      HandleWiFiCredentials ();
+void      handleNotFound        ();
 
 void setup(void){
   Serial.begin(115200);         // Start the Serial communication to send messages to the computer
@@ -36,15 +34,15 @@ void setup(void){
   Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   pinMode(led, OUTPUT);
   _oStationIPAddress= SetupWiFi();
-  SetupmDNS();
   _oAccessPtIPAddress= SetupAccessPoint();
   SetupWebServer(_oAccessPtIPAddress);
+  SetupmDNS(_oStationIPAddress, szDNSName);
   return;
 } //setup
 
 
 void loop(void){
-  pWiFiConfigServer->handleClient();    //Listen for HTTP requests from clients
+  pConfigWiFiServer->handleClient();    //Listen for HTTP requests from clients
   return;
 } //loop
 
@@ -71,24 +69,24 @@ IPAddress SetupAccessPoint(){
 } //SetupAccessPoint
 
 
-void SetupmDNS(){
-  if (MDNS.begin(szDNSName)) {              // Start the mDNS responder for esp8266.local
-    Serial << "SetupmDNS(): mDNS responder started for " << szDNSName << endl;
+void SetupmDNS(IPAddress oIPAddress, char* szName){
+  if (MDNS.begin(szName, oIPAddress)) {              // Start the mDNS responder for esp8266.local
+    Serial << "SetupmDNS(): mDNS responder started for " << szName << " at " << oIPAddress << endl;
   }
   else {
-    Serial << "SetupmDNS(): Error setting up MDNS responder for " << szDNSName << endl;
+    Serial << "SetupmDNS(): Error setting up MDNS responder for " << szName << " at " << oIPAddress << endl;
   }
   return;
 } //SetupmDNS
 
 
 void SetupWebServer(IPAddress oIPAddress){
-  pWiFiConfigServer= new ESP8266WebServer(oIPAddress, wWebServerPort);
+  pConfigWiFiServer= new ESP8266WebServer(oIPAddress, wWebServerPort);
 
-  pWiFiConfigServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"
-  pWiFiConfigServer->on("/WiFiSubmit", HTTP_POST, HandleWiFiCredentials);  //Function to call when a POST request is made to URI "/LED"
-  pWiFiConfigServer->onNotFound(handleNotFound);            //When a client requests an unknown URI
-  pWiFiConfigServer->begin();                               //Actually start the server
+  pConfigWiFiServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"
+  pConfigWiFiServer->on("/WiFiSubmit", HTTP_POST, HandleWiFiCredentials);  //Function to call when a POST request is made to URI "/LED"
+  pConfigWiFiServer->onNotFound(handleNotFound);            //When a client requests an unknown URI
+  pConfigWiFiServer->begin();                               //Actually start the server
 
   Serial << "SetupWebServer(): HTTP server started at " << oIPAddress << endl;
   return;
@@ -97,7 +95,7 @@ void SetupWebServer(IPAddress oIPAddress){
 
 void handleRoot() {
   //When URI / is requested, send a web page with fields for user name and hidden password
-  pWiFiConfigServer->send(200, "text/html",
+  pConfigWiFiServer->send(200, "text/html",
       "<form action=\"/WiFiSubmit\" method=\"POST\"><input type=\"text\" name=\"WiFi_SSID\" placeholder=\"WiFi SSID\"></br><input type=\"text\" name=\"WiFiPassword\" placeholder=\"WiFi Password\"></br><input type=\"submit\" value=\"Submit\"></form>");
   return;
 } //handleRoot
@@ -105,17 +103,17 @@ void handleRoot() {
 
 void HandleWiFiCredentials() {
   //If a POST request is made to URI /WiFiSubmit
-  Serial << "HandleWiFiCredentials(): Received " << pWiFiConfigServer->arg("WiFi_SSID") << "/" <<
-      pWiFiConfigServer->arg("WiFiPassword") << " as WiFi name/password" << endl;
+  Serial << "HandleWiFiCredentials(): Received " << pConfigWiFiServer->arg("WiFi_SSID") << "/" <<
+      pConfigWiFiServer->arg("WiFiPassword") << " as WiFi name/password" << endl;
 
-  pWiFiConfigServer->send(200, "text/html", "<h1>" + pWiFiConfigServer->arg("WiFi_SSID") +
-      "/" + pWiFiConfigServer->arg("WiFiPassword") + " will be used as WiFi name/password");
+  pConfigWiFiServer->send(200, "text/html", "<h1>" + pConfigWiFiServer->arg("WiFi_SSID") +
+      "/" + pConfigWiFiServer->arg("WiFiPassword") + " will be used as WiFi name/password");
   return;
 } //HandleWiFiCredentials
 
 
 void handleNotFound(){
-  pWiFiConfigServer->send(404, "text/plain", "404: Not found");
+  pConfigWiFiServer->send(404, "text/plain", "404: Not found");
   return;
 } //handleNotFound
 //Last line.
