@@ -1,4 +1,4 @@
-//BeckE8266WiFiLib.h
+//BeckE8266WiFiLib.h, 1/9/19
 #pragma once
 #include <ESP8266WebServer.h>
 
@@ -10,5 +10,4 @@ IPAddress SetupWiFi             ();
 IPAddress SetupAccessPoint      ();
 void      SetupWebServer        (IPAddress oIPAddress);
 void      SetupmDNS             (IPAddress oIPAddress, char* szName);
-
 //Last line.
