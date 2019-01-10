@@ -1,61 +1,27 @@
-const char szSketchName[]  = "BeckE8266_GuideWebServerPOST.ino";
-const char szFileDate[]    = "Lenny 1/9/19x";
+//BeckE8266WiFiLib.cpp, 1/9/19
 
-/*
+#include <BeckE8266WiFiLib.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266mDNS.h>
-#include <ESP8266WebServer.h>
-*/
-#include <BeckE8266WiFiLib.h>
 #include <Streaming.h>
 
-static const int      wLedPin               = 2;
-char                  _szDNSName[]          = "beckdev1";
+const int      wWebServerPort        = 80;
+const char     szRouterName[]        = "Aspot24";
+const char     szRouterPW[]          = "Qazqaz11";
+const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
+const char     szAccessPointPW[]     = "Qazqaz11";
 
-/*
-static const int      wWebServerPort        = 80;
-static const char     szRouterName[]        = "Aspot24";
-static const char     szRouterPW[]          = "Qazqaz11";
-static const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
-static const char     szAccessPointPW[]     = "Qazqaz11";
-char                  szDNSName[]           = "beckdev1";
-
+//Te following are declared external in BeckE8266WiFiLib.
 ESP8266WebServer      *pConfigWiFiServer;
 IPAddress             _oStationIPAddress;
 IPAddress             _oAccessPtIPAddress;
-*/
 
-/*
-IPAddress SetupWiFi             ();
-IPAddress SetupAccessPoint      ();
-void      SetupWebServer        (IPAddress oIPAddress);
-void      SetupmDNS             (IPAddress oIPAddress, char* szName);
+//Function prototypes
 void      handleRoot            ();
 void      HandleWiFiCredentials ();
 void      handleNotFound        ();
-*/
 
-void setup(void){
-  Serial.begin(115200);         // Start the Serial communication to send messages to the computer
-  delay(10);
-  Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
-  pinMode(wLedPin, OUTPUT);
-  _oStationIPAddress= SetupWiFi();
-  _oAccessPtIPAddress= SetupAccessPoint();
-  SetupWebServer(_oAccessPtIPAddress);
-  SetupmDNS(_oStationIPAddress, _szDNSName);
-  return;
-} //setup
-
-
-void loop(void){
-  pConfigWiFiServer->handleClient();    //Listen for HTTP requests from clients
-  return;
-} //loop
-
-
-/*
 IPAddress SetupWiFi(){
   Serial << "SetupWiFi(): Connecting to " << szRouterName << " using " << szRouterPW << endl;
   WiFi.begin(szRouterName, szRouterPW);             // Connect to the network
@@ -125,5 +91,3 @@ void handleNotFound(){
   pConfigWiFiServer->send(404, "text/plain", "404: Not found");
   return;
 } //handleNotFound
-*/
-//Last line.
