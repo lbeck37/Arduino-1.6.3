@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/7/19a";
+const char szFileDate[]    = "Lenny 1/9/19b";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -17,7 +17,7 @@ const char szFileDate[]    = "Lenny 1/7/19a";
 #endif
 
 #include <BeckMiniLib.h>
-#include <BeckWiFiLib.h>
+#include <BeckE8266WiFiLib.h>
 #include <BeckOTALib.h>
 #include <BeckNTPLib.h>
 #include <BeckBlynkLib.h>
@@ -73,8 +73,8 @@ static const long   lBlynkTimerInterval   = 1000L;
 
 static const long     sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
-static const char     szRouterName[]        = "Aspot24";
-static const char     szRouterPW[]          = "Qazqaz11";
+char                  szRouterName[]        = "Aspot24";
+char                  szRouterPW[]          = "Qazqaz11";
 
 static int            asSwitchState[]       = {0, 0, 0, 0, 0};
 static int            asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
@@ -183,7 +183,8 @@ void setup()
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
-  SetupWiFi(szRouterName, szRouterPW);
+  //SetupWiFi(szRouterName, szRouterPW);
+  _oStationIPAddress= SetupWiFi(szRouterName, szRouterPW);
   SetupOTAServer(acHostname);
   SetupNTP();
   SetupBlynk();

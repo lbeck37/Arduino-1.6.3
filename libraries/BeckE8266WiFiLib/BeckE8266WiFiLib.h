@@ -6,7 +6,7 @@ extern ESP8266WebServer      *pConfigWiFiServer;
 extern IPAddress             _oStationIPAddress;
 extern IPAddress             _oAccessPtIPAddress;
 
-IPAddress SetupWiFi             ();
+IPAddress SetupWiFi             (char szRouterName[], char szRouterPW[]);
 IPAddress SetupAccessPoint      ();
 void      SetupWebServer        (IPAddress oIPAddress);
 void      SetupmDNS             (IPAddress oIPAddress, char* szName);

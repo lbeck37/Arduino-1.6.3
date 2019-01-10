@@ -7,12 +7,10 @@
 #include <Streaming.h>
 
 const int      wWebServerPort        = 80;
-const char     szRouterName[]        = "Aspot24";
-const char     szRouterPW[]          = "Qazqaz11";
 const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
 const char     szAccessPointPW[]     = "Qazqaz11";
 
-//Te following are declared external in BeckE8266WiFiLib.
+//The following are declared external in BeckE8266WiFiLib.
 ESP8266WebServer      *pConfigWiFiServer;
 IPAddress             _oStationIPAddress;
 IPAddress             _oAccessPtIPAddress;
@@ -22,7 +20,7 @@ void      handleRoot            ();
 void      HandleWiFiCredentials ();
 void      handleNotFound        ();
 
-IPAddress SetupWiFi(){
+IPAddress SetupWiFi(char szRouterName[], char szRouterPW[]){
   Serial << "SetupWiFi(): Connecting to " << szRouterName << " using " << szRouterPW << endl;
   WiFi.begin(szRouterName, szRouterPW);             // Connect to the network
   Serial << "SetupWiFi(): Connecting .";
