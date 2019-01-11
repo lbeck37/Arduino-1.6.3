@@ -5,6 +5,7 @@
 #include <WiFiClient.h>
 #include <ESP8266mDNS.h>
 #include <Streaming.h>
+#include <BeckMiniLib.h>
 
 const int      wWebServerPort        = 80;
 const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
@@ -20,6 +21,21 @@ void      handleRoot            ();
 void      HandleWiFiCredentials ();
 void      handleNotFound        ();
 
+
+void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
+  //IPAddress oIPAddress;
+
+  Serial << LOG0 << "SetupWiFi()(BeckWiFiLib.cpp): Call WiFi.mode(WIFI_STA)" << endl;
+  WiFi.mode(WIFI_STA);
+
+  Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
+  WiFi.begin(szRouterName, szRouterPW);
+  //oIPAddress= WiFi.localIP();
+  //Serial << LOG0 << "SetupWiFi(): oIPAddress: " << oIPAddress << endl;
+  return;
+} //SetupWiFi
+
+/*
 IPAddress SetupWiFi(char szRouterName[], char szRouterPW[]){
   Serial << "SetupWiFi(): Connecting to " << szRouterName << " using " << szRouterPW << endl;
   WiFi.begin(szRouterName, szRouterPW);             // Connect to the network
@@ -32,6 +48,7 @@ IPAddress SetupWiFi(char szRouterName[], char szRouterPW[]){
   Serial << endl << "SetupWiFi(): Connected to " << WiFi.SSID() <<" at " << WiFi.localIP() << endl;
   return(WiFi.localIP());
 } //SetupWiFi
+*/
 
 
 IPAddress SetupAccessPoint(){
