@@ -1,4 +1,4 @@
-//BeckNTPLib.cpp, Beck 12/10/18
+//BeckNTPLib.cpp, Beck 1/11/19
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 #include <NtpClientLib.h>   //Just for Eclipse resolving
@@ -25,36 +25,6 @@ void SetupNTP(){
   NTP.begin(szNtpServer, wTimeOffset, bDaylightSavings);
   NTP.setInterval(63);
   SetupNTPHandlers();
-
-  /*
-  Serial << LOG0 << "SetupNTP(): Setup NTP.onNTPSyncEvent" << endl;
-  NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
-	if (ntpEvent) {
-		Serial.print("Time Sync error: ");
-		if (ntpEvent == noResponse)
-			Serial.println("NTP server not reachable");
-		else if (ntpEvent == invalidAddress)
-			Serial.println("Invalid NTP server address");
-	}	//if (ntpEvent)
-  else{
-  	Serial << LOG0 << "SetupNTP(): Got NTP time: " <<
-              NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
-    }
-  });
-
-  Serial << LOG0 << "SetupNTP(): Setup WiFi.onEvent" << endl;
-  WiFi.onEvent([](WiFiEvent_t oEvent) {
-    Serial.printf("Event wifi -----> %d\n", oEvent);
- });
-
-  static WiFiEventHandler   WiFiEventHandler1;
-  static WiFiEventHandler   WiFiEventHandler2;
-  Serial << LOG0 << "SetupNTP(): Setup handler for WiFi.onStationModeGotIP" << endl;
-  WiFiEventHandler1= WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
-
-  Serial << LOG0 << "SetupNTP(): Setup handler for WiFi.onStationModeDisconnected" << endl;
-  WiFiEventHandler2= WiFi.onStationModeDisconnected(onSTADisconnected);
-*/
   return;
 } //SetupNTP
 
@@ -76,26 +46,6 @@ void SetupNTPHandlers(){
   });
   return;
 } //SetupNTPHandlers
-
-
-/*
-void onSTAGotIP(WiFiEventStationModeGotIP ipInfo) {
-  Serial.printf("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
-  //NTP.begin("pool.ntp.org", 1, true);
-  NTP.begin(szNtpServer, wTimeOffset, bDaylightSavings);
-  NTP.setInterval(63);
-  digitalWrite(2, LOW);
-  return;
-} //onSTAGotIP
-
-
-void onSTADisconnected(WiFiEventStationModeDisconnected event_info) {
-  Serial.printf("Disconnected from SSID: %s\n", event_info.ssid.c_str());
-  Serial.printf("Reason: %d\n", event_info.reason);
-  digitalWrite(2, HIGH);
-  return;
-} //onSTADisconnected
-*/
 
 
 String szPrintDigits(int digits) {

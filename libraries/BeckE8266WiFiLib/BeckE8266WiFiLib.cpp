@@ -1,4 +1,4 @@
-//BeckE8266WiFiLib.cpp, 1/9/19
+//BeckE8266WiFiLib.cpp, 1/11/19
 
 #include <BeckE8266WiFiLib.h>
 #include <ESP8266WiFi.h>
@@ -46,22 +46,6 @@ void SetupWiFiHandlers(){
   });
   return;
 }  //SetupWiFiHandlers
-
-
-/*
-IPAddress SetupWiFi(char szRouterName[], char szRouterPW[]){
-  Serial << "SetupWiFi(): Connecting to " << szRouterName << " using " << szRouterPW << endl;
-  WiFi.begin(szRouterName, szRouterPW);             // Connect to the network
-  Serial << "SetupWiFi(): Connecting .";
-
-  while (WiFi.status() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
-    delay(250);
-    Serial << "." ;
-  }
-  Serial << endl << "SetupWiFi(): Connected to " << WiFi.SSID() <<" at " << WiFi.localIP() << endl;
-  return(WiFi.localIP());
-} //SetupWiFi
-*/
 
 
 IPAddress SetupAccessPoint(){
