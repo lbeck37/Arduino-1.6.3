@@ -17,10 +17,16 @@ Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
 
 TimeChangeRule *pTimeChangeRule;
 
-void SetupNTP(){
-  static WiFiEventHandler 	WiFiEventHandler1;
-  static WiFiEventHandler 	WiFiEventHandler2;
+//Function protos
+void SetupNTPHandlers();
 
+void SetupNTP(){
+  Serial << LOG0 << "SetupNTP(): Begin" << endl;
+  NTP.begin(szNtpServer, wTimeOffset, bDaylightSavings);
+  NTP.setInterval(63);
+  SetupNTPHandlers();
+
+  /*
   Serial << LOG0 << "SetupNTP(): Setup NTP.onNTPSyncEvent" << endl;
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
 	if (ntpEvent) {
@@ -41,15 +47,38 @@ void SetupNTP(){
     Serial.printf("Event wifi -----> %d\n", oEvent);
  });
 
+  static WiFiEventHandler   WiFiEventHandler1;
+  static WiFiEventHandler   WiFiEventHandler2;
   Serial << LOG0 << "SetupNTP(): Setup handler for WiFi.onStationModeGotIP" << endl;
   WiFiEventHandler1= WiFi.onStationModeGotIP(onSTAGotIP);// As soon WiFi is connected, start NTP Client
 
   Serial << LOG0 << "SetupNTP(): Setup handler for WiFi.onStationModeDisconnected" << endl;
   WiFiEventHandler2= WiFi.onStationModeDisconnected(onSTADisconnected);
+*/
   return;
 } //SetupNTP
 
 
+void SetupNTPHandlers(){
+  Serial << LOG0 << "SetupNTPHandlers(): Setup NTP.onNTPSyncEvent" << endl;
+  NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
+  if (ntpEvent) {
+    Serial.print("Time Sync error: ");
+    if (ntpEvent == noResponse)
+      Serial.println("NTP server not reachable");
+    else if (ntpEvent == invalidAddress)
+      Serial.println("Invalid NTP server address");
+  } //if (ntpEvent)
+  else{
+    Serial << LOG0 << "SetupNTP(): Got NTP time: " <<
+              NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
+    }
+  });
+  return;
+} //SetupNTPHandlers
+
+
+/*
 void onSTAGotIP(WiFiEventStationModeGotIP ipInfo) {
   Serial.printf("Got IP: %s\r\n", ipInfo.ip.toString().c_str());
   //NTP.begin("pool.ntp.org", 1, true);
@@ -66,6 +95,7 @@ void onSTADisconnected(WiFiEventStationModeDisconnected event_info) {
   digitalWrite(2, HIGH);
   return;
 } //onSTADisconnected
+*/
 
 
 String szPrintDigits(int digits) {

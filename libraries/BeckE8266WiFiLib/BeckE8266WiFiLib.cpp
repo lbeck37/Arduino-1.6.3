@@ -21,6 +21,8 @@ void      handleRoot            ();
 void      HandleWiFiCredentials ();
 void      handleNotFound        ();
 
+//Function protos
+void SetupWiFiHandlers();
 
 void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
   //IPAddress oIPAddress;
@@ -32,8 +34,19 @@ void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
   WiFi.begin(szRouterName, szRouterPW);
   //oIPAddress= WiFi.localIP();
   //Serial << LOG0 << "SetupWiFi(): oIPAddress: " << oIPAddress << endl;
+  SetupWiFiHandlers();
   return;
 } //SetupWiFi
+
+
+void SetupWiFiHandlers(){
+  Serial << LOG0 << "SetupWiFiHandlers(): Setup WiFi.onEvent" << endl;
+  WiFi.onEvent([](WiFiEvent_t oEvent) {
+    Serial.printf("Event wifi -----> %d\n", oEvent);
+  });
+  return;
+}  //SetupWiFiHandlers
+
 
 /*
 IPAddress SetupWiFi(char szRouterName[], char szRouterPW[]){
