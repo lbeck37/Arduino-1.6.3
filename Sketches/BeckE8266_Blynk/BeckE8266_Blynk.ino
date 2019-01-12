@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/11/19k";
+const char szFileDate[]    = "Lenny 1/11/19t";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -191,8 +191,8 @@ void setup()
   SetupOTAServer(acHostname);
   SetupNTP();
   SetupBlynk();
-  SetupI2C();
   SetupAlexa();
+  SetupI2C();
   SetupDisplay();
   UpdateDisplay();
   SetupSwitches();

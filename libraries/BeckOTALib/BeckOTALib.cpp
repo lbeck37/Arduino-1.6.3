@@ -8,7 +8,6 @@ unsigned long       ulUpdateTimeoutMsec   = 0;
 bool                bUpdating             = false;   //Turns off Blynk.
 ESP8266WebServer    oESP8266WebServer(80);
 
-
 void HandleOTAServer(void){
   oESP8266WebServer.handleClient();
   delay(1);
@@ -17,7 +16,6 @@ void HandleOTAServer(void){
 
 
 void SetupOTAServer(const char *acHostname) {
-  Serial << LOG0 << "SetupOTAServer(): acHostname= " << acHostname << endl;
 	MDNS.begin(acHostname);
 	oESP8266WebServer.on("/", HTTP_GET, [](){
 		oESP8266WebServer.sendHeader("Connection", "close");
@@ -37,7 +35,7 @@ void SetupOTAServer(const char *acHostname) {
 	oESP8266WebServer.begin();
 	MDNS.addService("http", "tcp", 80);
 	Serial << LOG0 << "SetupOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
-  Serial << "SetupOTAServer(): Access this device using " << WiFi.localIP() << " or " << acHostname << ".local" << endl;
+  //Serial << "SetupOTAServer(): Access this device using " << WiFi.localIP() << " or " << acHostname << ".local" << endl;
   return;
 } //SetupOTAServer
 
