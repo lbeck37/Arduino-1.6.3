@@ -17,7 +17,7 @@ Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
 
 TimeChangeRule *pTimeChangeRule;
 
-//Function protos
+//Local function protos
 void SetupNTPHandlers();
 
 void SetupNTP(){
@@ -33,14 +33,11 @@ void SetupNTPHandlers(){
   Serial << LOG0 << "SetupNTPHandlers(): Setup NTP.onNTPSyncEvent" << endl;
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
   if (ntpEvent) {
-    //Serial.print("Time Sync error: ");
     Serial << LOG0 << "SetupNTPHandlers(): Time Sync error: ";
     if (ntpEvent == noResponse){
-      //Serial.println("NTP server not reachable");
       Serial << "NTP server not reachable" << endl;
     } //if(ntpEvent==noResponse)
     else if (ntpEvent == invalidAddress){
-      //Serial.println("Invalid NTP server address");
       Serial << "Invalid NTP server address" << endl;
     } //elseif(ntpEvent==invalidAddress)
   } //if(ntpEvent)
