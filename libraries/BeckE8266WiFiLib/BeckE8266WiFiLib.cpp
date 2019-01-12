@@ -22,30 +22,120 @@ void      HandleWiFiCredentials ();
 void      handleNotFound        ();
 
 //Function protos
-void SetupWiFiHandlers();
+//void SetupWiFiHandlers  ();
+//void WiFiEventHandler   (WiFiEvent_t event);
+void WiFiBegin          (const char szRouterName[], const char szRouterPW[]);
 
 void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
-  //IPAddress oIPAddress;
-
   Serial << LOG0 << "SetupWiFi()(BeckWiFiLib.cpp): Call WiFi.mode(WIFI_STA)" << endl;
   WiFi.mode(WIFI_STA);
 
   Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
-  //oIPAddress= WiFi.localIP();
-  //Serial << LOG0 << "SetupWiFi(): oIPAddress: " << oIPAddress << endl;
-  SetupWiFiHandlers();
+  //WiFi.begin(szRouterName, szRouterPW);
+  //SetupWiFiHandlers();
+  WiFiBegin(szRouterName, szRouterPW);
   return;
 } //SetupWiFi
 
 
+void WiFiEvent(WiFiEvent_t event) {
+/*
+    Serial.printf("[WiFi-event] event: %d\n", event);
+    switch(event) {
+        case WIFI_EVENT_STAMODE_GOT_IP:
+            Serial.println("WiFi connected");
+            Serial.println("IP address: ");
+            Serial.println(WiFi.localIP());
+            break;
+        case WIFI_EVENT_STAMODE_DISCONNECTED:
+            Serial.println("WiFi lost connection");
+            break;
+*/
+/*
+  typedef enum WiFiEvent
+  {
+      WIFI_EVENT_STAMODE_CONNECTED = 0,
+      WIFI_EVENT_STAMODE_DISCONNECTED,
+      WIFI_EVENT_STAMODE_AUTHMODE_CHANGE,
+      WIFI_EVENT_STAMODE_GOT_IP,
+      WIFI_EVENT_STAMODE_DHCP_TIMEOUT,
+      WIFI_EVENT_SOFTAPMODE_STACONNECTED,
+      WIFI_EVENT_SOFTAPMODE_STADISCONNECTED,
+      WIFI_EVENT_SOFTAPMODE_PROBEREQRECVED,
+      WIFI_EVENT_MAX,
+      WIFI_EVENT_ANY = WIFI_EVENT_MAX,
+      WIFI_EVENT_MODE_CHANGE
+  } WiFiEvent_t;
+*/
+  Serial << LOG0 << "WiFiEvent(): Received event: " << event << endl;
+  switch(event) {
+  case WIFI_EVENT_STAMODE_CONNECTED:          //0
+    Serial << LOG0 << "WiFiEvent(): Connected" << endl;
+    break;
+  case WIFI_EVENT_STAMODE_DISCONNECTED:       //1
+    Serial << LOG0 << "WiFiEvent(): Disconnected" << endl;
+    break;
+  case WIFI_EVENT_STAMODE_AUTHMODE_CHANGE:    //2
+    Serial << LOG0 << "WiFiEvent(): Authmode change" << endl;
+    break;
+  case WIFI_EVENT_STAMODE_GOT_IP:             //3
+    Serial << LOG0 << "WiFiEvent(): Got IP address: " << WiFi.localIP() << endl;
+    break;
+  case WIFI_EVENT_STAMODE_DHCP_TIMEOUT:       //4
+    Serial << LOG0 << "WiFiEvent(): DHCP Timeout" << endl;
+    break;
+  case WIFI_EVENT_SOFTAPMODE_STACONNECTED:    //5
+    Serial << LOG0 << "WiFiEvent(): AP Station Connected" << endl;
+    break;
+  case WIFI_EVENT_SOFTAPMODE_STADISCONNECTED: //6
+    Serial << LOG0 << "WiFiEvent(): AP Station Disconnected" << endl;
+    break;
+  case WIFI_EVENT_SOFTAPMODE_PROBEREQRECVED: //7
+    Serial << LOG0 << "WiFiEvent(): Probe Request Received" << endl;
+    break;
+  case WIFI_EVENT_MAX:                       //8
+    Serial << LOG0 << "WiFiEvent(): Event Max or Event Any" << endl;
+    break;
+  case WIFI_EVENT_MODE_CHANGE:               //9
+    Serial << LOG0 << "WiFiEvent(): Event Mode Change" << endl;
+    break;
+  default:
+    Serial << LOG0 << "WiFiEventHandler(): Executed default switch for event= " << event << endl;
+    break;
+  } //switch
+} //WiFiEvent
+
+
+void WiFiBegin(const char szRouterName[], const char szRouterPW[]){
+  Serial << LOG0 << "WiFiBegin(): Connecting to " << szRouterName << " using " << szRouterPW << endl;
+
+  WiFi.disconnect(true);    // delete old config
+  delay(1000);
+  //Setup handler
+  WiFi.onEvent(WiFiEvent);
+
+  //Start WiFi station
+  WiFi.begin(szRouterName, szRouterPW);
+
+  while (WiFi.status() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
+    delay(250);
+  }
+  Serial << LOG0 << "WiFiBegin(): Connected to " << WiFi.SSID() << endl;
+  Serial << LOG0 << "WiFiBegin(): IP address: " << WiFi.localIP() << endl;
+  return;
+} //WiFiBegin
+
+
+/*
 void SetupWiFiHandlers(){
-  Serial << LOG0 << "SetupWiFiHandlers(): Setup WiFi.onEvent" << endl;
+  Serial << LOG0 << "SetupWiFiHandlers(): Setup WiFi.onEvent handler" << endl;
   WiFi.onEvent([](WiFiEvent_t oEvent) {
-    Serial.printf("Event wifi -----> %d\n", oEvent);
-  });
+    //Serial.printf("Event wifi -----> %d\n", oEvent);
+    Serial << LOG0 << "SetupWiFiHandlers(): WiFi Event= " << oEvent << endl;
+  }); //WiFi.onEvent()
   return;
 }  //SetupWiFiHandlers
+*/
 
 
 IPAddress SetupAccessPoint(){

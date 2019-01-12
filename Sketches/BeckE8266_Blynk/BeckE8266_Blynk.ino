@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/11/19c";
+const char szFileDate[]    = "Lenny 1/11/19k";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -36,6 +36,9 @@ const char szFileDate[]    = "Lenny 1/11/19c";
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+
+#include <WiFiManager.h>
+WiFiManager   _oWiFiManager;
 
 static const int  sAlexaPin       =  2;   //GPIO 2 is D4 and Blue LED on NodeMCU
 static const int  sSDA_GPIO       =  4;   //I2C, GPIO 4 is D2 on NodeMCU

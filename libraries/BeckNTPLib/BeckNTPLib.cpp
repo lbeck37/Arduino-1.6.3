@@ -33,17 +33,22 @@ void SetupNTPHandlers(){
   Serial << LOG0 << "SetupNTPHandlers(): Setup NTP.onNTPSyncEvent" << endl;
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
   if (ntpEvent) {
-    Serial.print("Time Sync error: ");
-    if (ntpEvent == noResponse)
-      Serial.println("NTP server not reachable");
-    else if (ntpEvent == invalidAddress)
-      Serial.println("Invalid NTP server address");
-  } //if (ntpEvent)
+    //Serial.print("Time Sync error: ");
+    Serial << LOG0 << "SetupNTPHandlers(): Time Sync error: ";
+    if (ntpEvent == noResponse){
+      //Serial.println("NTP server not reachable");
+      Serial << "NTP server not reachable" << endl;
+    } //if(ntpEvent==noResponse)
+    else if (ntpEvent == invalidAddress){
+      //Serial.println("Invalid NTP server address");
+      Serial << "Invalid NTP server address" << endl;
+    } //elseif(ntpEvent==invalidAddress)
+  } //if(ntpEvent)
   else{
-    Serial << LOG0 << "SetupNTP(): Got NTP time: " <<
+    Serial << LOG0 << "SetupNTPHandlers(): Got NTP time: " <<
               NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
-    }
-  });
+    }   //if(ntpEvent)else
+  }); //NTP.onNTPSyncEvent()
   return;
 } //SetupNTPHandlers
 
