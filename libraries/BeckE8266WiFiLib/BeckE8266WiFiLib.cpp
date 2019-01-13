@@ -75,8 +75,8 @@ void WiFiEvent(WiFiEvent_t event) {
 bool bWiFiBegin(const char szRouterName[], const char szRouterPW[]){
   bool  bReturn= true;
   Serial << LOG0 << "WiFiBegin(): Connecting to " << szRouterName << " using " << szRouterPW << endl;
-  WiFi.disconnect(true);    // delete old config
-  delay(1000);
+  //WiFi.disconnect(true);    // delete old config
+  //delay(1000);
   bReceivedIPAddress= false;
   WiFi.onEvent(WiFiEvent);    ////Setup WiFi event handler
 

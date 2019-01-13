@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/12/19a";
+const char szFileDate[]    = "Lenny 1/12/19";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -15,6 +15,8 @@ const char szFileDate[]    = "Lenny 1/12/19a";
   #define DEBUG         true
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
+
+#define USE_ACCESS_PT      false
 
 #include <BeckMiniLib.h>
 #include <BeckE8266WiFiLib.h>
@@ -186,7 +188,11 @@ void setup()
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
-  SetupWiFi(szRouterName, szRouterPW);
+  bSetupWiFi(szRouterName, szRouterPW);
+#if USE_ACCESS_PT
+  SetupAccessPoint();
+  SetupWebServer(_oAccessPtIPAddress);
+#endif  //USE_ACCESS_PT
   SetupOTAServer(acHostname);
   SetupNTP();
   SetupBlynk();
@@ -202,6 +208,9 @@ void setup()
 
 void loop() {
   HandleOTAServer();
+#if USE_ACCESS_PT
+  HandleSoftAPClient();       //Listen for HTTP requests from clients
+#endif  //USE_ACCESS_PT
   if (!bSkipBlynk) {
     if (!bUpdating) {
         Blynk.run();
