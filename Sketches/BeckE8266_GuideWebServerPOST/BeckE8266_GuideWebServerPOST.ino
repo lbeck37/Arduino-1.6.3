@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_GuideWebServerPOST.ino";
-const char szFileDate[]    = "Lenny 1/12/19e";
+const char szFileDate[]    = "Lenny 1/12/19g";
 
 #include <BeckE8266WiFiLib.h>
 #include <Streaming.h>
@@ -15,10 +15,9 @@ void setup(void){
   delay(10);
   Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   pinMode(_wLedPin, OUTPUT);
-  //_oStationIPAddress= SetupWiFi();
-  //_oStationIPAddress= SetupWiFi(szRouterName, szRouterPW);
-  SetupWiFi(szRouterName, szRouterPW);
-  _oAccessPtIPAddress= SetupAccessPoint();
+  bSetupWiFi(szRouterName, szRouterPW);
+  //_oAccessPtIPAddress= SetupAccessPoint();
+  SetupAccessPoint();
   SetupWebServer(_oAccessPtIPAddress);
   SetupmDNS(_oStationIPAddress, _szDNSName);
   return;
@@ -26,7 +25,8 @@ void setup(void){
 
 
 void loop(void){
-  _pConfigWiFiServer->handleClient();    //Listen for HTTP requests from clients
+  //_pConfigWiFiServer->handleClient();    //Listen for HTTP requests from clients
+  HandleSoftAPClient();       //Listen for HTTP requests from clients
   return;
 } //loop
 

@@ -11,7 +11,7 @@ const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
 const char     szAccessPointPW[]     = "Qazqaz11";
 
 //The following are declared external in BeckE8266WiFiLib.
-ESP8266WebServer     *_pConfigWiFiServer;
+ESP8266WebServer     *_pSoftAPWebServer;
 IPAddress             _oStationIPAddress;
 IPAddress             _oAccessPtIPAddress;
 
@@ -21,14 +21,14 @@ bool      bReceivedIPAddress;
 void      handleRoot            ();
 void      HandleWiFiCredentials ();
 void      handleNotFound        ();
-void      WiFiBegin             (const char szRouterName[], const char szRouterPW[]);
+bool      bWiFiBegin             (const char szRouterName[], const char szRouterPW[]);
 
-void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
+bool bSetupWiFi(const char szRouterName[], const char szRouterPW[]){
   Serial << LOG0 << "SetupWiFi()(BeckWiFiLib.cpp): Call WiFi.mode(WIFI_STA)" << endl;
   WiFi.mode(WIFI_STA);
-  WiFiBegin(szRouterName, szRouterPW);
-  return;
-} //SetupWiFi
+  return bWiFiBegin(szRouterName, szRouterPW);
+  //return;
+} //bSetupWiFi
 
 
 void WiFiEvent(WiFiEvent_t event) {
@@ -72,7 +72,8 @@ void WiFiEvent(WiFiEvent_t event) {
 } //WiFiEvent
 
 
-void WiFiBegin(const char szRouterName[], const char szRouterPW[]){
+bool bWiFiBegin(const char szRouterName[], const char szRouterPW[]){
+  bool  bReturn= true;
   Serial << LOG0 << "WiFiBegin(): Connecting to " << szRouterName << " using " << szRouterPW << endl;
   WiFi.disconnect(true);    // delete old config
   delay(1000);
@@ -86,8 +87,8 @@ void WiFiBegin(const char szRouterName[], const char szRouterPW[]){
     delay(250);
   } //while(!bReceivedIPAddress)
   _oStationIPAddress= WiFi.localIP();
-  return;
-} //WiFiBegin
+  return bReturn;
+} //bWiFiBegin
 
 
 IPAddress SetupAccessPoint(){
@@ -96,6 +97,12 @@ IPAddress SetupAccessPoint(){
   Serial << LOG0 << "SetupAccessPoint(): " << szAccessPointSSID << " started at " << _oAccessPtIPAddress << endl;
   return(WiFi.softAPIP());
 } //SetupAccessPoint
+
+
+void HandleSoftAPClient(){
+  _pSoftAPWebServer->handleClient();    //Listen for HTTP requests from clients
+  return;
+} //HandleSoftAPClient
 
 
 void SetupmDNS(IPAddress oIPAddress, char* szName){
@@ -110,12 +117,12 @@ void SetupmDNS(IPAddress oIPAddress, char* szName){
 
 
 void SetupWebServer(IPAddress oIPAddress){
-  _pConfigWiFiServer= new ESP8266WebServer(oIPAddress, wWebServerPort);
+  _pSoftAPWebServer= new ESP8266WebServer(oIPAddress, wWebServerPort);
 
-  _pConfigWiFiServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"
-  _pConfigWiFiServer->on("/WiFiSubmit", HTTP_POST, HandleWiFiCredentials);  //Function to call when a POST request is made to URI "/LED"
-  _pConfigWiFiServer->onNotFound(handleNotFound);            //When a client requests an unknown URI
-  _pConfigWiFiServer->begin();                               //Actually start the server
+  _pSoftAPWebServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"
+  _pSoftAPWebServer->on("/WiFiSubmit", HTTP_POST, HandleWiFiCredentials);  //Function to call when a POST request is made to URI "/LED"
+  _pSoftAPWebServer->onNotFound(handleNotFound);            //When a client requests an unknown URI
+  _pSoftAPWebServer->begin();                               //Actually start the server
 
   Serial << LOG0 << "SetupWebServer(): HTTP server started at " << oIPAddress << endl;
   return;
@@ -124,7 +131,7 @@ void SetupWebServer(IPAddress oIPAddress){
 
 void handleRoot() {
   //When URI / is requested, send a web page with fields for user name and hidden password
-  _pConfigWiFiServer->send(200, "text/html",
+  _pSoftAPWebServer->send(200, "text/html",
       "<form action=\"/WiFiSubmit\" method=\"POST\"><input type=\"text\" name=\"WiFi_SSID\" placeholder=\"WiFi SSID\"></br><input type=\"text\" name=\"WiFiPassword\" placeholder=\"WiFi Password\"></br><input type=\"submit\" value=\"Submit\"></form>");
   return;
 } //handleRoot
@@ -132,17 +139,17 @@ void handleRoot() {
 
 void HandleWiFiCredentials() {
   //If a POST request is made to URI /WiFiSubmit
-  Serial << LOG0 << "HandleWiFiCredentials(): Received |" << _pConfigWiFiServer->arg("WiFi_SSID") << "|" <<
-      _pConfigWiFiServer->arg("WiFiPassword") << "| as WiFi |name|password|" << endl;
+  Serial << LOG0 << "HandleWiFiCredentials(): Received |" << _pSoftAPWebServer->arg("WiFi_SSID") << "|" <<
+      _pSoftAPWebServer->arg("WiFiPassword") << "| as WiFi |name|password|" << endl;
 
-  _pConfigWiFiServer->send(200, "text/html", "<h1>" + _pConfigWiFiServer->arg("WiFi_SSID") +
-      "/" + _pConfigWiFiServer->arg("WiFiPassword") + "/ will be used as WiFi name/password/");
+  _pSoftAPWebServer->send(200, "text/html", "<h1>" + _pSoftAPWebServer->arg("WiFi_SSID") +
+      "/" + _pSoftAPWebServer->arg("WiFiPassword") + "/ will be used as WiFi name/password/");
   return;
 } //HandleWiFiCredentials
 
 
 void handleNotFound(){
-  _pConfigWiFiServer->send(404, "text/plain", "404: Not found");
+  _pSoftAPWebServer->send(404, "text/plain", "404: Not found");
   return;
 } //handleNotFound
 //Last line.
