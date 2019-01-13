@@ -1,4 +1,4 @@
-//BeckE8266WiFiLib.cpp, 1/12/19
+//BeckE8266WiFiLib.cpp, 1/13/19
 #include <BeckE8266WiFiLib.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -6,21 +6,25 @@
 #include <Streaming.h>
 #include <BeckMiniLib.h>
 
+/*
 const int      wWebServerPort        = 80;
 const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
 const char     szAccessPointPW[]     = "Qazqaz11";
+ESP8266WebServer     *_pSoftAPWebServer;
+IPAddress             _oAccessPtIPAddress;
+*/
 
 //The following are declared external in BeckE8266WiFiLib.
-ESP8266WebServer     *_pSoftAPWebServer;
 IPAddress             _oStationIPAddress;
-IPAddress             _oAccessPtIPAddress;
 
 bool      bReceivedIPAddress;
 
 //Local function protos
+/*
 void      handleRoot            ();
 void      HandleWiFiCredentials ();
 void      handleNotFound        ();
+*/
 bool      bWiFiBegin             (const char szRouterName[], const char szRouterPW[]);
 
 bool bSetupWiFi(const char szRouterName[], const char szRouterPW[]){
@@ -91,6 +95,18 @@ bool bWiFiBegin(const char szRouterName[], const char szRouterPW[]){
 } //bWiFiBegin
 
 
+void SetupmDNS(IPAddress oIPAddress, char* szName){
+  if (MDNS.begin(szName, oIPAddress)) {              // Start the mDNS responder for esp8266.local
+    Serial << LOG0 << "SetupmDNS(): mDNS responder started for " << szName << " at " << oIPAddress << endl;
+  }
+  else {
+    Serial << LOG0 << "SetupmDNS(): Error setting up MDNS responder for " << szName << " at " << oIPAddress << endl;
+  }
+  return;
+} //SetupmDNS
+
+
+/*
 IPAddress SetupAccessPoint(){
   WiFi.softAP(szAccessPointSSID, szAccessPointPW);             // Start the access point
   _oAccessPtIPAddress= WiFi.softAPIP();
@@ -103,17 +119,6 @@ void HandleSoftAPClient(){
   _pSoftAPWebServer->handleClient();    //Listen for HTTP requests from clients
   return;
 } //HandleSoftAPClient
-
-
-void SetupmDNS(IPAddress oIPAddress, char* szName){
-  if (MDNS.begin(szName, oIPAddress)) {              // Start the mDNS responder for esp8266.local
-    Serial << LOG0 << "SetupmDNS(): mDNS responder started for " << szName << " at " << oIPAddress << endl;
-  }
-  else {
-    Serial << LOG0 << "SetupmDNS(): Error setting up MDNS responder for " << szName << " at " << oIPAddress << endl;
-  }
-  return;
-} //SetupmDNS
 
 
 void SetupWebServer(IPAddress oIPAddress){
@@ -152,4 +157,5 @@ void handleNotFound(){
   _pSoftAPWebServer->send(404, "text/plain", "404: Not found");
   return;
 } //handleNotFound
+*/
 //Last line.

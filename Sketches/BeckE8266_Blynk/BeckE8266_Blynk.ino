@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/12/19";
+const char szFileDate[]    = "Lenny 1/13/19f";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -10,37 +10,39 @@ const char szFileDate[]    = "Lenny 1/12/19";
 //#define DEV_LOCAL
 #define THERMO_DEV
 
+#define DO_BLYNK    true
 #if 0
-  #define SKIP_BLYNK    true
-  #define DEBUG         true
+  #define DEBUG true
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
-#define USE_ACCESS_PT      false
+#define DO_ACCESS_PT      true
 
 #include <BeckMiniLib.h>
 #include <BeckE8266WiFiLib.h>
 #include <BeckOTALib.h>
 #include <BeckNTPLib.h>
-#include <BeckBlynkLib.h>
 #include <NtpClientLib.h>
 #include <Streaming.h>
 #include <Time.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <BlynkSimpleEsp8266.h>
-#include <Blynk/BlynkTimer.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <fauxmoESP.h>
+#if DO_BLYNK
+  #include <BeckBlynkLib.h>
+  #include <BlynkSimpleEsp8266.h>
+  #include <Blynk/BlynkTimer.h>
+#endif  //DO_BLYNK
+#if DO_ACCESS_PT
+  #include <BeckE8266AccessPointLib.h>
+#endif  //DO_ACCESS_PT
 
 //For I2C OLED display
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-
-#include <WiFiManager.h>
-WiFiManager   _oWiFiManager;
 
 static const int  sAlexaPin       =  2;   //GPIO 2 is D4 and Blue LED on NodeMCU
 static const int  sSDA_GPIO       =  4;   //I2C, GPIO 4 is D2 on NodeMCU
@@ -49,11 +51,13 @@ static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and lab
 static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 
+/*
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk          = true;
 #else
   static const bool bSkipBlynk          = false;
 #endif
+*/
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
@@ -182,17 +186,20 @@ OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 BlynkTimer          oBlynkTimer;
 
-void setup()
-{
+//Function prototypes
+void HandleAccessPoint();
+void HandleBlynk();
+
+void setup(){
   sSetupTime();
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   bSetupWiFi(szRouterName, szRouterPW);
-#if USE_ACCESS_PT
+#if DO_ACCESS_PT
   SetupAccessPoint();
   SetupWebServer(_oAccessPtIPAddress);
-#endif  //USE_ACCESS_PT
+#endif  //DO_ACCESS_PT
   SetupOTAServer(acHostname);
   SetupNTP();
   SetupBlynk();
@@ -208,23 +215,20 @@ void setup()
 
 void loop() {
   HandleOTAServer();
-#if USE_ACCESS_PT
-  HandleSoftAPClient();       //Listen for HTTP requests from clients
-#endif  //USE_ACCESS_PT
-  if (!bSkipBlynk) {
-    if (!bUpdating) {
-        Blynk.run();
-        //oBlynkTimer.run();
-      HandleSystem();
-    } //if(!bUpdating)
-    else {
-      //Serial << LOG0 << "loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
-      if (millis() > ulUpdateTimeoutMsec) {
-        bUpdating = false;
-        Serial << LOG0 << "loop(): Set bUpdating to " << bUpdating << endl;
-      } //if(millis()>ulUpdateTimeoutMsec)
-    } //if(!bUpdating)else
-  } //if(!bSkipBlynk)
+  HandleAccessPoint();
+
+  if (!bUpdating) {
+    HandleBlynk();
+    HandleSystem();
+  } //if(!bUpdating)
+  else {
+    //Serial << LOG0 << "loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
+    if (millis() > ulUpdateTimeoutMsec) {
+      bUpdating= false;
+      Serial << LOG0 << "loop(): Set bUpdating to " << bUpdating << endl;
+    } //if(millis()>ulUpdateTimeoutMsec)
+  } //if(!bUpdating)else
+  return;
 } //loop
 
 
@@ -301,6 +305,7 @@ void BlynkTimerEvent()
 
 
 void SetupBlynk(void){
+#if DO_BLYNK
   switch (sProjectType){
     case sDevLocal:
       Serial << LOG0 << "SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
@@ -315,6 +320,7 @@ void SetupBlynk(void){
   //oBlynkTimer.setInterval(1000L, BlynkTimerEvent);
   oBlynkTimer.setInterval(lBlynkTimerInterval, BlynkTimerEvent);
   //Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
+#endif  //DO_BLYNK
   return;
 } //SetupBlynk
 
@@ -415,13 +421,28 @@ void UpdateDisplay(void){
   return;
 } //UpdateDisplay
 
-
 /*
 void UpdateBlynk(void){
   Blynk.virtualWrite(ReadF_V0, fLastDegF);
   return;
 } //UpdateBlynk
 */
+
+void HandleAccessPoint(){
+#if DO_ACCESS_PT
+  HandleSoftAPClient();       //Listen for HTTP requests from clients
+#endif  //DO_ACCESS_PT
+  return;
+} //HandleAccessPoint
+
+
+void HandleBlynk(){
+#if DO_BLYNK
+  Blynk.run();
+  //oBlynkTimer.run();
+#endif  //DO_BLYNK
+  return;
+} //HandleBlynk
 
 
 void HandleAlexa(){
