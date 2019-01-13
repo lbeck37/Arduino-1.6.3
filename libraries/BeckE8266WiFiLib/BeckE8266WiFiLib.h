@@ -1,8 +1,8 @@
-//BeckE8266WiFiLib.h, 1/9/19
+//BeckE8266WiFiLib.h, 1/12/19
 #pragma once
 #include <ESP8266WebServer.h>
 
-extern ESP8266WebServer      *pConfigWiFiServer;
+extern ESP8266WebServer     *_pConfigWiFiServer;
 extern IPAddress             _oStationIPAddress;
 extern IPAddress             _oAccessPtIPAddress;
 

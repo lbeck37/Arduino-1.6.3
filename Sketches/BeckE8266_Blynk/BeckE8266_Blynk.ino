@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/11/19t";
+const char szFileDate[]    = "Lenny 1/12/19a";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -187,7 +187,6 @@ void setup()
   Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   SetupWiFi(szRouterName, szRouterPW);
-  //_oStationIPAddress= SetupWiFi(szRouterName, szRouterPW);
   SetupOTAServer(acHostname);
   SetupNTP();
   SetupBlynk();
