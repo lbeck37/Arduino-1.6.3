@@ -7,3 +7,4 @@ extern ESP8266WebServer     *_pSoftAPWebServer;
 IPAddress SetupAccessPoint    ();
 void      HandleSoftAPClient  ();
 void      SetupWebServer      (IPAddress oIPAddress);
+//Last line.

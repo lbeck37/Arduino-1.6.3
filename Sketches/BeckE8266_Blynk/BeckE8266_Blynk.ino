@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/13/19f";
+const char szFileDate[]    = "Lenny 1/13/19p";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -10,13 +10,14 @@ const char szFileDate[]    = "Lenny 1/13/19f";
 //#define DEV_LOCAL
 #define THERMO_DEV
 
-#define DO_BLYNK    true
+#define DO_BLYNK        true
+#define DO_ACCESS_PT    false
+#define DO_ALEXA        false
+
 #if 0
   #define DEBUG true
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
-
-#define DO_ACCESS_PT      true
 
 #include <BeckMiniLib.h>
 #include <BeckE8266WiFiLib.h>
@@ -29,7 +30,9 @@ const char szFileDate[]    = "Lenny 1/13/19f";
 #include <WiFiClient.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <fauxmoESP.h>
+#if DO_ALEXA
+  #include <fauxmoESP.h>
+#endif  //DO_ALEXA
 #if DO_BLYNK
   #include <BeckBlynkLib.h>
   #include <BlynkSimpleEsp8266.h>
@@ -65,9 +68,9 @@ static const int    sOn                   = 1;
 static const int    sNotInit              = -3737;
 static const int    sNoSwitch             = -1;
 static const int    sNumSwitches          = 2;
-static const int    sHeatSwitchNum        = 1;      //Switch number that turns Heat on and off.
-static const int    sAlexaSwitchNum       = 2;      //Switch number that Alexa turns on and off.
-static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
+static const int    sHeatSwitchNum        = 1;          //Switch number that turns Heat on and off.
+static const int    sAlexaSwitchNum       = sAlexaPin;  //Switch number that Alexa turns on and off.
+static const int    sThermoDummySwitch    = 0;          //Thermostat Blynk LED lives at unused switch #0.
 static const int    asSwitchPin[]         = {-1, sHeatSwitchGPIO, sAlexaPin, sNoSwitch, sNoSwitch};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 //(3) types of sketches are supported: front lights, fireplace and garage
@@ -92,7 +95,7 @@ static int            sThermoTimesCount     = 0;      //Number of times temperat
 static unsigned long  ulNextHandlerMsec     = 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bHeatOn               = false;  //If switch is on to turn on Heat.
-static bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
+//static bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool           bDebugLog             = true;   //Used to limit number of printouts.
 
@@ -244,56 +247,52 @@ void SetupDisplay(){
 
 
 void SetupAlexa(){
+#if DO_ALEXA
   String szLogString= "SetupAlexa(): Begin";
   LogToBoth(szLogString);
-  switch (sProjectType){
-    case sFireplace:
-    case sThermoDev:
-      //Only these projects use Alexa
-      bAlexaOn= true;
-      break;
-    default:
-      bAlexaOn= false;
-      break;
-  } //switch
-  if(bAlexaOn){
-    // You have to call enable(true) once you have a WiFi connection
-    // You can enable or disable the library at any moment
-    // Disabling it will prevent the devices from being discovered and switched
-    //Beck 12/3/18 I don't know why we do enable, disable, enable but it is necessary
-    Alexa.enable(true);
-    Alexa.enable(false);
-    Alexa.enable(true);
+  // You have to call enable(true) once you have a WiFi connection
+  // You can enable or disable the library at any moment
+  // Disabling it will prevent the devices from being discovered and switched
+  //Beck 12/3/18 I don't know why we do enable, disable, enable but it is necessary
+  Alexa.enable(true);
+  Alexa.enable(false);
+  Alexa.enable(true);
 
-    // You can use different ways to invoke Alexa to modify the devices state:
-    // "Alexa, turn light one on" ("light one" is the name of the first device below)
-    // "Alexa, turn on light one"
-    // "Alexa, set light one to fifty" (50 means 50% of brightness)
+  // You can use different ways to invoke Alexa to modify the devices state:
+  // "Alexa, turn light one on" ("light one" is the name of the first device below)
+  // "Alexa, turn on light one"
+  // "Alexa, set light one to fifty" (50 means 50% of brightness)
 
-    // Add virtual devices
-    Alexa.addDevice(szAlexaName);
+  // Add virtual devices
+  Alexa.addDevice(szAlexaName);
 
-    //Define the callback
-    Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
-      {
-      DoAlexaCommand(device_id, device_name, state, value);
-      } );  //Alexa.onSetState
-  } //if(bAlexaOn)
-  else{
-    szLogString = "SetupAlexa(): Alexa is not enabled for project ";
-    LogToBoth(szLogString, sProjectType);
-  } //if(bAlexaOn)else
+  //Define the callback
+  Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
+    {
+    DoAlexaCommand(device_id, device_name, state, value);
+    } );  //Alexa.onSetState
+#endif  //DO_ALEXA
   return;
 } //SetupAlexa
 
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
+#if DO_ALEXA
   Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
           ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
   SetAlexaSwitch(bState);
   Serial << "DoAlexaComman(): Return" << endl;
+#endif  //DO_ALEXA
   return;
 } //DoAlexaCommand
+
+
+void HandleAlexa(){
+#if DO_ALEXA
+  Alexa.handle();
+#endif  //DO_ALEXA
+  return;
+} //HandleAlexa
 
 
 void BlynkTimerEvent()
@@ -443,14 +442,6 @@ void HandleBlynk(){
 #endif  //DO_BLYNK
   return;
 } //HandleBlynk
-
-
-void HandleAlexa(){
-  if(bAlexaOn){
-    Alexa.handle();
-  } //if(bAlexaOn)
-  return;
-} //HandleAlexa
 
 
 void HandleDevelopment(){
