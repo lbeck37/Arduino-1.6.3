@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/13/19p";
+const char szFileDate[]    = "Lenny 1/13/19u";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -30,17 +30,19 @@ const char szFileDate[]    = "Lenny 1/13/19p";
 #include <WiFiClient.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#if DO_ALEXA
-  #include <fauxmoESP.h>
-#endif  //DO_ALEXA
+#if DO_ACCESS_PT
+  #include <BeckE8266AccessPointLib.h>
+#endif  //DO_ACCESS_PT
 #if DO_BLYNK
   #include <BeckBlynkLib.h>
   #include <BlynkSimpleEsp8266.h>
   #include <Blynk/BlynkTimer.h>
 #endif  //DO_BLYNK
-#if DO_ACCESS_PT
-  #include <BeckE8266AccessPointLib.h>
-#endif  //DO_ACCESS_PT
+#if DO_ALEXA
+  #include <BeckE8266AlexaLib.h>
+#else
+  bool   _bAlexaSwitchOn= false;
+#endif  //DO_ALEXA
 
 //For I2C OLED display
 #include <Wire.h>
@@ -54,13 +56,6 @@ static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and lab
 static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 
-/*
-#ifdef SKIP_BLYNK
-  static const bool bSkipBlynk          = true;
-#else
-  static const bool bSkipBlynk          = false;
-#endif
-*/
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
@@ -95,7 +90,6 @@ static int            sThermoTimesCount     = 0;      //Number of times temperat
 static unsigned long  ulNextHandlerMsec     = 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bHeatOn               = false;  //If switch is on to turn on Heat.
-//static bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool           bDebugLog             = true;   //Used to limit number of printouts.
 
@@ -120,19 +114,16 @@ static bool           bDebugLog             = true;   //Used to limit number of 
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
   static float        fSetpointF      = 70.0;
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
-  fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
-#endif
+ #endif
 #ifdef THERMO_DEV
   static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char   acHostname[]        = "BeckThermoDev";
   static const char   szProjectType[]     = "THERMO_DEV";
+  static const char   szAlexaName[]       = "Larry's Device";
   static const int    sProjectType        = sThermoDev;
   static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
   static float        fSetpointF          = 70;
   static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
-  static const char   szAlexaName[]       = "Larry's Device";
-
-  fauxmoESP           Alexa;    //Alexa emulation of Phillips Hue Bulb
 #endif
 #ifdef GARAGE
   static const char   acBlynkAuthToken[]  = "5e9c5f0ae3f8467597983a6fa9d11101";
@@ -143,8 +134,6 @@ static bool           bDebugLog             = true;   //Used to limit number of 
   static float        fSetpointF          = 37;
   static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
   static const char   szAlexaName[]       = "Garage";
-
-  fauxmoESP           Alexa;    //Alexa emulation of Phillips Hue Bulb
 #endif
 #ifdef GARAGE_LOCAL
   char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
@@ -192,6 +181,7 @@ BlynkTimer          oBlynkTimer;
 //Function prototypes
 void HandleAccessPoint();
 void HandleBlynk();
+void HandleSwitches();
 
 void setup(){
   sSetupTime();
@@ -248,48 +238,15 @@ void SetupDisplay(){
 
 void SetupAlexa(){
 #if DO_ALEXA
-  String szLogString= "SetupAlexa(): Begin";
-  LogToBoth(szLogString);
-  // You have to call enable(true) once you have a WiFi connection
-  // You can enable or disable the library at any moment
-  // Disabling it will prevent the devices from being discovered and switched
-  //Beck 12/3/18 I don't know why we do enable, disable, enable but it is necessary
-  Alexa.enable(true);
-  Alexa.enable(false);
-  Alexa.enable(true);
-
-  // You can use different ways to invoke Alexa to modify the devices state:
-  // "Alexa, turn light one on" ("light one" is the name of the first device below)
-  // "Alexa, turn on light one"
-  // "Alexa, set light one to fifty" (50 means 50% of brightness)
-
-  // Add virtual devices
-  Alexa.addDevice(szAlexaName);
-
-  //Define the callback
-  Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
-    {
-    DoAlexaCommand(device_id, device_name, state, value);
-    } );  //Alexa.onSetState
+  StartAlexa(szAlexaName);
 #endif  //DO_ALEXA
   return;
 } //SetupAlexa
 
 
-void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
-#if DO_ALEXA
-  Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
-          ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
-  SetAlexaSwitch(bState);
-  Serial << "DoAlexaComman(): Return" << endl;
-#endif  //DO_ALEXA
-  return;
-} //DoAlexaCommand
-
-
 void HandleAlexa(){
 #if DO_ALEXA
-  Alexa.handle();
+  HandleAlexaLib();
 #endif  //DO_ALEXA
   return;
 } //HandleAlexa
@@ -381,7 +338,7 @@ void HandleSystem(){
       case sGarageLocal:
       case sThermoDev:
         HandleThermostat();
-        HandleHeatSwitch();
+        HandleSwitches();
         UpdateDisplay();
         //UpdateBlynk();
         break;
@@ -458,11 +415,34 @@ void HandleHeater(){
 } //HandleHeater
 
 
-void HandleFrontLights(){
-  String szLogString = "HandleFrontLights()";
-  LogToBoth(szLogString);
+void HandleSwitches(){
+  if (bHeatOn) {
+    SetHeatSwitch(sOn);
+  } //if(bHeatOn)
+  else {
+    SetHeatSwitch(sOff);
+  } //if(bHeatOn)else
+
+  if (_bAlexaSwitchOn) {
+    SetAlexaSwitch(sOn);
+  } //if(_bAlexaSwitchOn)
+  else {
+    SetAlexaSwitch(sOff);
+  } //if(_bAlexaSwitchOn)else
   return;
-} //HandleFrontLights
+} //HandleSwitches
+
+
+void SetHeatSwitch(int sSwitchState){
+  SetSwitch(sHeatSwitchNum, sSwitchState);
+  return;
+} //SetHeatSwitch
+
+
+void SetAlexaSwitch(int sSwitchState){
+  SetSwitch(sAlexaSwitchNum, sSwitchState);
+  return;
+} //SetAlexaSwitch
 
 
 void HandleThermostat(){
@@ -507,6 +487,13 @@ void LogThermostatData(float fDegF){
   LogToBoth(szLogString);
   return;
 } //LogThermostatData
+
+
+void HandleFrontLights(){
+  String szLogString = "HandleFrontLights()";
+  LogToBoth(szLogString);
+  return;
+} //HandleFrontLights
 
 
 void DebugHandleBlynkLEDs(){
@@ -598,17 +585,6 @@ void HandleBlynkLEDs(){
 } //HandleBlynkLEDs
 
 
-void HandleHeatSwitch(){
-  if (bHeatOn){
-    SetSwitch(sHeatSwitchNum, sOn);
-  } //if(bHeatOn)
-  else{
-    asSwitchState[sHeatSwitchNum]= sOff;    SetSwitch(sHeatSwitchNum, sOff);
-  } //if(bHeatOn)else
-  return;
-} //HandleHeatSwitch
-
-
 float fGetDegF(bool bTakeReading){
   float fDegFReturn= 37.99;   //Value used for default in testing w/o reading sensor. fLastDegF
   if (bTakeReading){
@@ -647,18 +623,6 @@ void TurnHeatOn(bool bTurnOn){
   } //if(bTurnOn)else
   return;
 } //TurnHeatOn
-
-
-void SetHeatSwitch(int sSwitchState){
-  SetSwitch(sHeatSwitchNum, sSwitchState);
-  return;
-} //SetHeatSwitch
-
-
-void SetAlexaSwitch(int sSwitchState){
-  SetSwitch(sAlexaSwitchNum, sSwitchState);
-  return;
-} //SetAlexaSwitch
 
 
 void SetSwitch(int sSwitch, int sSwitchState){
@@ -867,7 +831,7 @@ BLYNK_WRITE(ThermoSwitch_V4){
   String szLogString= "ThermoSwitch_V4 ";
   LogToBoth(szLogString, sParam);
   //SetThermoState(sParam);
-  //HandleHeatSwitch();
+  //HandleSwitches();
   TurnHeatOn((bool)sParam);
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.

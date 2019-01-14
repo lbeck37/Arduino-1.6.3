@@ -1,4 +1,5 @@
 //BeckE8266AccessPointLib.cpp, 1/13/19
+#pragma once
 #include <BeckE8266AccessPointLib.h>
 #include <Streaming.h>
 #include <BeckMiniLib.h>
