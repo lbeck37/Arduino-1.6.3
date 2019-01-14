@@ -1,12 +1,12 @@
 const char szSketchName[]  = "BeckE8266_AccessPoint.ino";
-const char szFileDate[]    = "Lenny 1/14/19t";
+const char szFileDate[]    = "Lenny 1/14/19v";
 
 #include <BeckMiniLib.h>
 #include <BeckE8266WiFiLib.h>
 #include <BeckE8266AccessPointLib.h>
 #include <BeckE8266NTPLib.h>
 
-#define DO_ACCESS_PT    false
+#define DO_ACCESS_PT    true
 
 static const char     szRouterName[]        = "Aspot24";
 static const char     szRouterPW[]          = "Qazqaz11";
@@ -22,11 +22,12 @@ void setup(void){
   Serial << endl << LOG0 <<"setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   pinMode(_wLedPin, OUTPUT);
   bSetupWiFi(szRouterName, szRouterPW);
-  SetupNTP();
+  //SetupNTP();
 #if DO_ACCESS_PT
   SetupAccessPoint();
   SetupWebServer(_oAccessPtIPAddress);
 #endif  //DO_ACCESS_PT
+  SetupNTP();
   //SetupmDNS(_oStationIPAddress, _szDNSName);
   return;
 } //setup
