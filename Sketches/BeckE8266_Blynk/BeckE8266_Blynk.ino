@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/14/19a";
+const char szFileDate[]    = "Lenny 1/14/19b";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -20,17 +20,13 @@ const char szFileDate[]    = "Lenny 1/14/19a";
 #endif
 
 #include <BeckMiniLib.h>
-#include <BeckE8266WiFiLib.h>
-#include <BeckOTALib.h>
-//#include <BeckNTPLib.h>
-#include <BeckE8266NTPLib.h>
-#include <NtpClientLib.h>
-#include <Streaming.h>
-#include <Time.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <BeckE8266WiFiLib.h>
+#include <BeckE8266NTPLib.h>
+#include <BeckE8266OTALib.h>
 #if DO_ACCESS_PT
   #include <BeckE8266AccessPointLib.h>
 #endif  //DO_ACCESS_PT

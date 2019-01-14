@@ -1,7 +1,6 @@
-//BeckOTALib.cpp, Beck 12/0/18
-
+//BeckE8266OTALib.cpp, Beck 1/14/19
 #include <BeckMiniLib.h>
-#include <BeckOTALib.h>
+#include <BeckE8266OTALib.h>
 
 const char*         acServerIndex         = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 unsigned long       ulUpdateTimeoutMsec   = 0;
@@ -16,25 +15,25 @@ void HandleOTAServer(void){
 
 
 void SetupOTAServer(const char *acHostname) {
-	MDNS.begin(acHostname);
-	oESP8266WebServer.on("/", HTTP_GET, [](){
-		oESP8266WebServer.sendHeader("Connection", "close");
-		oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-		oESP8266WebServer.send(200, "text/html", acServerIndex);
-	});
+  MDNS.begin(acHostname);
+  oESP8266WebServer.on("/", HTTP_GET, [](){
+    oESP8266WebServer.sendHeader("Connection", "close");
+    oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
+    oESP8266WebServer.send(200, "text/html", acServerIndex);
+  });
 
-	oESP8266WebServer.on("/update", HTTP_POST, []() {
-		oESP8266WebServer.sendHeader("Connection", "close");
-		oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
-		oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
-		ESP.restart();
-	},[](){
-		HandleOTAUpdate();
-	});
+  oESP8266WebServer.on("/update", HTTP_POST, []() {
+    oESP8266WebServer.sendHeader("Connection", "close");
+    oESP8266WebServer.sendHeader("Access-Control-Allow-Origin", "*");
+    oESP8266WebServer.send(200, "text/plain", (Update.hasError()) ? "Update Failed!" : "Update Successful!");
+    ESP.restart();
+  },[](){
+    HandleOTAUpdate();
+  });
 
-	oESP8266WebServer.begin();
-	MDNS.addService("http", "tcp", 80);
-	Serial << LOG0 << "SetupOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
+  oESP8266WebServer.begin();
+  MDNS.addService("http", "tcp", 80);
+  Serial << LOG0 << "SetupOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
   //Serial << "SetupOTAServer(): Access this device using " << WiFi.localIP() << " or " << acHostname << ".local" << endl;
   return;
 } //SetupOTAServer
@@ -46,7 +45,7 @@ void HandleOTAUpdate() {
   if (stHTTPUpload.status == UPLOAD_FILE_START) {
     PauseBlynk();
     //Serial.setDebugOutput(true);
-    Serial.setDebugOutput(false);		//Beck 1/5/19
+    Serial.setDebugOutput(false);   //Beck 1/5/19
     WiFiUDP::stopAll();
     uint32_t ulMaxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     Serial << LOG0 << " HandleUpdate(): Update status     = UPLOAD_FILE_START" << endl;

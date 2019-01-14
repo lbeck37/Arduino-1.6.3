@@ -1,4 +1,4 @@
-//BeckOTALib.h, Beck 12/9/18
+//BeckE8266OTALib.h, Beck 1/14/19
 #pragma once
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>

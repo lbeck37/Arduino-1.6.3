@@ -1,10 +1,8 @@
 //BeckE8266NTPLib.cpp, Beck 1/14/19
 #include <BeckMiniLib.h>
-//#include <BeckNTPLib.h>
-#include <BeckE8266NTPLib.h>
 #include <NtpClientLib.h>   //Just for Eclipse resolving
 #include <ESP8266WiFi.h>    //Just for Eclipse resolving
-#include <Streaming.h>
+#include <BeckE8266NTPLib.h>
 
 String  szNtpServer       = "pool.ntp.org";
 int     wTimeOffset       = 1;
@@ -24,7 +22,8 @@ void SetupNTPHandlers();
 void SetupNTP(){
   Serial << LOG0 << "SetupNTP(): Begin" << endl;
   NTP.begin(szNtpServer, wTimeOffset, bDaylightSavings);
-  NTP.setInterval(63);
+  //NTP.setInterval(63);
+  NTP.setInterval(12);
   SetupNTPHandlers();
   return;
 } //SetupNTP
