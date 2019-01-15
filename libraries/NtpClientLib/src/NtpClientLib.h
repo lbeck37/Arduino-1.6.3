@@ -1,3 +1,4 @@
+//Beck 1/14/19
 /*
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
 
@@ -395,7 +396,7 @@ private:
 #endif
 };
 
-extern NTPClient NTP;
+//extern NTPClient NTP;   //Beck 1/14/19
 
 #endif // _NtpClientLib_h
 

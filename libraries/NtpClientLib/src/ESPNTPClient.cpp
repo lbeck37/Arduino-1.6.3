@@ -1,3 +1,4 @@
+//Beck 1/14/19
 /*
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
 
@@ -43,7 +44,8 @@ or implied, of German Martin
 #endif
 
 
-NTPClient NTP;
+//NTPClient NTP;  //Beck 1/14/19
+extern NTPClient        oNTPClient;
 
 NTPClient::NTPClient()
 {
@@ -94,7 +96,8 @@ int NTPClient::getTimeZone()
 }*/
 
 time_t NTPClient::s_getTime() {
-	NTP.getTime();
+  //NTP.getTime();
+  oNTPClient.getTime();
 }
 
 time_t NTPClient::getTime()
@@ -103,9 +106,11 @@ time_t NTPClient::getTime()
 	if (WiFi.isConnected())	{
 		DEBUGLOG("-- Transmit NTP Request\r\n");
 		uint32 secsSince1970 = sntp_get_current_timestamp();
-		NTP.getUptime();
+    //NTP.getUptime();
+		oNTPClient.getUptime();
 		if (secsSince1970) {
-			setSyncInterval(NTP.getInterval()); // Normal refresh frequency
+      //setSyncInterval(NTP.getInterval()); // Normal refresh frequency
+      setSyncInterval(oNTPClient.getInterval()); // Normal refresh frequency
 			DEBUGLOG("Sync frequency set low\r\n");
 			if (getDayLight()) {
 				if (summertime(year(secsSince1970), month(secsSince1970), day(secsSince1970), hour(secsSince1970), getTimeZone())) {

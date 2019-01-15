@@ -1,8 +1,8 @@
 //BeckE8266NTPLib.cpp, Beck 1/14/19
 #include <BeckMiniLib.h>
+#include <BeckE8266NTPLib.h>
 #include <NtpClientLib.h>   //Just for Eclipse resolving
 #include <ESP8266WiFi.h>    //Just for Eclipse resolving
-#include <BeckE8266NTPLib.h>
 
 String  szNtpServer       = "pool.ntp.org";
 int     wTimeOffset       = 1;
@@ -12,26 +12,27 @@ bool    bDaylightSavings  = true;
 TimeChangeRule oMDT_Rule = {"MDT", Second, Sun, Mar, 2, -420};	//Mountain Daylight Time = UTC - 7 hours
 TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -480};  //Mountain Standard Time = UTC - 8 hours
 
-Timezone oMT_Timezone(oMDT_Rule, oMST_Rule);
+Timezone          oMT_Timezone(oMDT_Rule, oMST_Rule);
+TimeChangeRule*   pTimeChangeRule;
 
-TimeChangeRule *pTimeChangeRule;
+NTPClient         oNTPClient;
 
-//Local function protos
+//Local function prototypes
 void SetupNTPHandlers();
 
 void SetupNTP(){
   Serial << LOG0 << "SetupNTP(): Begin" << endl;
-  NTP.begin(szNtpServer, wTimeOffset, bDaylightSavings);
-  //NTP.setInterval(63);
-  NTP.setInterval(12);
+  oNTPClient.begin(szNtpServer, wTimeOffset, bDaylightSavings);
+  //oNTPClient.setInterval(63);
+  oNTPClient.setInterval(12);
   SetupNTPHandlers();
   return;
 } //SetupNTP
 
 
 void SetupNTPHandlers(){
-  Serial << LOG0 << "SetupNTPHandlers(): Setup NTP.onNTPSyncEvent" << endl;
-  NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
+  Serial << LOG0 << "SetupNTPHandlers(): Setup oNTPClient.onNTPSyncEvent" << endl;
+  oNTPClient.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
   if (ntpEvent) {
     Serial << LOG0 << "SetupNTPHandlers(): Time Sync error: ";
     if (ntpEvent == noResponse){
@@ -43,9 +44,9 @@ void SetupNTPHandlers(){
   } //if(ntpEvent)
   else{
     Serial << LOG0 << "SetupNTPHandlers(): Got NTP time: " <<
-              NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
+              oNTPClient.getTimeDateString(oNTPClient.getLastNTPSync()) << endl;
     }   //if(ntpEvent)else
-  }); //NTP.onNTPSyncEvent()
+  }); //oNTPClient.onNTPSyncEvent()
   return;
 } //SetupNTPHandlers
 

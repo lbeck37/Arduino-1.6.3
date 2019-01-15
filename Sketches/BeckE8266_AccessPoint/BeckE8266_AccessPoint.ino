@@ -1,12 +1,12 @@
 const char szSketchName[]  = "BeckE8266_AccessPoint.ino";
-const char szFileDate[]    = "Lenny 1/14/19v";
+const char szFileDate[]    = "Lenny 1/14/19y";
 
 #include <BeckMiniLib.h>
 #include <BeckE8266WiFiLib.h>
 #include <BeckE8266AccessPointLib.h>
 #include <BeckE8266NTPLib.h>
 
-#define DO_ACCESS_PT    true
+#define DO_ACCESS_PT    false
 
 static const char     szRouterName[]        = "Aspot24";
 static const char     szRouterPW[]          = "Qazqaz11";
