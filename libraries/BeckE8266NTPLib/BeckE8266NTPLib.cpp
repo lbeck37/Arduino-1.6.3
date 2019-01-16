@@ -1,4 +1,4 @@
-//BeckE8266NTPLib.cpp, Beck 1/14/19
+//BeckE8266NTPLib.cpp, Beck 1/15/19
 #include <BeckMiniLib.h>
 #include <BeckE8266NTPLib.h>
 #include <NtpClientLib.h>
@@ -15,38 +15,38 @@ TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -480};  //Mountain Stand
 Timezone          oMT_Timezone(oMDT_Rule, oMST_Rule);
 TimeChangeRule*   pTimeChangeRule;
 
-NTPClient         oNTPClient;
+//NTPClient         oNTPClient;
 
 //Local function prototypes
 void SetupNTPHandlers();
 
 void SetupNTP(){
-  Serial << LOG0 << "SetupNTP(): Begin" << endl;
-  oNTPClient.begin(szNtpServer, wTimeOffset, bDaylightSavings);
-  //oNTPClient.setInterval(63);
-  oNTPClient.setInterval(12);
+  Serial << LOG0 << "SetupNTP(): Call NTP.begin for |" << szNtpServer << "|" << endl;
+  NTP.begin(szNtpServer, wTimeOffset, bDaylightSavings);
+  //NTP.setInterval(63);
+  NTP.setInterval(12);
   SetupNTPHandlers();
   return;
 } //SetupNTP
 
 
 void SetupNTPHandlers(){
-  Serial << LOG0 << "SetupNTPHandlers(): Setup oNTPClient.onNTPSyncEvent" << endl;
-  oNTPClient.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
-  if (ntpEvent) {
-    Serial << LOG0 << "SetupNTPHandlers(): Time Sync error: ";
-    if (ntpEvent == noResponse){
-      Serial << "NTP server not reachable" << endl;
-    } //if(ntpEvent==noResponse)
-    else if (ntpEvent == invalidAddress){
-      Serial << "Invalid NTP server address" << endl;
-    } //elseif(ntpEvent==invalidAddress)
-  } //if(ntpEvent)
-  else{
-    Serial << LOG0 << "SetupNTPHandlers(): Got NTP time: " <<
-              oNTPClient.getTimeDateString(oNTPClient.getLastNTPSync()) << endl;
-    }   //if(ntpEvent)else
-  }); //oNTPClient.onNTPSyncEvent()
+  Serial << LOG0 << "SetupNTPHandlers(): Setup NTP.onNTPSyncEvent" << endl;
+  NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
+    if (ntpEvent) {
+      Serial << LOG0 << "SetupNTPHandlers(): Time Sync error: ";
+      if (ntpEvent == noResponse){
+        Serial << "NTP server not reachable" << endl;
+      } //if(ntpEvent==noResponse)
+      else if (ntpEvent == invalidAddress){
+        Serial << "Invalid NTP server address" << endl;
+      } //elseif(ntpEvent==invalidAddress)
+    } //if(ntpEvent)
+    else{
+      Serial << LOG0 << "SetupNTPHandlers(): Got NTP time: " <<
+                NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
+      }   //if(ntpEvent)else
+  }); //NTP.onNTPSyncEvent()
   return;
 } //SetupNTPHandlers
 
