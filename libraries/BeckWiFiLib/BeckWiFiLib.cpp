@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, Beck Dec 16, 2018
+//BeckWiFiLib.cpp, Beck Jan 16, 2019
 #include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>
 

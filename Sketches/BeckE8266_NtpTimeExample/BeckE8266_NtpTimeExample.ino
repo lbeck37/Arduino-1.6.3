@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 1/16/19g";
+const char szFileDate[]    = "Lenny 1/16/19h";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -14,8 +14,8 @@ const char szFileDate[]    = "Lenny 1/16/19g";
 #include <TimeLib.h>
 #include <Timezone.h>
 
-static const char   	szRouterName[]    = "Aspot24";
-static const char   	szRouterPW[]      = "Qazqaz11";
+static const char   szRouterName[]      = "Aspot24";
+static const char   szRouterPW[]        = "Qazqaz11";
 
 static const char   acHostname[]			  = "BeckThermoDev";
 static const int		wLoopMilliDelay		  = 5100;
