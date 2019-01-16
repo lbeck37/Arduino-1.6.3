@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 1/16/19k";
+const char szFileDate[]    = "Lenny 1/16/19m";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -11,9 +11,6 @@ const char szFileDate[]    = "Lenny 1/16/19k";
 #include <BeckE8266OTALib.h>
 #include <BeckE8266AccessPointLib.h>
 #include <BeckE8266NTPLib.h>
-#include <Streaming.h>      //Just for Eclipse resolving
-#include <TimeLib.h>
-#include <Timezone.h>
 
 static const char   szRouterName[]      = "Aspot24";
 static const char   szRouterPW[]        = "Qazqaz11";
@@ -46,7 +43,6 @@ void loop(){
     Serial << LOG0 << "loop(): Corrected: " << szFormatDateString() << ", "
     		<< szFormatTimeString() << endl;
   }	//if((millis()-ulLastMilli)>sLoopMilliDelay)
-  //delay(0);
   return;
 }	//loop
 //Last line.
