@@ -1,5 +1,6 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 12/10/18ab";
+const char szFileDate[]    = "Lenny 1/16/19b";
+//const char szFileDate[]    = "Lenny 12/10/18ab";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -8,10 +9,11 @@ const char szFileDate[]    = "Lenny 12/10/18ab";
 */
 #include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>
-#include <BeckOTALib.h>
-#include <BeckNtpLib.h>
-#include <NtpClientLib.h>   //Just for Eclipse resolving
-#include <ESP8266WiFi.h>    //Just for Eclipse resolving
+#include <BeckE8266OTALib.h>
+#include <BeckE8266NTPLib.h>
+#include <NtpClientLib.h>
+//#include <NtpClient.h>
+//#include <ESP8266WiFi.h>    //Just for Eclipse resolving
 #include <Streaming.h>      //Just for Eclipse resolving
 #include <TimeLib.h>
 #include <Timezone.h>

@@ -397,7 +397,7 @@ private:
 #endif
 };
 
-//extern NTPClient NTP;   //Beck 1/14/19
+extern NTPClient NTP;
 
 #endif // _NtpClientLib_h
 

@@ -1,7 +1,7 @@
-//BeckE8266NTPLib.h, Beck 12/9/18
+//BeckE8266NTPLib.h, Beck 1/16/19
 #pragma once
-#include <ESP8266WiFi.h>
-#include <NtpClientLib.h>
+//#include <ESP8266WiFi.h>
+//#include <NtpClientLib.h>
 #include <TimeLib.h>
 #include <Timezone.h>
 
@@ -19,4 +19,5 @@ String  szFormatDateString  (void);
 String  szPrintDigits       (int digits);
 */
 String  szFormatTimeString  (void);
+String  szFormatDateString  (void);
 //Last line.
