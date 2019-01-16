@@ -1,7 +1,5 @@
 //BeckE8266NTPLib.h, Beck 1/16/19
 #pragma once
-//#include <ESP8266WiFi.h>
-//#include <NtpClientLib.h>
 #include <TimeLib.h>
 #include <Timezone.h>
 

@@ -1,4 +1,4 @@
-//BeckE8266NTPLib.cpp, Beck 1/15/19
+//BeckE8266NTPLib.cpp, Beck 1/16/19
 #include <BeckMiniLib.h>
 #include <BeckE8266NTPLib.h>
 #include <NtpClientLib.h>
@@ -14,8 +14,6 @@ TimeChangeRule oMST_Rule = {"MST", First , Sun, Nov, 2, -480};  //Mountain Stand
 
 Timezone          oMT_Timezone(oMDT_Rule, oMST_Rule);
 TimeChangeRule*   pTimeChangeRule;
-
-//NTPClient         oNTPClient;
 
 //Local function prototypes
 void SetupNTPHandlers();
