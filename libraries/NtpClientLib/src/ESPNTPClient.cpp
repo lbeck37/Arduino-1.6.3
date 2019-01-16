@@ -1,4 +1,5 @@
-//Beck 1/14/19
+// ESPNTPClient.cpp
+// Beck 1/15/19
 /*
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
 
@@ -26,9 +27,6 @@ The views and conclusions contained in the software and documentation are those 
 authors and should not be interpreted as representing official policies, either expressed
 or implied, of German Martin
 */
-// 
-// 
-// 
 
 #ifdef ARDUINO_ARCH_ESP8266
 
