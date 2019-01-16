@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 1/16/19h";
+const char szFileDate[]    = "Lenny 1/16/19k";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -9,6 +9,7 @@ const char szFileDate[]    = "Lenny 1/16/19h";
 #include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>
 #include <BeckE8266OTALib.h>
+#include <BeckE8266AccessPointLib.h>
 #include <BeckE8266NTPLib.h>
 #include <Streaming.h>      //Just for Eclipse resolving
 #include <TimeLib.h>
@@ -26,6 +27,8 @@ void setup(){
 
   SetupWiFi(szRouterName, szRouterPW);
   SetupOTAServer(acHostname);
+  SetupAccessPoint();
+  SetupWebServer(_oAccessPtIPAddress);
   SetupNTP();
 
   return;
@@ -36,12 +39,14 @@ void loop(){
   static unsigned long ulLastMilli = 0;
 
 	HandleOTAServer();
+  HandleSoftAPClient();       //Listen for HTTP requests from clients
+
   if ((millis() - ulLastMilli) > wLoopMilliDelay) {
     ulLastMilli = millis();
     Serial << LOG0 << "loop(): Corrected: " << szFormatDateString() << ", "
     		<< szFormatTimeString() << endl;
   }	//if((millis()-ulLastMilli)>sLoopMilliDelay)
-  delay(0);
+  //delay(0);
   return;
 }	//loop
 //Last line.

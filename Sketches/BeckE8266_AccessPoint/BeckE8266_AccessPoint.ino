@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_AccessPoint.ino";
-const char szFileDate[]    = "Lenny 1/16/19c";
+const char szFileDate[]    = "Lenny 1/16/19e";
 
 #include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>
@@ -47,7 +47,9 @@ void loop(void){
 
   if (millis() >= _ulNextHandlerMsec){
     _ulNextHandlerMsec= millis() + _ulHandlerSpacing;
-    Serial << LOG0 <<"loop(): _wCount= " << _wCount++ << endl;
+    //Serial << LOG0 <<"loop(): _wCount= " << _wCount++ << endl;
+    Serial << LOG0 << "loop(): Corrected: " << szFormatDateString() << ", "
+        << szFormatTimeString() << endl;
   } //f (millis()>=_ulNextHandlerMsec)
   return;
 } //loop
