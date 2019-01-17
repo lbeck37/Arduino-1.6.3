@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_AccessPoint.ino";
-const char szFileDate[]    = "Lenny 1/16/19f";
+const char szFileDate[]    = "Lenny 1/16/19g";
 
 #include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>

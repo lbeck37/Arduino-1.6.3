@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/14/19b";
+const char szFileDate[]    = "Lenny 1/16/19c";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -11,8 +11,8 @@ const char szFileDate[]    = "Lenny 1/14/19b";
 #define THERMO_DEV
 
 #define DO_BLYNK        true
-#define DO_ACCESS_PT    false
-#define DO_ALEXA        false
+#define DO_ACCESS_PT    true
+#define DO_ALEXA        true
 
 #if 0
   #define DEBUG true
@@ -20,11 +20,12 @@ const char szFileDate[]    = "Lenny 1/14/19b";
 #endif
 
 #include <BeckMiniLib.h>
-#include <ESP8266WiFi.h>
+//#include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <BeckE8266WiFiLib.h>
+#include <BeckWiFiLib.h>
+//#include <BeckE8266WiFiLib.h>
 #include <BeckE8266NTPLib.h>
 #include <BeckE8266OTALib.h>
 #if DO_ACCESS_PT
@@ -185,7 +186,7 @@ void setup(){
   Serial.begin(lSerialMonitorBaud);
   Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
-  bSetupWiFi(szRouterName, szRouterPW);
+  SetupWiFi(szRouterName, szRouterPW);
 #if DO_ACCESS_PT
   SetupAccessPoint();
   SetupWebServer(_oAccessPtIPAddress);
@@ -207,17 +208,17 @@ void loop() {
   HandleOTAServer();
   HandleAccessPoint();
 
-  if (!bUpdating) {
+  if (!_bOTA_Started) {
     HandleBlynk();
     HandleSystem();
-  } //if(!bUpdating)
+  } //if(!_bOTA_Started)
   else {
     //Serial << LOG0 << "loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
-    if (millis() > ulUpdateTimeoutMsec) {
-      bUpdating= false;
-      Serial << LOG0 << "loop(): Set bUpdating to " << bUpdating << endl;
-    } //if(millis()>ulUpdateTimeoutMsec)
-  } //if(!bUpdating)else
+    if (millis() > _ulUpdateTimeoutMsec) {
+      _bOTA_Started= false;
+      Serial << LOG0 << "loop(): Set _bOTA_Started to " << _bOTA_Started << endl;
+    } //if(millis()>_ulUpdateTimeoutMsec)
+  } //if(!_bOTA_Started)else
   return;
 } //loop
 

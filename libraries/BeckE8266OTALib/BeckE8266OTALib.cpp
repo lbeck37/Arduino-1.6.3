@@ -1,18 +1,18 @@
-//BeckE8266OTALib.cpp, Beck 1/14/19
+//BeckE8266OTALib.cpp, Beck 1/16/19
 #include <BeckMiniLib.h>
 #include <BeckE8266OTALib.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 
 const char*         acServerIndex         = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
-unsigned long       ulUpdateTimeoutMsec   = 0;
-bool                bUpdating             = false;   //Turns off Blynk.
+unsigned long       _ulUpdateTimeoutMsec   = 0;
+bool                _bOTA_Started         = false;   //Turns off Blynk.
 ESP8266WebServer    oESP8266WebServer(80);
 
-void HandleOTAServer(void){
-  oESP8266WebServer.handleClient();
-  delay(1);
-  return;
-} //HandleOTAServer
-
+//Function prototypes
+void HandleOTAUpdate    (void);
+void HandleOTAFileEnd   (HTTPUpload& stHTTPUploadLocal);
+void PauseBlynk         (void);
 
 void SetupOTAServer(const char *acHostname) {
   MDNS.begin(acHostname);
@@ -37,6 +37,13 @@ void SetupOTAServer(const char *acHostname) {
   //Serial << "SetupOTAServer(): Access this device using " << WiFi.localIP() << " or " << acHostname << ".local" << endl;
   return;
 } //SetupOTAServer
+
+
+void HandleOTAServer(void){
+  oESP8266WebServer.handleClient();
+  delay(1);
+  return;
+} //HandleOTAServer
 
 
 void HandleOTAUpdate() {
@@ -105,9 +112,9 @@ void HandleOTAFileEnd(HTTPUpload& stHTTPUploadLocal) {
 
 
 void PauseBlynk(void) {
-    bUpdating= true;
-    Serial << LOG0 << " PauseBlynk(): Set bUpdating to " << bUpdating << endl;
-    ulUpdateTimeoutMsec= millis() + 20000;
+    _bOTA_Started= true;
+    Serial << LOG0 << " PauseBlynk(): Set _bOTA_Started to " << _bOTA_Started << endl;
+    _ulUpdateTimeoutMsec= millis() + 20000;
   return;
 } //PauseBlynk
 //Last line.

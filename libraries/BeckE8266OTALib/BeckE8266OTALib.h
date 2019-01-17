@@ -1,16 +1,9 @@
-//BeckE8266OTALib.h, Beck 1/14/19
+//BeckE8266OTALib.h, Beck 1/16/19
 #pragma once
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 
-extern const char*          acServerIndex;
-extern unsigned long        ulUpdateTimeoutMsec;
-extern bool                 bUpdating;
-extern ESP8266WebServer     oESP8266WebServer;
+extern bool               _bOTA_Started;   //Turns off Blynk.
+extern unsigned long       _ulUpdateTimeoutMsec;
 
 void SetupOTAServer     (const char *acHostname);
 void HandleOTAServer    (void);
-void HandleOTAUpdate    (void);
-void HandleOTAFileEnd   (HTTPUpload& stHTTPUploadLocal);
-void PauseBlynk         (void);
 //Last line.
