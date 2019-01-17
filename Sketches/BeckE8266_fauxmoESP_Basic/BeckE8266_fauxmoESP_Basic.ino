@@ -1,8 +1,7 @@
 const char szSketchName[]  = "BeckE8266_fauxmoESP_Basic.ino";
-const char szFileDate[]    = "Lenny 1/17/19b";
+const char szFileDate[]    = "Lenny 1/17/19e";
 
 #include <BeckMiniLib.h>
-//#include <Arduino.h>
 
 #ifdef ESP32
     #include <WiFi.h>
