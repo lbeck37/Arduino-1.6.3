@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/16/19c";
+const char szFileDate[]    = "Lenny 1/16/19d";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
