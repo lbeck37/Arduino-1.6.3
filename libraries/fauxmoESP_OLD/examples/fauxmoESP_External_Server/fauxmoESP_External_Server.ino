@@ -1,9 +1,10 @@
 #include <Arduino.h>
-#ifdef ESP32
-    #include <WiFi.h>
-#else
+#if defined(ESP8266)
     #include <ESP8266WiFi.h>
+#elif defined(ESP32)
+    #include <WiFi.h>
 #endif
+#include <ESPAsyncWebServer.h>
 #include "fauxmoESP.h"
 
 // Rename the credentials.sample.h file to credentials.h and 
@@ -11,24 +12,12 @@
 #include "credentials.h"
 
 fauxmoESP fauxmo;
+AsyncWebServer server(80);
 
 // -----------------------------------------------------------------------------
 
-#define SERIAL_BAUDRATE     115200
-
-#define LED_YELLOW          4
-#define LED_GREEN           5
-#define LED_BLUE            0
-#define LED_PINK            2
-#define LED_WHITE           15
-
-#define ID_YELLOW           "yellow lamp"
-#define ID_GREEN            "green lamp"
-#define ID_BLUE             "blue lamp"
-#define ID_PINK             "pink lamp"
-#define ID_WHITE            "white lamp"
-
-// -----------------------------------------------------------------------------
+#define SERIAL_BAUDRATE                 115200
+#define LED                             2
 
 // -----------------------------------------------------------------------------
 // Wifi
@@ -55,6 +44,29 @@ void wifiSetup() {
 
 }
 
+void serverSetup() {
+
+    // Custom entry point (not required by the library, here just as an example)
+    server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/plain", "Hello, world");
+    });
+
+    // These two callbacks are required for gen1 and gen3 compatibility
+    server.onRequestBody([](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+        if (fauxmo.process(request->client(), request->method() == HTTP_GET, request->url(), String((char *)data))) return;
+        // Handle any other body request here...
+    });
+    server.onNotFound([](AsyncWebServerRequest *request) {
+        String body = (request->hasParam("body", true)) ? request->getParam("body", true)->value() : String();
+        if (fauxmo.process(request->client(), request->method() == HTTP_GET, request->url(), body)) return;
+        // Handle not found request here...
+    });
+
+    // Start the server
+    server.begin();
+
+}
+
 void setup() {
 
     // Init serial port and clean garbage
@@ -62,25 +74,20 @@ void setup() {
     Serial.println();
     Serial.println();
 
-    // LEDs
-    pinMode(LED_YELLOW, OUTPUT);
-    pinMode(LED_GREEN, OUTPUT);
-    pinMode(LED_BLUE, OUTPUT);
-    pinMode(LED_PINK, OUTPUT);
-    pinMode(LED_WHITE, OUTPUT);
-    digitalWrite(LED_YELLOW, LOW);
-    digitalWrite(LED_GREEN, LOW);
-    digitalWrite(LED_BLUE, LOW);
-    digitalWrite(LED_PINK, LOW);
-    digitalWrite(LED_WHITE, LOW);
+    // LED
+    pinMode(LED, OUTPUT);
+    digitalWrite(LED, HIGH); // Our LED has inverse logic (high for OFF, low for ON)
 
     // Wifi
     wifiSetup();
 
-    // By default, fauxmoESP creates it's own webserver on the defined port
+    // Web server
+    serverSetup();
+
+    // Set fauxmoESP to not create an internal TCP server and redirect requests to the server on the defined port
     // The TCP port must be 80 for gen3 devices (default is 1901)
     // This has to be done before the call to enable()
-    fauxmo.createServer(true); // not needed, this is the default value
+    fauxmo.createServer(false);
     fauxmo.setPort(80); // This is required for gen3 devices
 
     // You have to call enable(true) once you have a WiFi connection
@@ -89,16 +96,21 @@ void setup() {
     fauxmo.enable(true);
 
     // You can use different ways to invoke alexa to modify the devices state:
-    // "Alexa, turn yellow lamp on"
-    // "Alexa, turn on yellow lamp
-    // "Alexa, set yellow lamp to fifty" (50 means 50% of brightness, note, this example does not use this functionality)
+    // "Alexa, turn kitchen on" ("kitchen" is the name of the first device below)
+    // "Alexa, turn on kitchen"
+    // "Alexa, set kitchen to fifty" (50 means 50% of brightness)
 
     // Add virtual devices
-    fauxmo.addDevice(ID_YELLOW);
-    fauxmo.addDevice(ID_GREEN);
-    fauxmo.addDevice(ID_BLUE);
-    fauxmo.addDevice(ID_PINK);
-    fauxmo.addDevice(ID_WHITE);
+    fauxmo.addDevice("kitchen");
+	fauxmo.addDevice("livingroom");
+
+    // You can add more devices
+	//fauxmo.addDevice("light 3");
+    //fauxmo.addDevice("light 4");
+    //fauxmo.addDevice("light 5");
+    //fauxmo.addDevice("light 6");
+    //fauxmo.addDevice("light 7");
+    //fauxmo.addDevice("light 8");
 
     fauxmo.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value) {
         
@@ -108,22 +120,14 @@ void setup() {
         // Just remember not to delay too much here, this is a callback, exit as soon as possible.
         // If you have to do something more involved here set a flag and process it in your main loop.
         
+        // if (0 == device_id) digitalWrite(RELAY1_PIN, state);
+        // if (1 == device_id) digitalWrite(RELAY2_PIN, state);
+        // if (2 == device_id) analogWrite(LED1_PIN, value);
+        
         Serial.printf("[MAIN] Device #%d (%s) state: %s value: %d\n", device_id, device_name, state ? "ON" : "OFF", value);
 
-        // Checking for device_id is simpler if you are certain about the order they are loaded and it does not change.
-        // Otherwise comparing the device_name is safer.
-
-        if (strcmp(device_name, ID_YELLOW)==0) {
-            digitalWrite(LED_YELLOW, state ? HIGH : LOW);
-        } else if (strcmp(device_name, ID_GREEN)==0) {
-            digitalWrite(LED_GREEN, state ? HIGH : LOW);
-        } else if (strcmp(device_name, ID_BLUE)==0) {
-            digitalWrite(LED_BLUE, state ? HIGH : LOW);
-        } else if (strcmp(device_name, ID_PINK)==0) {
-            digitalWrite(LED_PINK, state ? HIGH : LOW);
-        } else if (strcmp(device_name, ID_WHITE)==0) {
-            digitalWrite(LED_WHITE, state ? HIGH : LOW);
-        }
+        // For the example we are turning the same LED on and off regardless fo the device triggered or the value
+        digitalWrite(LED, !state); // we are nor-ing the state because our LED has inverse logic.
 
     });
 
@@ -142,9 +146,5 @@ void loop() {
         last = millis();
         Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
     }
-
-    // If your device state is changed by any other means (MQTT, physical button,...)
-    // you can instruct the library to report the new state to Alexa on next request:
-    // fauxmo.setState(ID_YELLOW, true, 255);
 
 }

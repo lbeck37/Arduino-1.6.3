@@ -1,23 +1,14 @@
-const char szSketchName[]  = "BeckE8266_fauxmoESP_Basic.ino";
-const char szFileDate[]    = "Lenny 1/17/19f";
-
-#include <BeckMiniLib.h>
-
+#include <Arduino.h>
 #ifdef ESP32
     #include <WiFi.h>
 #else
     #include <ESP8266WiFi.h>
 #endif
 #include "fauxmoESP.h"
-//#include "credentials.h"
+#include "credentials.h"
 
-#define WIFI_SSID         "Aspot24"
-#define WIFI_PASS         "Qazqaz11"
-
-#define SERIAL_BAUDRATE   115200
-#define LED                    2
-
-static const char   szAlexaName[]       = "Larry's Device";
+#define SERIAL_BAUDRATE                 115200
+#define LED                             2
 
 fauxmoESP fauxmo;
 // -----------------------------------------------------------------------------
@@ -25,12 +16,12 @@ fauxmoESP fauxmo;
 // -----------------------------------------------------------------------------
 
 void wifiSetup() {
+
     // Set WIFI module to STA mode
     WiFi.mode(WIFI_STA);
 
     // Connect
-    //Serial.printf("[WIFI] Connecting to %s ", WIFI_SSID);
-    Serial << LOG0 << "wifiSetup(): Call WiFi.begin() SSID/PW " << WIFI_SSID << "/" << WIFI_PASS << endl;
+    Serial.printf("[WIFI] Connecting to %s ", WIFI_SSID);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
 
     // Wait
@@ -42,17 +33,15 @@ void wifiSetup() {
 
     // Connected!
     Serial.printf("[WIFI] STATION Mode, SSID: %s, IP address: %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
-    return;
-} //wifiSetup
 
+}
 
-void setup(){
+void setup() {
+
     // Init serial port and clean garbage
     Serial.begin(SERIAL_BAUDRATE);
-    delay(10);
-    Serial << endl << LOG0 <<"setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
-    //Serial.println();
-    //Serial.println();
+    Serial.println();
+    Serial.println();
 
     // Wifi
     wifiSetup();
@@ -74,12 +63,11 @@ void setup(){
     // "Alexa, set light one to fifty" (50 means 50% of brightness)
 
     // Add virtual devices
-    Serial << LOG0 << "setup(): Call fauxmo.addDevice() szAlexaName= " << szAlexaName << endl;
-    fauxmo.addDevice(szAlexaName);
+    fauxmo.addDevice("light 1");
+	fauxmo.addDevice("light 2");
 
     // You can add more devices
-    //fauxmo.addDevice("light 2");
-    //fauxmo.addDevice("light 3");
+	//fauxmo.addDevice("light 3");
     //fauxmo.addDevice("light 4");
     //fauxmo.addDevice("light 5");
     //fauxmo.addDevice("light 6");
@@ -88,16 +76,15 @@ void setup(){
 
     // fauxmoESP 2.0.0 has changed the callback signature to add the device_id,
     // this way it's easier to match devices to action without having to compare strings.
-    Serial << LOG0 << "setup(): Call fauxmo.onSetState() " << endl;
     fauxmo.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value) {
         Serial.printf("[MAIN] Device #%d (%s) state: %s value: %d\n", device_id, device_name, state ? "ON" : "OFF", value);
         digitalWrite(LED, !state);
     });
-    return;
-} //setup
 
+}
 
 void loop() {
+
     // Since fauxmoESP 2.0 the library uses the "compatibility" mode by
     // default, this means that it uses WiFiUdp class instead of AsyncUDP.
     // The later requires the Arduino Core for ESP8266 staging version
@@ -109,9 +96,7 @@ void loop() {
     static unsigned long last = millis();
     if (millis() - last > 5000) {
         last = millis();
-        //Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
-        Serial << LOG0 << "loop(): Call Free heap= " << ESP.getFreeHeap() << endl;
+        Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
     }
-    return;
-} //loop
-//Last line.
+
+}

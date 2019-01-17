@@ -6,29 +6,21 @@
         "type": "git",
         "url": "https://bitbucket.org/xoseperez/fauxmoESP"
     },
-    "version": "3.1.0",
+    "version": "3.0.2",
     "license": "MIT",
     "exclude": "tests",
     "frameworks": "arduino",
     "platforms": ["espressif8266", "espressif32"],
+    "dependencies": {
+        "ESPAsyncTCP": "1.2.0",
+        "AsyncTCP": "1.0.1"
+    },
     "authors": {
         "name": "Xose Perez",
         "email": "xose.perez@gmail.com",
         "url": "http://tinkerman.cat",
         "maintainer": true
     },
-    "dependencies": [ 
-        {
-            "name": "ESPAsyncTCP",
-            "version": ">=1.2.0",
-            "platforms": "espressif8266"
-        },
-        {
-            "name": "AsyncTCP",
-            "version": ">=1.0.1",
-            "platforms": "espressif32"
-        }
-    ],
     "examples": [
         "examples/*/*.ino"
     ]
