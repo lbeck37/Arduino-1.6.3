@@ -27,7 +27,7 @@ const long   	lSerialMonitorBaud  = 115200;
   const int       sServoPin          = 16;
 #endif  //ESP32
 
-long         lLineCount            = 0;      //Serial Monitor uses for clarity.
+//long         lLineCount            = 0;      //Serial Monitor uses for clarity.
 
 String szGetTime(long lMsec){
   String  szString;
