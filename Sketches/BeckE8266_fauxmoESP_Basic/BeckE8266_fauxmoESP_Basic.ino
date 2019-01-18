@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_fauxmoESP_Basic.ino";
-const char szFileDate[]    = "Lenny 1/17/19f";
+const char szFileDate[]    = "Lenny 1/17/19h";
 
 #include <BeckMiniLib.h>
 
@@ -9,7 +9,6 @@ const char szFileDate[]    = "Lenny 1/17/19f";
     #include <ESP8266WiFi.h>
 #endif
 #include "fauxmoESP.h"
-//#include "credentials.h"
 
 #define WIFI_SSID         "Aspot24"
 #define WIFI_PASS         "Qazqaz11"

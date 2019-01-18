@@ -1,4 +1,4 @@
-//BeckE8266NTPLib.h, Beck 1/16/19
+//BeckNTPLib.h, Beck 1/17/19
 #pragma once
 #include <TimeLib.h>
 #include <Timezone.h>

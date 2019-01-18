@@ -1,8 +1,13 @@
-//BeckE8266NTPLib.cpp, Beck 1/16/19
+//BeckNTPLib.cpp, Beck 1/17/19
 #include <BeckMiniLib.h>
-#include <BeckE8266NTPLib.h>
+#include <BeckNTPLib.h>
 #include <NtpClientLib.h>
-#include <ESP8266WiFi.h>    //Just for Eclipse resolving?
+//#include <ESP8266WiFi.h>    //Just for Eclipse resolving?
+#ifdef ESP32
+    #include <WiFi.h>
+#else
+    #include <ESP8266WiFi.h>
+#endif
 
 String  szNtpServer       = "pool.ntp.org";
 int     wTimeOffset       = 1;
