@@ -24,6 +24,7 @@ String szLogLineHeader(long lLineCount){
 } //szLogLineHeader
 
 
+/*
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
 String szAddZeros(int sValue, int sNumDigits){
   String szReturn;
@@ -36,6 +37,7 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
+*/
 
 
 //LogToBoth() and BlynkLogLine()have multiple versions

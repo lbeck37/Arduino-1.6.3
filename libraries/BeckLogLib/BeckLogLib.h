@@ -23,7 +23,7 @@ extern bool           bDebugLog;    //Used to limit number of printouts.
 //Function protos
 void      LogJustToSerial(String sLogline);
 String    szLogLineHeader(long lLineCount);
-String    szAddZeros(int sValue, int sNumDigits);
+//String    szAddZeros(int sValue, int sNumDigits);
 
 //Global variables
 extern long                     lLineCount;       //Serial Monitor uses for clarity.

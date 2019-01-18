@@ -1,5 +1,6 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 12/10/18y";
+const char szFileDate[]    = "Lenny 1/17/19k";
+//const char szFileDate[]    = "Lenny 12/10/18y";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -705,6 +706,7 @@ void WriteTerminalString(String szString){
 } //WriteTerminalString
 
 
+/*
 //LogToBoth() and BlynkLogLine()have multiple versions
 //depending on there being a 2nd variable and its type.
 void LogToBoth(String szLogString){
@@ -733,6 +735,7 @@ void LogToBoth(String szLogString, float fLogValue){
   BlynkLogLine(szLogString, fLogValue);
   return;
 } //LogToBoth:float
+*/
 
 
 void BlynkLogLine(String szString){

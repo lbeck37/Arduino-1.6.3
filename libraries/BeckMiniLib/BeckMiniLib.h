@@ -9,7 +9,7 @@ extern const long		lMsecPerHour;
 extern const long		lMsecPerDay;
 extern const long   lSerialMonitorBaud;
 
-extern long         lLineCount;
+//extern long         lLineCount;
 
 #define LOG0    szLogLineHeader()
 
