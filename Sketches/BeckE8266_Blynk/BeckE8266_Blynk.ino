@@ -25,6 +25,7 @@ const char szFileDate[]    = "Lenny 1/17/19a";
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <BeckWiFiLib.h>
+#include <BeckLogLib.h>
 //#include <BeckE8266WiFiLib.h>
 #include <BeckE8266NTPLib.h>
 #include <BeckE8266OTALib.h>
@@ -89,7 +90,7 @@ static unsigned long  ulNextHandlerMsec     = 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bHeatOn               = false;  //If switch is on to turn on Heat.
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
-static bool           bDebugLog             = true;   //Used to limit number of printouts.
+//static bool           bDebugLog             = true;   //Used to limit number of printouts.
 
 #ifdef DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
