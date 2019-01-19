@@ -17,7 +17,7 @@ char* host = "BeckOTA";
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
-deadbeef
+//deadbeef
 
 WebServer server(80);
 
