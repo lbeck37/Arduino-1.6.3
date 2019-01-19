@@ -10,7 +10,7 @@ const char szFileDate[]    = "Lenny 1/1/19a";
 #include <BeckWiFiLib.h>
 #include <BeckE8266OTALib.h>
 #include <BeckE8266AccessPointLib.h>
-#include <BeckE8266NTPLib.h>
+#include <BeckNTPLib.h>
 
 static const char   szRouterName[]      = "Aspot24";
 static const char   szRouterPW[]        = "Qazqaz11";
