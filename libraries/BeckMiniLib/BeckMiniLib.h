@@ -1,4 +1,4 @@
-//BeckMiniLib.h, Dec 10, 2018, Lenny
+//BeckMiniLib.h, 1/20/19
 #pragma once
 #include <Streaming.h>
 #include <Time.h>
@@ -21,7 +21,10 @@ static const long   lMsecPerMin           =    60000;
 static const long   lMsecPerSec           =     1000;
 */
 
-String    szGetTime         (long lMsec);
-String    szAddZeros        (int sValue, int sNumDigits);
-String    szLogLineHeader   (void);
+String    szGetTime           (long lMsec);
+String    szAddZeros          (int sValue, int sNumDigits);
+String    szLogLineHeader     (void);
+
+String    szFormatTimeString  (void);
+String    szFormatDateString  (void);
 //Last line.

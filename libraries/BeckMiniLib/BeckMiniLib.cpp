@@ -1,6 +1,6 @@
-//BeckMiniLib.cpp, Beck 1/17/19
+//BeckMiniLib.cpp, Beck 1/20/19
 #include <BeckMiniLib.h>
-#include <BeckNTPLib.h>
+//#include <BeckNTPLib.h>
 
 const long		lMsecPerSec					= 1000;
 const long		lMsecPerMin					= 60 * lMsecPerSec;
@@ -27,6 +27,9 @@ const long   	lSerialMonitorBaud  = 115200;
 #endif  //ESP32
 
 //long         lLineCount            = 0;      //Serial Monitor uses for clarity.
+
+//Local function prototypes
+String szPrintDigits    (int digits);
 
 String szGetTime(long lMsec){
   String  szString;
@@ -103,4 +106,43 @@ String szLogLineHeader(void){
   szHeader += " ";				//Adds a trailing space
   return szHeader;
 } //szLogLineHeader
+
+
+String szPrintDigits(int digits) {
+  // utility for digital clock display: prints preceding colon and leading 0
+  String digStr = "";
+
+  if (digits < 10)
+    digStr += '0';
+  digStr += String(digits);
+
+  return digStr;
+} //szPrintDigits
+
+
+String szFormatTimeString(void) {
+  time_t    lBoiseTime= oMT_Timezone.toLocal (now(), &pTimeChangeRule);
+
+  String szReturnString = "";
+  szReturnString += szPrintDigits(hour(lBoiseTime));
+  szReturnString += ":";
+  szReturnString += szPrintDigits(minute(lBoiseTime));
+  szReturnString += ":";
+  szReturnString += szPrintDigits(second(lBoiseTime));
+  szReturnString += " ";
+  return szReturnString;
+} //szFormatTimeString
+
+
+String szFormatDateString(void){
+  time_t    lBoiseTime= oMT_Timezone.toLocal (now(), &pTimeChangeRule);
+
+  String szReturnString = "";
+  szReturnString += szPrintDigits(month(lBoiseTime));
+  szReturnString += "/";
+  szReturnString += szPrintDigits(day(lBoiseTime));
+  szReturnString += "/";
+  szReturnString += String(year(lBoiseTime));
+  return szReturnString;
+} //szFormatDateString
 //Last line.

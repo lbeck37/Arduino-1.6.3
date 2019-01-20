@@ -1,4 +1,4 @@
-//BeckNTPLib.h, Beck 1/17/19
+//BeckNTPLib.h, Beck 1/20/19
 #pragma once
 #include <TimeLib.h>
 #include <Timezone.h>
@@ -16,6 +16,8 @@ String  szFormatTimeString  (void);
 String  szFormatDateString  (void);
 String  szPrintDigits       (int digits);
 */
+/*
 String  szFormatTimeString  (void);
 String  szFormatDateString  (void);
+*/
 //Last line.

@@ -1,8 +1,12 @@
-//BeckNTPLib.cpp, Beck 1/17/19
+//BeckNTPLib.cpp, Beck 1/20/19
 #include <BeckMiniLib.h>
-#include <BeckNTPLib.h>
+//#include <BeckNTPLib.h>
+#include "BeckNTPLib.h"
 #include <NtpClientLib.h>
 //#include <ESP8266WiFi.h>    //Just for Eclipse resolving?
+
+#ifndef ESP32
+
 #ifdef ESP32
     #include <WiFi.h>
 #else
@@ -54,6 +58,7 @@ void SetupNTPHandlers(){
 } //SetupNTPHandlers
 
 
+/*
 String szPrintDigits(int digits) {
   // utility for digital clock display: prints preceding colon and leading 0
   String digStr = "";
@@ -64,8 +69,10 @@ String szPrintDigits(int digits) {
 
   return digStr;
 } //szPrintDigits
+*/
 
 
+/*
 String szFormatTimeString(void) {
 	time_t		lBoiseTime= oMT_Timezone.toLocal (now(), &pTimeChangeRule);
 
@@ -91,4 +98,6 @@ String szFormatDateString(void){
   szReturnString += String(year(lBoiseTime));
   return szReturnString;
 } //szFormatDateString
+*/
+#endif  //not ESP32
 //Last line.

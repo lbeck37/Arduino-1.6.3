@@ -1,5 +1,5 @@
 //NtpClientLib.h
-//Beck 1/14/19
+//Beck 1/20/19
 /*
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
 
@@ -36,9 +36,14 @@ or implied, of German Martin
 
  Library to get system sync from a NTP server
 */
-
+//Added by Sloeber
+#pragma once
+/*
 #ifndef _NtpClientLib_h
 #define _NtpClientLib_h
+*/
+
+#ifndef ESP32
 
 //#define DEBUG_NTPCLIENT //Uncomment this to enable debug messages over serial port
 
@@ -399,9 +404,6 @@ private:
 
 extern NTPClient NTP;
 
-#endif // _NtpClientLib_h
-
-
-//Added by Sloeber 
-#pragma once
-
+//#endif // _NtpClientLib_h
+#endif  //ESP32
+//Last line.
