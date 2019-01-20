@@ -1,0 +1,89 @@
+//Sloeber 4.3.1, BECKK 1/19/19B
+
+Project > Properties > C/C++ Build > Settings
+
+Arduino C++ Compiler
+Command: ${A.RECIPE.CPP.O.PATTERN}
+
+  "${A.COMPILER.PATH}${A.COMPILER.CPP.CMD}" ${A.COMPILER.CPREPROCESSOR.FLAGS} ${A.COMPILER.CPP.FLAGS} -DF_CPU=${A.BUILD.F_CPU} -DARDUINO=${A.RUNTIME.IDE.VERSION} -DARDUINO_${A.BUILD.BOARD} -DARDUINO_ARCH_${A.BUILD.ARCH} -DARDUINO_BOARD="${A.BUILD.BOARD}" -DARDUINO_VARIANT="${A.BUILD.VARIANT}" ${A.COMPILER.CPP.EXTRA_FLAGS} ${A.BUILD.EXTRA_FLAGS} ${A.INCLUDES}
+
+All options:
+-I"C:\_eclipseSloeber_4.3.1\arduinoPlugin\packages\ESP32\hardware\Cloned_011919\arduino-esp32\cores\esp32"
+-I"C:\_eclipseSloeber_4.3.1\arduinoPlugin\packages\ESP32\hardware\Cloned_011919\arduino-esp32\variants\esp32"
+-I"C:\_eclipseSloeber_4.3.1\arduinoPlugin\packages\ESP32\hardware\Cloned_011919\arduino-esp32\libraries\ESPmDNS\src"
+-I"C:\Dev\_Repos\Arduino\libraries\Update\src"
+-I"C:\Dev\_Repos\Arduino\libraries\Streaming"
+-I"C:\Dev\_Repos\Arduino\libraries\WebServer\src"
+-I"C:\_eclipseSloeber_4.3.1\arduinoPlugin\packages\ESP32\hardware\Cloned_011919\arduino-esp32\libraries\ArduinoOTA\src"
+-I"C:\Dev\_Repos\Arduino\libraries\WiFi\src"
+-I"C:\Dev\_Repos\Arduino\libraries\FS\src"
+
+ExpertsSettings:
+Command line pattern:
+${A.RECIPE.CPP.O.PATTERN.1}
+${FLAGS}
+-D__IN_ECLIPSE__=1
+-x c++
+${INPUTS}
+${A.RECIPE.CPP.O.PATTERN.2}
+${OUTPUT}
+${A.RECIPE.CPP.O.PATTERN.3}
+${JANTJE.EXTRA.COMPILE}
+${JANTJE.EXTRA.CPP.COMPILE}
+${JANTJE.EXTRA.ALL}
+
+Arduino C Compiler
+Command: ${A.RECIPE.C.O.PATTERN}
+All options:
+-I"C:\_eclipseSloeber_4.3.1\arduinoPlugin\packages\ESP32\hardware\Cloned_011919\arduino-esp32\cores\esp32"
+-I"C:\_eclipseSloeber_4.3.1\arduinoPlugin\packages\ESP32\hardware\Cloned_011919\arduino-esp32\variants\esp32"
+-I"C:\_eclipseSloeber_4.3.1\arduinoPlugin\packages\ESP32\hardware\Cloned_011919\arduino-esp32\libraries\ESPmDNS\src"
+-I"C:\Dev\_Repos\Arduino\libraries\Update\src"
+-I"C:\Dev\_Repos\Arduino\libraries\Streaming"
+-I"C:\Dev\_Repos\Arduino\libraries\WebServer\src"
+-I"C:\_eclipseSloeber_4.3.1\arduinoPlugin\packages\ESP32\hardware\Cloned_011919\arduino-esp32\libraries\ArduinoOTA\src"
+-I"C:\Dev\_Repos\Arduino\libraries\WiFi\src"
+-I"C:\Dev\_Repos\Arduino\libraries\FS\src"
+
+ExpertsSettings:
+Command line pattern:
+${A.RECIPE.C.O.PATTERN.1} ${FLAGS} -D__IN_ECLIPSE__=1 ${INPUTS} ${A.RECIPE.C.O.PATTERN.2} ${OUTPUT} ${A.RECIPE.C.O.PATTERN.3} ${JANTJE.EXTRA.COMPILE} ${JANTJE.EXTRA.C.COMPILE} ${JANTJE.EXTRA.ALL}
+
+
+${A.RECIPE.CPP.O.PATTERN}
+" ${A.COMPILER.PATH}
+  ${A.COMPILER.CPP.CMD}"
+  ${A.COMPILER.CPREPROCESSOR.FLAGS}
+  ${A.COMPILER.CPP.FLAGS}
+  -DF_CPU=${A.BUILD.F_CPU}
+  -DARDUINO=${A.RUNTIME.IDE.VERSION}
+  -DARDUINO_${A.BUILD.BOARD}
+  -DARDUINO_ARCH_${A.BUILD.ARCH}
+  -DARDUINO_BOARD="${A.BUILD.BOARD}"
+  -DARDUINO_VARIANT="${A.BUILD.VARIANT}"
+  ${A.COMPILER.CPP.EXTRA_FLAGS}
+  ${A.BUILD.EXTRA_FLAGS}
+  ${A.INCLUDES}
+  "${A.SOURCE_FILE}"
+  -o "${A.OBJECT_FILE}"
+
+${A.RECIPE.CPP.O.PATTERN1}
+ "${A.COMPILER.PATH}${A.COMPILER.CPP.CMD}"
+  ${A.COMPILER.CPREPROCESSOR.FLAGS}
+  ${A.COMPILER.CPP.FLAGS}
+  -DF_CPU=${A.BUILD.F_CPU}
+  -DARDUINO=${A.RUNTIME.IDE.VERSION}
+  -DARDUINO_${A.BUILD.BOARD}
+  -DARDUINO_ARCH_${A.BUILD.ARCH}
+  -DARDUINO_BOARD="${A.BUILD.BOARD}"
+  -DARDUINO_VARIANT="${A.BUILD.VARIANT}"
+  ${A.COMPILER.CPP.EXTRA_FLAGS}
+  ${A.BUILD.EXTRA_FLAGS}
+  ${A.INCLUDES}
+
+ ${A.RECIPE.CPP.O.PATTERN2}
+    -o
+
+ ${A.RECIPE.CPP.O.PATTERN3}
+  //Nothing
+

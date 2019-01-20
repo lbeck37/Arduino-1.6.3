@@ -113,7 +113,7 @@ void setup(void) {
   Serial.begin(115200);
 
   delay(100);
-  Serial.printf("\nBeckE32_OTAWebServer.ino 1/18/19b\nsetup(): Begin\n");
+  Serial.printf("\nBeckE32_OTAWebServer.ino 1/20/19c\nsetup(): Begin\n");
  // Connect to WiFi network
   WiFi.begin(ssid, password);
   Serial.println("");

@@ -23,7 +23,8 @@
 #include "WiFiServer.h"
 #include "WiFiClient.h"
 #include "WebServer.h"
-#include "detail/mimetable.h"
+//#include "detail/mimetable.h"
+#include "mimetable.h"
 
 //#define DEBUG_ESP_HTTP_SERVER
 #ifdef DEBUG_ESP_PORT
