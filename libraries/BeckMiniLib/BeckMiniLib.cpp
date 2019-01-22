@@ -1,6 +1,6 @@
 //BeckMiniLib.cpp, Beck 1/20/19
 #include <BeckMiniLib.h>
-//#include <BeckNTPLib.h>
+#include <BeckNTPLib.h>
 
 const long		lMsecPerSec					= 1000;
 const long		lMsecPerMin					= 60 * lMsecPerSec;

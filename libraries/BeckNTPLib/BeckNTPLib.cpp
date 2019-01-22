@@ -1,11 +1,11 @@
 //BeckNTPLib.cpp, Beck 1/20/19
 #include <BeckMiniLib.h>
-//#include <BeckNTPLib.h>
-#include "BeckNTPLib.h"
-#include <NtpClientLib.h>
+#include <BeckNTPLib.h>
+//#include "BeckNTPLib.h"
+//#include <NtpClientLib.h>
 //#include <ESP8266WiFi.h>    //Just for Eclipse resolving?
 
-#ifndef ESP32
+//#ifndef ESP32
 
 #ifdef ESP32
     #include <WiFi.h>
@@ -99,5 +99,5 @@ String szFormatDateString(void){
   return szReturnString;
 } //szFormatDateString
 */
-#endif  //not ESP32
+//#endif  //not ESP32
 //Last line.
