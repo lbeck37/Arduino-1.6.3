@@ -21,6 +21,8 @@
  Reworked on 28 Dec 2015 by Markus Sattler
 
  */
+#include <Arduino.h>      //Beck 1/21/19
+#include <freertos/event_groups.h>  // Location: git040318\arduino-esp32\tools\sdk\include\freertos\freertos
 
 #include "WiFi.h"
 #include "WiFiGeneric.h"

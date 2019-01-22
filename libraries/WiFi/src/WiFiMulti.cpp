@@ -23,6 +23,8 @@
  *
  */
 
+#include <Arduino.h>    //Beck 1/21/19
+
 #include "WiFiMulti.h"
 #include <limits.h>
 #include <string.h>

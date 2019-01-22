@@ -26,6 +26,8 @@
 #include "WiFiGeneric.h"
 #include "WiFiSTA.h"
 
+#include <freertos/event_groups.h>  //Beck 1/21/19
+
 extern "C" {
 #include <stdint.h>
 #include <stdbool.h>

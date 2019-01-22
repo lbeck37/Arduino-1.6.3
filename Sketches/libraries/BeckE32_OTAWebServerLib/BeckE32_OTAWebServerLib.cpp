@@ -1,7 +1,7 @@
-//BeckE32_OTAWebServerLib.cpp, Beck 1/20/19
+//BeckE32_OTAWebServerLib.cpp, Beck 1/21/19
 #include <BeckMiniLib.h>
 #include <BeckE32_OTAWebServerLib.h>
-#include "BeckE32_OTAServerPages.h"
+#include "BeckE32_OTAWebServerPages.h"
 #include <ArduinoOTA.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -69,7 +69,8 @@ void SetupOTAServer(const char *acHostname) {
   oWebServer.begin();
 
   //MDNS.addService("http", "tcp", 80);
-  Serial << LOG0 << "SetupOTAServer(): Open http://" << szOTAServerHostName << ".local to perform an OTA update" << endl;
+  //Serial << LOG0 << "SetupOTAServer(): Open http://" << szOTAServerHostName << ".local to perform an OTA update" << endl;
+  Serial << LOG0 << "SetupOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
   //Serial << "SetupOTAServer(): Access this device using " << WiFi.localIP() << " or " << acHostname << ".local" << endl;
   return;
 } //SetupOTAServer
@@ -81,7 +82,7 @@ void HandleOTAServer(void){
   return;
 } //HandleOTAServer
 
-
+#if 0
 void HandleOTAUpdate() {
   //upload() returns oHttpServer._currentUpload which is an HTTPUpload struct
   HTTPUpload& stHTTPUpload = oWebServer.upload();
@@ -153,4 +154,5 @@ void PauseBlynk(void) {
     _ulUpdateTimeoutMsec= millis() + 20000;
   return;
 } //PauseBlynk
+#endif    //0
 //Last line.
