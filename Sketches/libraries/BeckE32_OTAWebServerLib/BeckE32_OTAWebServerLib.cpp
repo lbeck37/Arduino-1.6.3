@@ -22,7 +22,6 @@ void HandleOTAFileEnd   (HTTPUpload& stHTTPUploadLocal);
 void PauseBlynk         (void);
 
 void SetupOTAServer(const char *acHostname) {
-  //Serial.printf("SetupOTAServer(): Start mDNS for %s\n", acHostname);
   Serial << LOG0 << "SetupOTAServer(): Start mDNS for " << acHostname << endl;
   /*use mdns for host name resolution*/
   if (!MDNS.begin(acHostname)) { //http://esp32.local
@@ -31,9 +30,9 @@ void SetupOTAServer(const char *acHostname) {
       delay(1000);
     } //while
   } //if (!MDNS.begin(acHostname))
-  Serial.println("mDNS responder started");
-  Serial << LOG0 << "SetupOTAServer(): mDNS responder started" << endl;
+  //Serial << LOG0 << "SetupOTAServer(): mDNS responder started" << endl;
 
+  Serial << LOG0 << "SetupOTAServer(): Set up callbacks" << endl;
   /*return index page which is stored in serverIndex */
   oWebServer.on("/", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
@@ -68,7 +67,6 @@ void SetupOTAServer(const char *acHostname) {
       }
     }
   });
-  Serial << LOG0 << "SetupOTAServer(): Finished setting callbacks" << endl;
   Serial << LOG0 << "SetupOTAServer(): Call oWebServer.begin()" << endl;
   oWebServer.begin();
   Serial << LOG0 << "SetupOTAServer(): Back from oWebServer.begin()" << endl;

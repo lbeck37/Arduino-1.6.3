@@ -1,7 +1,7 @@
 //BeckMiniLib.cpp, Beck 1/22/19
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
-//DEADBEEF
+
 const long		lMsecPerSec					= 1000;
 const long		lMsecPerMin					= 60 * lMsecPerSec;
 const long		lMsecPerHour				= 60 * lMsecPerMin;
