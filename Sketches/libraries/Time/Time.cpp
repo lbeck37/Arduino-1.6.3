@@ -269,7 +269,8 @@ time_t now() {
     }
   }  
   return (time_t)sysTime;
-}
+}	//now
+
 
 void setTime(time_t t) { 
 #ifdef TIME_DRIFT_INFO

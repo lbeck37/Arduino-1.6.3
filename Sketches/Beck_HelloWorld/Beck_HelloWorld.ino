@@ -1,13 +1,9 @@
-//const char szSketchName[]  = "Beck_HelloWorld.ino";
-//const char szFileDate[]    = "Lenny 1/22/19a";
-
 #include "Arduino.h"
-//#include <BeckMiniLib.h>
 
 void setup(){
   Serial.begin(115200);
-  delay(100);
-  Serial.println("\nsetup(): Hello World!");
+  delay(500);
+  Serial.println("\nBeck_HelloWord.ino: setup(): Hello World! #4");
   return;
 } //setup
 
