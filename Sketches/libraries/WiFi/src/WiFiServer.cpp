@@ -62,6 +62,7 @@ WiFiClient WiFiServer::available(){
   return WiFiClient();
 }
 
+//void WiFiServer::begin(uint16_t port= 0){
 void WiFiServer::begin(uint16_t port){
   if(_listening)
     return;
