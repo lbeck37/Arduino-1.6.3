@@ -1,6 +1,7 @@
-//BeckNTPLib.h, Beck 1/22/19
+//BeckNTPLib.h, Beck 1/24/19
 #pragma once
 #include <NtpClientLib.h>
+//#include <NtpClient.h>
 #include <TimeLib.h>
 #include <Timezone.h>
 
