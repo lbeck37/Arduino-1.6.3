@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk_121018.ino";
-const char szFileDate[]    = "Lenny 1/24/19";
+const char szFileDate[]    = "Lenny 1/24/19b";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -222,8 +222,8 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
 #ifdef THERMO_DEV
   static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char   acHostname[]        = "BeckThermoDev";
-  //static const char   szProjectType[]     = "THERMO_DEV";
-  static const String   szProjectType[]     = "THERMO_DEV";
+  static const char   szProjectType[]     = "THERMO_DEV";
+  //static const String   szProjectType[]     = "THERMO_DEV";
   static const char   szAlexaName[]     	= "Larry's Device";
   static const int    sProjectType        = sThermoDev;
   static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
@@ -259,8 +259,11 @@ void setup()
 {
   sSetupTime();
   Serial.begin(lSerialMonitorBaud);
+  delay(100);
   //Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
+  Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
+  //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << endl;
+  //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << ", " << endl;
   SetupWiFi();
   SetupOTAServer(acHostname);
   SetupNTP();
@@ -424,7 +427,7 @@ void SetupAlexa(){
 
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
-	char szLogString[100];
+	//char szLogString[100];
 	Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
 					ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
 	//LogToBoth(szLogString);
