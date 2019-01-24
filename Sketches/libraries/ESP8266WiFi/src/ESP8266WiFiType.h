@@ -23,10 +23,7 @@
 #ifndef ESP8266WIFITYPE_H_
 #define ESP8266WIFITYPE_H_
 
-//#include <types.h>		// 10/617 Beck Added
-//#include <queue.h>
-
-typedef unsigned char		uint8;
+#include <queue.h>
 
 #define WIFI_SCAN_RUNNING   (-1)
 #define WIFI_SCAN_FAILED    (-2)
@@ -150,5 +147,10 @@ struct WiFiEventSoftAPModeProbeRequestReceived
     uint8 mac[6];
 };
 
+
+extern "C" {
+typedef STAILQ_HEAD(, bss_info)
+bss_info_head_t;
+}
 
 #endif /* ESP8266WIFITYPE_H_ */

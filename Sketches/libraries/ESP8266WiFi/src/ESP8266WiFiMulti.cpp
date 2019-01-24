@@ -184,16 +184,13 @@ bool ESP8266WiFiMulti::APlistAdd(const char* ssid, const char *passphrase) {
         return false;
     }
 
-    if(passphrase) {
+    if(passphrase && *passphrase != 0x00) {
         newAP.passphrase = strdup(passphrase);
-    } else {
-        newAP.passphrase = strdup("");
-    }
-
-    if(!newAP.passphrase) {
-        DEBUG_WIFI_MULTI("[WIFI][APlistAdd] fail newAP.passphrase == 0\n");
-        free(newAP.ssid);
-        return false;
+        if(!newAP.passphrase) {
+            DEBUG_WIFI_MULTI("[WIFI][APlistAdd] fail newAP.passphrase == 0\n");
+            free(newAP.ssid);
+            return false;
+        }
     }
 
     APlist.push_back(newAP);
