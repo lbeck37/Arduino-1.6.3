@@ -8,8 +8,9 @@ const char szFileDate[]    = "Lenny 1/24/19";
 //#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
 //#define DEV_LOCAL
-//#define THERMO_DEV
+#define THERMO_DEV
 
+/*
 enum eProjectType{
 	eFrontLights	= 1,
 	eFireplace,
@@ -22,6 +23,7 @@ enum eProjectType{
 };
 
 static eProjectType		eCurrentProject= eThermoDev;
+*/
 
 #if 0
   #define SKIP_BLYNK    true
@@ -36,7 +38,13 @@ static eProjectType		eCurrentProject= eThermoDev;
 #include <Time.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <BeckOTALib.h>
+//#include <BeckOTALib.h>
+//#include <BeckOTAServerLib.h>
+#ifdef ESP8266
+  #include <BeckE8266OTALib.h>
+#else
+  #include <BeckOTALib.h>   //Beck 1/24/19 not tested
+#endif  //ESP8266
 #include <BlynkSimpleEsp8266.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -252,7 +260,7 @@ void setup()
   sSetupTime();
   Serial.begin(lSerialMonitorBaud);
   //Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
+  //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   SetupWiFi();
   SetupOTAServer(acHostname);
   SetupNTP();
@@ -269,17 +277,18 @@ void setup()
 void loop() {
 	HandleOTAServer();
   if (!bSkipBlynk) {
-    if (!bUpdating) {
+    //if (!bUpdating) {
+    if (!_bOTA_Started) {
       Blynk.run();
       HandleSystem();
-    } //if(!bUpdating)
+    } //if(!_bOTA_Started)
     else {
       Serial << LOG0 << "loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
-      if (millis() > ulUpdateTimeoutMsec) {
-        bUpdating = false;
-        Serial << LOG0 << "loop(): Set bUpdating to " << bUpdating << endl;
+      if (millis() > _ulUpdateTimeoutMsec) {
+        _bOTA_Started = false;
+        Serial << LOG0 << "loop(): Set bUpdating to " << _bOTA_Started << endl;
       } //if(millis()>ulUpdateTimeoutMsec)
-    } //if(!bUpdating)else
+    } //if(!_bOTA_Started)else
   } //if(!bSkipBlynk)
 } //loop
 
