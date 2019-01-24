@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk_121018.ino";
-const char szFileDate[]    = "Lenny 1/24/19b";
+const char szFileDate[]    = "Lenny 1/24/19g";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -9,21 +9,6 @@ const char szFileDate[]    = "Lenny 1/24/19b";
 //#define HEATER
 //#define DEV_LOCAL
 #define THERMO_DEV
-
-/*
-enum eProjectType{
-	eFrontLights	= 1,
-	eFireplace,
-	eGarage,
-	eGarageLocal,
-	eHeater,
-	eDevLocal,
-	eThermoDev,
-	eLastProject
-};
-
-static eProjectType		eCurrentProject= eThermoDev;
-*/
 
 #if 0
   #define SKIP_BLYNK    true
@@ -261,7 +246,7 @@ void setup()
   Serial.begin(lSerialMonitorBaud);
   delay(100);
   //Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
-  Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
+  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << endl;
   //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << ", " << endl;
   SetupWiFi();
@@ -452,8 +437,9 @@ int sSetupTime(){
 
 
 void SetupSystem(){
-  String szLogString = "SetupSystem()";
-  LogToBoth(szLogString);
+  //String szLogString = "SetupSystem()";
+  //LogToBoth(szLogString);
+  Serial << LOG0 << "SetupSystem(): Begin" << endl;
   switch (sProjectType){
   case sThermoDev:
   case sDevLocal:
@@ -469,8 +455,9 @@ void SetupSystem(){
 
 
 void SetupSwitches(){
-  String szLogString = "SetupSwitches()";
-  LogToBoth(szLogString);
+  //String szLogString = "SetupSwitches()";
+  //LogToBoth(szLogString);
+  Serial << LOG0 << "SetupSwitches(): Begin" << endl;
   for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
   	if(asSwitchPin[sSwitch] != sNoSwitch){
 			pinMode(asSwitchPin[sSwitch], OUTPUT);
@@ -792,34 +779,30 @@ void ScanForI2CDevices(void){
   byte ucError, ucAddress;
   int nDevices;
   nDevices = 0;
-  for(ucAddress = 1; ucAddress < 127; ucAddress++ )
-  {
-    // The i2c_scanner uses the return value of
-    // the Write.endTransmisstion to see if
-    // a device did acknowledge to the address.
+  for(ucAddress = 1; ucAddress < 127; ucAddress++ ){
+    //The i2c_scanner uses the return value of the Write.endTransmisstion to see if
+    //a device did acknowledge to the address.
     Wire.beginTransmission(ucAddress);
     ucError = Wire.endTransmission();
 
     if (ucError == 0){
-      Serial << LOG0 << "ScanForI2CDevices(): I2C device found at address 0x";
+      Serial << LOG0 << "ScanForI2CDevices(): I2C device found at address 0x" << endl;
       if (ucAddress<16){
         Serial.print("0");
       } //if(ucAddress<16)
       Serial.println(ucAddress,HEX);
-      //Serial.println("  !");
       nDevices++;
     } //if(ucError==0)
     else if (ucError==4) {
-      //Serial.print("Unknown error at address 0x");
-      Serial << LOG0 << "ScanForI2CDevices(): Unknown error at address 0x";
+      Serial << LOG0 << "ScanForI2CDevices(): Unknown error at address 0x" << endl;
       if (ucAddress<16) {
-        Serial.print("0");
+        Serial << "0";
       } //if(ucAddress<16)
       Serial.println(ucAddress,HEX);
     } //else if(ucError==4)
-  }
+  } //for
  if (nDevices == 0){
-    Serial.println("No I2C devices found\n");
+    Serial << LOG0 << "ScanForI2CDevices(): ***No I2C devices found***" << endl;
  }  //if(nDevices==0)
   return;
 } //ScanForDevices
