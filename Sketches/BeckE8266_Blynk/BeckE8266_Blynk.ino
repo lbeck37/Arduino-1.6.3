@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/24/19a";
+const char szFileDate[]    = "Lenny 1/24/19d";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -18,23 +18,20 @@ const char szFileDate[]    = "Lenny 1/24/19a";
 
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
-#include <NtpClientLib.h>
-#include <Streaming.h>
-#include <Time.h>
-//#include <ESP8266WiFi.h>
 #include <BeckWiFiLib.h>
-#include <WiFiClient.h>
-//#include <BeckOTALib.h>
-//#include <BeckOTAServerLib.h>
 #ifdef ESP8266
   #include <BeckE8266OTALib.h>
 #else
   #include <BeckOTALib.h>   //Beck 1/24/19 not tested
 #endif  //ESP8266
-#include <BlynkSimpleEsp8266.h>
+#include <WiFiClient.h>
+#include <NtpClientLib.h>
+#include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <fauxmoESP.h>
+#include <Streaming.h>
+#include <Time.h>
+#include <BlynkSimpleEsp8266.h>
 
 //For I2C OLED display
 #include <Wire.h>
@@ -123,13 +120,6 @@ static const int    sGarageLocal          = 4;
 static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sThermoDev            = 7;
-/*
-static const long   lSerialMonitorBaud    = 115200;
-static const long   lMsecPerDay           = 86400000;
-static const long   lMsecPerHour          =  3600000;
-static const long   lMsecPerMin           =    60000;
-static const long   lMsecPerSec           =     1000;
-*/
 
 static const long   	sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
@@ -147,9 +137,6 @@ static bool           bHeatOn            		= false;  //If switch is on to turn o
 static bool           bAlexaOn            	= false;  //Only projects that use Alexa set this true.
 static long         	sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool         	bDebugLog             = true;   //Used to limit number of printouts.
-//static bool         	bUpdating             = false;   //Turns off Blynk.
-
-//long         	lLineCount            = 0;      //Serial Monitor uses for clarity.
 
 #ifdef DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -209,7 +196,6 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
   static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char   acHostname[]        = "BeckThermoDev";
   static const char   szProjectType[]     = "THERMO_DEV";
-  //static const String   szProjectType[]     = "THERMO_DEV";
   static const char   szAlexaName[]     	= "Larry's Device";
   static const int    sProjectType        = sThermoDev;
   static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
@@ -237,22 +223,23 @@ Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
+//Function proto
+void  SetupBlynk();
+
+/*
 void SetupBlynkProject(){
 	return;
 }
+*/
 
-void setup()
-{
-  sSetupTime();
+void setup(){
+  //sSetupTime();
   Serial.begin(lSerialMonitorBaud);
   delay(100);
-  //Serial << endl << LOG0 << "setup(): Initialized serial to " << lSerialMonitorBaud << " baud" << endl;
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
-  //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << endl;
-  //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << ", " << endl;
-  //SetupWiFi();
   SetupWiFi(szRouterName, szRouterPW);
   SetupOTAServer(acHostname);
+  SetupBlynk();
   SetupNTP();
   SetupI2C();
   SetupAlexa();
@@ -264,10 +251,9 @@ void setup()
 } //setup
 
 
-void loop() {
+void loop(){
 	HandleOTAServer();
   if (!bSkipBlynk) {
-    //if (!bUpdating) {
     if (!_bOTA_Started) {
       Blynk.run();
       HandleSystem();
@@ -292,6 +278,23 @@ void SetupDisplay(){
   delay(10);
   return;
 } //SetupDisplay
+
+
+void SetupBlynk(){
+  switch (sProjectType){
+    case sDevLocal:
+      Serial << LOG0 << "SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
+      Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
+      break;
+    default:
+      Serial << LOG0 << "SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
+      Blynk.config(acBlynkAuthToken);
+      break;
+  } //switch
+  Serial << LOG0 << "SetupBlynk(): Blynk.config() returned" << endl;
+  return;
+} //SetupBlynk
+
 
 
 void SetupAlexa(){
@@ -339,10 +342,8 @@ void SetupAlexa(){
 
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
-	//char szLogString[100];
 	Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
 					ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
-	//LogToBoth(szLogString);
 	SetAlexaSwitch(bState);
 	Serial << "DoAlexaComman(): Return" << endl;
   return;
@@ -357,15 +358,15 @@ void SetupI2C(){
 } //SetupI2C
 
 
+/*
 int sSetupTime(){
   //setTime(0,0,0, 0,0,0);  //hr, min, sec, day, month, year
   return 1;
 } //sSetupTime
+*/
 
 
 void SetupSystem(){
-  //String szLogString = "SetupSystem()";
-  //LogToBoth(szLogString);
   Serial << LOG0 << "SetupSystem(): Begin" << endl;
   switch (sProjectType){
   case sThermoDev:
@@ -382,8 +383,6 @@ void SetupSystem(){
 
 
 void SetupSwitches(){
-  //String szLogString = "SetupSwitches()";
-  //LogToBoth(szLogString);
   Serial << LOG0 << "SetupSwitches(): Begin" << endl;
   for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
   	if(asSwitchPin[sSwitch] != sNoSwitch){
