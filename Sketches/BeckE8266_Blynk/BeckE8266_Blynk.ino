@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/24/19d";
+const char szFileDate[]    = "Lenny 1/24/19f";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -19,6 +19,7 @@ const char szFileDate[]    = "Lenny 1/24/19d";
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 #include <BeckWiFiLib.h>
+#include <BeckE8266AccessPointLib.h>
 #ifdef ESP8266
   #include <BeckE8266OTALib.h>
 #else
@@ -239,6 +240,8 @@ void setup(){
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   SetupWiFi(szRouterName, szRouterPW);
   SetupOTAServer(acHostname);
+  SetupAccessPoint();
+  SetupWebServer(_oAccessPtIPAddress);
   SetupBlynk();
   SetupNTP();
   SetupI2C();
@@ -253,6 +256,7 @@ void setup(){
 
 void loop(){
 	HandleOTAServer();
+  HandleSoftAPClient();       //Listen for HTTP requests from clients
   if (!bSkipBlynk) {
     if (!_bOTA_Started) {
       Blynk.run();
