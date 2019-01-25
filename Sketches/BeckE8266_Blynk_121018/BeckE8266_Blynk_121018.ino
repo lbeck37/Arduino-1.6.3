@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk_121018.ino";
-const char szFileDate[]    = "Lenny 1/24/19g";
+const char szFileDate[]    = "Lenny 1/24/19r";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -21,7 +21,8 @@ const char szFileDate[]    = "Lenny 1/24/19g";
 #include <NtpClientLib.h>
 #include <Streaming.h>
 #include <Time.h>
-#include <ESP8266WiFi.h>
+//#include <ESP8266WiFi.h>
+#include <BeckWiFiLib.h>
 #include <WiFiClient.h>
 //#include <BeckOTALib.h>
 //#include <BeckOTAServerLib.h>
@@ -249,7 +250,8 @@ void setup()
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
   //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << endl;
   //Serial << LOG0 << "setup(): Sketch: " << szSketchName << "/" << ", " << endl;
-  SetupWiFi();
+  //SetupWiFi();
+  SetupWiFi(szRouterName, szRouterPW);
   SetupOTAServer(acHostname);
   SetupNTP();
   SetupI2C();
@@ -290,81 +292,6 @@ void SetupDisplay(){
   delay(10);
   return;
 } //SetupDisplay
-
-
-void SetupWiFi(){
-  Serial << LOG0 << "SetupWiFi(): Call WiFi.mode(WIFI_AP_STA)" << endl;
-  WiFi.mode(WIFI_AP_STA);
-
-  Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
-
-  //wl_status_t eWiFiStatus= WiFi.waitForConnectResult();
-  Serial << LOG0 << "SetupWiFi(): Call WiFi.waitForConnectResult()" << endl;
-  wl_status_t eWiFiStatus= (wl_status_t)WiFi.waitForConnectResult();
-
-  if(eWiFiStatus == WL_CONNECTED) {
-    Serial << LOG0 << "SetupWiFi(): WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
-    //Serial.printf("\nHTTPUpdateServer ready! Open http://%s.local/update in your browser\n", host);
-    Serial << LOG0 << "SetupWiFi(): IP address= " << WiFi.localIP() << endl;
-/*
-    SetupOTAServer(acHostname);
-    SetupNTP();
-*/
-  } //if(eWiFiStatus==WL_CONNECTED)
-  else {
-    //Serial << LOG0 << " SetupServer(): ERROR: WiFi.waitForConnectResult() returned " << ucWiFiStatus << endl;
-    Serial << LOG0 << "SetupWiFi(): ERROR: WiFi.waitForConnectResult() returned " << szWiFiStatus(eWiFiStatus) << endl;
-  } //if(eWiFiStatus==WL_CONNECTED)else
-
-  switch (sProjectType){
-    case sDevLocal:
-      Serial << LOG0 << "SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
-      Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
-      break;
-    default:
-      Serial << LOG0 << "SetupWiFi(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
-      Blynk.config(acBlynkAuthToken);
-      break;
-  } //switch
-  Serial << LOG0 << "SetupWiFi(): Blynk.config() returned" << endl;
-  return;
-} //SetupWiFi
-
-
-String szWiFiStatus(wl_status_t eWiFiStatus){
-  String szStatus;
-  switch (eWiFiStatus){
-  case WL_IDLE_STATUS:
-    szStatus= "WL_IDLE_STATUS";
-    break;
-  case WL_NO_SSID_AVAIL:
-    szStatus= "WL_NO_SSID_AVAIL";
-    break;
-  case WL_SCAN_COMPLETED:
-    szStatus= "WL_SCAN_COMPLETED";
-    break;
-  case WL_CONNECTED:
-    szStatus= "WL_CONNECTED";
-    break;
-  case WL_CONNECT_FAILED:
-    szStatus= "WL_CONNECT_FAILED";
-    break;
-  case WL_CONNECTION_LOST:
-    szStatus= "WL_CONNECTION_LOST";
-    break;
-  case WL_DISCONNECTED:
-    szStatus= "WL_DISCONNECTED";
-    break;
-  case WL_NO_SHIELD:
-    szStatus= "WL_NO_SHIELD";
-    break;
-  default:
-    szStatus= "default";
-    break;
-  } //switch
-  return szStatus;
-} //szWiFiStatus
 
 
 void SetupAlexa(){
@@ -503,7 +430,8 @@ void HandleSystem(){
 
 void UpdateDisplay(void){
   oDisplay.clearDisplay();
-  oDisplay.setTextSize(2);
+  //oDisplay.setTextSize(2);
+  oDisplay.setTextSize(1);
   oDisplay.setTextColor(WHITE);
   oDisplay.setCursor(0,0);
   String szDisplayLine= "Now " + String(fLastDegF);
@@ -786,7 +714,7 @@ void ScanForI2CDevices(void){
     ucError = Wire.endTransmission();
 
     if (ucError == 0){
-      Serial << LOG0 << "ScanForI2CDevices(): I2C device found at address 0x" << endl;
+      Serial << LOG0 << "ScanForI2CDevices(): I2C device found at address 0x";
       if (ucAddress<16){
         Serial.print("0");
       } //if(ucAddress<16)

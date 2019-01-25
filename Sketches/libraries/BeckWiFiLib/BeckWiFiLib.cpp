@@ -16,23 +16,53 @@ void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
   // Set WIFI module to STA mode
   WiFi.mode(WIFI_STA);
 
-  // Connect
-  //Serial << LOG0 << "[WIFI] Connecting to ", szRouterName << endl;
-  //WiFi.begin(WIFI_SSID, WIFI_PASS);
+  //Connect
   Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
   WiFi.begin(szRouterName, szRouterPW);
 
-  // Wait
+  //Wait for WL_CONNECTED
   while (WiFi.status() != WL_CONNECTED) {
     Serial << ".";
     delay(100);
   }
   Serial << endl;
 
-  // Connected!
-  //Serial << LOG0 << "[WIFI] STATION Mode, SSID: %s, IP address: %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str()) << endl;
-  //Serial << LOG0 << "[WIFI] STATION Mode, SSID: " << WiFi.SSID().c_str() << " IP address: " << WiFi.localIP().toString().c_str()) << endl;
   Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << " IP address: " << WiFi.localIP() << endl;
   return;
 } //SetupWiFi
+
+
+String szWiFiStatus(wl_status_t eWiFiStatus){
+  String szStatus;
+  switch (eWiFiStatus){
+  case WL_IDLE_STATUS:
+    szStatus= "WL_IDLE_STATUS";
+    break;
+  case WL_NO_SSID_AVAIL:
+    szStatus= "WL_NO_SSID_AVAIL";
+    break;
+  case WL_SCAN_COMPLETED:
+    szStatus= "WL_SCAN_COMPLETED";
+    break;
+  case WL_CONNECTED:
+    szStatus= "WL_CONNECTED";
+    break;
+  case WL_CONNECT_FAILED:
+    szStatus= "WL_CONNECT_FAILED";
+    break;
+  case WL_CONNECTION_LOST:
+    szStatus= "WL_CONNECTION_LOST";
+    break;
+  case WL_DISCONNECTED:
+    szStatus= "WL_DISCONNECTED";
+    break;
+  case WL_NO_SHIELD:
+    szStatus= "WL_NO_SHIELD";
+    break;
+  default:
+    szStatus= "default";
+    break;
+  } //switch
+  return szStatus;
+} //szWiFiStatus
 //Last line.
