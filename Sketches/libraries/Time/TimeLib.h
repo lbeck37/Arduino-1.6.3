@@ -30,6 +30,7 @@ typedef unsigned long time_t;
 // and unpredictable effects by conflicting with the C library header "time.h",
 // but at least this hack lets us define C++ functions as intended.  Hopefully
 // nothing too terrible will result from overriding the C library header?!
+
 extern "C++" {
 typedef enum {timeNotSet, timeNeedsSync, timeSet
 }  timeStatus_t ;

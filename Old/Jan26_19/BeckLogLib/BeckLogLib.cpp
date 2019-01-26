@@ -1,11 +1,11 @@
-//BeckLogLib.cpp, 1/26/19
+//BeckLogLib.cpp, 1/3/18
 #include <BeckLogLib.h>
-#include <BeckBlynkLib.h>
 
 //Global variables
-long            lLineCount      = 0;      //Serial Monitor uses for clarity.
-String          szLogLine;
-bool            bDebugLog       = true;   //Used to limit number of printouts.
+long                  lLineCount      = 0;  //Serial Monitor uses for clarity.
+String                szLogLine;
+
+bool            bDebugLog= true;   //Used to limit number of printouts.
 
 
 void LogJustToSerial(String sLogline){
@@ -42,21 +42,21 @@ String szAddZeros(int sValue, int sNumDigits){
 //depending on there being a 2nd variable and its type.
 void LogToBoth(String szLogString){
   Serial << LOG0 << szLogString << endl;
-  BlynkLogLine(szLogString);
+  //BlynkLogLine(szLogString);
   return;
 } //LogToBoth:empty
 
 
 void LogToBoth(String szLogString, String szLogValue){
   Serial << LOG0 << szLogString << " " << szLogValue << endl;
-  BlynkLogLine(szLogString, szLogValue);
+  //BlynkLogLine(szLogString, szLogValue);
   return;
 } //LogToBoth:String
 
 
 void LogToBoth(String szLogString, int sLogValue){
   Serial << LOG0 << szLogString << " " << sLogValue << endl;
-  BlynkLogLine(szLogString, sLogValue);
+  //BlynkLogLine(szLogString, sLogValue);
   return;
 } //LogToBoth:int
 
@@ -69,14 +69,14 @@ void LogToBoth(String szLogString, UINT32 uwLogValue){
 
 void LogToBoth(String szLogString, float fLogValue){
   Serial << LOG0 << szLogString << " " << fLogValue << endl;
-  BlynkLogLine(szLogString, fLogValue);
+  //BlynkLogLine(szLogString, fLogValue);
   return;
 } //LogToBoth:float
 
 
 void LogToBoth(String szLogString, double dLogValue){
   Serial << LOG0 << szLogString << " " << dLogValue << endl;
-  BlynkLogLine(szLogString, dLogValue);
+  //BlynkLogLine(szLogString, dLogValue);
   return;
 } //LogToBoth:double
 

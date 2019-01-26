@@ -31,6 +31,60 @@ const long   	lSerialMonitorBaud  = 115200;
 //Local function prototypes
 String szPrintDigits    (int digits);
 
+/*
+// You can send commands from Terminal to your hardware. Just use
+// the same Virtual Pin as your Terminal Widget
+//int WriteTerminalLine(char *szString){
+void WriteTerminalLine(String szString){
+  if (bDebugLog){
+    oTerminal.println(szString) ;
+    oTerminal.flush();          // Ensure everything is sent
+  } //if(bDebugLog)
+  return;
+} //WriteTerminalLine
+
+
+void WriteTerminalString(String szString){
+  if (bDebugLog){
+    oTerminal.print(szString);
+    oTerminal.print(" ");       //Send training space
+    oTerminal.flush();          // Ensure everything is sent
+  } //if(bDebugLog)
+  return;
+} //WriteTerminalString
+
+
+//LogToBoth() and BlynkLogLine()have multiple versions
+//depending on there being a 2nd variable and its type.
+void LogToBoth(String szLogString){
+  Serial << LOG0 << szLogString << endl;
+  BlynkLogLine(szLogString);
+  return;
+} //LogToBoth:empty
+
+
+void LogToBoth(String szLogString, String szLogValue){
+  Serial << LOG0 << szLogString << " " << szLogValue << endl;
+  BlynkLogLine(szLogString, szLogValue);
+  return;
+} //LogToBoth:String
+
+
+void LogToBoth(String szLogString, int sLogValue){
+  Serial << LOG0 << szLogString << " " << sLogValue << endl;
+  BlynkLogLine(szLogString, sLogValue);
+  return;
+} //LogToBoth:int
+
+
+void LogToBoth(String szLogString, float fLogValue){
+  Serial << LOG0 << szLogString << " " << fLogValue << endl;
+  BlynkLogLine(szLogString, fLogValue);
+  return;
+} //LogToBoth:float
+*/
+
+
 String szGetTime(long lMsec){
   String  szString;
   int sDays    =    lMsec                                               / lMsecPerDay ;

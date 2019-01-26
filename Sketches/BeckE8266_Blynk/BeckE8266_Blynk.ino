@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/26/19e";
+const char szFileDate[]    = "Lenny 1/26/19f";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -167,7 +167,9 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
   static float        fSetpointF      = 74;
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
-  fauxmoESP 					Alexa;										//Alexa emulation of Phillips Hue Bulb
+#if DO_ALEXA
+  fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
+#endif
 #endif
 #ifdef GARAGE
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
@@ -209,7 +211,9 @@ static bool         	bDebugLog             = true;   //Used to limit number of p
   static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
   static float        fSetpointF          = 70;
   static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
-  fauxmoESP 					Alexa;										//Alexa emulation of Phillips Hue Bulb
+#if DO_ALEXA
+  fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
+#endif
 #endif
 
 //Set up Blynk Widgets
