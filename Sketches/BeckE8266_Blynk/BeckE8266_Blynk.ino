@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_Blynk.ino";
-const char szFileDate[]    = "Lenny 1/25/19f";
+const char szFileDate[]    = "Lenny 1/26/19e";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -17,22 +17,24 @@ const char szFileDate[]    = "Lenny 1/25/19f";
 #endif
 
 #define DO_ACCESS_POINT     false
+#define DO_ALEXA            false
 
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 #include <BeckWiFiLib.h>
-#if DO_ACCESS_POINT
-  #include <BeckE8266AccessPointLib.h>
-#endif
 #ifdef ESP8266
-  //#include <BeckE8266OTALib.h>
   #include <BeckESP_OTAWebServerLib.h>
 #else
   #include <BeckOTALib.h>   //Beck 1/24/19 not tested
 #endif  //ESP8266
+#if DO_ACCESS_POINT
+  #include <BeckE8266AccessPointLib.h>
+#endif
+#if DO_ALEXA
+  #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
+#endif
 #include <WiFiClient.h>
 #include <NtpClientLib.h>
-#include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Streaming.h>
@@ -252,7 +254,9 @@ void setup(){
   SetupBlynk();
   SetupNTP();
   SetupI2C();
+#if DO_ALEXA
   SetupAlexa();
+#endif
   SetupDisplay();
   UpdateDisplay();
   SetupSwitches();
@@ -310,7 +314,7 @@ void SetupBlynk(){
 } //SetupBlynk
 
 
-
+#if DO_ALEXA
 void SetupAlexa(){
   String szLogString= "SetupAlexa(): Begin";
   LogToBoth(szLogString);
@@ -364,20 +368,21 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
 } //DoAlexaCommand
 
 
+void HandleAlexa(){
+  if(bAlexaOn){
+    Alexa.handle();
+  } //if(bAlexaOn)
+  return;
+} //HandleAlexa
+#endif  //DO_ALEXA
+
+
 void SetupI2C(){
   Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
   ScanForI2CDevices();
   return;
 } //SetupI2C
-
-
-/*
-int sSetupTime(){
-  //setTime(0,0,0, 0,0,0);  //hr, min, sec, day, month, year
-  return 1;
-} //sSetupTime
-*/
 
 
 void SetupSystem(){
@@ -409,7 +414,9 @@ void SetupSwitches(){
 
 
 void HandleSystem(){
-	HandleAlexa();
+#if DO_ALEXA
+  HandleAlexa();
+#endif
   if (millis() >= ulNextHandlerMsec){
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
     switch (sProjectType){
@@ -458,14 +465,6 @@ void UpdateDisplay(void){
   oDisplay.display();
   delay(10);
 } //UpdateDisplay
-
-
-void HandleAlexa(){
-  if(bAlexaOn){
-  	Alexa.handle();
-  }	//if(bAlexaOn)
-  return;
-} //HandleAlexa
 
 
 void HandleDevelopment(){
