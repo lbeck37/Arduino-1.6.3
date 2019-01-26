@@ -1,4 +1,4 @@
-//BeckE32_OTAWebServerPages.h, Beck 1/20/19
+//BeckESP_OTAWebServerPages.h, Beck 1/25/19
 #pragma once
 
 //Login page
@@ -32,7 +32,7 @@ const char* loginIndex =
 "<script>"
     "function check(form)"
     "{"
-    "if(form.userid.value=='admin' && form.pwd.value=='admin')"
+    "if(form.userid.value=='thedude' && form.pwd.value=='tuna37')"
     "{"
     "window.open('/serverIndex')"
     "}"

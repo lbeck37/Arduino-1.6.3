@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_OTAWebServer.ino";
-const char szFileDate[]    = "Lenny 1/25/19b";
+const char szFileDate[]    = "Lenny 1/25/19d";
 
 #include <BeckMiniLib.h>
 #include <BeckESP_OTAWebServerLib.h>
