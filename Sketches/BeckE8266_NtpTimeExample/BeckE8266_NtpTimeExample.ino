@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_NtpTimeExample.ino";
-const char szFileDate[]    = "Lenny 1/16/19m";
+const char szFileDate[]    = "Lenny 1/27/19a";
 /*
  Name:    NtpClient.ino
  Created: 20/08/2016
@@ -10,7 +10,8 @@ const char szFileDate[]    = "Lenny 1/16/19m";
 #include <BeckWiFiLib.h>
 #include <BeckE8266OTALib.h>
 #include <BeckE8266AccessPointLib.h>
-#include <BeckE8266NTPLib.h>
+//#include <BeckE8266NTPLib.h>
+#include <BeckNTPLib.h>
 
 static const char   szRouterName[]      = "Aspot24";
 static const char   szRouterPW[]        = "Qazqaz11";

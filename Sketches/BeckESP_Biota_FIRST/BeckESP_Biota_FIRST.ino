@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/27/19b";
+const char szFileDate[]    = "Lenny 1/26/19a";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -17,9 +17,10 @@ const char szFileDate[]    = "Lenny 1/27/19b";
 #endif
 
 #define DO_ACCESS_POINT     false
-#define DO_ALEXA            true
+#define DO_ALEXA            false
 
 #include <BeckMiniLib.h>
+#include <BeckBlynkLib.h>
 #include <BeckNTPLib.h>
 #include <BeckWiFiLib.h>
 #ifdef ESP8266
@@ -53,6 +54,7 @@ static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and lab
 static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 
+/*
 //Define Virtual Pin names
 #define ReadF_V0          V0
 #define ReadF_V1          V1
@@ -100,6 +102,7 @@ static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 #define Unassigned_V29    V29
 #define Unassigned_V30    V30
 #define Unassigned_V31    V31
+*/
 
 //#define LOG0    szLogLineHeader(++lLineCount)
 
@@ -214,8 +217,9 @@ static bool           bDebugLog             = true;   //Used to limit number of 
 #if DO_ALEXA
   fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
 #endif
-#endif
+#endif  //THERMO_DEV
 
+/*
 //Set up Blynk Widgets
 WidgetTerminal      oTerminal(Terminal_V7);
 WidgetLCD           LCDWidget(1);
@@ -225,6 +229,7 @@ WidgetLED           oLED1(LED_1V13);
 WidgetLED           oLED2(LED_2V18);
 WidgetLED           oLED3(LED_3V23);
 WidgetLED           oLED4(LED_4V28);
+*/
 
 //UpdaterClass    Update; //Declaration at the end of cores\esp8266\Updater.h from BSP
 
@@ -242,6 +247,10 @@ void  SetupBlynk();
 void SetupBlynkProject(){
   return;
 }
+*/
+/*
+void setup();
+void loop();
 */
 
 void setup(){
@@ -288,6 +297,7 @@ void loop(){
       } //if(millis()>ulUpdateTimeoutMsec)
     } //if(!_bOTA_Started)else
   } //if(!bSkipBlynk)
+  return;
 } //loop
 
 
@@ -468,6 +478,7 @@ void UpdateDisplay(void){
   oDisplay.println(szDisplayLine);
   oDisplay.display();
   delay(10);
+  return;
 } //UpdateDisplay
 
 
@@ -749,9 +760,10 @@ void ScanForI2CDevices(void){
     Serial << LOG0 << "ScanForI2CDevices(): ***No I2C devices found***" << endl;
  }  //if(nDevices==0)
   return;
-} //ScanForDevices
+} //ScanForI2CDevices
 
 
+/*
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
 //int WriteTerminalLine(char *szString){
@@ -847,8 +859,10 @@ void SendIntToBlynk(int sVirtualPin, int sValue){
   Blynk.virtualWrite(sVirtualPin, sValue);
   return;
 } //SendIntToBlynk
+*/
 
 
+/*
 //BLYNK_READ() functions are called by the Blynk app on the phone (at a 1 second interval)
 //and returns the value or state of some variable.
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
@@ -1175,4 +1189,5 @@ BLYNK_WRITE(TimerB_4V27){
 
 //WidgetLED oLED1(LED_4V28) is constructed earlier
 
+*/
 //Last line.
