@@ -1,7 +1,7 @@
-//BeckMiniLib.h, 1/26/19
+//BeckMiniLib.h, 1/27/19
 #pragma once
 #include <Streaming.h>
-#include <Time.h>
+//#include <Time.h>
 
 extern const long		lMsecPerSec;
 extern const long		lMsecPerMin;

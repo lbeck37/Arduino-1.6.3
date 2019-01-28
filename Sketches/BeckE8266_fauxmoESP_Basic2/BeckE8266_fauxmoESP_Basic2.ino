@@ -1,7 +1,7 @@
 const char szSketchName[]  = "BeckE8266_fauxmoESP_Basic.ino";
-const char szFileDate[]    = "Lenny 1/28/19a";
+const char szFileDate[]    = "Lenny 1/17/19h";
 
-//#include <BeckMiniLib.h>
+#include <BeckMiniLib.h>
 
 #ifdef ESP32
     #include <WiFi.h>
@@ -28,8 +28,8 @@ void wifiSetup() {
     WiFi.mode(WIFI_STA);
 
     // Connect
-    Serial.printf("[WIFI] Connecting to %s ", WIFI_SSID);
-    //Serial << LOG0 << "wifiSetup(): Call WiFi.begin() SSID/PW " << WIFI_SSID << "/" << WIFI_PASS << endl;
+    //Serial.printf("[WIFI] Connecting to %s ", WIFI_SSID);
+    Serial << LOG0 << "wifiSetup(): Call WiFi.begin() SSID/PW " << WIFI_SSID << "/" << WIFI_PASS << endl;
     WiFi.begin(WIFI_SSID, WIFI_PASS);
 
     // Wait
@@ -49,10 +49,9 @@ void setup(){
     // Init serial port and clean garbage
     Serial.begin(SERIAL_BAUDRATE);
     delay(10);
-    //Serial << endl << LOG0 <<"setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+    Serial << endl << LOG0 <<"setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
     //Serial.println();
     //Serial.println();
-    Serial.printf("setup(): Sketch: %s, IP address: %s\n", szSketchName, szFileDate);
 
     // Wifi
     wifiSetup();
@@ -74,8 +73,7 @@ void setup(){
     // "Alexa, set light one to fifty" (50 means 50% of brightness)
 
     // Add virtual devices
-    //Serial << LOG0 << "setup(): Call fauxmo.addDevice() szAlexaName= " << szAlexaName << endl;
-    Serial.printf("setup(): Call fauxmo.addDevice() szAlexaName= %s ", szAlexaName);
+    Serial << LOG0 << "setup(): Call fauxmo.addDevice() szAlexaName= " << szAlexaName << endl;
     fauxmo.addDevice(szAlexaName);
 
     // You can add more devices
@@ -89,8 +87,7 @@ void setup(){
 
     // fauxmoESP 2.0.0 has changed the callback signature to add the device_id,
     // this way it's easier to match devices to action without having to compare strings.
-    //Serial << LOG0 << "setup(): Call fauxmo.onSetState() " << endl;
-    Serial.printf("setup(): Call fauxmo.onSetState()");
+    Serial << LOG0 << "setup(): Call fauxmo.onSetState() " << endl;
     fauxmo.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value) {
         Serial.printf("[MAIN] Device #%d (%s) state: %s value: %d\n", device_id, device_name, state ? "ON" : "OFF", value);
         digitalWrite(LED, !state);
@@ -111,8 +108,8 @@ void loop() {
     static unsigned long last = millis();
     if (millis() - last > 5000) {
         last = millis();
-        Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
-        //Serial << LOG0 << "loop(): Call Free heap= " << ESP.getFreeHeap() << endl;
+        //Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
+        Serial << LOG0 << "loop(): Call Free heap= " << ESP.getFreeHeap() << endl;
     }
     return;
 } //loop

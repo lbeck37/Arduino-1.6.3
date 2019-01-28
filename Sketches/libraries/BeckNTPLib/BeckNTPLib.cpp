@@ -1,11 +1,11 @@
-//BeckNTPLib.cpp, Beck 1/20/19
+//BeckNTPLib.cpp, Beck 1/27/19
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
-//#include "BeckNTPLib.h"
-//#include <NtpClientLib.h>
-//#include <ESP8266WiFi.h>    //Just for Eclipse resolving?
 
-//#ifndef ESP32
+#include <NtpClientLib.h>
+//#include <NtpClient.h>
+//#include <TimeLib.h>
+#include <Timezone.h>
 
 #ifdef ESP32
     #include <WiFi.h>
