@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/29/19g";
+const char szFileDate[]    = "Lenny 1/29/19h";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -364,10 +364,10 @@ void SetupAlexa(){
 
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
-  Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
+  Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d\n",
           ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
   SetAlexaSwitch(bState);
-  Serial << "DoAlexaComman(): Return" << endl;
+  //Serial << "DoAlexaComman(): Return" << endl;
   return;
 } //DoAlexaCommand
 
