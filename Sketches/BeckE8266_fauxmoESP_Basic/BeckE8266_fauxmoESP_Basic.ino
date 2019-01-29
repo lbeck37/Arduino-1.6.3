@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE8266_fauxmoESP_Basic.ino";
-const char szFileDate[]    = "Lenny 1/28/19g";
+const char szFileDate[]    = "Lenny 1/28/19m";
 
 //#include <BeckMiniLib.h>
 
