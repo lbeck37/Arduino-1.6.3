@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/29/19e";
+const char szFileDate[]    = "Lenny 1/29/19g";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -16,7 +16,7 @@ const char szFileDate[]    = "Lenny 1/29/19e";
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
-#define DO_ACCESS_POINT     false
+#define DO_ACCESS_POINT     true
 #define DO_ALEXA            true
 
 #include <BeckMiniLib.h>
