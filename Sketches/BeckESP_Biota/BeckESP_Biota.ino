@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/29/19h";
+const char szFileDate[]    = "Lenny 1/29/19p";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -229,7 +229,18 @@ WidgetLED           oLED4(LED_4V28);
 //UpdaterClass    Update; //Declaration at the end of cores\esp8266\Updater.h from BSP
 
 //Create objects
-Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
+//From Adafruit demo ssd1306_128x64_i2c.ino
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+//#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+
+
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+//Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+//Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
+//Adafruit_SSD1306 oDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SSD1306 oDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
 OneWire             oOneWire(sOneWireGPIO);
@@ -454,8 +465,8 @@ void HandleSystem(){
 
 void UpdateDisplay(void){
   oDisplay.clearDisplay();
-  //oDisplay.setTextSize(2);
-  oDisplay.setTextSize(1);
+  oDisplay.setTextSize(2);
+  //oDisplay.setTextSize(1);
   oDisplay.setTextColor(WHITE);
   oDisplay.setCursor(0,0);
   String szDisplayLine= "Now " + String(fLastDegF);

@@ -22,8 +22,8 @@
 #define _Adafruit_SSD1306_H_
 
 // ONE of the following three lines must be #defined:
-//#define SSD1306_128_64
-#define SSD1306_128_32
+#define SSD1306_128_64    //Beck 1/29/19
+//#define SSD1306_128_32
 //#define SSD1306_96_16
 // This establishes the screen dimensions in old Adafruit_SSD1306 sketches
 // (NEW CODE SHOULD IGNORE THIS, USE THE CONSTRUCTORS THAT ACCEPT WIDTH
