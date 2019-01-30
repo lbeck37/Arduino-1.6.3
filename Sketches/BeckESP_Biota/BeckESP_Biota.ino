@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/29/19q";
+const char szFileDate[]    = "Lenny 1/30/19d";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -17,7 +17,7 @@ const char szFileDate[]    = "Lenny 1/29/19q";
 #endif
 
 #define DO_ACCESS_POINT     true
-#define DO_ALEXA            true
+#define DO_ALEXA            false
 
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
