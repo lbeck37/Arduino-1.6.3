@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/29/19p";
+const char szFileDate[]    = "Lenny 1/29/19q";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -466,7 +466,6 @@ void HandleSystem(){
 void UpdateDisplay(void){
   oDisplay.clearDisplay();
   oDisplay.setTextSize(2);
-  //oDisplay.setTextSize(1);
   oDisplay.setTextColor(WHITE);
   oDisplay.setCursor(0,0);
   String szDisplayLine= "Now " + String(fLastDegF);
