@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/31/19j";k
+const char szFileDate[]    = "Lenny 1/31/19m";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -9,7 +9,7 @@ const char szFileDate[]    = "Lenny 1/31/19j";k
 //#define DEV_LOCAL
 #define THERMO_DEV
 
-#define DO_BLYNK            true
+#define DO_BLYNK            false
 #define DO_ALEXA            true
 #define DO_NTP              true
 #define DO_ACCESS_POINT     true
@@ -39,7 +39,7 @@ const char szFileDate[]    = "Lenny 1/31/19j";k
 #include <Time.h>
 #if DO_BLYNK
   //#include <BlynkSimpleEsp8266.h>
-  #include <Blynk.h>
+  #include <BlynkSimpleEsp8266.h>
   #include <ESP8266_Lib.h>
 #endif
 
