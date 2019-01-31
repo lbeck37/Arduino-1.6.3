@@ -1,6 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/30/19v";
-
+const char szFileDate[]    = "Lenny 1/31/19j";k
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -10,15 +9,11 @@ const char szFileDate[]    = "Lenny 1/30/19v";
 //#define DEV_LOCAL
 #define THERMO_DEV
 
-#if 0
-  #define SKIP_BLYNK    true
-  #define DEBUG         true
-  #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
-#endif
-
-#define DO_ACCESS_POINT     false
+#define DO_BLYNK            true
 #define DO_ALEXA            true
 #define DO_NTP              true
+#define DO_ACCESS_POINT     true
+#define DO_DEBUG            false
 
 #include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>
@@ -42,7 +37,11 @@ const char szFileDate[]    = "Lenny 1/30/19v";
 #include <DallasTemperature.h>
 #include <Streaming.h>
 #include <Time.h>
-#include <BlynkSimpleEsp8266.h>
+#if DO_BLYNK
+  //#include <BlynkSimpleEsp8266.h>
+  #include <Blynk.h>
+  #include <ESP8266_Lib.h>
+#endif
 
 //For I2C OLED display
 #include <Wire.h>
@@ -106,11 +105,13 @@ static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 
 //#define LOG0    szLogLineHeader(++lLineCount)
 
+/*
 #ifdef SKIP_BLYNK
   static const bool bSkipBlynk          = true;
 #else
   static const bool bSkipBlynk          = false;
 #endif
+*/
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
@@ -149,11 +150,11 @@ static bool           bAlexaOn              = false;  //Only projects that use A
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool           bDebugLog             = true;   //Used to limit number of printouts.
 
-#ifdef DEBUG
+#if DO_DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
 #else
   static const bool   bDebug                = false;   //Used to select places to disable bDebugLog.
-#endif
+#endif  //DO_DEBUG
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
@@ -275,9 +276,7 @@ void setup(){
 #ifdef DO_NTP
   SetupNTP();
 #endif
-#if DO_ALEXA
   SetupAlexa();
-#endif
   SetupDisplay();
   UpdateDisplay();
   SetupSwitches();
@@ -286,6 +285,7 @@ void setup(){
 } //setup
 
 
+/*
 void loop(){
   HandleOTAServer();
 #if DO_ACCESS_POINT
@@ -306,6 +306,28 @@ void loop(){
     } //if(!_bOTA_Started)else
   } //if(!bSkipBlynk)
 } //loop
+*/
+void loop(){
+  HandleOTAServer();
+#if DO_ACCESS_POINT
+  HandleSoftAPClient();       //Listen for HTTP requests from clients
+#endif  //DO_ACCESS_POINT
+
+  if (!_bOTA_Started){
+#if DO_BLYNK
+    Blynk.run();
+#endif  //DO_BLYNK
+    HandleSystem();
+  } //if(!_bOTA_Started)
+  else{
+    Serial << LOG0 << "loop(): Check for update timeout" << endl;
+    if (millis() > _ulUpdateTimeoutMsec) {
+      _bOTA_Started = false;
+      Serial << LOG0 << "loop(): Set bUpdating to " << _bOTA_Started << endl;
+    } //if(millis()>ulUpdateTimeoutMsec)
+  } //if(!_bOTA_Started)else
+
+} //loop
 
 
 void SetupDisplay(){
@@ -320,6 +342,7 @@ void SetupDisplay(){
 
 
 void SetupBlynk(){
+#if DO_BLYNK
   switch (sProjectType){
     case sDevLocal:
       Serial << LOG0 << "SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
@@ -331,12 +354,13 @@ void SetupBlynk(){
       break;
   } //switch
   Serial << LOG0 << "SetupBlynk(): Blynk.config() returned" << endl;
+#endif  //DO_BLYNK
   return;
 } //SetupBlynk
 
 
-#if DO_ALEXA
 void SetupAlexa(){
+#if DO_ALEXA
   String szLogString= "SetupAlexa(): Begin";
   LogToBoth(szLogString);
   switch (sProjectType){
@@ -376,15 +400,31 @@ void SetupAlexa(){
     szLogString = "SetupAlexa(): Alexa is not enabled for project ";
     LogToBoth(szLogString, sProjectType);
   } //if(bAlexaOn)else
+#endif  //DO_ALEXA
   return;
 } //SetupAlexa
 
 
-void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
 /*
-  Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d\n",
-          ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
+void HandleAlexa(){
+  if(bAlexaOn){
+    Alexa.handle();
+  } //if(bAlexaOn)
+  return;
+} //HandleAlexa
 */
+
+
+void HandleAlexa(){
+#if DO_ALEXA
+  Alexa.handle();
+#endif  //DO_ALEXA
+  return;
+} //HandleAlexa
+
+
+#if DO_ALEXA
+void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
   char    szCharString[100];
   sprintf(szCharString, " DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
       ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
@@ -397,14 +437,6 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
   SetAlexaSwitch(bState);
   return;
 } //DoAlexaCommand
-
-
-void HandleAlexa(){
-  if(bAlexaOn){
-    Alexa.handle();
-  } //if(bAlexaOn)
-  return;
-} //HandleAlexa
 #endif  //DO_ALEXA
 
 
@@ -427,7 +459,6 @@ void SetupSystem(){
       sSystemHandlerSpacing = 10 * lMsecPerSec;
       break;
   } //switch
-  //HandleBlynkLEDs();
   return;
 } //SetupSystem
 
@@ -473,7 +504,9 @@ void HandleSystem(){
         LogToBoth(szLogString, sProjectType);
         break;
     } //switch
+#if DO_BLYNK
     HandleBlynkLEDs();
+#endif  //DO_BLYNK
   } //if(millis()>=ulNextHandlerMsec)
   return;
 } //HandleSystem
@@ -901,7 +934,7 @@ BLYNK_WRITE(SetSetpointF_V2){
   int sSetpointParam= param.asInt();
   fSetpointF= sSetpointParam;
   fThermoOffDegF= fSetpointF + fMaxHeatRangeF;
-  String szLogString= "SetSetpointF_V2 ";
+  String szLogString= "BLYNK_WRITE(SetSetpointF_V2) ";
   LogToBoth(szLogString, fSetpointF);
 
   //Send set point back to Value box set with PUSH from GetSetpointF_V3.

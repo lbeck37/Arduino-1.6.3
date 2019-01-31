@@ -1,4 +1,4 @@
-//BeckE8266AccessPointLib.cpp, 1/13/19
+//BeckE8266AccessPointLib.cpp, 1/31/19
 #pragma once
 #include <BeckE8266AccessPointLib.h>
 #include <Streaming.h>
@@ -18,6 +18,7 @@ void      HandleWiFiCredentials ();
 void      handleNotFound        ();
 
 IPAddress SetupAccessPoint(){
+  Serial << LOG0 << "SetupAccessPoint(): Begin" << endl;
   WiFi.softAP(szAccessPointSSID, szAccessPointPW);             // Start the access point
   _oAccessPtIPAddress= WiFi.softAPIP();
   Serial << LOG0 << "SetupAccessPoint(): " << szAccessPointSSID << " started at " << _oAccessPtIPAddress << endl;
@@ -32,6 +33,7 @@ void HandleSoftAPClient(){
 
 
 void SetupWebServer(IPAddress oIPAddress){
+  Serial << LOG0 << "SetupWebServer(): IPAddress= " << oIPAddress << endl;
   _pSoftAPWebServer= new ESP8266WebServer(oIPAddress, wWebServerPort);
 
   _pSoftAPWebServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"

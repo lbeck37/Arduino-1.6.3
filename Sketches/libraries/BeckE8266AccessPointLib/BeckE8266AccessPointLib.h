@@ -1,4 +1,4 @@
-//BeckE8266AccessPointLib.h, 1/13/19
+//BeckE8266AccessPointLib.h, 1/31/19
 #include <ESP8266WebServer.h>
 
 extern IPAddress             _oAccessPtIPAddress;
