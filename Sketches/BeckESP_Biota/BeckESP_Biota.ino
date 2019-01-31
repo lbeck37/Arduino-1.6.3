@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/30/19d";
+const char szFileDate[]    = "Lenny 1/30/19k";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -16,8 +16,8 @@ const char szFileDate[]    = "Lenny 1/30/19d";
   #define DEBUG_OTA   //Used to skip Blynk code while debugging OTA
 #endif
 
-#define DO_ACCESS_POINT     true
-#define DO_ALEXA            false
+#define DO_ACCESS_POINT     false
+#define DO_ALEXA            true
 
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
@@ -764,7 +764,6 @@ void ScanForI2CDevices(void){
 
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
-//int WriteTerminalLine(char *szString){
 void WriteTerminalLine(String szString){
   if (bDebugLog){
     oTerminal.println(szString) ;
@@ -786,9 +785,18 @@ void WriteTerminalString(String szString){
 
 //LogToBoth() and BlynkLogLine()have multiple versions
 //depending on there being a 2nd variable and its type.
+/*
 void LogToBoth(String szLogString){
   Serial << LOG0 << szLogString << endl;
   BlynkLogLine(szLogString);
+  return;
+} //LogToBoth:empty
+*/
+void LogToBoth(String szLogString){
+  String szTermString= szLogLineHeader();
+  szTermString += szLogString;
+  Serial << szTermString << endl;
+  WriteTerminalLine(szTermString);
   return;
 } //LogToBoth:empty
 
@@ -812,14 +820,6 @@ void LogToBoth(String szLogString, float fLogValue){
   BlynkLogLine(szLogString, fLogValue);
   return;
 } //LogToBoth:float
-
-
-void BlynkLogLine(String szString){
-  String szTermString= szLogLineHeader();
-  szTermString += szString;
-  WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:empty
 
 
 void BlynkLogLine(String szString, String szLogValue){

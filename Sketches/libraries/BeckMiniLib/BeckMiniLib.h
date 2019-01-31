@@ -1,4 +1,4 @@
-//BeckMiniLib.h, 1/28/19
+//BeckMiniLib.h, 1/30/19
 #pragma once
 #include <Streaming.h>
 
@@ -13,7 +13,4 @@ extern const long   lSerialMonitorBaud;
 String    szGetTime           (long lMsec);
 String    szAddZeros          (int sValue, int sNumDigits);
 String    szLogLineHeader     (void);
-
-String    szFormatTimeString  (void);
-String    szFormatDateString  (void);
 //Last line.

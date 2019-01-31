@@ -1,4 +1,4 @@
-//BeckMiniLib.cpp, Beck 1/22/19
+//BeckMiniLib.cpp, Beck 1/30/19
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 
@@ -6,7 +6,6 @@ const long		lMsecPerSec					= 1000;
 const long		lMsecPerMin					= 60 * lMsecPerSec;
 const long		lMsecPerHour				= 60 * lMsecPerMin;
 const long		lMsecPerDay					= 24 * lMsecPerHour;
-
 const long   	lSerialMonitorBaud  = 115200;
 
 //Digital Pins
@@ -26,10 +25,14 @@ const long   	lSerialMonitorBaud  = 115200;
   const int       sServoPin          = 16;
 #endif  //ESP32
 
-//long         lLineCount            = 0;      //Serial Monitor uses for clarity.
+time_t    _lLocalTime;
 
-//Local function prototypes
-String szPrintDigits    (int digits);
+  //Local function prototypes
+String  szPrintDigits        (int digits);
+String  szFormatTimeString   (time_t lBoiseTime);
+String  szFormatDateString   (time_t lLocalTime);
+time_t  lGetLocalTime        (void);
+
 
 String szGetTime(long lMsec){
   String  szString;
@@ -70,19 +73,17 @@ String szLogLineHeader(void){
 	//Compute a float with N.NNN with a leading zero representing days uptime
 	//Starts out "0.00", 0.01 of a day is 864 seconds or 14.4 minutes
 	float		fDays	= ((float)ulCurrentMillis / (float)lMsecPerDay);
-	//sprintf(szDaysFloat, "%05.3f", fDays);	//Didn't work, printed %.3f
 
   szHeader += fDays;
-  //szHeader += szDaysFloat;
   szHeader += " ";
-  //szHeader += szGetTime(millis());
-  szHeader += szFormatTimeString();		//szFormatTimeString has a space at the end
+
+  _lLocalTime= lGetLocalTime();
+  szHeader += szFormatTimeString(_lLocalTime);   //szFormatTimeString has a space at the end
 
   //Replace the space with a decimal point
   //Follow "." with the lowest 3 digits of the msec count
   int wNumChar= szHeader.length();
   szHeader.setCharAt((wNumChar - 1), '.');
-  //szHeader += (ulCurrentMillis % lMsecPerSec);
   szThousanths= (ulCurrentMillis % lMsecPerSec);
 
   //Make sure it is 3 digits, pad wit zeros if not
@@ -101,11 +102,15 @@ String szLogLineHeader(void){
 			break;
 	} //switch
 
-  //szHeader += (ulCurrentMillis % lMsecPerSec);
   szHeader += szThousanths;
   szHeader += " ";				//Adds a trailing space
   return szHeader;
 } //szLogLineHeader
+
+
+time_t lGetLocalTime(void){
+  return (oMT_Timezone.toLocal (now(), &pTimeChangeRule));
+} //lGetLocalTime
 
 
 String szPrintDigits(int digits) {
@@ -120,29 +125,24 @@ String szPrintDigits(int digits) {
 } //szPrintDigits
 
 
-String szFormatTimeString(void) {
-  time_t    lBoiseTime= oMT_Timezone.toLocal (now(), &pTimeChangeRule);
-
+String szFormatTimeString(time_t lLocalTime) {
   String szReturnString = "";
-  szReturnString += szPrintDigits(hour(lBoiseTime));
+  szReturnString += szPrintDigits(hour(lLocalTime));
   szReturnString += ":";
-  szReturnString += szPrintDigits(minute(lBoiseTime));
+  szReturnString += szPrintDigits(minute(lLocalTime));
   szReturnString += ":";
-  szReturnString += szPrintDigits(second(lBoiseTime));
+  szReturnString += szPrintDigits(second(lLocalTime));
   szReturnString += " ";
   return szReturnString;
 } //szFormatTimeString
 
-
-String szFormatDateString(void){
-  time_t    lBoiseTime= oMT_Timezone.toLocal (now(), &pTimeChangeRule);
-
+String szFormatDateString(time_t lLocalTime){
   String szReturnString = "";
-  szReturnString += szPrintDigits(month(lBoiseTime));
+  szReturnString += szPrintDigits(month(lLocalTime));
   szReturnString += "/";
-  szReturnString += szPrintDigits(day(lBoiseTime));
+  szReturnString += szPrintDigits(day(lLocalTime));
   szReturnString += "/";
-  szReturnString += String(year(lBoiseTime));
+  szReturnString += String(year(lLocalTime));
   return szReturnString;
 } //szFormatDateString
 //Last line.
