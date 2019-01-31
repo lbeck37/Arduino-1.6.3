@@ -2,15 +2,14 @@
 #pragma once
 #include <Streaming.h>
 
+#define LOG0    szLogLineHeader()
+
 extern const long   lMsecPerSec;
 extern const long   lMsecPerMin;
 extern const long   lMsecPerHour;
 extern const long   lMsecPerDay;
 extern const long   lSerialMonitorBaud;
 
-#define LOG0    szLogLineHeader()
-
-String    szGetTime           (long lMsec);
 String    szAddZeros          (int sValue, int sNumDigits);
 String    szLogLineHeader     (void);
 //Last line.

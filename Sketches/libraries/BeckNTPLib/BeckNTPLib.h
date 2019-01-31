@@ -1,9 +1,8 @@
 //BeckNTPLib.h, Beck 1/30/19
 #pragma once
-/*
-#include <NtpClientLib.h>
+
+//#include <NtpClientLib.h>
 //#include <NtpClient.h>
-*/
 //#include <TimeLib.h>
 #include <Timezone.h>
 

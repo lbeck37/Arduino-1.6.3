@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/30/19k";
+const char szFileDate[]    = "Lenny 1/30/19v";
 
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
@@ -18,9 +18,9 @@ const char szFileDate[]    = "Lenny 1/30/19k";
 
 #define DO_ACCESS_POINT     false
 #define DO_ALEXA            true
+#define DO_NTP              true
 
 #include <BeckMiniLib.h>
-#include <BeckNTPLib.h>
 #include <BeckWiFiLib.h>
 #ifdef ESP8266
   #include <BeckESP_OTAWebServerLib.h>
@@ -30,11 +30,14 @@ const char szFileDate[]    = "Lenny 1/30/19k";
 #if DO_ACCESS_POINT
   #include <BeckE8266AccessPointLib.h>
 #endif
+#ifdef DO_NTP
+  #include <BeckNTPLib.h>
+#endif
 #if DO_ALEXA
   #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
 #endif
 #include <WiFiClient.h>
-#include <NtpClientLib.h>
+//#include <NtpClientLib.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Streaming.h>
@@ -247,7 +250,8 @@ OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
 //Function proto
-void  SetupBlynk();
+void  SetupBlynk    ();
+void  LogToSerial   (String szLogString);
 
 /*
 void SetupBlynkProject(){
@@ -267,8 +271,10 @@ void setup(){
   SetupWebServer(_oAccessPtIPAddress);
 #endif  //DO_ACCESS_POINT
   SetupBlynk();
-  SetupNTP();
   SetupI2C();
+#ifdef DO_NTP
+  SetupNTP();
+#endif
 #if DO_ALEXA
   SetupAlexa();
 #endif
@@ -375,10 +381,20 @@ void SetupAlexa(){
 
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
+/*
   Serial << LOG0; Serial.printf(" DoAlexaCommand(): Device #%d (%s) bState: %s value: %d\n",
           ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
+*/
+  char    szCharString[100];
+  sprintf(szCharString, " DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
+      ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
+  String szLogString= szCharString;
+  LogToSerial(szLogString);
+/*
+  LogToBoth(szLogString);
+  Serial << LOG0 << "DoAlexaCommand(): Back from LogToBoth()" << endl;
+*/
   SetAlexaSwitch(bState);
-  //Serial << "DoAlexaComman(): Return" << endl;
   return;
 } //DoAlexaCommand
 
@@ -792,6 +808,14 @@ void LogToBoth(String szLogString){
   return;
 } //LogToBoth:empty
 */
+void LogToSerial(String szLogString){
+  String szTermString= szLogLineHeader();
+  szTermString += szLogString;
+  Serial << szTermString << endl;
+  return;
+} //LogToSerial:empty
+
+
 void LogToBoth(String szLogString){
   String szTermString= szLogLineHeader();
   szTermString += szLogString;

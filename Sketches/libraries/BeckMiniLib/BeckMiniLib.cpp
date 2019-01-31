@@ -28,40 +28,11 @@ const long   	lSerialMonitorBaud  = 115200;
 time_t    _lLocalTime;
 
   //Local function prototypes
-String  szPrintDigits        (int digits);
-String  szFormatTimeString   (time_t lBoiseTime);
-String  szFormatDateString   (time_t lLocalTime);
-time_t  lGetLocalTime        (void);
-
-
-String szGetTime(long lMsec){
-  String  szString;
-  int sDays    =    lMsec                                               / lMsecPerDay ;
-  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
-  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
-  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
-  int sMsec    =    lMsec % lMsecPerSec;
-  szString = String(sDays) + ":";
-  szString+= String(szAddZeros(sHours, 2)) + ":";
-  szString+= String(szAddZeros(sMinutes, 2)) + ":";
-  szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
-  return szString;
-} //szGetTime
-
-
-//szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
-String szAddZeros(int sValue, int sNumDigits){
-  String szReturn;
-  if ((sNumDigits == 3) && (sValue < 100)){
-    szReturn= "0";
-  } //if((sNumDigits==3)&&(sValue<100)
-  if (sValue < 10){
-    szReturn += "0";
-  } //if(lValue<10)
-  szReturn += String(sValue);
-  return szReturn;
-} //szAddZeros
+time_t  lGetLocalTime         (void);
+String  szFormatTimeString    (time_t lBoiseTime);
+String  szFormatDateString    (time_t lLocalTime);
+String  szPrintDigits         (int digits);
+//String  szFormatRawTime       (long lMsec){
 
 
 String szLogLineHeader(void){
@@ -113,6 +84,29 @@ time_t lGetLocalTime(void){
 } //lGetLocalTime
 
 
+String szFormatTimeString(time_t lLocalTime) {
+  String szReturnString = "";
+  szReturnString += szPrintDigits(hour(lLocalTime));
+  szReturnString += ":";
+  szReturnString += szPrintDigits(minute(lLocalTime));
+  szReturnString += ":";
+  szReturnString += szPrintDigits(second(lLocalTime));
+  szReturnString += " ";
+  return szReturnString;
+} //szFormatTimeString
+
+
+String szFormatDateString(time_t lLocalTime){
+  String szReturnString = "";
+  szReturnString += szPrintDigits(month(lLocalTime));
+  szReturnString += "/";
+  szReturnString += szPrintDigits(day(lLocalTime));
+  szReturnString += "/";
+  szReturnString += String(year(lLocalTime));
+  return szReturnString;
+} //szFormatDateString
+
+
 String szPrintDigits(int digits) {
   // utility for digital clock display: prints preceding colon and leading 0
   String digStr = "";
@@ -125,24 +119,34 @@ String szPrintDigits(int digits) {
 } //szPrintDigits
 
 
-String szFormatTimeString(time_t lLocalTime) {
-  String szReturnString = "";
-  szReturnString += szPrintDigits(hour(lLocalTime));
-  szReturnString += ":";
-  szReturnString += szPrintDigits(minute(lLocalTime));
-  szReturnString += ":";
-  szReturnString += szPrintDigits(second(lLocalTime));
-  szReturnString += " ";
-  return szReturnString;
-} //szFormatTimeString
+//szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
+String szAddZeros(int sValue, int sNumDigits){
+  String szReturn;
+  if ((sNumDigits == 3) && (sValue < 100)){
+    szReturn= "0";
+  } //if((sNumDigits==3)&&(sValue<100)
+  if (sValue < 10){
+    szReturn += "0";
+  } //if(lValue<10)
+  szReturn += String(sValue);
+  return szReturn;
+} //szAddZeros
 
-String szFormatDateString(time_t lLocalTime){
-  String szReturnString = "";
-  szReturnString += szPrintDigits(month(lLocalTime));
-  szReturnString += "/";
-  szReturnString += szPrintDigits(day(lLocalTime));
-  szReturnString += "/";
-  szReturnString += String(year(lLocalTime));
-  return szReturnString;
-} //szFormatDateString
+
+/*
+String szFormatRawTime(long lMsec){
+  String  szString;
+  int sDays    =    lMsec                                               / lMsecPerDay ;
+  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
+  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
+  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
+  int sMsec    =    lMsec % lMsecPerSec;
+  szString = String(sDays) + ":";
+  szString+= String(szAddZeros(sHours, 2)) + ":";
+  szString+= String(szAddZeros(sMinutes, 2)) + ":";
+  szString+= String(szAddZeros(sSeconds, 2)) + ".";
+  szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
+  return szString;
+} //szFormatRawTime
+*/
 //Last line.
