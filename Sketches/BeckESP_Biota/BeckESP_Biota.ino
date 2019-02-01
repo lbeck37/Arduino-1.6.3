@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/31/19m";
+const char szFileDate[]    = "Lenny 1/31/19n";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -38,7 +38,6 @@ const char szFileDate[]    = "Lenny 1/31/19m";
 #include <Streaming.h>
 #include <Time.h>
 #if DO_BLYNK
-  //#include <BlynkSimpleEsp8266.h>
   #include <BlynkSimpleEsp8266.h>
   #include <ESP8266_Lib.h>
 #endif
@@ -220,15 +219,17 @@ static bool           bDebugLog             = true;   //Used to limit number of 
 #endif
 #endif
 
-//Set up Blynk Widgets
-WidgetTerminal      oTerminal(Terminal_V7);
-WidgetLCD           LCDWidget(1);
-//LED for thermostat state has no actual switch but it will live as unused switch #0.
-WidgetLED           oLED0(ThermoLED_V5);
-WidgetLED           oLED1(LED_1V13);
-WidgetLED           oLED2(LED_2V18);
-WidgetLED           oLED3(LED_3V23);
-WidgetLED           oLED4(LED_4V28);
+#if DO_BLYNK
+  //Set up Blynk Widgets
+  WidgetTerminal      oTerminal(Terminal_V7);
+  WidgetLCD           LCDWidget(1);
+  //LED for thermostat state has no actual switch but it will live as unused switch #0.
+  WidgetLED           oLED0(ThermoLED_V5);
+  WidgetLED           oLED1(LED_1V13);
+  WidgetLED           oLED2(LED_2V18);
+  WidgetLED           oLED3(LED_3V23);
+  WidgetLED           oLED4(LED_4V28);
+#endif  //DO_BLYNK
 
 //UpdaterClass    Update; //Declaration at the end of cores\esp8266\Updater.h from BSP
 
@@ -614,6 +615,7 @@ void DebugHandleBlynkLEDs(){
 
 
 void HandleBlynkLEDs(){
+#if DO_BLYNK
   String szLogString = "HandleBlynkLEDs()";
   //DebugHandleBlynkLEDs();
   //Only send data back to Blynk if state of LED has changed.
@@ -680,6 +682,7 @@ void HandleBlynkLEDs(){
     } //if(asSwitchState[sSwitch]!=asSwitchLastState[sSwitch])
   } //for
   bDebugLog= true;
+#endif  //DO_BLYNK
   return;
 } //HandleBlynkLEDs
 
@@ -814,20 +817,24 @@ void ScanForI2CDevices(void){
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
 void WriteTerminalLine(String szString){
+#if DO_BLYNK
   if (bDebugLog){
     oTerminal.println(szString) ;
     oTerminal.flush();          // Ensure everything is sent
   } //if(bDebugLog)
+#endif  //DO_BLYNK
   return;
 } //WriteTerminalLine
 
 
 void WriteTerminalString(String szString){
+#if DO_BLYNK
   if (bDebugLog){
     oTerminal.print(szString);
     oTerminal.print(" ");       //Send training space
     oTerminal.flush();          // Ensure everything is sent
   } //if(bDebugLog)
+#endif  //DO_BLYNK
   return;
 } //WriteTerminalString
 
@@ -908,14 +915,16 @@ void BlynkLogLine(String szString, float fValue){
 } //BlynkLogLine:float
 
 
+/*
 void SendIntToBlynk(int sVirtualPin, int sValue){
   String szString= " SendIntToBlynk: ";
   BlynkLogLine(szString, sValue);
   Blynk.virtualWrite(sVirtualPin, sValue);
   return;
 } //SendIntToBlynk
+*/
 
-
+#if DO_BLYNK
 //BLYNK_READ() functions are called by the Blynk app on the phone (at a 1 second interval)
 //and returns the value or state of some variable.
 //BLYNK_WRITE() functions are called by the Blynk app on the phone
@@ -1241,5 +1250,5 @@ BLYNK_WRITE(TimerB_4V27){
 } //BLYNK_WRITE(TimerB_4V27)
 
 //WidgetLED oLED1(LED_4V28) is constructed earlier
-
+#endif  //DO_BLYNK
 //Last line.
