@@ -47,7 +47,7 @@ String szLogLineHeader(void){
 
   szHeader += fDays;
   szHeader += " ";
-
+#if 1
   _lLocalTime= lGetLocalTime();
   szHeader += szFormatTimeString(_lLocalTime);   //szFormatTimeString has a space at the end
 
@@ -75,6 +75,7 @@ String szLogLineHeader(void){
 
   szHeader += szThousanths;
   szHeader += " ";				//Adds a trailing space
+#endif
   return szHeader;
 } //szLogLineHeader
 

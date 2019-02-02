@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 1/31/19n";
+const char szFileDate[]    = "Lenny 2/1/19v";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -9,7 +9,7 @@ const char szFileDate[]    = "Lenny 1/31/19n";
 //#define DEV_LOCAL
 #define THERMO_DEV
 
-#define DO_BLYNK            false
+#define DO_BLYNK            true
 #define DO_ALEXA            true
 #define DO_NTP              true
 #define DO_ACCESS_POINT     true
@@ -25,7 +25,7 @@ const char szFileDate[]    = "Lenny 1/31/19n";
 #if DO_ACCESS_POINT
   #include <BeckE8266AccessPointLib.h>
 #endif
-#ifdef DO_NTP
+#if DO_NTP
   #include <BeckNTPLib.h>
 #endif
 #if DO_ALEXA
@@ -274,7 +274,7 @@ void setup(){
 #endif  //DO_ACCESS_POINT
   SetupBlynk();
   SetupI2C();
-#ifdef DO_NTP
+#if DO_NTP
   SetupNTP();
 #endif
   SetupAlexa();

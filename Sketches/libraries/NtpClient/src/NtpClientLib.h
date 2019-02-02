@@ -35,9 +35,11 @@ or implied, of German Martin
  Library to get system sync from a NTP server
 */
 
+/*
 #ifndef _NtpClientLib_h
 #define _NtpClientLib_h
-
+*/
+#pragma once
 //#define DEBUG_NTPCLIENT //Uncomment this to enable debug messages over serial port
 
 #ifdef ESP8266
@@ -58,51 +60,51 @@ using namespace placeholders;
 #include "WProgram.h"
 #endif
 
-#define NETWORK_W5100           (1) // Arduino Ethernet Shield
-#define NETWORK_ENC28J60        (2) // Alternate Ethernet Shield
-#define NETWORK_WIFI101			(3) // WiFi Shield 101 or MKR1000
-#define NETWORK_ESP8266			(100) // ESP8266 boards, not for Arduino using AT firmware
-#define NETWORK_ESP32           (101) // ESP32 boards
+#define NETWORK_W5100               (1) // Arduino Ethernet Shield
+#define NETWORK_ENC28J60            (2) // Alternate Ethernet Shield
+#define NETWORK_WIFI101			        (3) // WiFi Shield 101 or MKR1000
+#define NETWORK_ESP8266			      (100) // ESP8266 boards, not for Arduino using AT firmware
+#define NETWORK_ESP32             (101) // ESP32 boards
 
 #define DEFAULT_NTP_SERVER "pool.ntp.org" // Default international NTP server. I recommend you to select a closer server to get better accuracy
-#define DEFAULT_NTP_PORT 123 // Default local udp port. Select a different one if neccesary (usually not needed)
-#define NTP_TIMEOUT 1500 // Response timeout for NTP requests
-#define DEFAULT_NTP_INTERVAL 1800 // Default sync interval 30 minutes 
-#define DEFAULT_NTP_SHORTINTERVAL 15 // Sync interval when sync has not been achieved. 15 seconds
-#define DEFAULT_NTP_TIMEZONE 0 // Select your local time offset. 0 if UTC time has to be used
+#define DEFAULT_NTP_PORT           123 // Default local udp port. Select a different one if neccesary (usually not needed)
+#define NTP_TIMEOUT               1500 // Response timeout for NTP requests
+#define DEFAULT_NTP_INTERVAL      1800 // Default sync interval 30 minutes
+#define DEFAULT_NTP_SHORTINTERVAL   15 // Sync interval when sync has not been achieved. 15 seconds
+#define DEFAULT_NTP_TIMEZONE         0 // Select your local time offset. 0 if UTC time has to be used
 
 const int NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
 
 #ifdef ARDUINO_ARCH_ESP8266
-#define NETWORK_TYPE NETWORK_ESP8266
+  #define NETWORK_TYPE    NETWORK_ESP8266
 #elif defined ARDUINO_ARCH_SAMD || defined ARDUINO_ARCH_ARC32
-#define NETWORK_TYPE NETWORK_WIFI101 // SET YOUR NETWORK INTERFACE
+  #define NETWORK_TYPE    NETWORK_WIFI101 // SET YOUR NETWORK INTERFACE
 #elif defined ARDUINO_ARCH_AVR
-#define NETWORK_TYPE NETWORK_W5100
+  #define NETWORK_TYPE    NETWORK_W5100
 #elif defined ARDUINO_ARCH_ESP32 || defined ESP32
-#define NETWORK_TYPE NETWORK_ESP32
+  #define NETWORK_TYPE    NETWORK_ESP32
 #endif
 
 #if NETWORK_TYPE == NETWORK_W5100
-//#include <SPI.h>
-#include <EthernetUdp.h>
-#include <Ethernet.h>
-//#include <Dns.h>
-//#include <Dhcp.h>
+  //#include <SPI.h>
+  #include <EthernetUdp.h>
+  #include <Ethernet.h>
+  //#include <Dns.h>
+  //#include <Dhcp.h>
 #elif NETWORK_TYPE == NETWORK_WIFI101
-#include <WiFiClient.h>
-#include <WiFiUdp.h>
-#include <WiFi101.h>
+  #include <WiFiClient.h>
+  #include <WiFiUdp.h>
+  #include <WiFi101.h>
 #elif NETWORK_TYPE == NETWORK_ESP8266
-#include <ESP8266WiFi.h>
-#include <WiFiUdp.h>
-#include <Udp.h>
+  #include <ESP8266WiFi.h>
+  #include <WiFiUdp.h>
+  #include <Udp.h>
 #elif NETWORK_TYPE == NETWORK_ESP32
-#include <WiFi.h>
-#include <WiFiUdp.h>
-#include <Udp.h>
+  #include <WiFi.h>
+  #include <WiFiUdp.h>
+  #include <Udp.h>
 #else
-#error "Incorrect platform. Only ARDUINO and ESP8266 MCUs are valid."
+  #error "Incorrect platform. Only ARDUINO and ESP8266 MCUs are valid."
 #endif // NETWORK_TYPE
 
 typedef enum {
@@ -365,16 +367,16 @@ protected:
 #elif NETWORK_TYPE == NETWORK_ESP8266 || NETWORK_TYPE == NETWORK_WIFI101 || NETWORK_TYPE == NETWORK_ESP32
     WiFiUDP *udp;
 #endif
-    bool _daylight;             ///< Does this time zone have daylight saving?
-    int8_t _timeZone = 0;       ///< Keep track of set time zone offset
-    int8_t _minutesOffset = 0;   ///< Minutes offset for time zones with decimal numbers
-    char* _ntpServerName;       ///< Name of NTP server on Internet or LAN
-    int _shortInterval;         ///< Interval to set periodic time sync until first synchronization.
-    int _longInterval;          ///< Interval to set periodic time sync
-    time_t _lastSyncd = 0;      ///< Stored time of last successful sync
-    time_t _firstSync = 0;      ///< Stored time of first successful sync after boot
-    unsigned long _uptime = 0;  ///< Time since boot
-    onSyncEvent_t onSyncEvent;  ///< Event handler callback
+    bool            _daylight;              ///< Does this time zone have daylight saving?
+    int8_t          _timeZone       = 0;    ///< Keep track of set time zone offset
+    int8_t          _minutesOffset  = 0;    ///< Minutes offset for time zones with decimal numbers
+    char*           _ntpServerName;         ///< Name of NTP server on Internet or LAN
+    int             _shortInterval;         ///< Interval to set periodic time sync until first synchronization.
+    int             _longInterval;          ///< Interval to set periodic time sync
+    time_t          _lastSyncd      = 0;    ///< Stored time of last successful sync
+    time_t          _firstSync      = 0;    ///< Stored time of first successful sync after boot
+    unsigned long   _uptime         = 0;    ///< Time since boot
+    onSyncEvent_t   onSyncEvent;            ///< Event handler callback
 
     /**
     * Function that gets time from NTP server and convert it to Unix time format
@@ -427,4 +429,5 @@ private:
 
 extern NTPClient NTP;
 
-#endif // _NtpClientLib_h
+//#endif // _NtpClientLib_h
+//Last line.
