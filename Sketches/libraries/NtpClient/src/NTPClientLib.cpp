@@ -108,19 +108,19 @@ boolean sendNTPpacket(const char* address, UDP *udp) {
   ntpPacketBuffer[15] = 52;
   // all NTP fields have been given values, now
   // you can send a packet requesting a timestamp:
-  Serial << "NTPClient::sendNTPpacket(): Call udp->beginPacket()" << endl;
+  //Serial << "NTPClient::sendNTPpacket(): Call udp->beginPacket()" << endl;
     udp->beginPacket (address, DEFAULT_NTP_PORT); //NTP requests are to port 123
-  Serial << "NTPClient::sendNTPpacket(): Call udp->write()" << endl;
+  //Serial << "NTPClient::sendNTPpacket(): Call udp->write()" << endl;
     udp->write (ntpPacketBuffer, NTP_PACKET_SIZE);
-  Serial << "NTPClient::sendNTPpacket(): Call udp->endPacket()" << endl;
+  //Serial << "NTPClient::sendNTPpacket(): Call udp->endPacket()" << endl;
     udp->endPacket ();
-  Serial << "NTPClient::sendNTPpacket(): Done" << endl;
+  //Serial << "NTPClient::sendNTPpacket(): Done" << endl;
   return true;
 } //sendNTPpacket
 
 
 time_t NTPClient::getTime(){
-  Serial << "NTPClient::getTime(): Begin " << endl;
+  //Serial << "NTPClient::getTime(): Begin " << endl;
   //DNSClient dns;
   //WiFiUDP *udpClient = new WiFiUDP(*udp);
   IPAddress timeServerIP; //NTP server IP address
@@ -163,11 +163,11 @@ time_t NTPClient::getTime(){
       udp->stop ();
       setLastNTPSync (timeValue);
       DEBUGLOG ("Successful NTP sync at %s", getTimeDateString(getLastNTPSync()).c_str());
-      Serial << "NTPClient::getTime(): Successful NTP sync at " << getTimeDateString(getLastNTPSync()) << endl;
+      //Serial << "NTPClient::getTime(): Successful NTP sync at " << getTimeDateString(getLastNTPSync()) << endl;
       if (onSyncEvent){
         onSyncEvent(timeSyncd);
       }
-      Serial << "NTPClient::getTime(): Returning " << timeValue << endl;
+      //Serial << "NTPClient::getTime(): Returning " << timeValue << endl;
       return timeValue;
     } //if (size>=NTP_PACKET_SIZE)
 #ifdef ARDUINO_ARCH_ESP8266
@@ -200,10 +200,10 @@ int8_t NTPClient::getTimeZoneMinutes () {
 }*/
 
 time_t NTPClient::s_getTime(){
-  Serial << "NTPClient::s_getTime(): Call NTP.getTime()" << endl;
+  Serial << "NTPClient::s_getTime() SyncProvider: Call NTP.getTime()" << endl;
   //return NTP.getTime ();
   time_t lNtpTime= NTP.getTime();
-  Serial << "NTPClient::s_getTime(): Returning time= " << lNtpTime << endl;
+  //Serial << "NTPClient::s_getTime(): Returning time= " << lNtpTime << endl;
   return lNtpTime;
 } //s_getTime
 

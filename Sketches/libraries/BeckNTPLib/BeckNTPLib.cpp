@@ -38,7 +38,7 @@ void SetupNTP(){
 
 
 void SetupNTPHandlers(){
-  Serial << LOG0 << "SetupNTPHandlers(): Setup NTP.onNTPSyncEvent" << endl;
+  Serial << LOG0 << "BeckNTPLib: SetupNTPHandlers(): Setup NTP.onNTPSyncEvent" << endl;
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
     if (ntpEvent) {
       Serial << LOG0 << "SetupNTPHandlers(): Time Sync error: ";
@@ -50,7 +50,7 @@ void SetupNTPHandlers(){
       } //elseif(ntpEvent==invalidAddress)
     } //if(ntpEvent)
     else{
-      Serial << LOG0 << "SetupNTPHandlers(): Got NTP time: " <<
+      Serial << LOG0 << "BeckNTPLib: SetupNTPHandlers(): Got NTP time: " <<
                 NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
       }   //if(ntpEvent)else
   }); //NTP.onNTPSyncEvent()
