@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/2/19ac";
+const char szFileDate[]    = "Lenny 2/3/19k";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -64,7 +64,7 @@ static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 #define ThermoSwitch_V4   V4
 #define ThermoLED_V5      V5
 
-#define AtoD_1V6      V6
+#define AtoD_1V6          V6
 
 #define Terminal_V7       V7
 #define LCD_Line0_V8      V8
@@ -76,7 +76,7 @@ static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 #define TimerB_1V12       V12
 #define LED_1V13          V13
 
-#define AtoD_2V14     V14
+#define AtoD_2V14         V14
 
 //Relay #2
 #define Switch_2V15       V15
@@ -84,7 +84,7 @@ static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 #define TimerB_2V17       V17
 #define LED_2V18          V18
 
-#define AtoD_3V19     V19
+#define AtoD_3V19         V19
 
 //Relay #3
 #define Switch_3V20       V20
@@ -92,7 +92,7 @@ static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 #define TimerB_3V22       V22
 #define LED_3V23          V23
 
-#define AtoD_4V24     V24
+#define AtoD_4V24         V24
 
 //Relay #4
 #define Switch_4V25       V25
@@ -104,15 +104,6 @@ static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
 #define Unassigned_V30    V30
 #define Unassigned_V31    V31
 
-//#define LOG0    szLogLineHeader(++lLineCount)
-
-/*
-#ifdef SKIP_BLYNK
-  static const bool bSkipBlynk          = true;
-#else
-  static const bool bSkipBlynk          = false;
-#endif
-*/
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
@@ -138,6 +129,9 @@ static const long     sThermoTimesInRow     = 3;      //Max times temp is outsid
 
 static const char     szRouterName[]        = "Aspot24";
 static const char     szRouterPW[]          = "Qazqaz11";
+
+static const char     szAccessPointSSID[]   = "BiotaSpot";
+static const char     szAccessPointPW[]     = "Qazqaz11";
 
 static int            asSwitchState[]       = {0, 0, 0, 0, 0};
 static int            asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
@@ -233,20 +227,13 @@ static bool           bDebugLog             = true;   //Used to limit number of 
   WidgetLED           oLED4(LED_4V28);
 #endif  //DO_BLYNK
 
-//UpdaterClass    Update; //Declaration at the end of cores\esp8266\Updater.h from BSP
-
 //Create objects
 //From Adafruit demo ssd1306_128x64_i2c.ino
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 //#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 
-
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-//Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-
-//Adafruit_SSD1306    oDisplay(-1);   //Looks like -1 is default
-//Adafruit_SSD1306 oDisplay(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Adafruit_SSD1306 oDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
@@ -266,8 +253,7 @@ void setup(){
   SetupWiFi(szRouterName, szRouterPW);
   SetupOTAServer(acHostname);
 #if DO_ACCESS_POINT
-  SetupAccessPoint();
-  SetupWebServer(_oAccessPtIPAddress);
+  SetupWiFiNameServer(szAccessPointSSID, szAccessPointPW);
 #endif  //DO_ACCESS_POINT
   SetupBlynk();
   SetupI2C();
@@ -283,28 +269,6 @@ void setup(){
 } //setup
 
 
-/*
-void loop(){
-  HandleOTAServer();
-#if DO_ACCESS_POINT
-  HandleSoftAPClient();       //Listen for HTTP requests from clients
-#endif  //DO_ACCESS_POINT
-
-  if (!bSkipBlynk) {
-    if (!_bOTA_Started) {
-      Blynk.run();
-      HandleSystem();
-    } //if(!_bOTA_Started)
-    else {
-      Serial << LOG0 << "loop(): Check for update timeout, bSkipBlynk= " << bSkipBlynk << endl;
-      if (millis() > _ulUpdateTimeoutMsec) {
-        _bOTA_Started = false;
-        Serial << LOG0 << "loop(): Set bUpdating to " << _bOTA_Started << endl;
-      } //if(millis()>ulUpdateTimeoutMsec)
-    } //if(!_bOTA_Started)else
-  } //if(!bSkipBlynk)
-} //loop
-*/
 void loop(){
   HandleOTAServer();
   HandleNTPUpdate();
@@ -352,7 +316,6 @@ void SetupBlynk(){
       Blynk.config(acBlynkAuthToken);
       break;
   } //switch
-  Serial << LOG0 << "SetupBlynk(): Blynk.config() returned" << endl;
 #endif  //DO_BLYNK
   return;
 } //SetupBlynk

@@ -1,4 +1,4 @@
-/**
+/** NTPClient.cpp 2/3/19 Beck
  * The MIT License (MIT)
  * Copyright (c) 2015 by Fabrice Weinberg
  *
@@ -63,10 +63,7 @@ void NTPClient::begin(int port) {
 }
 
 bool NTPClient::forceUpdate() {
-  #ifdef DEBUG_NTPClient
-    Serial.println("Update from NTP Server");
-  #endif
-    Serial << LOG0 << "NTPClient::forceUpdate() Call this->sendNTPPacket()" << endl;
+  Serial << LOG0 << "NTPClient::forceUpdate() Call this->sendNTPPacket()" << endl;
   this->sendNTPPacket();
 
   // Wait till data is there or timeout...
@@ -174,4 +171,6 @@ void NTPClient::sendNTPPacket() {
   this->_udp->beginPacket(this->_poolServerName, 123); //NTP requests are to port 123
   this->_udp->write(this->_packetBuffer, NTP_PACKET_SIZE);
   this->_udp->endPacket();
-}
+  return;
+} //sendNTPPacket
+//Last line.

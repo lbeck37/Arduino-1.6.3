@@ -1,7 +1,6 @@
+// NTPClient.h 2/3/19 Beck
 #pragma once
-
 #include "Arduino.h"
-
 #include <Udp.h>
 
 #define SEVENZYYEARS 2208988800UL
@@ -32,7 +31,6 @@ class NTPClient {
     NTPClient(UDP& udp, const char* poolServerName);
     NTPClient(UDP& udp, const char* poolServerName, long timeOffset);
     NTPClient(UDP& udp, const char* poolServerName, long timeOffset, unsigned long updateInterval);
-    //NTPClient(UDP& udp, String poolServerName, long timeOffset, unsigned long updateInterval);
 
     /**
      * Set time server name
@@ -97,3 +95,4 @@ class NTPClient {
      */
     void end();
 };
+//Last line.

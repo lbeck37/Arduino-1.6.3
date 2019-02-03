@@ -1,4 +1,4 @@
-//BeckMiniLib.cpp, Beck 2/2/19
+//BeckMiniLib.cpp, Beck 2/3/19
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 #include <NTPClient.h>
@@ -34,7 +34,6 @@ time_t  lGetLocalTime         (void);
 String  szFormatTimeString    (time_t lBoiseTime);
 String  szFormatDateString    (time_t lLocalTime);
 String  szPrintDigits         (int digits);
-//String  szFormatRawTime       (long lMsec){
 
 
 String szLogLineHeader(void){
@@ -135,22 +134,4 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
-
-
-/*
-String szFormatRawTime(long lMsec){
-  String  szString;
-  int sDays    =    lMsec                                               / lMsecPerDay ;
-  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
-  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
-  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
-  int sMsec    =    lMsec % lMsecPerSec;
-  szString = String(sDays) + ":";
-  szString+= String(szAddZeros(sHours, 2)) + ":";
-  szString+= String(szAddZeros(sMinutes, 2)) + ":";
-  szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
-  return szString;
-} //szFormatRawTime
-*/
 //Last line.

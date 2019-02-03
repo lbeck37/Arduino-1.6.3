@@ -1,13 +1,9 @@
-//BeckESP_OTAWebServerLib.cpp, Beck 1/25/19
+//BeckESP_OTAWebServerLib.cpp, Beck 2/3/19
 #include <BeckMiniLib.h>
 #include <BeckESP_OTAWebServerLib.h>
 #include "BeckESP_OTAWebServerPages.h"
 #include <ArduinoOTA.h>
 #include <WiFiClient.h>
-//#include <WiFi.h>
-//#include <ESPmDNS.h>
-//#include <WebServer.h>
-//#include <Update.h>
 #ifdef ESP8266
   #include <ESP8266WiFi.h>
   #include <ESP8266mDNS.h>
@@ -50,9 +46,6 @@ void SetupOTAServer(const char *acHostname) {
       delay(1000);
     } //while
   } //if (!MDNS.begin(acHostname))
-  //Serial << LOG0 << "SetupOTAServer(): mDNS responder started" << endl;
-
-  Serial << LOG0 << "SetupOTAServer(): Set up callbacks" << endl;
   /*return index page which is stored in serverIndex */
   oWebServer.on("/", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
@@ -87,14 +80,9 @@ void SetupOTAServer(const char *acHostname) {
       }
     }
   });
-  Serial << LOG0 << "SetupOTAServer(): Call oWebServer.begin()" << endl;
   oWebServer.begin();
-  Serial << LOG0 << "SetupOTAServer(): Back from oWebServer.begin()" << endl;
-
-  Serial << LOG0 << "SetupOTAServer(): Call MDNS.addService()" << endl;
   MDNS.addService("http", "tcp", 80);
   Serial << LOG0 << "SetupOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
-  //Serial << "SetupOTAServer(): Access this device using " << WiFi.localIP() << " or " << acHostname << ".local" << endl;
   return;
 } //SetupOTAServer
 

@@ -1,10 +1,6 @@
-//BeckE8266AccessPointLib.h, 1/31/19
-#include <ESP8266WebServer.h>
+//BeckE8266AccessPointLib.h, 2/3/19
+#pragma once
 
-extern IPAddress             _oAccessPtIPAddress;
-extern ESP8266WebServer     *_pSoftAPWebServer;
-
-IPAddress SetupAccessPoint    ();
+void      SetupWiFiNameServer (const char *szAccessPointSSID, const char *szAccessPointPW);
 void      HandleSoftAPClient  ();
-void      SetupWebServer      (IPAddress oIPAddress);
 //Last line.

@@ -1,29 +1,28 @@
-//BeckE8266AccessPointLib.cpp, 1/31/19
-#pragma once
-#include <BeckE8266AccessPointLib.h>
-#include <Streaming.h>
+//BeckE8266AccessPointLib.cpp, 2/3/19
 #include <BeckMiniLib.h>
+#include <BeckE8266AccessPointLib.h>
+#include <ESP8266WebServer.h>
+#include <Streaming.h>
 
 const int      wWebServerPort        = 80;
-const char     szAccessPointSSID[]   = "BeckESP8266AccessPoint";
-const char     szAccessPointPW[]     = "Qazqaz11";
 
-//The following are declared external in BeckE8266_AccessPointLib.h
 IPAddress             _oAccessPtIPAddress;
 ESP8266WebServer     *_pSoftAPWebServer;
 
 //Local function prototypes
+void      SetupWebServer        (IPAddress oIPAddress);
 void      handleRoot            ();
 void      HandleWiFiCredentials ();
 void      handleNotFound        ();
 
-IPAddress SetupAccessPoint(){
-  Serial << LOG0 << "SetupAccessPoint(): Begin" << endl;
+void SetupWiFiNameServer(const char *szAccessPointSSID, const char *szAccessPointPW){
   WiFi.softAP(szAccessPointSSID, szAccessPointPW);             // Start the access point
   _oAccessPtIPAddress= WiFi.softAPIP();
-  Serial << LOG0 << "SetupAccessPoint(): " << szAccessPointSSID << " started at " << _oAccessPtIPAddress << endl;
-  return(WiFi.softAPIP());
-} //SetupAccessPoint
+  SetupWebServer(_oAccessPtIPAddress);
+  Serial << LOG0 << "SetupWiFiNameServer(): Web Server started at " << _oAccessPtIPAddress <<
+      " on " << szAccessPointSSID << "/" << szAccessPointPW << endl;
+  return;
+} //SetupWiFiNameServer
 
 
 void HandleSoftAPClient(){
@@ -33,15 +32,12 @@ void HandleSoftAPClient(){
 
 
 void SetupWebServer(IPAddress oIPAddress){
-  Serial << LOG0 << "SetupWebServer(): IPAddress= " << oIPAddress << endl;
   _pSoftAPWebServer= new ESP8266WebServer(oIPAddress, wWebServerPort);
 
   _pSoftAPWebServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"
   _pSoftAPWebServer->on("/WiFiSubmit", HTTP_POST, HandleWiFiCredentials);  //Function to call when a POST request is made to URI "/LED"
   _pSoftAPWebServer->onNotFound(handleNotFound);            //When a client requests an unknown URI
   _pSoftAPWebServer->begin();                               //Actually start the server
-
-  Serial << LOG0 << "SetupWebServer(): HTTP server started at " << oIPAddress << endl;
   return;
 } //SetupWebServer
 
