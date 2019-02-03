@@ -19,6 +19,7 @@
  * SOFTWARE.
  */
 
+#include <BeckMiniLib.h>
 #include "NTPClient.h"
 
 NTPClient::NTPClient(UDP& udp) {
@@ -48,18 +49,6 @@ NTPClient::NTPClient(UDP& udp, const char* poolServerName, long timeOffset, unsi
   this->_updateInterval = updateInterval;
 }
 
-/*
-NTPClient::NTPClient(UDP& udp, String szPoolServerName, long timeOffset, unsigned long updateInterval){
-  char  _szPoolServerName[50];
-  szPoolServerName.toCharArray(this->_poolServerName, 50);
-  this->_udp            = &udp;
-  this->_timeOffset     = timeOffset;
-  this->_poolServerName = poolServerName;
-  this->_updateInterval = updateInterval;
-  return;
-}
-*/
-
 
 void NTPClient::begin() {
   this->begin(NTP_DEFAULT_LOCAL_PORT);
@@ -77,7 +66,7 @@ bool NTPClient::forceUpdate() {
   #ifdef DEBUG_NTPClient
     Serial.println("Update from NTP Server");
   #endif
-
+    Serial << LOG0 << "NTPClient::forceUpdate() Call this->sendNTPPacket()" << endl;
   this->sendNTPPacket();
 
   // Wait till data is there or timeout...
