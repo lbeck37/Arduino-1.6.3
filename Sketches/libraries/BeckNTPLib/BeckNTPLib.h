@@ -1,13 +1,10 @@
-//BeckNTPLib.h, Beck 1/30/19
+//BeckNTPLib.h, Beck 2/2/19
 #pragma once
+#include <NTPClient.h>
 
-//#include <NtpClientLib.h>
-//#include <NtpClient.h>
-//#include <TimeLib.h>
-#include <Timezone.h>
-
-extern Timezone         oMT_Timezone;
-extern TimeChangeRule*  pTimeChangeRule;
+extern NTPClient     oNTPClient;
 
 void    SetupNTP        (void);
+void    HandleNTPUpdate (void);
+
 //Last line.

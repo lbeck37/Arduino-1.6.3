@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/2/19g";
+const char szFileDate[]    = "Lenny 2/2/19ab";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -9,6 +9,9 @@ const char szFileDate[]    = "Lenny 2/2/19g";
 //#define DEV_LOCAL
 #define THERMO_DEV
 
+#ifndef ESP8266
+  #define ESP8266
+#endif
 #define DO_BLYNK            true
 #define DO_ALEXA            true
 #define DO_NTP              true
@@ -32,7 +35,6 @@ const char szFileDate[]    = "Lenny 2/2/19g";
   #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
 #endif
 #include <WiFiClient.h>
-//#include <NtpClientLib.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Streaming.h>
@@ -255,11 +257,6 @@ DallasTemperature   oSensors(&oOneWire);
 void  SetupBlynk    ();
 void  LogToSerial   (String szLogString);
 
-/*
-void SetupBlynkProject(){
-  return;
-}
-*/
 
 void setup(){
   //sSetupTime();
@@ -310,6 +307,7 @@ void loop(){
 */
 void loop(){
   HandleOTAServer();
+  HandleNTPUpdate();
 #if DO_ACCESS_POINT
   HandleSoftAPClient();       //Listen for HTTP requests from clients
 #endif  //DO_ACCESS_POINT

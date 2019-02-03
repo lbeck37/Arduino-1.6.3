@@ -1,8 +1,6 @@
-//BeckMiniLib.cpp, Beck 2/2/19
+//BeckMiniLib.cpp, Beck 1/30/19
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
-#include <NTPClient.h>
-#include <Timezone.h>
 
 const long		lMsecPerSec					= 1000;
 const long		lMsecPerMin					= 60 * lMsecPerSec;
@@ -83,8 +81,7 @@ String szLogLineHeader(void){
 
 
 time_t lGetLocalTime(void){
-  //return (oMT_Timezone.toLocal (now(), &pTimeChangeRule));
-  return oNTPClient.getEpochTime();
+  return (oMT_Timezone.toLocal (now(), &pTimeChangeRule));
 } //lGetLocalTime
 
 
