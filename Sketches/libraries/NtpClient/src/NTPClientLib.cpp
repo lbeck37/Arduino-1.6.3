@@ -1,4 +1,4 @@
-/* Beck 2/1/19, NTPClientLib.cpp in NtpClient library, not NtpClientLib library
+/* Beck 2/2/19, NTPClientLib.cpp in NtpClient library, not NtpClientLib library
 Copyright 2016 German Martin (gmag11@gmail.com). All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are
@@ -91,7 +91,6 @@ bool NTPClient::setTimeZone(int8_t timeZone, int8_t minutes) {
 
 
 boolean sendNTPpacket(const char* address, UDP *udp) {
-  Serial << "NTPClient::sendNTPpacket(char*): Sending to " << address << endl;
   uint8_t     ntpPacketBuffer[NTP_PACKET_SIZE];       //Buffer to store request message
 
   memset(ntpPacketBuffer, 0, NTP_PACKET_SIZE);   // set all bytes in the buffer to 0
@@ -109,9 +108,10 @@ boolean sendNTPpacket(const char* address, UDP *udp) {
   // all NTP fields have been given values, now
   // you can send a packet requesting a timestamp:
   //Serial << "NTPClient::sendNTPpacket(): Call udp->beginPacket()" << endl;
-    udp->beginPacket (address, DEFAULT_NTP_PORT); //NTP requests are to port 123
+  Serial << "NTPClient::sendNTPpacket(char*): Call udp->beginPacket() to " << address << endl;
+    udp->beginPacket(address, DEFAULT_NTP_PORT); //NTP requests are to port 123
   //Serial << "NTPClient::sendNTPpacket(): Call udp->write()" << endl;
-    udp->write (ntpPacketBuffer, NTP_PACKET_SIZE);
+    udp->write(ntpPacketBuffer, NTP_PACKET_SIZE);
   //Serial << "NTPClient::sendNTPpacket(): Call udp->endPacket()" << endl;
     udp->endPacket ();
   //Serial << "NTPClient::sendNTPpacket(): Done" << endl;
@@ -150,40 +150,60 @@ time_t NTPClient::getTime(){
   while((millis() - beginWait) < NTP_TIMEOUT) {
     int size = udp->parsePacket ();
     if (size >= NTP_PACKET_SIZE) {
-      DEBUGLOG ("-- Receive NTP Response\n");
+      Serial << "NTPClient::getTime(): Received packet, size= " << size << ", minimum is " << NTP_PACKET_SIZE << endl;
       udp->read (ntpPacketBuffer, NTP_PACKET_SIZE);  // read packet into the buffer
       time_t timeValue = decodeNtpMessage (ntpPacketBuffer);
-      setSyncInterval (getLongInterval ());
+
+      Serial << "NTPClient::getTime(): Calling setSyncInterval(" << getLongInterval() << ")"<< endl;
+      setSyncInterval(getLongInterval());
+
       if (!_firstSync) {
           //    if (timeStatus () == timeSet)
           _firstSync = timeValue;
       }
       //getFirstSync (); // Set firstSync value if not set before
-      DEBUGLOG ("Sync frequency set low\n");
+      Serial << "NTPClient::getTime(): Successful read, calling udp->stop()" << endl;
       udp->stop ();
       setLastNTPSync (timeValue);
-      DEBUGLOG ("Successful NTP sync at %s", getTimeDateString(getLastNTPSync()).c_str());
-      //Serial << "NTPClient::getTime(): Successful NTP sync at " << getTimeDateString(getLastNTPSync()) << endl;
+
+      Serial << "NTPClient::getTime(): Successful NTP sync at " << getTimeDateString(getLastNTPSync()) << endl;
       if (onSyncEvent){
+        Serial << "NTPClient::getTime(): Calling onSyncEvent(" << timeSyncd << ")"<< endl;
         onSyncEvent(timeSyncd);
       }
-      //Serial << "NTPClient::getTime(): Returning " << timeValue << endl;
+      Serial << "NTPClient::getTime(): Returning " << timeValue << endl;
       return timeValue;
     } //if (size>=NTP_PACKET_SIZE)
 #ifdef ARDUINO_ARCH_ESP8266
     ESP.wdtFeed ();
 #endif
   } //while
-  DEBUGLOG ("-- No NTP Response :-(\n");
+  Serial << "NTPClient::getTime(): Calling setSyncInterval(" << getShortInterval() << ")"<< endl;
+    setSyncInterval(getShortInterval()); // Retry connection more often
+
   Serial << "NTPClient::getTime(): No NTP Response, calling udp->stop()" << endl;
-  udp->stop();
-  setSyncInterval (getShortInterval ()); // Retry connection more often
+    udp->stop();
+
+/*
+  Serial << "NTPClient::getTime(): Calling setSyncInterval(" << getShortInterval() << ")"<< endl;
+    setSyncInterval(getShortInterval()); // Retry connection more often
+*/
+
   if (onSyncEvent){
+    Serial << "NTPClient::getTime(): Calling onSyncEvent(" << noResponse << ")"<< endl;
     onSyncEvent (noResponse);
   }
   Serial << "NTPClient::getTime(): Unable to get time, returning 0" << endl;
   return 0; // return 0 if unable to get the time
 } //getTime
+
+
+time_t NTPClient::SyncGetTime(){
+  Serial << "NTPClient::SyncGetTime() SyncProvider: Call NTP.getTime()" << endl;
+  time_t lNtpTime= NTP.getTime();
+  //Serial << "NTPClient::SyncGetTime(): Returning time= " << lNtpTime << endl;
+  return lNtpTime;
+} //SyncGetTime
 
 
 int8_t NTPClient::getTimeZone () {
@@ -199,14 +219,6 @@ int8_t NTPClient::getTimeZoneMinutes () {
     _lastSyncd = moment;
 }*/
 
-time_t NTPClient::s_getTime(){
-  Serial << "NTPClient::s_getTime() SyncProvider: Call NTP.getTime()" << endl;
-  //return NTP.getTime ();
-  time_t lNtpTime= NTP.getTime();
-  //Serial << "NTPClient::s_getTime(): Returning time= " << lNtpTime << endl;
-  return lNtpTime;
-} //s_getTime
-
 /*
 #if NETWORK_TYPE == NETWORK_W5100
 bool NTPClient::begin (String ntpServerName, int8_t timeZone, bool daylight, int8_t minutes, EthernetUDP* udp_conn) {
@@ -217,7 +229,8 @@ bool NTPClient::begin (String ntpServerName, int8_t timeZone, bool daylight, int
 #if NETWORK_TYPE == NETWORK_W5100
   bool NTPClient::begin (String ntpServerName, int8_t timeZone, bool daylight, int8_t minutes, EthernetUDP* udp_conn) {
 #elif ((NETWORK_TYPE == NETWORK_ESP8266) || (NETWORK_TYPE == NETWORK_WIFI101) || (NETWORK_TYPE == NETWORK_ESP32))
-  bool NTPClient::begin (String ntpServerName, int8_t timeZone, bool daylight, int8_t minutes, WiFiUDP* udp_conn) {
+
+bool NTPClient::begin (String ntpServerName, int8_t timeZone, bool daylight, int8_t minutes, WiFiUDP* udp_conn) {
 #endif
   Serial << "NTPClient::begin(): Servername= " << ntpServerName << ", timeZone= " << timeZone
           << ", daylight= " << daylight << ", minutes= " << minutes << endl;
@@ -257,7 +270,7 @@ bool NTPClient::begin (String ntpServerName, int8_t timeZone, bool daylight, int
   Serial << "NTPClient::begin(): Call setSyncInterval()" << endl;
     setSyncInterval(getShortInterval());    //Line 318 in Time.cpp
   Serial << "NTPClient::begin(): Call setSyncProvider()" << endl;
-    setSyncProvider(s_getTime);             //Line 312 in Time.cpp, calls now()
+    setSyncProvider(SyncGetTime);             //Line 312 in Time.cpp, calls now()
   Serial << "NTPClient::begin(): Done" << endl;
   return true;
 } //setup

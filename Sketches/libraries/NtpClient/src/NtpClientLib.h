@@ -382,8 +382,8 @@ protected:
     * Function that gets time from NTP server and convert it to Unix time format
     * @param[out] Time form NTP in Unix Time Format.
     */
-    static time_t s_getTime ();
-
+    //static time_t     s_getTime();
+    static time_t     SyncGetTime();
     /**
     * Calculates the daylight saving for a given date.
     * @param[in] Year.

@@ -37,8 +37,9 @@ void SetupNTP(){
 } //SetupNTP
 
 
+/*
 void SetupNTPHandlers(){
-  Serial << LOG0 << "BeckNTPLib: SetupNTPHandlers(): Setup NTP.onNTPSyncEvent" << endl;
+  Serial << LOG0 << "BeckNTPLib: SetupNTPHandlers(): Create NTP.onNTPSyncEvent inline handler" << endl;
   NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
     if (ntpEvent) {
       Serial << LOG0 << "SetupNTPHandlers(): Time Sync error: ";
@@ -50,9 +51,29 @@ void SetupNTPHandlers(){
       } //elseif(ntpEvent==invalidAddress)
     } //if(ntpEvent)
     else{
-      Serial << LOG0 << "BeckNTPLib: SetupNTPHandlers(): Got NTP time: " <<
-                NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
+      Serial << LOG0 << "BeckNTPLib: SetupNTPHandlers(): onNTPSyncEvent: Got NTP time: " <<
+         NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
       }   //if(ntpEvent)else
+  }); //NTP.onNTPSyncEvent()
+  return;
+} //SetupNTPHandlers
+*/
+void SetupNTPHandlers(){
+  Serial << LOG0 << "BeckNTPLib: SetupNTPHandlers(): Create NTP.onNTPSyncEvent inline handler" << endl;
+  NTP.onNTPSyncEvent([](NTPSyncEvent_t ntpEvent) {
+    if (ntpEvent != timeSyncd) {
+      Serial << LOG0 << "SetupNTPHandlers(): Time Sync error: ";
+      if (ntpEvent == noResponse){
+        Serial << "NTP server not reachable" << endl;
+      } //if(ntpEvent==noResponse)
+      else if (ntpEvent == invalidAddress){
+        Serial << "Invalid NTP server address" << endl;
+      } //elseif(ntpEvent==invalidAddress)
+    } //if(ntpEvent!=timeSyncd)
+    else{
+      Serial << LOG0 << "BeckNTPLib: SetupNTPHandlers(): onNTPSyncEvent: Got NTP time: " <<
+         NTP.getTimeDateString(NTP.getLastNTPSync()) << endl;
+      }   //if(ntpEvent!=timeSyncd)else
   }); //NTP.onNTPSyncEvent()
   return;
 } //SetupNTPHandlers
