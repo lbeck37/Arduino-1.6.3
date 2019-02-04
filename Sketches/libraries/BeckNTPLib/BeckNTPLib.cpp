@@ -1,4 +1,4 @@
-//BeckNTPLib.cpp, Beck 2/3/19c
+//BeckNTPLib.cpp, Beck 2/4/19a
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 #include <NTPClient.h>
@@ -10,11 +10,12 @@
     #include <ESP8266WiFi.h>
 #endif
 
-int             wMtnTimeHourDifference  = -7;
 int             wMsecPerMinute          = 60 *1000;
 int             wSecPerHour             = 3600;
+int             wMtnTimeHourDifference  = -7;
 long            lSecTimeOffset          = wMtnTimeHourDifference * wSecPerHour;
-int             wMinuteUpdateInterval   = 1;
+
+int             wMinuteUpdateInterval   = 3;
 unsigned long   ulMsecUpdateInterval    = wMinuteUpdateInterval * wMsecPerMinute;
 char*           szNtpServer             = "pool.ntp.org";
 
