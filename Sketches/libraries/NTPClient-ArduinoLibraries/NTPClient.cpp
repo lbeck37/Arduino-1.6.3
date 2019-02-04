@@ -1,22 +1,6 @@
-/** NTPClient.cpp 2/3/19 Beck
+/** NTPClient.cpp 2/3/19c Beck
  * The MIT License (MIT)
  * Copyright (c) 2015 by Fabrice Weinberg
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
  */
 
 #include <BeckMiniLib.h>
@@ -52,44 +36,65 @@ NTPClient::NTPClient(UDP& udp, const char* poolServerName, long timeOffset, unsi
 
 void NTPClient::begin() {
   this->begin(NTP_DEFAULT_LOCAL_PORT);
-}
+} //begin
 
 void NTPClient::begin(int port) {
   this->_port = port;
-
   this->_udp->begin(this->_port);
-
   this->_udpSetup = true;
-}
+} //begin(int)
+
 
 bool NTPClient::forceUpdate() {
-  Serial << LOG0 << "NTPClient::forceUpdate() Call this->sendNTPPacket()" << endl;
+  int   wTimeoutSec       = 1;
+  int   wDelayMsec        = 10;
+  int   wTimeoutCountMax  = (wTimeoutSec * 1000) / wDelayMsec;
+  int   wTimeoutCount     = 0;
+  int   wBytesRead        = 0;
+  bool  bSuccess          = false;
+  bool  bDone             = false;
+
+  unsigned long   ulLocalTime= this->getEpochTime();
+  Serial << LOG0 << "NTPClient::forceUpdate() Request network time, Date= " << szFormatDateString(ulLocalTime) << endl;
   this->sendNTPPacket();
 
   // Wait till data is there or timeout...
-  byte timeout = 0;
-  int cb = 0;
-  do {
-    delay ( 10 );
-    cb = this->_udp->parsePacket();
-    if (timeout > 100) return false; // timeout after 1000 ms
-    timeout++;
-  } while (cb == 0);
+  while (!bDone){
+    delay(wDelayMsec);
+    wBytesRead = this->_udp->parsePacket();
+    if (wBytesRead > 0){
+      bSuccess= true;
+      bDone   = true;
+    } //if (wBytesRead>0)
+    else{
+      if (wTimeoutCount > wTimeoutCountMax){
+        bSuccess= false;
+        bDone   = true;
+      } //if(wTimeoutCount>wTimeoutCountMax)
+      else{
+        wTimeoutCount++;
+      } //if(wTimeoutCount>wTimeoutCountMax)else
+    } //if (wBytesRead>0)else
+  } //while(!bDone)
 
-  this->_lastUpdate = millis() - (10 * (timeout + 1)); // Account for delay in reading the time
+  if (bSuccess){
+    this->_lastUpdate= (millis() - (10 * (wTimeoutCount + 1))); // Account for delay in reading the time
 
-  this->_udp->read(this->_packetBuffer, NTP_PACKET_SIZE);
+    this->_udp->read(this->_packetBuffer, NTP_PACKET_SIZE);
 
-  unsigned long highWord = word(this->_packetBuffer[40], this->_packetBuffer[41]);
-  unsigned long lowWord = word(this->_packetBuffer[42], this->_packetBuffer[43]);
-  // combine the four bytes (two words) into a long integer
-  // this is NTP time (seconds since Jan 1 1900):
-  unsigned long secsSince1900 = highWord << 16 | lowWord;
+    unsigned long highWord = word(this->_packetBuffer[40], this->_packetBuffer[41]);
+    unsigned long lowWord  = word(this->_packetBuffer[42], this->_packetBuffer[43]);
+    // combine the four bytes (two words) into a long integer
+    // this is NTP time (seconds since Jan 1 1900):
+    unsigned long secsSince1900 = highWord << 16 | lowWord;
 
-  this->_currentEpoc = secsSince1900 - SEVENZYYEARS;
+    this->_currentEpoc= (secsSince1900 - SEVENZYYEARS);
+  } //if(bSuccess)
 
-  return true;
-}
+  Serial << LOG0 << "NTPClient::forceUpdate() Returning " << bSuccess << endl;
+  return bSuccess;
+} //forceUpdate
+
 
 bool NTPClient::update() {
   if ((millis() - this->_lastUpdate >= this->_updateInterval)     // Update after _updateInterval
@@ -98,13 +103,15 @@ bool NTPClient::update() {
     return this->forceUpdate();
   }
   return true;
-}
+} //update
+
 
 unsigned long NTPClient::getEpochTime() const {
   return this->_timeOffset + // User offset
          this->_currentEpoc + // Epoc returned by the NTP server
          ((millis() - this->_lastUpdate) / 1000); // Time since last update
-}
+} //getEpochTime
+
 
 int NTPClient::getDay() const {
   return (((this->getEpochTime()  / 86400L) + 4 ) % 7); //0 is Sunday
@@ -156,10 +163,10 @@ void NTPClient::sendNTPPacket() {
   memset(this->_packetBuffer, 0, NTP_PACKET_SIZE);
   // Initialize values needed to form NTP request
   // (see URL above for details on the packets)
-  this->_packetBuffer[0] = 0b11100011;   // LI, Version, Mode
-  this->_packetBuffer[1] = 0;     // Stratum, or type of clock
-  this->_packetBuffer[2] = 6;     // Polling Interval
-  this->_packetBuffer[3] = 0xEC;  // Peer Clock Precision
+  this->_packetBuffer[0]   = 0b11100011;    // LI, Version, Mode
+  this->_packetBuffer[1]   = 0;             // Stratum, or type of clock
+  this->_packetBuffer[2]   = 6;             // Polling Interval
+  this->_packetBuffer[3]   = 0xEC;          // Peer Clock Precision
   // 8 bytes of zero for Root Delay & Root Dispersion
   this->_packetBuffer[12]  = 49;
   this->_packetBuffer[13]  = 0x4E;

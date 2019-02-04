@@ -10,6 +10,9 @@ extern const long   lMsecPerHour;
 extern const long   lMsecPerDay;
 extern const long   lSerialMonitorBaud;
 
-String    szAddZeros          (int sValue, int sNumDigits);
-String    szLogLineHeader     (void);
+String    szAddZeros            (int sValue, int sNumDigits);
+String    szLogLineHeader       (void);
+time_t    lGetLocalTime         (void);
+String    szFormatTimeString    (time_t lBoiseTime);
+String    szFormatDateString    (time_t lLocalTime);
 //Last line.

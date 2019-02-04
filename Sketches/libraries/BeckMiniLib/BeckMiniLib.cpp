@@ -30,9 +30,6 @@ const long   	lSerialMonitorBaud  = 115200;
 time_t    _lLocalTime;
 
   //Local function prototypes
-time_t  lGetLocalTime         (void);
-String  szFormatTimeString    (time_t lBoiseTime);
-String  szFormatDateString    (time_t lLocalTime);
 String  szPrintDigits         (int digits);
 
 
