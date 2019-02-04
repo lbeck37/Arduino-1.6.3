@@ -10,7 +10,7 @@
     #include <ESP8266WiFi.h>
 #endif
 
-int             wMtnTimeHourDifference  = 8;
+int             wMtnTimeHourDifference  = -7;
 int             wMsecPerMinute          = 60 *1000;
 int             wSecPerHour             = 3600;
 long            lSecTimeOffset          = wMtnTimeHourDifference * wSecPerHour;
