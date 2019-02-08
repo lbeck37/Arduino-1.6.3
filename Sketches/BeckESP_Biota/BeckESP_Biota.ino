@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/4/19a";
+const char szFileDate[]    = "Lenny 2/6/19d";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -128,6 +128,7 @@ static const int    sThermoDev            = 7;
 static const long     sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
 static const char     szRouterName[]        = "Aspot24";
+//static const char     szRouterName[]        = "Dspot";    //Verizon hotspot on Larry's Note9
 static const char     szRouterPW[]          = "Qazqaz11";
 
 static const char     szAccessPointSSID[]   = "BiotaSpot";
@@ -206,6 +207,7 @@ static bool           bDebugLog             = true;   //Used to limit number of 
   static const char   acHostname[]        = "BeckThermoDev";
   static const char   szProjectType[]     = "THERMO_DEV";
   static const char   szAlexaName[]       = "Larry's Device";
+  //static const char   szAlexaName[]       = "Larry's Biota";
   static const int    sProjectType        = sThermoDev;
   static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
   static float        fSetpointF          = 70;
