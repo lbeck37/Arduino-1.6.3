@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/6/19d";
+const char szFileDate[]    = "Lenny 2/11/19a";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -209,7 +209,7 @@ static bool           bDebugLog             = true;   //Used to limit number of 
   static const char   szAlexaName[]       = "Larry's Device";
   //static const char   szAlexaName[]       = "Larry's Biota";
   static const int    sProjectType        = sThermoDev;
-  static const float  fMaxHeatRangeF      = 1.00;   //Temp above setpoint before heat is turned off
+  static const float  fMaxHeatRangeF      = .10;   //Temp above setpoint before heat is turned off
   static float        fSetpointF          = 70;
   static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
 #if DO_ALEXA
