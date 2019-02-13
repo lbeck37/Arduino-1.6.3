@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/12/19g";
+const char szFileDate[]    = "Lenny 2/13/19p";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -146,7 +146,7 @@ static bool           bAlexaOn              = false;  //Only projects that use A
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool           bDebugLog             = true;   //Used to limit number of printouts.
 static int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
-static unsigned long  ulLastTaskMsec        = 0;      //For checking time handling tasks
+//static unsigned long  ulLastTaskMsec        = 0;      //For checking time handling tasks
 
 #if DO_DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -244,8 +244,10 @@ Adafruit_SSD1306 oDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
-//Function proto
-void  CheckTaskTime (String szTask);
+//Function prototypes
+//void  CheckTaskTime (String szTask);
+//void  ClearTaskTime2(unsigned long* pulLastTaskMsec);
+//void  CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec= NULL);
 void  SetupBlynk    ();
 void  LogToSerial   (String szLogString);
 
@@ -277,21 +279,21 @@ void setup(){
 
 void loop(){
   HandleOTAServer();
-  CheckTaskTime("HandleOTAServer");
+  CheckTaskTime("loop(): HandleOTAServer()");
   HandleNTPUpdate();
-  CheckTaskTime("HandleNTPUpdate");
+  CheckTaskTime("loop(): HandleNTPUpdate()");
 #if DO_ACCESS_POINT
   HandleSoftAPClient();       //Listen for HTTP requests from clients
-  CheckTaskTime("HandleSoftAPClient");
+  CheckTaskTime("loop(): HandleSoftAPClient()");
 #endif  //DO_ACCESS_POINT
 
   if (!_bOTA_Started){
+    HandleSystem();
+    CheckTaskTime("loop(): HandleSystem()");
 #if DO_BLYNK
     Blynk.run();
-    CheckTaskTime("Blynk.run");
+    CheckTaskTime("loop(): Blynk.run()");
 #endif  //DO_BLYNK
-    HandleSystem();
-    CheckTaskTime("HandleSystem");
   } //if(!_bOTA_Started)
   else{
     Serial << LOG0 << "loop(): Check for update timeout" << endl;
@@ -304,6 +306,7 @@ void loop(){
 } //loop
 
 
+/*
 void CheckTaskTime(String szTask){
   unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
   unsigned long    ulNowMsec= millis();
@@ -315,6 +318,35 @@ void CheckTaskTime(String szTask){
   ulLastTaskMsec= millis();
   return;
 } //CheckTaskTime
+
+
+void ClearTaskTime2(unsigned long* pulLastTaskMsec){
+  if (pulLastTaskMsec){
+    *pulLastTaskMsec= millis();
+  }
+  else{
+    Serial << LOG0 << "ClearTaskTime2(): ERROR: Passed in NULL pointer" << endl;
+  }
+  return;
+} //ClearTaskTime2
+
+
+void CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec){
+  unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
+  unsigned long    ulNowMsec= millis();
+  if (pulLastTaskMsec == NULL){
+    pulLastTaskMsec= &ulLastTaskMsec;
+  } //if (plLastTaskMsec==NULL)
+  unsigned long    ulTaskMsec= ulNowMsec - *pulLastTaskMsec;
+
+  if (ulTaskMsec >  ulMaxTaskMsec){
+    float fTaskSeconds= (float)ulTaskMsec / 1000.0;
+    Serial << LOG0 << "CheckTaskTime2(): The " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
+  } //
+  *pulLastTaskMsec= millis();
+  return;
+} //CheckTaskTime2
+*/
 
 
 void SetupDisplay(){
@@ -470,7 +502,7 @@ void HandleSystem(){
   if (millis() >= ulNextHandlerMsec){
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
     if (wAlexaHandleCount < 1000){
-      //Typically HandleAlexa() gets called ~3,000 times every 10 sec, except when it's 1.
+      //Typically HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
       LogToBoth("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
     } //if (wAlexaHandleCount<1000)
     wAlexaHandleCount= 0;
@@ -483,11 +515,11 @@ void HandleSystem(){
       case sGarageLocal:
       case sThermoDev:
         HandleThermostat();
-        CheckTaskTime("HandleThermostat");
+        CheckTaskTime("HandleSystem(): HandleThermostat()");
         HandleHeatSwitch();
-        CheckTaskTime("HandleHeatSwitch");
+        CheckTaskTime("HandleSystem(): HandleHeatSwitch()");
         UpdateDisplay();
-        CheckTaskTime("UpdateDisplay");
+        CheckTaskTime("HandleSystem(): UpdateDisplay()");
         break;
       case sHeater:
         HandleHeater();
@@ -502,7 +534,7 @@ void HandleSystem(){
     } //switch
 #if false && DO_BLYNK
     HandleBlynkLEDs();
-    CheckTaskTime("HandleBlynkLEDs");
+    CheckTaskTime("HandleSystem(): HandleBlynkLEDs()");
 #endif  //DO_BLYNK
   } //if(millis()>=ulNextHandlerMsec)
   return;
@@ -523,7 +555,7 @@ void UpdateDisplay(void){
   szDisplayLine= "Off " + String(fThermoOffDegF);
   oDisplay.println(szDisplayLine);
   oDisplay.display();
-  delay(10);
+  //delay(10);
 } //UpdateDisplay
 
 
@@ -549,13 +581,17 @@ void HandleFrontLights(){
 
 
 void HandleThermostat(){
+  unsigned long   ulStartTime;
+  ClearTaskTime2(&ulStartTime);
   //Only do something if the thermostat is turned on.
   if (bThermoOn){
     float fDegF= fGetDegF(true);
+    CheckTaskTime2("HandleThermostat(): fGetDegF", &ulStartTime);
     if (bHeatOn){
       if (fDegF >= fThermoOffDegF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnHeatOn(false);
+          CheckTaskTime2("HandleThermostat(): TurnHeatOn(false)", &ulStartTime);
           sThermoTimesCount= 0;
         } //if(sThermoTimesCount>=sThermoTimesInRow)
       } //if(fDegF>=fThermoOffDegF)
@@ -567,6 +603,7 @@ void HandleThermostat(){
       if (fDegF <= fSetpointF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnHeatOn(true);
+          CheckTaskTime2("HandleThermostat(): TurnHeatOn(true)", &ulStartTime);
           sThermoTimesCount= 0;
         } //if(sThermoTimesCount>=sThermoTimesInRow)
       } //if(fDegF<fSetpointF)
@@ -575,6 +612,7 @@ void HandleThermostat(){
       } //if(fDegF<fSetpointF)else
     } //if(bHeatOn)else
     LogThermostatData(fDegF);
+    CheckTaskTime2("HandleThermostat(): LogThermostatData()", &ulStartTime);
   } //if(bThermoOn)
   else{
     String szLogString= " bThermoOn is false";
@@ -813,10 +851,16 @@ void ScanForI2CDevices(void){
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
 void WriteTerminalLine(String szString){
+  unsigned long   ulStartTime;
+  ClearTaskTime2(&ulStartTime);
 #if DO_BLYNK
   if (bDebugLog){
-    oTerminal.println(szString) ;
+    szString += "\n";
+    //oTerminal.println(szString) ;
+    oTerminal.print(szString) ;
+    CheckTaskTime2("WriteTerminalLine(): oTerminal.print()", &ulStartTime);
     oTerminal.flush();          // Ensure everything is sent
+    CheckTaskTime2("WriteTerminalLine(): oTerminal.flush()", &ulStartTime);
   } //if(bDebugLog)
 #endif  //DO_BLYNK
   return;
@@ -853,10 +897,14 @@ void LogToSerial(String szLogString){
 
 
 void LogToBoth(String szLogString){
+  unsigned long   ulLastStartTime;
+  ClearTaskTime2(&ulLastStartTime);
   String szTermString= szLogLineHeader();
+  CheckTaskTime2("LogToBoth(): szLogLineHeader()", &ulLastStartTime);
   szTermString += szLogString;
   Serial << szTermString << endl;
   WriteTerminalLine(szTermString);
+  CheckTaskTime2("LogToBoth(): WriteTerminalLine()", &ulLastStartTime);
   return;
 } //LogToBoth:empty
 

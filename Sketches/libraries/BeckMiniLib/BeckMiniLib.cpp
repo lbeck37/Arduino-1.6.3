@@ -27,10 +27,52 @@ const long   	lSerialMonitorBaud  = 115200;
   const int       sServoPin          = 16;
 #endif  //ESP32
 
-time_t    _lLocalTime;
+time_t          _lLocalTime;
+unsigned long   ulLastTaskMsec        = 0;      //For checking time handling tasks
 
   //Local function prototypes
 String  szPrintDigits         (int digits);
+
+
+void CheckTaskTime(String szTask){
+  unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
+  unsigned long    ulNowMsec= millis();
+  unsigned long    ulTaskMsec= ulNowMsec - ulLastTaskMsec;
+  if (ulTaskMsec >  ulMaxTaskMsec){
+    float fTaskSeconds= (float)ulTaskMsec / 1000.0;
+    Serial << LOG0 << "CheckTaskTime(): The " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
+  } //
+  ulLastTaskMsec= millis();
+  return;
+} //CheckTaskTime
+
+
+void ClearTaskTime2(unsigned long* pulLastTaskMsec){
+  if (pulLastTaskMsec){
+    *pulLastTaskMsec= millis();
+  }
+  else{
+    Serial << LOG0 << "ClearTaskTime2(): ERROR: Passed in NULL pointer" << endl;
+  }
+  return;
+} //ClearTaskTime2
+
+
+void CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec){
+  unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
+  unsigned long    ulNowMsec= millis();
+  if (pulLastTaskMsec == NULL){
+    pulLastTaskMsec= &ulLastTaskMsec;
+  } //if (plLastTaskMsec==NULL)
+  unsigned long    ulTaskMsec= ulNowMsec - *pulLastTaskMsec;
+
+  if (ulTaskMsec >  ulMaxTaskMsec){
+    float fTaskSeconds= (float)ulTaskMsec / 1000.0;
+    Serial << LOG0 << "CheckTaskTime2(): The " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
+  } //
+  *pulLastTaskMsec= millis();
+  return;
+} //CheckTaskTime2
 
 
 String szLogLineHeader(void){
