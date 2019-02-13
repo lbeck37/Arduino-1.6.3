@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/11/19a";
+const char szFileDate[]    = "Lenny 2/12/19g";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -41,7 +41,7 @@ const char szFileDate[]    = "Lenny 2/11/19a";
 #include <Time.h>
 #if DO_BLYNK
   #include <BlynkSimpleEsp8266.h>
-  #include <ESP8266_Lib.h>
+  //#include <ESP8266_Lib.h>
 #endif
 
 //For I2C OLED display
@@ -145,6 +145,8 @@ static bool           bHeatOn               = false;  //If switch is on to turn 
 static bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool           bDebugLog             = true;   //Used to limit number of printouts.
+static int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
+static unsigned long  ulLastTaskMsec        = 0;      //For checking time handling tasks
 
 #if DO_DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -243,6 +245,7 @@ OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
 //Function proto
+void  CheckTaskTime (String szTask);
 void  SetupBlynk    ();
 void  LogToSerial   (String szLogString);
 
@@ -267,22 +270,28 @@ void setup(){
   UpdateDisplay();
   SetupSwitches();
   SetupSystem();
+  ulLastTaskMsec= millis();
   return;
 } //setup
 
 
 void loop(){
   HandleOTAServer();
+  CheckTaskTime("HandleOTAServer");
   HandleNTPUpdate();
+  CheckTaskTime("HandleNTPUpdate");
 #if DO_ACCESS_POINT
   HandleSoftAPClient();       //Listen for HTTP requests from clients
+  CheckTaskTime("HandleSoftAPClient");
 #endif  //DO_ACCESS_POINT
 
   if (!_bOTA_Started){
 #if DO_BLYNK
     Blynk.run();
+    CheckTaskTime("Blynk.run");
 #endif  //DO_BLYNK
     HandleSystem();
+    CheckTaskTime("HandleSystem");
   } //if(!_bOTA_Started)
   else{
     Serial << LOG0 << "loop(): Check for update timeout" << endl;
@@ -291,8 +300,21 @@ void loop(){
       Serial << LOG0 << "loop(): Set bUpdating to " << _bOTA_Started << endl;
     } //if(millis()>ulUpdateTimeoutMsec)
   } //if(!_bOTA_Started)else
-
+  return;
 } //loop
+
+
+void CheckTaskTime(String szTask){
+  unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
+  unsigned long    ulNowMsec= millis();
+  unsigned long    ulTaskMsec= ulNowMsec - ulLastTaskMsec;
+  if (ulTaskMsec >  ulMaxTaskMsec){
+    float fTaskSeconds= (float)ulTaskMsec / 1000.0;
+    Serial << LOG0 << "CheckTaskTime(): The " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
+  } //
+  ulLastTaskMsec= millis();
+  return;
+} //CheckTaskTime
 
 
 void SetupDisplay(){
@@ -381,6 +403,7 @@ void HandleAlexa(){
 
 void HandleAlexa(){
 #if DO_ALEXA
+  wAlexaHandleCount++;  //Track how many times this is called before next handle system (10 sec)
   Alexa.handle();
 #endif  //DO_ALEXA
   return;
@@ -442,9 +465,15 @@ void SetupSwitches(){
 void HandleSystem(){
 #if DO_ALEXA
   HandleAlexa();
+  CheckTaskTime("HandleAlexa");
 #endif
   if (millis() >= ulNextHandlerMsec){
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
+    if (wAlexaHandleCount < 1000){
+      //Typically HandleAlexa() gets called ~3,000 times every 10 sec, except when it's 1.
+      LogToBoth("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
+    } //if (wAlexaHandleCount<1000)
+    wAlexaHandleCount= 0;
     switch (sProjectType){
       case sFrontLights:
         HandleFrontLights();
@@ -454,8 +483,11 @@ void HandleSystem(){
       case sGarageLocal:
       case sThermoDev:
         HandleThermostat();
+        CheckTaskTime("HandleThermostat");
         HandleHeatSwitch();
+        CheckTaskTime("HandleHeatSwitch");
         UpdateDisplay();
+        CheckTaskTime("UpdateDisplay");
         break;
       case sHeater:
         HandleHeater();
@@ -464,12 +496,13 @@ void HandleSystem(){
         HandleDevelopment();
         break;
       default:
-        String szLogString= "HandleSystem:Bad switch";
+        String szLogString= "HandleSystem():Bad switch";
         LogToBoth(szLogString, sProjectType);
         break;
     } //switch
-#if DO_BLYNK
+#if false && DO_BLYNK
     HandleBlynkLEDs();
+    CheckTaskTime("HandleBlynkLEDs");
 #endif  //DO_BLYNK
   } //if(millis()>=ulNextHandlerMsec)
   return;
