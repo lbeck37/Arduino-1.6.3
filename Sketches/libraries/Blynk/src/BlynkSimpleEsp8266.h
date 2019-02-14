@@ -15,7 +15,7 @@
 #error This code is intended to run on the ESP8266 platform! Please check your Tools->Board setting.
 #endif
 
-/*
+/* Beck 2/13/19
 #include <version.h>
 
 #if ESP_SDK_VERSION_NUMBER < 0x020200

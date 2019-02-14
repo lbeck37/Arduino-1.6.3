@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/13/19p";
+const char szFileDate[]    = "Lenny 2/13/19r";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -856,8 +856,8 @@ void WriteTerminalLine(String szString){
 #if DO_BLYNK
   if (bDebugLog){
     szString += "\n";
-    //oTerminal.println(szString) ;
-    oTerminal.print(szString) ;
+    //oTerminal.println(szString);
+    oTerminal.print(szString);
     CheckTaskTime2("WriteTerminalLine(): oTerminal.print()", &ulStartTime);
     oTerminal.flush();          // Ensure everything is sent
     CheckTaskTime2("WriteTerminalLine(): oTerminal.flush()", &ulStartTime);

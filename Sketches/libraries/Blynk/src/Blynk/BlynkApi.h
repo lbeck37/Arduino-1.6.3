@@ -11,7 +11,6 @@
 #ifndef BlynkApi_h
 #define BlynkApi_h
 
-#include <BeckMiniLib.h>
 #include <Blynk/BlynkConfig.h>
 #include <Blynk/BlynkDebug.h>
 #include <Blynk/BlynkParam.h>
@@ -91,14 +90,11 @@ public:
      * @param len  Length of data
      */
     void virtualWriteBinary(int pin, const void* buff, size_t len) {
-      unsigned long   ulStartTime;
-      ClearTaskTime2(&ulStartTime);
-      char mem[8];
-      BlynkParam cmd(mem, 0, sizeof(mem));
-      cmd.add("vw");
-      cmd.add(pin);
-      static_cast<Proto*>(this)->sendCmd(BLYNK_CMD_HARDWARE, 0, cmd.getBuffer(), cmd.getLength(), buff, len);
-      CheckTaskTime2("BlynkApi.h: virtualWriteBinary(): flush()", &ulStartTime);
+        char mem[8];
+        BlynkParam cmd(mem, 0, sizeof(mem));
+        cmd.add("vw");
+        cmd.add(pin);
+        static_cast<Proto*>(this)->sendCmd(BLYNK_CMD_HARDWARE, 0, cmd.getBuffer(), cmd.getLength(), buff, len);
     }
 
     /**
@@ -261,7 +257,7 @@ public:
         char mem[BLYNK_MAX_SENDBYTES];
         BlynkParam cmd(mem, 0, sizeof(mem));
         cmd.add(event_name);
-        static_cast<Proto*>(this)->sendCmd(BLYNK_CMD_EVENT_LOG, 0, cmd.getBuffer(), cmd.getLength());
+        static_cast<Proto*>(this)->sendCmd(BLYNK_CMD_EVENT_LOG, 0, cmd.getBuffer(), cmd.getLength()-1);
     }
 
     template <typename NAME, typename DESCR>
@@ -270,7 +266,7 @@ public:
         BlynkParam cmd(mem, 0, sizeof(mem));
         cmd.add(event_name);
         cmd.add(description);
-        static_cast<Proto*>(this)->sendCmd(BLYNK_CMD_EVENT_LOG, 0, cmd.getBuffer(), cmd.getLength());
+        static_cast<Proto*>(this)->sendCmd(BLYNK_CMD_EVENT_LOG, 0, cmd.getBuffer(), cmd.getLength()-1);
     }
 
 #if defined(BLYNK_EXPERIMENTAL)

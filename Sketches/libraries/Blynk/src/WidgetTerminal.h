@@ -9,7 +9,6 @@
 
 #ifndef WidgetTerminal_h
 #define WidgetTerminal_h
-#include <BeckMiniLib.h>
 
 #if defined(ARDUINO) && !(defined(LINUX) || defined(__MBED__))
     #define BLYNK_USE_PRINT_CLASS
@@ -41,14 +40,11 @@ public:
     //virtual ~WidgetTerminal() {}
 
     virtual size_t write(uint8_t byte) {
-      unsigned long   ulStartTime;
-      ClearTaskTime2(&ulStartTime);
-      mOutBuf[mOutQty++] = byte;
-      if (mOutQty >= sizeof(mOutBuf)) {
-          flush();
-          CheckTaskTime2("WidgetTerminal: write(): flush()", &ulStartTime);
-      }
-      return 1;
+        mOutBuf[mOutQty++] = byte;
+        if (mOutQty >= sizeof(mOutBuf)) {
+            flush();
+        }
+        return 1;
     }
 
     virtual void flush() {

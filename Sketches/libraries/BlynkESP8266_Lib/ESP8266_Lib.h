@@ -23,10 +23,6 @@
 
 #include "Arduino.h"
 
-#ifdef ESP8266
-  #undef ESP8266
-#endif
-
 #define  VERSION_18   		0X18
 #define  VERSION_22   		0X22
 #define  DEFAULT_PATTERN	3
