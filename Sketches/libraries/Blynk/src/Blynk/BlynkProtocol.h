@@ -26,9 +26,7 @@
 #include <utility/BlynkUtility.h>
 
 template <class Transp>
-class BlynkProtocol
-    : public BlynkApi< BlynkProtocol<Transp> >
-{
+class BlynkProtocol : public BlynkApi< BlynkProtocol<Transp> > {
     friend class BlynkApi< BlynkProtocol<Transp> >;
 public:
     enum BlynkState {
@@ -85,19 +83,20 @@ public:
 
     void sendCmd(uint8_t cmd, uint16_t id = 0, const void* data = NULL, size_t length = 0, const void* data2 = NULL, size_t length2 = 0);
 
-    void printBanner() {
+  void printBanner() {
 #if defined(BLYNK_NO_FANCY_LOGO)
-        BLYNK_LOG1(BLYNK_F("Blynk v" BLYNK_VERSION " on " BLYNK_INFO_DEVICE));
+      BLYNK_LOG1(BLYNK_F("Blynk v" BLYNK_VERSION " on " BLYNK_INFO_DEVICE));
 #else
-        BLYNK_LOG1(BLYNK_F(BLYNK_NEWLINE
-            "    ___  __          __" BLYNK_NEWLINE
-            "   / _ )/ /_ _____  / /__" BLYNK_NEWLINE
-            "  / _  / / // / _ \\/  '_/" BLYNK_NEWLINE
-            " /____/_/\\_, /_//_/_/\\_\\" BLYNK_NEWLINE
-            "        /___/ v" BLYNK_VERSION " on " BLYNK_INFO_DEVICE BLYNK_NEWLINE
-        ));
+      BLYNK_LOG1(BLYNK_F(BLYNK_NEWLINE
+          "    ___  __          __" BLYNK_NEWLINE
+          "   / _ )/ /_ _____  / /__" BLYNK_NEWLINE
+          "  / _  / / // / _ \\/  '_/" BLYNK_NEWLINE
+          " /____/_/\\_, /_//_/_/\\_\\" BLYNK_NEWLINE
+          "        /___/ v" BLYNK_VERSION " on " BLYNK_INFO_DEVICE BLYNK_NEWLINE
+      ));
 #endif
-    }
+      return;
+  } //printBanner
 
 private:
 
@@ -111,13 +110,14 @@ private:
     uint16_t getNextMsgId();
 
 protected:
-    void begin(const char* auth) {
-        this->authkey = auth;
-        lastHeartbeat = lastActivityIn = lastActivityOut = (BlynkMillis() - 5000UL);
+  void begin(const char* auth) {
+      this->authkey = auth;
+      lastHeartbeat = lastActivityIn = lastActivityOut = (BlynkMillis() - 5000UL);
 #if !defined(BLYNK_NO_DEFAULT_BANNER)
-        printBanner();
+      printBanner();
 #endif
-    }
+      return;
+  } //begin
 
     bool processInput(void);
 
@@ -137,7 +137,8 @@ private:
     uint8_t  nesting;
 protected:
     BlynkState state;
-};
+};  //class BlynkProtocol
+
 
 template <class Transp>
 bool BlynkProtocol<Transp>::run(bool avail)
@@ -227,7 +228,7 @@ bool BlynkProtocol<Transp>::run(bool avail)
 #endif
     }
     return true;
-}
+} //BlynkProtocol<Transp>
 
 template <class Transp>
 BLYNK_FORCE_INLINE
@@ -429,6 +430,7 @@ int BlynkProtocol<Transp>::readHeader(BlynkHeader& hdr)
 template <class Transp>
 void BlynkProtocol<Transp>::sendCmd(uint8_t cmd, uint16_t id, const void* data, size_t length, const void* data2, size_t length2)
 {
+    BLYNK_LOG1(BLYNK_F("BlynkProtocol<Transp>::sendCmd(): Begin (Beck 021319"));
     if (!conn.connected() || (cmd != BLYNK_CMD_RESPONSE && cmd != BLYNK_CMD_PING && cmd != BLYNK_CMD_LOGIN && state != CONNECTED) ) {
 #ifdef BLYNK_DEBUG_ALL
         BLYNK_LOG2(BLYNK_F("Cmd skipped:"), cmd);

@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/13/19r";
+const char szFileDate[]    = "Lenny 2/14/19e";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -257,7 +257,11 @@ void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
+#if DO_BLYNK
+  Blynk.connectWiFi(szRouterName, szRouterPW);
+#else
   SetupWiFi(szRouterName, szRouterPW);
+#endif  //DO_BLYNK
   SetupOTAServer(acHostname);
 #if DO_ACCESS_POINT
   SetupWiFiNameServer(szAccessPointSSID, szAccessPointPW);
@@ -291,8 +295,13 @@ void loop(){
     HandleSystem();
     CheckTaskTime("loop(): HandleSystem()");
 #if DO_BLYNK
-    Blynk.run();
-    CheckTaskTime("loop(): Blynk.run()");
+    if(true || Blynk.connected()){
+      Blynk.run();
+      CheckTaskTime("loop(): Blynk.run()");
+    } //if(Blynk.connected())
+    else{
+      Serial << LOG0 << "loop(): Blynk.connected() returned FALSE" << endl;
+    } //if(Blynk.connected())else
 #endif  //DO_BLYNK
   } //if(!_bOTA_Started)
   else{
@@ -851,9 +860,9 @@ void ScanForI2CDevices(void){
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
 void WriteTerminalLine(String szString){
+#if false && DO_BLYNK
   unsigned long   ulStartTime;
   ClearTaskTime2(&ulStartTime);
-#if DO_BLYNK
   if (bDebugLog){
     szString += "\n";
     //oTerminal.println(szString);

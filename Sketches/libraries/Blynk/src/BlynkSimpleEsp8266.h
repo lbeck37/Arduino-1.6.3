@@ -33,9 +33,7 @@ class BlynkWifi
 {
     typedef BlynkProtocol<BlynkArduinoClient> Base;
 public:
-    BlynkWifi(BlynkArduinoClient& transp)
-        : Base(transp)
-    {}
+    BlynkWifi(BlynkArduinoClient& transp) : Base(transp){}
 
     void connectWiFi(const char* ssid, const char* pass)
     {
