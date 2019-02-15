@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/15/19k";
+const char szFileDate[]    = "Lenny 2/15/19r";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -12,7 +12,7 @@ const char szFileDate[]    = "Lenny 2/15/19k";
 #ifndef ESP8266
   #define ESP8266
 #endif
-#define DO_BLYNK            true
+//#define DO_BLYNK            false
 #define DO_ALEXA            true
 #define DO_NTP              true
 #define DO_ACCESS_POINT     true
@@ -39,10 +39,6 @@ const char szFileDate[]    = "Lenny 2/15/19k";
 #include <DallasTemperature.h>
 #include <Streaming.h>
 #include <Time.h>
-#if DO_BLYNK
-  #include <BlynkSimpleEsp8266.h>
-  //#include <ESP8266_Lib.h>
-#endif
 
 //For I2C OLED display
 #include <Wire.h>
@@ -55,54 +51,6 @@ static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and lab
 
 static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
-
-//Define Virtual Pin names
-#define ReadF_V0          V0
-#define ReadF_V1          V1
-#define SetSetpointF_V2   V2
-#define GetSetpointF_V3   V3
-#define ThermoSwitch_V4   V4
-#define ThermoLED_V5      V5
-
-#define AtoD_1V6          V6
-
-#define Terminal_V7       V7
-#define LCD_Line0_V8      V8
-#define LCD_Line1_V9      V9
-
-//Relay #1
-#define Switch_1V10       V10
-#define TimerA_1V11       V11
-#define TimerB_1V12       V12
-#define LED_1V13          V13
-
-#define AtoD_2V14         V14
-
-//Relay #2
-#define Switch_2V15       V15
-#define TimerA_2V16       V16
-#define TimerB_2V17       V17
-#define LED_2V18          V18
-
-#define AtoD_3V19         V19
-
-//Relay #3
-#define Switch_3V20       V20
-#define TimerA_3V21       V21
-#define TimerB_3V22       V22
-#define LED_3V23          V23
-
-#define AtoD_4V24         V24
-
-//Relay #4
-#define Switch_4V25       V25
-#define TimerA_4V26       V26
-#define TimerB_4V27       V27
-#define LED_4V28          V28
-
-#define Unassigned_V29    V29
-#define Unassigned_V30    V30
-#define Unassigned_V31    V31
 
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
@@ -159,14 +107,14 @@ static int            _wGoodCount           = 0;
 #ifdef FRONT_LIGHTS
   char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
   static const char szProjectType[]    = "FRONT_LIGHTS";
-  static int sProjectType= sFrontLights;
+  static int wProjectType= sFrontLights;
 #endif
 #ifdef FIREPLACE
   char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
   static const char   acHostname[]    = "BeckFireplace";
   static const char   szProjectType[] = "FIREPLACE";
   static const char   szAlexaName[]   = "Fireplace";
-  static int          sProjectType    = sFireplace;
+  static int          wProjectType    = sFireplace;
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
   static float        fSetpointF      = 74;
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
@@ -178,7 +126,7 @@ static int            _wGoodCount           = 0;
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
   static const char   acHostname[]    = "BeckGarage";
   static const char   szProjectType[] = "GARAGE";
-  static int          sProjectType    = sGarage;
+  static int          wProjectType    = sGarage;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
   static float        fSetpointF      = 37;
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
@@ -187,7 +135,7 @@ static int            _wGoodCount           = 0;
   char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
   static const char   acHostname[]    = "BeckGarageLocal";
   static const char   szProjectType[] = "GARAGE_LOCAL";
-  static int          sProjectType    = sGarageLocal;
+  static int          wProjectType    = sGarageLocal;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
   static float        fSetpointF      = 37;
   static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
@@ -196,14 +144,14 @@ static int            _wGoodCount           = 0;
   char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
   static const char acHostname[]       = "BeckHeater";
   static const char szProjectType[]    = "HEATER";
-  static int sProjectType              = sHeater;
+  static int wProjectType              = sHeater;
 #endif
 #ifdef DEV_LOCAL
   //static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char acBlynkAuthToken[]  = "9fc34bc2cbb34ddf8d392f7c562fb52e";   //Local server
   static const char acHostname[]        = "BeckDevLocal";
   static const char szProjectType[]     = "DEV_LOCAL";
-  static const int  sProjectType        = sDevLocal;
+  static const int  wProjectType        = sDevLocal;
 #endif
 #ifdef THERMO_DEV
   static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
@@ -211,7 +159,7 @@ static int            _wGoodCount           = 0;
   static const char   szProjectType[]     = "THERMO_DEV";
   static const char   szAlexaName[]       = "Larry's Device";
   //static const char   szAlexaName[]       = "Larry's Biota";
-  static const int    sProjectType        = sThermoDev;
+  static const int    wProjectType        = sThermoDev;
   static const float  fMaxHeatRangeF      = .10;   //Temp above setpoint before heat is turned off
   static float        fSetpointF          = 70;
   static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
@@ -219,18 +167,6 @@ static int            _wGoodCount           = 0;
   fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
 #endif
 #endif
-
-#if DO_BLYNK
-  //Set up Blynk Widgets
-  WidgetTerminal      oTerminal(Terminal_V7);
-  WidgetLCD           LCDWidget(1);
-  //LED for thermostat state has no actual switch but it will live as unused switch #0.
-  WidgetLED           oLED0(ThermoLED_V5);
-  WidgetLED           oLED1(LED_1V13);
-  WidgetLED           oLED2(LED_2V18);
-  WidgetLED           oLED3(LED_3V23);
-  WidgetLED           oLED4(LED_4V28);
-#endif  //DO_BLYNK
 
 //Create objects
 //From Adafruit demo ssd1306_128x64_i2c.ino
@@ -249,8 +185,10 @@ DallasTemperature   oSensors(&oOneWire);
 //void  CheckTaskTime (String szTask);
 //void  ClearTaskTime2(unsigned long* pulLastTaskMsec);
 //void  CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec= NULL);
-void  SetupBlynk    ();
 void  LogToSerial   (String szLogString);
+void  LogToSerial   (String szLogString, String szLogValue);
+void  LogToSerial   (String szLogString, int sLogValue);
+void  LogToSerial   (String szLogString, float fLogValue);
 
 
 void setup(){
@@ -258,14 +196,7 @@ void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
-#if DO_BLYNK
-  //Blynk.connectWiFi(szRouterName, szRouterPW);
-  Serial << LOG0 << "setup(): Call Blynk.begin(" << acBlynkAuthToken << ", "
-      << szRouterName << ", " << szRouterPW << endl;
-  Blynk.begin(acBlynkAuthToken, szRouterName, szRouterPW);
-#else
   SetupWiFi(szRouterName, szRouterPW);
-#endif  //DO_BLYNK
   SetupOTAServer(acHostname);
 #if DO_ACCESS_POINT
   SetupWiFiNameServer(szAccessPointSSID, szAccessPointPW);
@@ -299,22 +230,6 @@ void loop(){
   if (!_bOTA_Started){
     HandleSystem();
     CheckTaskTime("loop(): HandleSystem()");
-#if DO_BLYNK
-    //if(true || Blynk.connected()){
-    if( Blynk.connected() ){
-      Blynk.run();
-      CheckTaskTime("loop(): Blynk.run()");
-    } //if(Blynk.connected())
-    else{
-      if(_wBadCount++ < 1){
-        //Serial << LOG0 << "loop(): Blynk.connected() returned FALSE, call connect(1000)" << endl;
-        uint32_t  ulConnectStartMsec= millis();
-        bool  bConnected= Blynk.connect(1000);
-        Serial << LOG0 << "loop(): Blynk.connect() returned " << bConnected
-            << ", took " << (millis() - ulConnectStartMsec)/1000 << " sec"<< endl;
-      } //if(wBadCount++<1)
-    } //if(Blynk.connected())else
-#endif  //DO_BLYNK
   } //if(!_bOTA_Started)
   else{
     Serial << LOG0 << "loop(): Check for update timeout" << endl;
@@ -338,28 +253,11 @@ void SetupDisplay(){
 } //SetupDisplay
 
 
-void SetupBlynk(){
-#if DO_BLYNK
-  switch (sProjectType){
-    case sDevLocal:
-      Serial << LOG0 << "SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ", IPAddress(192,168,15,191))" << endl;
-      Blynk.config(acBlynkAuthToken, IPAddress(192,168,15,191));
-      break;
-    default:
-      Serial << LOG0 << "SetupBlynk(): Call Blynk.config(" << acBlynkAuthToken << ")" << endl;
-      Blynk.config(acBlynkAuthToken);
-      break;
-  } //switch
-#endif  //DO_BLYNK
-  return;
-} //SetupBlynk
-
-
 void SetupAlexa(){
 #if DO_ALEXA
   String szLogString= "SetupAlexa(): Begin";
-  LogToBoth(szLogString);
-  switch (sProjectType){
+  LogToSerial(szLogString);
+  switch (wProjectType){
     case sFireplace:
     case sThermoDev:
       //Only these projects use Alexa
@@ -394,21 +292,11 @@ void SetupAlexa(){
   } //if(bAlexaOn)
   else{
     szLogString = "SetupAlexa(): Alexa is not enabled for project ";
-    LogToBoth(szLogString, sProjectType);
+    LogToSerial(szLogString, wProjectType);
   } //if(bAlexaOn)else
 #endif  //DO_ALEXA
   return;
 } //SetupAlexa
-
-
-/*
-void HandleAlexa(){
-  if(bAlexaOn){
-    Alexa.handle();
-  } //if(bAlexaOn)
-  return;
-} //HandleAlexa
-*/
 
 
 void HandleAlexa(){
@@ -447,7 +335,7 @@ void SetupI2C(){
 
 void SetupSystem(){
   Serial << LOG0 << "SetupSystem(): Begin" << endl;
-  switch (sProjectType){
+  switch (wProjectType){
   case sThermoDev:
   case sDevLocal:
       sSystemHandlerSpacing = 10 * lMsecPerSec;
@@ -483,10 +371,10 @@ void HandleSystem(){
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
     if (wAlexaHandleCount < 1000){
       //Typically HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
-      LogToBoth("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
+      LogToSerial("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
     } //if (wAlexaHandleCount<1000)
     wAlexaHandleCount= 0;
-    switch (sProjectType){
+    switch (wProjectType){
       case sFrontLights:
         HandleFrontLights();
         break;
@@ -509,13 +397,9 @@ void HandleSystem(){
         break;
       default:
         String szLogString= "HandleSystem():Bad switch";
-        LogToBoth(szLogString, sProjectType);
+        LogToSerial(szLogString, wProjectType);
         break;
     } //switch
-#if false && DO_BLYNK
-    HandleBlynkLEDs();
-    CheckTaskTime("HandleSystem(): HandleBlynkLEDs()");
-#endif  //DO_BLYNK
   } //if(millis()>=ulNextHandlerMsec)
   return;
 } //HandleSystem
@@ -541,21 +425,21 @@ void UpdateDisplay(void){
 
 void HandleDevelopment(){
   String szLogString = "HandleDevelopment()";
-  LogToBoth(szLogString);
+  LogToSerial(szLogString);
   return;
 } //HandleDevelopment
 
 
 void HandleHeater(){
   String szLogString = "HandleHeater()";
-  LogToBoth(szLogString);
+  LogToSerial(szLogString);
   return;
 } //HandleHeater
 
 
 void HandleFrontLights(){
   String szLogString = "HandleFrontLights()";
-  LogToBoth(szLogString);
+  LogToSerial(szLogString);
   return;
 } //HandleFrontLights
 
@@ -596,7 +480,7 @@ void HandleThermostat(){
   } //if(bThermoOn)
   else{
     String szLogString= " bThermoOn is false";
-    LogToBoth(szLogString);
+    LogToSerial(szLogString);
   }
   return;
 } //HandleThermostat
@@ -605,7 +489,7 @@ void HandleThermostat(){
 void LogThermostatData(float fDegF){
   String szLogString= " " + String(bHeatOn) + String(sThermoTimesCount) + " " +
                 String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
-  LogToBoth(szLogString);
+  LogToSerial(szLogString);
   return;
 } //LogThermostatData
 
@@ -623,82 +507,9 @@ void DebugHandleBlynkLEDs(){
       szLogString += ", ";
     } //if(sSwitch!=sLastSwitch)
   } //for
-  LogToBoth(szLogString);
+  LogToSerial(szLogString);
   return;
 } //DebugHandleBlynkLEDs
-
-
-void HandleBlynkLEDs(){
-#if DO_BLYNK
-  String szLogString = "HandleBlynkLEDs()";
-  //DebugHandleBlynkLEDs();
-  //Only send data back to Blynk if state of LED has changed.
-  //static int asSwitchLastState[]= {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
-  bDebugLog= bDebug;  //If bDebug is OfF then we turn logging off for this routine, resetting at end.
-  for (int sSwitch= 0; sSwitch <= sNumSwitches; sSwitch++){
-    if (true || (asSwitchState[sSwitch] != asSwitchLastState[sSwitch])){
-      asSwitchLastState[sSwitch]= asSwitchState[sSwitch];
-      switch (sSwitch){
-        case 0:
-          if (asSwitchState[sSwitch]){
-            szLogString = "Switch ON LED";
-            oLED0.on();
-          } //if(asSwitchState[sSwitch])
-          else{
-            szLogString = "Switch OFF LED";
-            oLED0.off();
-          } //if(asSwitchState[sSwitch])else
-          break;
-        case 1:
-          if (asSwitchState[sSwitch]){
-            szLogString = "Switch ON LED";
-            oLED1.on();
-          } //if(asSwitchState[sSwitch])
-          else{
-            szLogString = "Switch ON LED";
-            oLED1.off();
-          } //if(asSwitchState[sSwitch])else
-          break;
-        case 2:
-          if (asSwitchState[sSwitch]){
-            szLogString = "Switch ON LED";
-            oLED2.on();
-          } //if(asSwitchState[sSwitch])
-          else{
-            szLogString = "Switch OFF LED";
-            oLED2.off();
-          } //if(asSwitchState[sSwitch])else
-          break;
-        case 3:
-          if (asSwitchState[sSwitch]){
-            szLogString = "Switch ON LED";
-            oLED3.on();
-          } //if(asSwitchState[sSwitch])
-          else{
-            szLogString = "Switch OFF LED";
-            oLED3.off();
-          } //if(asSwitchState[sSwitch])else
-          break;
-        case 4:
-          if (asSwitchState[sSwitch]){
-            szLogString = "Switch ON LED";
-            oLED4.on();
-          } //if(asSwitchState[sSwitch])
-          else{
-            szLogString = "Switch OFF LED";
-            oLED4.off();
-          } //if(asSwitchState[sSwitch])else
-          break;
-        default:
-          break;
-      } //switch
-      //LogToBoth(szLogString, sSwitch);
-    } //if(asSwitchState[sSwitch]!=asSwitchLastState[sSwitch])
-  } //for
-  bDebugLog= true;
-#endif  //DO_BLYNK
-  return;
-} //HandleBlynkLEDs
 
 
 void HandleHeatSwitch(){
@@ -736,14 +547,14 @@ float fRound(float fNum){
 void TurnHeatOn(bool bTurnOn){
   if (bTurnOn){
     String szLogString= "TurnHeatOn(): ON";
-    LogToBoth(szLogString);
+    LogToSerial(szLogString);
     bHeatOn= true;
     SetHeatSwitch(sSwitchClosed);
     sThermoTimesCount= 0;
   } //if(bTurnOn)
   else{
     String szLogString= "TurnHeatOn(): OFF";
-    LogToBoth(szLogString);
+    LogToSerial(szLogString);
     bHeatOn= false;
     SetHeatSwitch(sSwitchOpen);
     sThermoTimesCount= 0;
@@ -783,7 +594,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
   szLogString += sSwitchPin;
   szLogString += ",";
   szLogString += bPinSetting;
-  //LogToBoth(szLogString);
+  //LogToSerial(szLogString);
 
   //Some switch positions don't have pins, just Blynk LEDs.
   if (sSwitchPin >= 0){
@@ -828,52 +639,7 @@ void ScanForI2CDevices(void){
 } //ScanForDevices
 
 
-// You can send commands from Terminal to your hardware. Just use
-// the same Virtual Pin as your Terminal Widget
-void WriteTerminalLine(String szString){
-#if  true && DO_BLYNK
-  unsigned long   ulStartTime;
-  ClearTaskTime2(&ulStartTime);
-  if (bDebugLog){
-    szString += "\n";
-    //oTerminal.println(szString);
-    oTerminal.print(szString);
-    CheckTaskTime2("WriteTerminalLine(): oTerminal.print()", &ulStartTime);
-    //oTerminal.flush();          // Ensure everything is sent
-    //CheckTaskTime2("WriteTerminalLine(): oTerminal.flush()", &ulStartTime);
-    if( Blynk.connected() ){
-      oTerminal.flush();          // Ensure everything is sent
-      CheckTaskTime("WriteTerminalLine(): Blynk.flush()");
-    } //if(Blynk.connected())
-    else{
-      Serial << LOG0 << "WriteTerminalLine(): Blynk.connected() returned FALSE, call connect(1000)" << endl;
-      bool  bConnected= Blynk.connect(1000);
-      Serial << LOG0 << "WriteTerminalLine(): Blynk.connect() returned " << bConnected << endl;
-      if(bConnected){
-        oTerminal.flush();          // Ensure everything is sent
-        CheckTaskTime("WriteTerminalLine(): Blynk.flush()");
-      } //if(Blynk.connected())
-    } //if(Blynk.connected())else
-  } //if(bDebugLog)
-#endif  //DO_BLYNK
-  return;
-} //WriteTerminalLine
-
-
-void WriteTerminalString(String szString){
-#if DO_BLYNK
-  if (bDebugLog){
-    oTerminal.print(szString);
-    oTerminal.print(" ");       //Send training space
-    oTerminal.flush();          // Ensure everything is sent
-  } //if(bDebugLog)
-#endif  //DO_BLYNK
-  return;
-} //WriteTerminalString
-
-
-//LogToBoth() and BlynkLogLine()have multiple versions
-//depending on there being a 2nd variable and its type.
+//LogToSerial() has multiple versions depending on there being a 2nd variable and its type.
 void LogToSerial(String szLogString){
   String szTermString= szLogLineHeader();
   szTermString += szLogString;
@@ -882,403 +648,20 @@ void LogToSerial(String szLogString){
 } //LogToSerial:empty
 
 
-void LogToBoth(String szLogString){
-  unsigned long   ulLastStartTime;
-  ClearTaskTime2(&ulLastStartTime);
-  String szTermString= szLogLineHeader();
-  CheckTaskTime2("LogToBoth(): szLogLineHeader()", &ulLastStartTime);
-  szTermString += szLogString;
-  Serial << szTermString << endl;
-  WriteTerminalLine(szTermString);
-  CheckTaskTime2("LogToBoth(): WriteTerminalLine()", &ulLastStartTime);
-  return;
-} //LogToBoth:empty
-
-
-void LogToBoth(String szLogString, String szLogValue){
+void LogToSerial(String szLogString, String szLogValue){
   Serial << LOG0 << szLogString << " " << szLogValue << endl;
-  BlynkLogLine(szLogString, szLogValue);
   return;
-} //LogToBoth:String
+} //LogToSerial:String
 
 
-void LogToBoth(String szLogString, int sLogValue){
+void LogToSerial(String szLogString, int sLogValue){
   Serial << LOG0 << szLogString << " " << sLogValue << endl;
-  BlynkLogLine(szLogString, sLogValue);
   return;
-} //LogToBoth:int
+} //LogToSerial:int
 
 
-void LogToBoth(String szLogString, float fLogValue){
+void LogToSerial(String szLogString, float fLogValue){
   Serial << LOG0 << szLogString << " " << fLogValue << endl;
-  BlynkLogLine(szLogString, fLogValue);
   return;
-} //LogToBoth:float
-
-
-void BlynkLogLine(String szString, String szLogValue){
-  String szTermString= szLogLineHeader();
-  szTermString += szString;
-  szTermString +=  " ";
-  szTermString +=  szLogValue;
-  WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:String
-
-
-void BlynkLogLine(String szString, int sValue){
-  String szTermString= szLogLineHeader();
-  szTermString += szString;
-  szTermString +=  " ";
-  szTermString +=  sValue;
-  WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:int
-
-
-void BlynkLogLine(String szString, float fValue){
-  String szTermString= szLogLineHeader();
-  szTermString += szString;
-  szTermString +=  fValue;
-  WriteTerminalLine(szTermString);
-  return;
-} //BlynkLogLine:float
-
-
-/*
-void SendIntToBlynk(int sVirtualPin, int sValue){
-  String szString= " SendIntToBlynk: ";
-  BlynkLogLine(szString, sValue);
-  Blynk.virtualWrite(sVirtualPin, sValue);
-  return;
-} //SendIntToBlynk
-*/
-
-#if DO_BLYNK
-//BLYNK_READ() functions are called by the Blynk app on the phone (at a 1 second interval)
-//and returns the value or state of some variable.
-//BLYNK_WRITE() functions are called by the Blynk app on the phone
-//and pass a variable in the "param" object.
-BLYNK_READ(ReadF_V0){
-  Blynk.virtualWrite(ReadF_V0, fLastDegF);
-} //BLYNK_READ(ReadF_V0)
-
-
-BLYNK_READ(ReadF_V1){
-  Blynk.virtualWrite(ReadF_V1, fLastDegF);
-} //BLYNK_READ(ReadF_V1)
-
-
-BLYNK_WRITE(SetSetpointF_V2){
-  int sSetpointParam= param.asInt();
-  fSetpointF= sSetpointParam;
-  fThermoOffDegF= fSetpointF + fMaxHeatRangeF;
-  String szLogString= "BLYNK_WRITE(SetSetpointF_V2) ";
-  LogToBoth(szLogString, fSetpointF);
-
-  //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  Blynk.virtualWrite(GetSetpointF_V3, fSetpointF);
-} //BLYNK_WRITE(Switch_2V15)
-
-
-BLYNK_READ(GetSetpointF_V3){
-  float fReturnF= fSetpointF;
-  String szLogString= "GetSetpointF_V3 ";
-  LogToBoth(szLogString, fReturnF);
-
-  Blynk.virtualWrite(GetSetpointF_V3, fReturnF);
-} //BLYNK_READ(GetSetpointF_V3)
-
-
-BLYNK_WRITE(ThermoSwitch_V4){
-  //Turn thermostat on and off.
-  int sParam= param.asInt();
-  String szLogString= "ThermoSwitch_V4 ";
-  LogToBoth(szLogString, sParam);
-  //SetThermoState(sParam);
-  //HandleHeatSwitch();
-  TurnHeatOn((bool)sParam);
-
-  //Send set point back to Value box set with PUSH from GetSetpointF_V3.
-  Blynk.virtualWrite(GetSetpointF_V3, fSetpointF);
-  return;
-} //BLYNK_WRITE(ThermoSwitch_V4)
-
-//WidgetLED oLED0(ThermoLED_V5) is constructed earlier
-
-BLYNK_READ(AtoD_1V6){
-  static float fVolts= 1.0;
-  fVolts= fVolts + 0.001;
-  String szLogString= "Read AtoD_1V6 ";
-  LogToBoth(szLogString, fVolts);
-  Blynk.virtualWrite(AtoD_1V6, fVolts);
-} //BLYNK_READ(AtoD_1V6)
-
-
-//Handler callback function called when Button set as a Switch is pressed.
-//Light around button is lit when 1 is passed as parameter, unlit when 0 is passed.
-//Opto-isolated relay is inverse logic, pulling input pin low cn relay.
-//Relay #0 is connected to Blynk virtual pins 10, 11, 12
-//Relay #1 is connected to Blynk virtual pins 20, 21, 22
-BLYNK_WRITE(Switch_1V10){
-  //Virtual pin 10, 15, 20 and 25 control Switches 1, 2, 3 and 4.
-  int sSwitchNumber= 1;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-
-  String szLogString= "Set Switch_1V10 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(Switch_1V10)
-
-
-BLYNK_WRITE(TimerA_1V11){
-  int sSwitchNumber= 1;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set TimerA_1V11 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-    }
-  else{
-    sSwitchSetting= sSwitchOpen;
-    }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-  } //BLYNK_WRITE(TimerA_1V11)
-
-
-BLYNK_WRITE(TimerB_1V12){
-  int sSwitchNumber= 1;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set TimerB_1V12 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-    }
-  else{
-    sSwitchSetting= sSwitchOpen;
-    }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-  } //BLYNK_WRITE(TimerB_1V12)
-
-
-//WidgetLED oLED1(LED_1V13) is constructed earlier
-
-
-BLYNK_READ(AtoD_2V14){
-  static float fVolts= 2.0;
-  fVolts= fVolts + 0.001;
-  String szLogString= "Read AtoD_2V14 ";
-  LogToBoth(szLogString, fVolts);
-  Blynk.virtualWrite(AtoD_2V14, fVolts);
-} //BLYNK_READ(AtoD_2V14)
-
-
-BLYNK_WRITE(Switch_2V15){
-  int sSwitchNumber= 2;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set Switch2V15 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(Switch_2V15)
-
-
-BLYNK_WRITE(TimerA_2V16){
-  int sSwitchNumber= 2;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set TimerA_2V16 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(TimerA_2V16)
-
-
-BLYNK_WRITE(TimerB_2V17){
-  int sSwitchNumber= 2;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set TimerB_2V17 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(TimerB_2V17)
-
-
-//WidgetLED oLED1(LED_2V18) is constructed earlier
-
-
-BLYNK_READ(AtoD_3V19){
-  static float fVolts= 3.0;
-  fVolts= fVolts + 0.001;
-  String szLogString= "Read AtoD_3V19 ";
-  LogToBoth(szLogString, fVolts);
-  Blynk.virtualWrite(AtoD_3V19, fVolts);
-} //BLYNK_READ(AtoD_3V19)
-
-
-BLYNK_WRITE(Switch_3V20){
-  int sSwitchNumber= 3;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set Switch_3V20 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(Switch_3V20)
-
-
-BLYNK_WRITE(TimerA_3V21){
-  int sSwitchNumber= 3;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set TimerA_3V21 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(TimerA_3V21)
-
-
-BLYNK_WRITE(TimerB_3V22){
-  int sSwitchNumber= 3;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set TimerB_3V22 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(TimerB_3V22)
-
-
-//WidgetLED oLED1(LED_3V23) is constructed earlier
-
-
-BLYNK_READ(AtoD_4V24){
-  static float fVolts= 4.0;
-  fVolts= fVolts + 0.001;
-  String szLogString= "Read AtoD_4V24 ";
-  LogToBoth(szLogString, fVolts);
-  Blynk.virtualWrite(AtoD_4V24, fVolts);
-} //BLYNK_READ(AtoD_4V24)
-
-
-BLYNK_WRITE(Switch_4V25){
-  int sSwitchNumber= 4;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set Switch_4V25 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(Switch_4V25)
-
-
-BLYNK_WRITE(TimerA_4V26){
-  int sSwitchNumber= 4;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set TimerA_4V26 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(TimerA_4V26)
-
-
-BLYNK_WRITE(TimerB_4V27){
-  int sSwitchNumber= 4;
-  int sSwitchSetting;
-  int sSetting= param.asInt();
-  String szLogString= "Set TimerB_4V27 ";
-  szLogString += sSetting;
-  LogToBoth(szLogString);
-
-  if (sSetting == 1){
-    sSwitchSetting= sSwitchClosed;
-  }
-  else{
-    sSwitchSetting= sSwitchOpen;
-  }
-  SetSwitch(sSwitchNumber, sSwitchSetting);
-  return;
-} //BLYNK_WRITE(TimerB_4V27)
-
-//WidgetLED oLED1(LED_4V28) is constructed earlier
-#endif  //DO_BLYNK
+} //LogToSerial:float
 //Last line.
