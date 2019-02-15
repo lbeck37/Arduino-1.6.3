@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/15/19r";
+const char szFileDate[]    = "Lenny 2/15/19t";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -116,8 +116,8 @@ static int            _wGoodCount           = 0;
   static const char   szAlexaName[]   = "Fireplace";
   static int          wProjectType    = sFireplace;
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF      = 74;
-  static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
+  static float        _fSetpointF      = 74;
+  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
 #if DO_ALEXA
   fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
 #endif
@@ -128,8 +128,8 @@ static int            _wGoodCount           = 0;
   static const char   szProjectType[] = "GARAGE";
   static int          wProjectType    = sGarage;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF      = 37;
-  static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
+  static float        _fSetpointF      = 37;
+  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef GARAGE_LOCAL
   char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
@@ -137,8 +137,8 @@ static int            _wGoodCount           = 0;
   static const char   szProjectType[] = "GARAGE_LOCAL";
   static int          wProjectType    = sGarageLocal;
   static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF      = 37;
-  static float        fThermoOffDegF  = fSetpointF + fMaxHeatRangeF;
+  static float        _fSetpointF      = 37;
+  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef HEATER
   char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
@@ -160,9 +160,9 @@ static int            _wGoodCount           = 0;
   static const char   szAlexaName[]       = "Larry's Device";
   //static const char   szAlexaName[]       = "Larry's Biota";
   static const int    wProjectType        = sThermoDev;
-  static const float  fMaxHeatRangeF      = .10;   //Temp above setpoint before heat is turned off
-  static float        fSetpointF          = 70;
-  static float        fThermoOffDegF      = fSetpointF + fMaxHeatRangeF;
+  static const float  fMaxHeatRangeF      = 0.10;   //Temp above setpoint before heat is turned off
+  static float        _fSetpointF         = 70.0;
+  static float        _fThermoOffDegF     = _fSetpointF + fMaxHeatRangeF;
 #if DO_ALEXA
   fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
 #endif
@@ -182,13 +182,12 @@ OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
 //Function prototypes
-//void  CheckTaskTime (String szTask);
-//void  ClearTaskTime2(unsigned long* pulLastTaskMsec);
-//void  CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec= NULL);
-void  LogToSerial   (String szLogString);
-void  LogToSerial   (String szLogString, String szLogValue);
-void  LogToSerial   (String szLogString, int sLogValue);
-void  LogToSerial   (String szLogString, float fLogValue);
+float   fSetThermoSetpoint    (int wSetpoint);
+float   fSetThermoSetpoint    (float fSetpoint);
+void    LogToSerial           (String szLogString);
+void    LogToSerial           (String szLogString, String szLogValue);
+void    LogToSerial           (String szLogString, int sLogValue);
+void    LogToSerial           (String szLogString, float fLogValue);
 
 
 void setup(){
@@ -315,14 +314,28 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
       ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
   String szLogString= szCharString;
   LogToSerial(szLogString);
-/*
-  LogToBoth(szLogString);
-  Serial << LOG0 << "DoAlexaCommand(): Back from LogToBoth()" << endl;
-*/
   SetAlexaSwitch(bState);
+  fSetThermoSetpoint((int)ucValue);
   return;
 } //DoAlexaCommand
 #endif  //DO_ALEXA
+
+
+float fSetThermoSetpoint(int wSetpoint){
+  float fSetpoint= round( ((float)wSetpoint / 255.0) * 100.0);
+  fSetThermoSetpoint(fSetpoint);
+  return fSetpoint;
+} //fSetThermoSetpoint
+
+
+float fSetThermoSetpoint(float fSetpoint){
+  if(fSetpoint != _fSetpointF){
+    _fSetpointF      = fSetpoint;
+    _fThermoOffDegF   = _fSetpointF + fMaxHeatRangeF;
+    Serial << LOG0 << "fSetThermoSetpoint(): Set _fSetpointF to " << _fSetpointF << endl;
+  } //if(fSetpoint!=_fSetpointF)
+  return _fSetpointF;
+} //fSetThermoSetpoint
 
 
 void SetupI2C(){
@@ -413,10 +426,10 @@ void UpdateDisplay(void){
   String szDisplayLine= "Now " + String(fLastDegF);
   oDisplay.println(szDisplayLine);
 
-  szDisplayLine= "Set " + String(fSetpointF);
+  szDisplayLine= "Set " + String(_fSetpointF);
   oDisplay.println(szDisplayLine);
 
-  szDisplayLine= "Off " + String(fThermoOffDegF);
+  szDisplayLine= "Off " + String(_fThermoOffDegF);
   oDisplay.println(szDisplayLine);
   oDisplay.display();
   //delay(10);
@@ -452,28 +465,28 @@ void HandleThermostat(){
     float fDegF= fGetDegF(true);
     CheckTaskTime2("HandleThermostat(): fGetDegF", &ulStartTime);
     if (bHeatOn){
-      if (fDegF >= fThermoOffDegF){
+      if (fDegF >= _fThermoOffDegF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnHeatOn(false);
           CheckTaskTime2("HandleThermostat(): TurnHeatOn(false)", &ulStartTime);
           sThermoTimesCount= 0;
         } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fDegF>=fThermoOffDegF)
+      } //if(fDegF>=_fThermoOffDegF)
       else{
         sThermoTimesCount= 0;
-      } //if(fDegF>=fThermoOffDegF)else
+      } //if(fDegF>=_fThermoOffDegF)else
     } //if(bHeatOn)
     else{
-      if (fDegF <= fSetpointF){
+      if (fDegF <= _fSetpointF){
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnHeatOn(true);
           CheckTaskTime2("HandleThermostat(): TurnHeatOn(true)", &ulStartTime);
           sThermoTimesCount= 0;
         } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fDegF<fSetpointF)
+      } //if(fDegF<_fSetpointF)
       else{
         sThermoTimesCount= 0;
-      } //if(fDegF<fSetpointF)else
+      } //if(fDegF<_fSetpointF)else
     } //if(bHeatOn)else
     LogThermostatData(fDegF);
     CheckTaskTime2("HandleThermostat(): LogThermostatData()", &ulStartTime);
@@ -488,7 +501,7 @@ void HandleThermostat(){
 
 void LogThermostatData(float fDegF){
   String szLogString= " " + String(bHeatOn) + String(sThermoTimesCount) + " " +
-                String(fDegF) + " " + String(fSetpointF) + " " + String(fThermoOffDegF);
+                String(fDegF) + " " + String(_fSetpointF) + " " + String(_fThermoOffDegF);
   LogToSerial(szLogString);
   return;
 } //LogThermostatData
