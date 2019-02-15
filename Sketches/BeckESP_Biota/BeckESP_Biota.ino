@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/14/19e";
+const char szFileDate[]    = "Lenny 2/14/19ab";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -146,7 +146,8 @@ static bool           bAlexaOn              = false;  //Only projects that use A
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool           bDebugLog             = true;   //Used to limit number of printouts.
 static int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
-//static unsigned long  ulLastTaskMsec        = 0;      //For checking time handling tasks
+static int            _wBadCount            = 0;
+static int            _wGoodCount           = 0;
 
 #if DO_DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -258,7 +259,10 @@ void setup(){
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
 #if DO_BLYNK
-  Blynk.connectWiFi(szRouterName, szRouterPW);
+  //Blynk.connectWiFi(szRouterName, szRouterPW);
+  Serial << LOG0 << "setup(): Call Blynk.begin(" << acBlynkAuthToken << ", "
+      << szRouterName << ", " << szRouterPW << endl;
+  Blynk.begin(acBlynkAuthToken, szRouterName, szRouterPW);
 #else
   SetupWiFi(szRouterName, szRouterPW);
 #endif  //DO_BLYNK
@@ -266,7 +270,7 @@ void setup(){
 #if DO_ACCESS_POINT
   SetupWiFiNameServer(szAccessPointSSID, szAccessPointPW);
 #endif  //DO_ACCESS_POINT
-  SetupBlynk();
+  //SetupBlynk();
   SetupI2C();
 #if DO_NTP
   SetupNTP();
@@ -282,6 +286,7 @@ void setup(){
 
 
 void loop(){
+  ulLastTaskMsec= millis();
   HandleOTAServer();
   CheckTaskTime("loop(): HandleOTAServer()");
   HandleNTPUpdate();
@@ -295,12 +300,19 @@ void loop(){
     HandleSystem();
     CheckTaskTime("loop(): HandleSystem()");
 #if DO_BLYNK
-    if(true || Blynk.connected()){
+    //if(true || Blynk.connected()){
+    if( Blynk.connected() ){
       Blynk.run();
       CheckTaskTime("loop(): Blynk.run()");
+      if(_wGoodCount++ < 1){
+        //Serial << LOG0 << "loop(): Blynk.run() was called" << endl;
+      } //if(_wGoodCount++<1)
     } //if(Blynk.connected())
     else{
-      Serial << LOG0 << "loop(): Blynk.connected() returned FALSE" << endl;
+      if(_wBadCount++ < 1){
+        Serial << LOG0 << "loop(): Blynk.connected() returned FALSE, call connect()" << endl;
+        Blynk.connect();
+      } //if(wBadCount++<1)
     } //if(Blynk.connected())else
 #endif  //DO_BLYNK
   } //if(!_bOTA_Started)
@@ -313,49 +325,6 @@ void loop(){
   } //if(!_bOTA_Started)else
   return;
 } //loop
-
-
-/*
-void CheckTaskTime(String szTask){
-  unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
-  unsigned long    ulNowMsec= millis();
-  unsigned long    ulTaskMsec= ulNowMsec - ulLastTaskMsec;
-  if (ulTaskMsec >  ulMaxTaskMsec){
-    float fTaskSeconds= (float)ulTaskMsec / 1000.0;
-    Serial << LOG0 << "CheckTaskTime(): The " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
-  } //
-  ulLastTaskMsec= millis();
-  return;
-} //CheckTaskTime
-
-
-void ClearTaskTime2(unsigned long* pulLastTaskMsec){
-  if (pulLastTaskMsec){
-    *pulLastTaskMsec= millis();
-  }
-  else{
-    Serial << LOG0 << "ClearTaskTime2(): ERROR: Passed in NULL pointer" << endl;
-  }
-  return;
-} //ClearTaskTime2
-
-
-void CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec){
-  unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
-  unsigned long    ulNowMsec= millis();
-  if (pulLastTaskMsec == NULL){
-    pulLastTaskMsec= &ulLastTaskMsec;
-  } //if (plLastTaskMsec==NULL)
-  unsigned long    ulTaskMsec= ulNowMsec - *pulLastTaskMsec;
-
-  if (ulTaskMsec >  ulMaxTaskMsec){
-    float fTaskSeconds= (float)ulTaskMsec / 1000.0;
-    Serial << LOG0 << "CheckTaskTime2(): The " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
-  } //
-  *pulLastTaskMsec= millis();
-  return;
-} //CheckTaskTime2
-*/
 
 
 void SetupDisplay(){
@@ -509,6 +478,8 @@ void HandleSystem(){
   CheckTaskTime("HandleAlexa");
 #endif
   if (millis() >= ulNextHandlerMsec){
+    _wGoodCount= 0;
+    _wBadCount= 0;
     ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
     if (wAlexaHandleCount < 1000){
       //Typically HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
@@ -860,7 +831,7 @@ void ScanForI2CDevices(void){
 // You can send commands from Terminal to your hardware. Just use
 // the same Virtual Pin as your Terminal Widget
 void WriteTerminalLine(String szString){
-#if false && DO_BLYNK
+#if  true && DO_BLYNK
   unsigned long   ulStartTime;
   ClearTaskTime2(&ulStartTime);
   if (bDebugLog){

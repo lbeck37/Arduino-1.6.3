@@ -18,6 +18,7 @@
   #define BLYNK_DEBUG_ALL
 #endif
 
+#include <BeckMiniLib.h>
 #include <string.h>
 #include <stdlib.h>
 #include <Blynk/BlynkDebug.h>
@@ -49,7 +50,12 @@ public:
         , state(CONNECTING)
     {}
 
-    bool connected() const { return state == CONNECTED; }
+    bool connected() const {
+      if(false && (state == CONNECTED)){
+        Serial << LOG0 << "BlynkProtocol: connected(): state must be " << state << endl;
+      }
+      return state == CONNECTED;
+    }
 
     bool isTokenInvalid() const { return state == TOKEN_INVALID; }
 
