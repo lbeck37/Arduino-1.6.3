@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/14/19ab";
+const char szFileDate[]    = "Lenny 2/15/19k";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -304,14 +304,14 @@ void loop(){
     if( Blynk.connected() ){
       Blynk.run();
       CheckTaskTime("loop(): Blynk.run()");
-      if(_wGoodCount++ < 1){
-        //Serial << LOG0 << "loop(): Blynk.run() was called" << endl;
-      } //if(_wGoodCount++<1)
     } //if(Blynk.connected())
     else{
       if(_wBadCount++ < 1){
-        Serial << LOG0 << "loop(): Blynk.connected() returned FALSE, call connect()" << endl;
-        Blynk.connect();
+        //Serial << LOG0 << "loop(): Blynk.connected() returned FALSE, call connect(1000)" << endl;
+        uint32_t  ulConnectStartMsec= millis();
+        bool  bConnected= Blynk.connect(1000);
+        Serial << LOG0 << "loop(): Blynk.connect() returned " << bConnected
+            << ", took " << (millis() - ulConnectStartMsec)/1000 << " sec"<< endl;
       } //if(wBadCount++<1)
     } //if(Blynk.connected())else
 #endif  //DO_BLYNK
@@ -839,8 +839,21 @@ void WriteTerminalLine(String szString){
     //oTerminal.println(szString);
     oTerminal.print(szString);
     CheckTaskTime2("WriteTerminalLine(): oTerminal.print()", &ulStartTime);
-    oTerminal.flush();          // Ensure everything is sent
-    CheckTaskTime2("WriteTerminalLine(): oTerminal.flush()", &ulStartTime);
+    //oTerminal.flush();          // Ensure everything is sent
+    //CheckTaskTime2("WriteTerminalLine(): oTerminal.flush()", &ulStartTime);
+    if( Blynk.connected() ){
+      oTerminal.flush();          // Ensure everything is sent
+      CheckTaskTime("WriteTerminalLine(): Blynk.flush()");
+    } //if(Blynk.connected())
+    else{
+      Serial << LOG0 << "WriteTerminalLine(): Blynk.connected() returned FALSE, call connect(1000)" << endl;
+      bool  bConnected= Blynk.connect(1000);
+      Serial << LOG0 << "WriteTerminalLine(): Blynk.connect() returned " << bConnected << endl;
+      if(bConnected){
+        oTerminal.flush();          // Ensure everything is sent
+        CheckTaskTime("WriteTerminalLine(): Blynk.flush()");
+      } //if(Blynk.connected())
+    } //if(Blynk.connected())else
   } //if(bDebugLog)
 #endif  //DO_BLYNK
   return;
@@ -861,13 +874,6 @@ void WriteTerminalString(String szString){
 
 //LogToBoth() and BlynkLogLine()have multiple versions
 //depending on there being a 2nd variable and its type.
-/*
-void LogToBoth(String szLogString){
-  Serial << LOG0 << szLogString << endl;
-  BlynkLogLine(szLogString);
-  return;
-} //LogToBoth:empty
-*/
 void LogToSerial(String szLogString){
   String szTermString= szLogLineHeader();
   szTermString += szLogString;

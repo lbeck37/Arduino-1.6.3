@@ -40,7 +40,7 @@ void CheckTaskTime(String szTask){
   unsigned long    ulTaskMsec= ulNowMsec - ulLastTaskMsec;
   if (ulTaskMsec >  ulMaxTaskMsec){
     float fTaskSeconds= (float)ulTaskMsec / 1000.0;
-    Serial << LOG0 << "CheckTaskTime(): The " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
+    Serial << LOG0 << "CheckTaskTime(): " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
   } //
   ulLastTaskMsec= millis();
   return;
@@ -68,7 +68,7 @@ void CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec){
 
   if (ulTaskMsec >  ulMaxTaskMsec){
     float fTaskSeconds= (float)ulTaskMsec / 1000.0;
-    Serial << LOG0 << "CheckTaskTime2(): The " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
+    Serial << LOG0 << "CheckTaskTime2(): " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
   } //
   *pulLastTaskMsec= millis();
   return;

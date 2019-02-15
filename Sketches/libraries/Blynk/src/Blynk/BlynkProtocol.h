@@ -52,24 +52,32 @@ public:
 
     bool connected() const {
       if(false && (state == CONNECTED)){
-        Serial << LOG0 << "BlynkProtocol: connected(): state must be " << state << endl;
+        Serial << LOG0 << "BlynkProtocol: connected(): state= " << state << endl;
       }
       return state == CONNECTED;
-    }
+    } //connected
+
 
     bool isTokenInvalid() const { return state == TOKEN_INVALID; }
 
     bool connect(uint32_t timeout = BLYNK_TIMEOUT_MS*3) {
-        conn.disconnect();
-        state = CONNECTING;
-        millis_time_t started = BlynkMillis();
-        while ((state != CONNECTED) &&
-               (BlynkMillis() - started < timeout))
-        {
-            run();
-        }
-        return state == CONNECTED;
-    }
+      Serial << LOG0 << "BlynkProtocol: connect(): Timeout (sec)= " << timeout/1000 << endl;
+      conn.disconnect();
+      state = CONNECTING;
+      millis_time_t started = BlynkMillis();
+      while((state != CONNECTED) && (BlynkMillis() - started < timeout))
+      {
+        //run();
+        uint32_t  ulRunStartMsec= millis();
+        bool  bOk= run();
+        if(!bOk){
+          Serial << LOG0 << "BlynkProtocol: connect()(): Blynk.run() returned " << bOk
+              << ", took " << (millis() - ulRunStartMsec)/1000 << " sec"<< endl;
+        } //if(!bOk)
+      } //while
+      return state == CONNECTED;
+    } //connect
+
 
     void disconnect() {
         conn.disconnect();
@@ -234,7 +242,7 @@ bool BlynkProtocol<Transp>::run(bool avail)
 #endif
     }
     return true;
-} //BlynkProtocol<Transp>
+} //BlynkProtocol<Transp>::run
 
 template <class Transp>
 BLYNK_FORCE_INLINE
