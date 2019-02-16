@@ -778,7 +778,8 @@ void ComputePitchAndRoll() {
 
   //Correct for current readings being 180 degrees off
   if (dRollDeg < 0.0) {
-    dRollDeg= dRollDeg= -180.0 - dRollDeg;
+    //dRollDeg= dRollDeg= -180.0 - dRollDeg;
+    dRollDeg= -180.0 - dRollDeg;
   } //if(dRollDeg_<0.0)
   else {
     dRollDeg= dRollDeg= 180.0 - dRollDeg;

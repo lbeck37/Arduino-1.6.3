@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/15/19t";
+const char szFileDate[]    = "Lenny 2/15/19ab";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -20,6 +20,7 @@ const char szFileDate[]    = "Lenny 2/15/19t";
 
 #include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>
+#include <BeckMPU6050_IMU.h>
 #ifdef ESP8266
   #include <BeckESP_OTAWebServerLib.h>
 #else
@@ -96,6 +97,8 @@ static bool           bDebugLog             = true;   //Used to limit number of 
 static int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 static int            _wBadCount            = 0;
 static int            _wGoodCount           = 0;
+static float          _fMinSetpoint         = 32.0;
+static float          _fMaxSetpoint         = 75.0;
 
 #if DO_DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -202,6 +205,7 @@ void setup(){
 #endif  //DO_ACCESS_POINT
   //SetupBlynk();
   SetupI2C();
+  SetupIMU();
 #if DO_NTP
   SetupNTP();
 #endif
@@ -325,17 +329,23 @@ float fSetThermoSetpoint(int wSetpoint){
   float fSetpoint= round( ((float)wSetpoint / 255.0) * 100.0);
   fSetThermoSetpoint(fSetpoint);
   return fSetpoint;
-} //fSetThermoSetpoint
+} //fSetThermoSetpoint(int)
 
 
 float fSetThermoSetpoint(float fSetpoint){
-  if(fSetpoint != _fSetpointF){
-    _fSetpointF      = fSetpoint;
-    _fThermoOffDegF   = _fSetpointF + fMaxHeatRangeF;
-    Serial << LOG0 << "fSetThermoSetpoint(): Set _fSetpointF to " << _fSetpointF << endl;
-  } //if(fSetpoint!=_fSetpointF)
+  float fLastSetpoint= _fSetpointF;
+  if( (fSetpoint >= _fMinSetpoint) && (fSetpoint <= _fMaxSetpoint)){
+    if(fSetpoint != _fSetpointF){
+      _fSetpointF      = fSetpoint;
+      _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
+      Serial << LOG0 << "fSetThermoSetpoint(): Set _fSetpointF to " << _fSetpointF << endl;
+    } //if(fSetpoint!=_fSetpointF)
+  } //if((fSetpoint>=...
+  if(_fSetpointF == fLastSetpoint){
+    Serial << LOG0 << "fSetThermoSetpoint(): _fSetpointF remains at " << _fSetpointF << endl;
+  } //if((_fSetpointF==fLastSetpoint)
   return _fSetpointF;
-} //fSetThermoSetpoint
+} //fSetThermoSetpoint(float)
 
 
 void SetupI2C(){
@@ -399,8 +409,9 @@ void HandleSystem(){
         CheckTaskTime("HandleSystem(): HandleThermostat()");
         HandleHeatSwitch();
         CheckTaskTime("HandleSystem(): HandleHeatSwitch()");
+        HandleIMU();
         UpdateDisplay();
-        CheckTaskTime("HandleSystem(): UpdateDisplay()");
+        CheckTaskTime("HandleSystem(): HandleIMU()");
         break;
       case sHeater:
         HandleHeater();
