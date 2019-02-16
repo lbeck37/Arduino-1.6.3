@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/16/19c";
+const char szFileDate[]    = "Lenny 2/15/19ag";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -18,10 +18,8 @@ const char szFileDate[]    = "Lenny 2/16/19c";
 #define DO_ACCESS_POINT     true
 #define DO_DEBUG            false
 
-//#include <BeckMiniLib.h>
-#include <BeckBiotaLib.h>
+#include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>
-#include <BeckAlexaLib.h>
 #include <BeckMPU6050_IMU.h>
 #ifdef ESP8266
   #include <BeckESP_OTAWebServerLib.h>
@@ -34,11 +32,9 @@ const char szFileDate[]    = "Lenny 2/16/19c";
 #if DO_NTP
   #include <BeckNTPLib.h>
 #endif
-/*
 #if DO_ALEXA
   #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
 #endif
-*/
 #include <WiFiClient.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -70,7 +66,6 @@ static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at 
 static const int    asSwitchPin[]         = {-1, sHeatSwitchGPIO, sAlexaPin, sNoSwitch, sNoSwitch};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
 //(3) types of sketches are supported: front lights, fireplace and garage
-/*
 static const int    sFrontLights          = 1;
 static const int    sFireplace            = 2;
 static const int    sGarage               = 3;
@@ -78,7 +73,6 @@ static const int    sGarageLocal          = 4;
 static const int    sHeater               = 5;
 static const int    sDevLocal             = 6;
 static const int    sThermoDev            = 7;
-*/
 
 static const long     sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
@@ -100,7 +94,7 @@ static bool           bHeatOn               = false;  //If switch is on to turn 
 static bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool           bDebugLog             = true;   //Used to limit number of printouts.
-//static int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
+static int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 static int            _wBadCount            = 0;
 static int            _wGoodCount           = 0;
 static float          _fMinSetpoint         = 32.0;
@@ -127,11 +121,9 @@ static float          _fMaxSetpoint         = 75.0;
   static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
   static float        _fSetpointF      = 74;
   static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
-/*
 #if DO_ALEXA
   fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
 #endif
-*/
 #endif
 #ifdef GARAGE
   char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
@@ -169,10 +161,14 @@ static float          _fMaxSetpoint         = 75.0;
   static const char   acHostname[]        = "BeckThermoDev";
   static const char   szProjectType[]     = "THERMO_DEV";
   static const char   szAlexaName[]       = "Larry's Device";
+  //static const char   szAlexaName[]       = "Larry's Biota";
   static const int    wProjectType        = sThermoDev;
   static const float  fMaxHeatRangeF      = 0.10;   //Temp above setpoint before heat is turned off
   static float        _fSetpointF         = 70.0;
   static float        _fThermoOffDegF     = _fSetpointF + fMaxHeatRangeF;
+#if DO_ALEXA
+  fauxmoESP           Alexa;                    //Alexa emulation of Phillips Hue Bulb
+#endif
 #endif
 
 //Create objects
@@ -260,7 +256,6 @@ void SetupDisplay(){
 } //SetupDisplay
 
 
-/*
 void SetupAlexa(){
 #if DO_ALEXA
   String szLogString= "SetupAlexa(): Begin";
@@ -328,7 +323,6 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
   return;
 } //DoAlexaCommand
 #endif  //DO_ALEXA
-*/
 
 
 float fSetThermoSetpoint(int wSetpoint){
