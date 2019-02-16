@@ -1,7 +1,9 @@
-//BeckMPU6050_IMU.cpp 2/15/19
+//BeckMPU6050_IMU.cpp 2/15/19b
 #include <BeckMPU6050_IMU.h>
 #include <BeckMPU6050_Data.h>
 #include <BeckMiniLib.h>
+#include <Wire.h>
+#include <Streaming.h>
 
 const int       _sXAxis             = 0;
 const int       _sYAxis             = 1;
@@ -32,8 +34,6 @@ double  dGetPitchPercent      (double dPitchDeg);
 
 void SetupIMU() {
    Serial << LOG0 << "SetupIMU(): Begin"<< endl;
-   //BLog("SetupIMU(): Begin");
-   //Wire.begin(sI2C_SDA, sI2C_SCL);
    Wire.beginTransmission(wMPU6050);
    Serial << LOG0 << "SetupIMU(): Call MPU6050_PrintName()"<< endl;
    MPU6050_PrintName();
@@ -54,6 +54,8 @@ void SetupIMU() {
 
 void HandleIMU() {
   MPU6050_ReadGs(_adGvalueXYZ, _dGConvert);
+  //Biota Box Y axis is backwards
+  _adGvalueXYZ[_sYAxis]= -_adGvalueXYZ[_sYAxis];
   Serial << LOG0 << "HandleIMU(): G's X, Y, Z " << _adGvalueXYZ[_sXAxis] << ", " << _adGvalueXYZ[_sYAxis] << ", " << _adGvalueXYZ[_sZAxis] << endl;
 
   ComputePitchAndRoll();
@@ -72,8 +74,10 @@ void ComputePitchAndRoll() {
   _dPitchDeg= atan2(-_adGvalueXYZ[_sYAxis],
                    sqrt(_adGvalueXYZ[_sXAxis] * _adGvalueXYZ[_sXAxis] +
                         _adGvalueXYZ[_sZAxis] * _adGvalueXYZ[_sZAxis])) * _dRadsToDeg;
-  _dPitchPercent= dGetPitchPercent(_dPitchDeg);
+  //Correct for Biota Box
+  //_dPitchDeg= _dPitchDeg - 90.0;
 
+  _dPitchPercent= dGetPitchPercent(_dPitchDeg);
   //Correct for current readings being 180 degrees off
   if (_dRollDeg < 0.0) {
     _dRollDeg= -180.0 - _dRollDeg;
@@ -100,26 +104,17 @@ double dGetPitchPercent(double dPitchDeg) {
 
 void MPU6050_PrintName(){
   int wError;
-  uint8_t c;
+  uint8_t ucResult;
 
-  wError = MPU6050_read (MPU6050_WHO_AM_I, &c, 1);
-  Serial.print(F("WHO_AM_I : "));
-  Serial.print(c,HEX);
-  Serial.print(F(", wError = "));
-  Serial.println(wError,DEC);
+  wError = MPU6050_read(MPU6050_WHO_AM_I, &ucResult, 1);
+  Serial << LOG0 << "MPU6050_PrintName(): WHO_AM_I : " << ucResult << ", wError = " << wError << endl;
 
   // According to the datasheet, the 'sleep' bit
   // should read a '1'.
   // That bit has to be cleared, since the sensor
   // is in sleep mode at power-up.
-  wError = MPU6050_read (MPU6050_PWR_MGMT_1, &c, 1);
-  Serial.print(F("PWR_MGMT_1 : "));
-  Serial.print(c,HEX);
-  Serial.print(F(", wError = "));
-  Serial.println(wError,DEC);
-
-  // Clear the 'sleep' bit to start the sensor.
-  //MPU6050_write_reg (MPU6050_PWR_MGMT_1, 0);
+  wError = MPU6050_read (MPU6050_PWR_MGMT_1, &ucResult, 1);
+  Serial << LOG0 << "MPU6050_PrintName(): PWR_MGMT_1 : " << ucResult << ", wError = " << wError << endl;
 	return;
 }	//MPU6050_PrintName
 

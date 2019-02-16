@@ -1,5 +1,4 @@
 // BeckMPU6050_Data.h 2/15/19
-
 void    MPU6050_ReadGs        (double adG_XYZ[], double dGConvert);
 void    MPU6050_ReadTest      (void);
 int     MPU6050_read          (int start, uint8_t *buffer, int size);
