@@ -1,7 +1,8 @@
 //BeckESP_OTAWebServerLib.cpp, Beck 2/3b/19
-#include <BeckMiniLib.h>
 #include <BeckESP_OTAWebServerLib.h>
 #include "BeckESP_OTAWebServerPages.h"
+#include <BeckLogLib.h>
+#include <BeckMiniLib.h>
 #include <ArduinoOTA.h>
 #include <WiFiClient.h>
 #ifdef ESP8266

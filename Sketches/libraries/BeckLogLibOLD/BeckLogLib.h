@@ -4,15 +4,19 @@
 #include <Streaming.h>
 #include <Time.h>
 
-//#define LOG0        szLogLineHeader(++lLineCount)
-#define LOG0        szLogLineHeader()
+#define LOG0        szLogLineHeader(++lLineCount)
+#define BLog        LogToSerial
 
-void LogToSerial(String szLogString);
-void LogToSerial(String szLogString, String szLogValue);
-void LogToSerial(String szLogString, int sLogValue);
-void LogToSerial(String szLogString, float fLogValue);
+#define INT8        int8_t
+#define UINT8       uint8_t
+#define INT16       int16_t
+#define UINT16      uint16_t
+#define INT32       int32_t
+#define UINT32      uint32_t
+#define INT64       int64_t
+#define UINT64      uint64_t
+#define LOG0        szLogLineHeader(++lLineCount)
 
-/*
 //Global variables
 extern long         lLineCount;       //Serial Monitor uses for clarity.
 extern String       szLogLine;
@@ -39,5 +43,4 @@ void LogToSerial  (String szLogString, UINT16 usLogValue);
 void LogToSerial  (String szLogString, UINT32 uwLogValue);
 void LogToSerial  (String szLogString, float fLogValue);
 void LogToSerial  (String szLogString, double dLogValue);
-*/
 //Last line.

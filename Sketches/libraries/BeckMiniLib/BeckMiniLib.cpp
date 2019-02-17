@@ -1,4 +1,5 @@
-//BeckMiniLib.cpp, Beck 2/3/19
+//BeckMiniLib.cpp, Beck 2/16/19
+#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
 #include <NTPClient.h>

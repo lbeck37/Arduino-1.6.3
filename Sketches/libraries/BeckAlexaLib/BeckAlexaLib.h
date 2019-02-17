@@ -8,6 +8,8 @@
 #if DO_ALEXA
 #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
 
+const char            szAlexaName[]   = "Larry's Device";
+
 extern fauxmoESP      Alexa;                    //Alexa emulation of Phillips Hue Bulb
 extern int            wAlexaHandleCount;
 

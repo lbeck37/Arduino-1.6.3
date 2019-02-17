@@ -18,45 +18,45 @@ const char szFileDate[]    = "Lenny 2/16/19c";
 #define DO_ACCESS_POINT     true
 #define DO_DEBUG            false
 
-//#include <BeckMiniLib.h>
-#include <BeckBiotaLib.h>
-#include <BeckWiFiLib.h>
 #include <BeckAlexaLib.h>
+#include <BeckBiotaLib.h>
+#include <BeckLogLib.h>
+#include <BeckMiniLib.h>
 #include <BeckMPU6050_IMU.h>
+#include <BeckSwitchLib.h>
+#include <BeckThermoLib.h>
+#include <BeckWiFiLib.h>
+#if DO_ACCESS_POINT
+  #include <BeckE8266AccessPointLib.h>
+#endif
 #ifdef ESP8266
   #include <BeckESP_OTAWebServerLib.h>
 #else
   #include <BeckOTALib.h>   //Beck 1/24/19 not tested
 #endif  //ESP8266
-#if DO_ACCESS_POINT
-  #include <BeckE8266AccessPointLib.h>
-#endif
 #if DO_NTP
   #include <BeckNTPLib.h>
 #endif
-/*
-#if DO_ALEXA
-  #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
-#endif
-*/
-#include <WiFiClient.h>
-#include <OneWire.h>
+
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>     ////For I2C OLED display
 #include <DallasTemperature.h>
+#include <OneWire.h>
 #include <Streaming.h>
 #include <Time.h>
-
-//For I2C OLED display
+#include <WiFiClient.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 
-static const int  sAlexaPin       =  2;   //GPIO 2 is D4 and Blue LED on NodeMCU
+//static const int  sAlexaPin       =  2;   //GPIO 2 is D4 and Blue LED on NodeMCU
+/*
 static const int  sSDA_GPIO       =  4;   //I2C, GPIO 4 is D2 on NodeMCU
 static const int  sSCL_GPIO       =  5;   //I2C, GPIO 5 is D1 on NodeMCU and labeled D2
 
 static const int  sOneWireGPIO    = 12;   //GPIO 12 is D6 on NodeMCU
 static const int  sHeatSwitchGPIO = 14;   //GPIO 14 is D5 on NodeMCU
+*/
 
+/*
 static const int    sSwitchOpen           = 0;
 static const int    sSwitchClosed         = 1;
 static const int    sOff                  = 0;
@@ -69,6 +69,7 @@ static const int    sAlexaSwitchNum       = 2;      //Switch number that Alexa t
 static const int    sThermoDummySwitch    = 0;  //Thermostat Blynk LED lives at unused switch #0.
 static const int    asSwitchPin[]         = {-1, sHeatSwitchGPIO, sAlexaPin, sNoSwitch, sNoSwitch};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
+*/
 //(3) types of sketches are supported: front lights, fireplace and garage
 /*
 static const int    sFrontLights          = 1;
@@ -89,22 +90,26 @@ static const char     szRouterPW[]          = "Qazqaz11";
 static const char     szAccessPointSSID[]   = "BiotaSpot";
 static const char     szAccessPointPW[]     = "Qazqaz11";
 
+/*
 static int            asSwitchState[]       = {0, 0, 0, 0, 0};
 static int            asSwitchLastState[]   = {sNotInit, sNotInit, sNotInit, sNotInit, sNotInit};
+*/
 static float          fLastDegF             = 37.88;  //Last temperature reading.
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
 static unsigned long  ulNextHandlerMsec     = 0;
 //static unsigned long  ulUpdateTimeoutMsec   = 0;
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bHeatOn               = false;  //If switch is on to turn on Heat.
-static bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
+//static bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static bool           bDebugLog             = true;   //Used to limit number of printouts.
 //static int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 static int            _wBadCount            = 0;
 static int            _wGoodCount           = 0;
+/*
 static float          _fMinSetpoint         = 32.0;
 static float          _fMaxSetpoint         = 75.0;
+*/
 
 #if DO_DEBUG
   static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
@@ -168,11 +173,13 @@ static float          _fMaxSetpoint         = 75.0;
   static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char   acHostname[]        = "BeckThermoDev";
   static const char   szProjectType[]     = "THERMO_DEV";
-  static const char   szAlexaName[]       = "Larry's Device";
+  //static const char   szAlexaName[]       = "Larry's Device";
   static const int    wProjectType        = sThermoDev;
+/*
   static const float  fMaxHeatRangeF      = 0.10;   //Temp above setpoint before heat is turned off
   static float        _fSetpointF         = 70.0;
   static float        _fThermoOffDegF     = _fSetpointF + fMaxHeatRangeF;
+*/
 #endif
 
 //Create objects
@@ -189,12 +196,14 @@ OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
 //Function prototypes
-float   fSetThermoSetpoint    (int wSetpoint);
-float   fSetThermoSetpoint    (float fSetpoint);
+//float   fSetThermoSetpoint    (int wSetpoint);
+//float   fSetThermoSetpoint    (float fSetpoint);
+/*
 void    LogToSerial           (String szLogString);
 void    LogToSerial           (String szLogString, String szLogValue);
 void    LogToSerial           (String szLogString, int sLogValue);
 void    LogToSerial           (String szLogString, float fLogValue);
+*/
 
 
 void setup(){
@@ -213,7 +222,9 @@ void setup(){
 #if DO_NTP
   SetupNTP();
 #endif
-  SetupAlexa();
+#if DO_ALEXA
+  SetupAlexa(wProjectType);
+#endif
   SetupDisplay();
   UpdateDisplay();
   SetupSwitches();
@@ -338,6 +349,7 @@ float fSetThermoSetpoint(int wSetpoint){
 } //fSetThermoSetpoint(int)
 
 
+/*
 float fSetThermoSetpoint(float fSetpoint){
   float fLastSetpoint= _fSetpointF;
   if( (fSetpoint >= _fMinSetpoint) && (fSetpoint <= _fMaxSetpoint)){
@@ -352,6 +364,7 @@ float fSetThermoSetpoint(float fSetpoint){
   } //if((_fSetpointF==fLastSetpoint)
   return _fSetpointF;
 } //fSetThermoSetpoint(float)
+*/
 
 
 void SetupI2C(){
@@ -377,6 +390,7 @@ void SetupSystem(){
 } //SetupSystem
 
 
+/*
 void SetupSwitches(){
   Serial << LOG0 << "SetupSwitches(): Begin" << endl;
   for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
@@ -389,6 +403,7 @@ void SetupSwitches(){
 } //SetupSwitches
 
 
+*/
 void HandleSystem(){
 #if DO_ALEXA
   HandleAlexa();
@@ -547,7 +562,8 @@ void HandleHeatSwitch(){
     SetSwitch(sHeatSwitchNum, sOn);
   } //if(bHeatOn)
   else{
-    asSwitchState[sHeatSwitchNum]= sOff;    SetSwitch(sHeatSwitchNum, sOff);
+    asSwitchState[sHeatSwitchNum]= sOff;
+    SetSwitch(sHeatSwitchNum, sOff);
   } //if(bHeatOn)else
   return;
 } //HandleHeatSwitch
@@ -593,6 +609,7 @@ void TurnHeatOn(bool bTurnOn){
 } //TurnHeatOn
 
 
+/*
 void SetHeatSwitch(int sSwitchState){
   SetSwitch(sHeatSwitchNum, sSwitchState);
   return;
@@ -634,6 +651,7 @@ void SetSwitch(int sSwitch, int sSwitchState){
   bDebugLog= true;
   return;
 } //SetSwitch
+*/
 
 
 void ScanForI2CDevices(void){
@@ -669,6 +687,7 @@ void ScanForI2CDevices(void){
 } //ScanForDevices
 
 
+/*
 //LogToSerial() has multiple versions depending on there being a 2nd variable and its type.
 void LogToSerial(String szLogString){
   String szTermString= szLogLineHeader();
@@ -694,4 +713,5 @@ void LogToSerial(String szLogString, float fLogValue){
   Serial << LOG0 << szLogString << " " << fLogValue << endl;
   return;
 } //LogToSerial:float
+*/
 //Last line.

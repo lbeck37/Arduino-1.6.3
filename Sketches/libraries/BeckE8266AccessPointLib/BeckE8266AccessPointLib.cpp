@@ -1,8 +1,9 @@
 //BeckE8266AccessPointLib.cpp, 2/3/19
-#include <BeckMiniLib.h>
 #include <BeckE8266AccessPointLib.h>
+#include <BeckLogLib.h>
+#include <BeckMiniLib.h>
 #include <ESP8266WebServer.h>
-#include <Streaming.h>
+//#include <Streaming.h>
 
 const int      wWebServerPort        = 80;
 

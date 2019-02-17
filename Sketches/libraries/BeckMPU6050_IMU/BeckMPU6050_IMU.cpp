@@ -1,7 +1,8 @@
-//BeckMPU6050_IMU.cpp 2/15/19b
+//BeckMPU6050_IMU.cpp 2/16/19a
+#include <BeckLogLib.h>
+#include <BeckMiniLib.h>
 #include <BeckMPU6050_IMU.h>
 #include <BeckMPU6050_Data.h>
-#include <BeckMiniLib.h>
 #include <Wire.h>
 #include <Streaming.h>
 

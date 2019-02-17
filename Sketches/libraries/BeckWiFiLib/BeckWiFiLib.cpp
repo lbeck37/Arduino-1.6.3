@@ -1,7 +1,8 @@
 //BeckWiFiLib.cpp, Beck Jan 23, 2019
+#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckWiFiLib.h>
-#include <Streaming.h>
+//#include <Streaming.h>
 
 void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
 /*

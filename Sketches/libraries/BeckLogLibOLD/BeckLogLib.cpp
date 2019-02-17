@@ -1,37 +1,12 @@
-//BeckLogLib.cpp, 2/16/19
+//BeckLogLib.cpp, 1/26/19
 #include <BeckLogLib.h>
+#include <BeckBlynkLib.h>
 
-//LogToSerial() has multiple versions depending on there being a 2nd variable and its type.
-void LogToSerial(String szLogString){
-  String szTermString= szLogLineHeader();
-  szTermString += szLogString;
-  Serial << szTermString << endl;
-  return;
-} //LogToSerial:empty
-
-
-void LogToSerial(String szLogString, String szLogValue){
-  Serial << LOG0 << szLogString << " " << szLogValue << endl;
-  return;
-} //LogToSerial:String
-
-
-void LogToSerial(String szLogString, int sLogValue){
-  Serial << LOG0 << szLogString << " " << sLogValue << endl;
-  return;
-} //LogToSerial:int
-
-
-void LogToSerial(String szLogString, float fLogValue){
-  Serial << LOG0 << szLogString << " " << fLogValue << endl;
-  return;
-} //LogToSerial:float
-
-/*
 //Global variables
 long            lLineCount      = 0;      //Serial Monitor uses for clarity.
 String          szLogLine;
 bool            bDebugLog       = true;   //Used to limit number of printouts.
+
 
 void LogJustToSerial(String sLogline){
   String sFullLogline=LOG0 + sLogline;
@@ -152,5 +127,4 @@ void LogToSerial(String szLogString, double dLogValue){
   Serial << LOG0 << szLogString << " " << dLogValue << endl;
   return;
 } //LogToSerial:double
-*/
 //Last line.

@@ -3,6 +3,7 @@
  * Copyright (c) 2015 by Fabrice Weinberg
  */
 
+#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include "NTPClient.h"
 

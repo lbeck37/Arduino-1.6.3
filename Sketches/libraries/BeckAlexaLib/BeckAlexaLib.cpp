@@ -1,9 +1,14 @@
 // BeckAlexaLib.cpp 2/16/19a
 #include <BeckAlexaLib.h>
+#include <BeckBiotaLib.h>
+#include <BeckLogLib.h>
+#include <BeckSwitchLib.h>
+#include <BeckThermoLib.h>
+#include <BeckE8266AccessPointLib.h>
 
-#if DO_ALEXA
-  fauxmoESP       Alexa;                    //Alexa emulation of Phillips Hue Bulb
-  int             wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
+int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
+bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
+fauxmoESP      Alexa;                          //Alexa emulation of Phillips Hue Bulb
 
 void SetupAlexa(int wProjectType){
   String szLogString= "SetupAlexa(): Begin";
@@ -66,5 +71,4 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
   fSetThermoSetpoint((int)ucValue);
   return;
 } //DoAlexaCommand
-#endif  //DO_ALEXA
 //Last line.
