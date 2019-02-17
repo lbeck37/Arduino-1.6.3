@@ -16,6 +16,7 @@ const char szFileDate[]    = "Lenny 2/17/19a";
 #define DO_ALEXA            true
 #define DO_NTP              true
 #define DO_ACCESS_POINT     true
+#define DO_DEBUG            false
 
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
@@ -39,17 +40,15 @@ const char szFileDate[]    = "Lenny 2/17/19a";
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>     ////For I2C OLED display
-/*
 #include <DallasTemperature.h>
 #include <OneWire.h>
-*/
 #include <Streaming.h>
 #include <Time.h>
 #include <WiFiClient.h>
 #include <Wire.h>
 
 
-//static const long     sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
+static const long     sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
 
 static const char     szRouterName[]        = "Aspot24";
 static const char     szRouterPW[]          = "Qazqaz11";
@@ -57,19 +56,21 @@ static const char     szRouterPW[]          = "Qazqaz11";
 static const char     szAccessPointSSID[]   = "BiotaSpot";
 static const char     szAccessPointPW[]     = "Qazqaz11";
 
-/*
 static float          fLastDegF             = 37.88;  //Last temperature reading.
 static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
-*/
 static unsigned long  ulNextHandlerMsec     = 0;
 //static unsigned long  ulUpdateTimeoutMsec   = 0;
-/*
 static bool           bThermoOn             = true;   //Whether thermostat is running.
 static bool           bHeatOn               = false;  //If switch is on to turn on Heat.
-*/
 static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static int            _wBadCount            = 0;
 static int            _wGoodCount           = 0;
+
+#if DO_DEBUG
+  static const bool   bDebug                = true;    //Used to select places to disable bDebugLog.
+#else
+  static const bool   bDebug                = false;   //Used to select places to disable bDebugLog.
+#endif  //DO_DEBUG
 
 //To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
@@ -119,7 +120,7 @@ static int            _wGoodCount           = 0;
   static const int  wProjectType        = sDevLocal;
 #endif
 #ifdef THERMO_DEV
-  //static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
+  static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
   static const char   acHostname[]        = "BeckThermoDev";
   static const char   szProjectType[]     = "THERMO_DEV";
   static const int    wProjectType        = sThermoDev;
@@ -132,11 +133,9 @@ static int            _wGoodCount           = 0;
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 oDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-/*
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
-*/
 
 void setup(){
   //sSetupTime();
@@ -310,7 +309,6 @@ void HandleFrontLights(){
 } //HandleFrontLights
 
 
-/*
 void HandleThermostat(){
   unsigned long   ulStartTime;
   ClearTaskTime2(&ulStartTime);
@@ -359,7 +357,6 @@ void LogThermostatData(float fDegF){
   LogToSerial(szLogString);
   return;
 } //LogThermostatData
-*/
 
 
 void DebugHandleBlynkLEDs(){
@@ -380,7 +377,6 @@ void DebugHandleBlynkLEDs(){
 } //DebugHandleBlynkLEDs
 
 
-/*
 void HandleHeatSwitch(){
   if (bHeatOn){
     SetSwitch(sHeatSwitchNum, sOn);
@@ -431,7 +427,6 @@ void TurnHeatOn(bool bTurnOn){
   } //if(bTurnOn)else
   return;
 } //TurnHeatOn
-*/
 
 
 void ScanForI2CDevices(void){

@@ -1,4 +1,4 @@
-//BeckLogLib.h, 1/26/19
+//BeckLogLib.h, 2/16/19
 #pragma once
 #include <BeckMiniLib.h>
 #include <Streaming.h>
