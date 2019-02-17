@@ -10,7 +10,7 @@ extern float        _fThermoOffDegF;
 extern float        _fMinSetpoint;
 extern float        _fMaxSetpoint;
 
-
+void    HandleHeater          ();
 void    HandleThermostat      ();
 void    LogThermostatData     (float fDegF);
 float   fSetThermoSetpoint    (int wSetpoint);

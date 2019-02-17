@@ -19,6 +19,14 @@ float        _fMaxSetpoint       = 75.0;
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
+
+void HandleHeater(){
+  String szLogString = "HandleHeater()";
+  LogToSerial(szLogString);
+  return;
+} //HandleHeater
+
+
 void HandleThermostat(){
   unsigned long   ulStartTime;
   ClearTaskTime2(&ulStartTime);

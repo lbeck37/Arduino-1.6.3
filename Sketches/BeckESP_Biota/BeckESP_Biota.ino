@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/17/19a";
+const char szFileDate[]    = "Lenny 2/17/19b";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -19,6 +19,7 @@ const char szFileDate[]    = "Lenny 2/17/19a";
 
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
+#include <BeckDisplayLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckMPU6050_IMU.h>
@@ -37,48 +38,33 @@ const char szFileDate[]    = "Lenny 2/17/19a";
   #include <BeckNTPLib.h>
 #endif
 
+/*
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>     ////For I2C OLED display
-/*
-#include <DallasTemperature.h>
-#include <OneWire.h>
 */
+
 #include <Streaming.h>
 #include <Time.h>
 #include <WiFiClient.h>
 #include <Wire.h>
 
-
-//static const long     sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
-
 static const char     szRouterName[]        = "Aspot24";
 static const char     szRouterPW[]          = "Qazqaz11";
-
 static const char     szAccessPointSSID[]   = "BiotaSpot";
 static const char     szAccessPointPW[]     = "Qazqaz11";
 
-/*
-static float          fLastDegF             = 37.88;  //Last temperature reading.
-static int            sThermoTimesCount     = 0;      //Number of times temperature out of range
-*/
+static long           sSystemHandlerSpacing;                //Number of mSec between running system handlers
 static unsigned long  ulNextHandlerMsec     = 0;
-//static unsigned long  ulUpdateTimeoutMsec   = 0;
-/*
-static bool           bThermoOn             = true;   //Whether thermostat is running.
-static bool           bHeatOn               = false;  //If switch is on to turn on Heat.
-*/
-static long           sSystemHandlerSpacing; //Number of mSec between running system handlers
 static int            _wBadCount            = 0;
 static int            _wGoodCount           = 0;
 
-//To get Blynk Auth Token from the Blynk App, go to the Project Settings (nut icon).
 #ifdef FRONT_LIGHTS
-  char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
+  //char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
   static const char szProjectType[]    = "FRONT_LIGHTS";
   static int wProjectType= sFrontLights;
 #endif
 #ifdef FIREPLACE
-  char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
+  //char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
   static const char   acHostname[]    = "BeckFireplace";
   static const char   szProjectType[] = "FIREPLACE";
   static const char   szAlexaName[]   = "Fireplace";
@@ -88,7 +74,7 @@ static int            _wGoodCount           = 0;
   static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef GARAGE
-  char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
+  //char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
   static const char   acHostname[]    = "BeckGarage";
   static const char   szProjectType[] = "GARAGE";
   static int          wProjectType    = sGarage;
@@ -97,7 +83,7 @@ static int            _wGoodCount           = 0;
   static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef GARAGE_LOCAL
-  char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
+  //char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
   static const char   acHostname[]    = "BeckGarageLocal";
   static const char   szProjectType[] = "GARAGE_LOCAL";
   static int          wProjectType    = sGarageLocal;
@@ -106,7 +92,7 @@ static int            _wGoodCount           = 0;
   static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
 #endif
 #ifdef HEATER
-  char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
+  //char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
   static const char acHostname[]       = "BeckHeater";
   static const char szProjectType[]    = "HEATER";
   static int wProjectType              = sHeater;
@@ -125,18 +111,15 @@ static int            _wGoodCount           = 0;
   static const int    wProjectType        = sThermoDev;
 #endif
 
+/*
 //From Adafruit demo ssd1306_128x64_i2c.ino
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 oDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-/*
-//Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
-OneWire             oOneWire(sOneWireGPIO);
-DallasTemperature   oSensors(&oOneWire);
 */
+
 
 void setup(){
   //sSetupTime();
@@ -191,6 +174,7 @@ void loop(){
 } //loop
 
 
+/*
 void SetupDisplay(){
   Serial << LOG0 << "SetupDisplay(): Call oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
@@ -200,6 +184,7 @@ void SetupDisplay(){
   delay(10);
   return;
 } //SetupDisplay
+*/
 
 
 void SetupI2C(){
@@ -271,6 +256,7 @@ void HandleSystem(){
 } //HandleSystem
 
 
+/*
 void UpdateDisplay(void){
   oDisplay.clearDisplay();
   oDisplay.setTextSize(2);
@@ -287,6 +273,7 @@ void UpdateDisplay(void){
   oDisplay.display();
   //delay(10);
 } //UpdateDisplay
+*/
 
 
 void HandleDevelopment(){
@@ -296,11 +283,13 @@ void HandleDevelopment(){
 } //HandleDevelopment
 
 
+/*
 void HandleHeater(){
   String szLogString = "HandleHeater()";
   LogToSerial(szLogString);
   return;
 } //HandleHeater
+*/
 
 
 void HandleFrontLights(){
@@ -311,57 +300,6 @@ void HandleFrontLights(){
 
 
 /*
-void HandleThermostat(){
-  unsigned long   ulStartTime;
-  ClearTaskTime2(&ulStartTime);
-  //Only do something if the thermostat is turned on.
-  if (bThermoOn){
-    float fDegF= fGetDegF(true);
-    CheckTaskTime2("HandleThermostat(): fGetDegF", &ulStartTime);
-    if (bHeatOn){
-      if (fDegF >= _fThermoOffDegF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnHeatOn(false);
-          CheckTaskTime2("HandleThermostat(): TurnHeatOn(false)", &ulStartTime);
-          sThermoTimesCount= 0;
-        } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fDegF>=_fThermoOffDegF)
-      else{
-        sThermoTimesCount= 0;
-      } //if(fDegF>=_fThermoOffDegF)else
-    } //if(bHeatOn)
-    else{
-      if (fDegF <= _fSetpointF){
-        if (++sThermoTimesCount >= sThermoTimesInRow){
-          TurnHeatOn(true);
-          CheckTaskTime2("HandleThermostat(): TurnHeatOn(true)", &ulStartTime);
-          sThermoTimesCount= 0;
-        } //if(sThermoTimesCount>=sThermoTimesInRow)
-      } //if(fDegF<_fSetpointF)
-      else{
-        sThermoTimesCount= 0;
-      } //if(fDegF<_fSetpointF)else
-    } //if(bHeatOn)else
-    LogThermostatData(fDegF);
-    CheckTaskTime2("HandleThermostat(): LogThermostatData()", &ulStartTime);
-  } //if(bThermoOn)
-  else{
-    String szLogString= " bThermoOn is false";
-    LogToSerial(szLogString);
-  }
-  return;
-} //HandleThermostat
-
-
-void LogThermostatData(float fDegF){
-  String szLogString= " " + String(bHeatOn) + String(sThermoTimesCount) + " " +
-                String(fDegF) + " " + String(_fSetpointF) + " " + String(_fThermoOffDegF);
-  LogToSerial(szLogString);
-  return;
-} //LogThermostatData
-*/
-
-
 void DebugHandleBlynkLEDs(){
   String szLogString= "S Now Last: ";
   int sLastSwitch= 4;
@@ -378,59 +316,6 @@ void DebugHandleBlynkLEDs(){
   LogToSerial(szLogString);
   return;
 } //DebugHandleBlynkLEDs
-
-
-/*
-void HandleHeatSwitch(){
-  if (bHeatOn){
-    SetSwitch(sHeatSwitchNum, sOn);
-  } //if(bHeatOn)
-  else{
-    asSwitchState[sHeatSwitchNum]= sOff;
-    SetSwitch(sHeatSwitchNum, sOff);
-  } //if(bHeatOn)else
-  return;
-} //HandleHeatSwitch
-
-
-float fGetDegF(bool bTakeReading){
-  float fDegFReturn= 37.99;   //Value used for default in testing w/o reading sensor. fLastDegF
-  if (bTakeReading){
-    oSensors.requestTemperatures(); // Send the command to get temperatures
-    fDegFReturn= oSensors.getTempFByIndex(0);
-    fLastDegF= fDegFReturn;
-  } //if(bTakeReading)
-  else{
-    fDegFReturn= fLastDegF;
-  } //if(bTakeReading)else
-  return fDegFReturn;
-}  //fGetDegF
-
-
-float fRound(float fNum){
-  oSensors.requestTemperatures(); // Send the command to get temperatures
-  float fRounded= floor(fNum + 0.5);
-  return fRounded;
-}  //fRound
-
-
-void TurnHeatOn(bool bTurnOn){
-  if (bTurnOn){
-    String szLogString= "TurnHeatOn(): ON";
-    LogToSerial(szLogString);
-    bHeatOn= true;
-    SetHeatSwitch(sSwitchClosed);
-    sThermoTimesCount= 0;
-  } //if(bTurnOn)
-  else{
-    String szLogString= "TurnHeatOn(): OFF";
-    LogToSerial(szLogString);
-    bHeatOn= false;
-    SetHeatSwitch(sSwitchOpen);
-    sThermoTimesCount= 0;
-  } //if(bTurnOn)else
-  return;
-} //TurnHeatOn
 */
 
 
