@@ -1,13 +1,11 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/17/19e";
+const char szFileDate[]    = "Lenny 2/17/19h";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
 //#define GARAGE
-//#define GARAGE_LOCAL    //Run off local Blynk server.
 //#define HEATER
-//#define DEV_LOCAL
-#define THERMO_DEV
+//#define THERMO_DEV
 
 #ifndef ESP8266
   #define ESP8266
@@ -42,79 +40,31 @@ const char szFileDate[]    = "Lenny 2/17/19e";
 #include <Streaming.h>
 #include <Time.h>
 #include <WiFiClient.h>
-//#include <Wire.h>
 
 static const char     szRouterName[]        = "Aspot24";
 static const char     szRouterPW[]          = "Qazqaz11";
 static const char     szAccessPointSSID[]   = "BiotaSpot";
 static const char     szAccessPointPW[]     = "Qazqaz11";
 
-static long           sSystemHandlerSpacing;                //Number of mSec between running system handlers
+static long           sSystemHandlerSpacing = 10 * lMsecPerSec;                //Number of mSec between running system handlers
 static unsigned long  ulNextHandlerMsec     = 0;
 static int            _wBadCount            = 0;
 static int            _wGoodCount           = 0;
 
-#ifdef FRONT_LIGHTS
-  //char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
-  static const char szProjectType[]    = "FRONT_LIGHTS";
-  static int wProjectType= sFrontLights;
-#endif
-#ifdef FIREPLACE
-  //char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
-  static const char   acHostname[]    = "BeckFireplace";
-  static const char   szProjectType[] = "FIREPLACE";
-  static const char   szAlexaName[]   = "Fireplace";
-  static int          wProjectType    = sFireplace;
-  static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
-  static float        _fSetpointF      = 74;
-  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
-#endif
-#ifdef GARAGE
-  //char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
-  static const char   acHostname[]    = "BeckGarage";
-  static const char   szProjectType[] = "GARAGE";
-  static int          wProjectType    = sGarage;
-  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
-  static float        _fSetpointF      = 37;
-  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
-#endif
-#ifdef GARAGE_LOCAL
-  //char acBlynkAuthToken[] = "7917cbe7f4614ba19b366a172e629683";
-  static const char   acHostname[]    = "BeckGarageLocal";
-  static const char   szProjectType[] = "GARAGE_LOCAL";
-  static int          wProjectType    = sGarageLocal;
-  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
-  static float        _fSetpointF      = 37;
-  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
-#endif
-#ifdef HEATER
-  //char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
-  static const char acHostname[]       = "BeckHeater";
-  static const char szProjectType[]    = "HEATER";
-  static int wProjectType              = sHeater;
-#endif
-#ifdef DEV_LOCAL
-  //static const char acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
-  static const char acBlynkAuthToken[]  = "9fc34bc2cbb34ddf8d392f7c562fb52e";   //Local server
-  static const char acHostname[]        = "BeckDevLocal";
-  static const char szProjectType[]     = "DEV_LOCAL";
-  static const int  wProjectType        = sDevLocal;
-#endif
-#ifdef THERMO_DEV
-  //static const char   acBlynkAuthToken[]  = "55bce1afbf894b3bb67b7ea34f29d45a";
-  static const char   acHostname[]        = "BeckThermoDev";
-  static const char   szProjectType[]     = "THERMO_DEV";
-  static const int    wProjectType        = sThermoDev;
-#endif
+static char   _acHostname   [50];
+static char   _acProjectType[50];
+//static int    _wProjectType;
 
+//Function prototypes
+void  SetupSystem   (ProjectType eProjectType);
 
 void setup(){
-  //sSetupTime();
   Serial.begin(lSerialMonitorBaud);
   delay(100);
-  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << szProjectType << ", " << szFileDate << endl;
+  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << _acProjectType << ", " << szFileDate << endl;
+  SetupSystem(eThermoDev);
   SetupWiFi(szRouterName, szRouterPW);
-  SetupOTAServer(acHostname);
+  SetupOTAServer(_acHostname);
 #if DO_ACCESS_POINT
   SetupWiFiNameServer(szAccessPointSSID, szAccessPointPW);
 #endif  //DO_ACCESS_POINT
@@ -124,12 +74,12 @@ void setup(){
   SetupNTP();
 #endif
 #if DO_ALEXA
-  SetupAlexa(wProjectType);
+  SetupAlexa(_eProjectType);
 #endif
   SetupDisplay();
   UpdateDisplay();
   SetupSwitches();
-  SetupSystem();
+  //SetupSystem();
   ulLastTaskMsec= millis();
   return;
 } //setup
@@ -161,27 +111,21 @@ void loop(){
 } //loop
 
 
-/*
-void SetupI2C(){
-  Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
-  Wire.begin(sSDA_GPIO, sSCL_GPIO);
-  ScanForI2CDevices();
-  return;
-} //SetupI2C
-*/
-
-
-void SetupSystem(){
+void SetupSystem(ProjectType eProjectType){
   Serial << LOG0 << "SetupSystem(): Begin" << endl;
-  switch (wProjectType){
-  case sThermoDev:
-  case sDevLocal:
-      sSystemHandlerSpacing = 10 * lMsecPerSec;
+  _eProjectType= eProjectType;
+  switch (_eProjectType){
+    case eThermoDev:
+      strcpy(_acHostname   , "BeckThermoDev");
+      strcpy(_acProjectType, "THERMO_DEV");
+      strcpy(_acHostname   , "BeckThermoDev");
       break;
+    case eNoProject:
     default:
-      sSystemHandlerSpacing = 10 * lMsecPerSec;
+      Serial << LOG0 << "SetupSystem(): Bad switch, _eProjectType= " << _eProjectType << endl;
       break;
   } //switch
+  Serial << LOG0 << "SetupSystem(): Project Type set to: " << _acProjectType << endl;
   return;
 } //SetupSystem
 
@@ -200,14 +144,10 @@ void HandleSystem(){
       LogToSerial("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
     } //if (wAlexaHandleCount<1000)
     wAlexaHandleCount= 0;
-    switch (wProjectType){
-      case sFrontLights:
-        HandleFrontLights();
-        break;
-      case sFireplace:
-      case sGarage:
-      case sGarageLocal:
-      case sThermoDev:
+    switch (_eProjectType){
+      case eFireplace:
+      case eGarage:
+      case eThermoDev:
         HandleThermostat();
         CheckTaskTime("HandleSystem(): HandleThermostat()");
         HandleHeatSwitch();
@@ -216,15 +156,14 @@ void HandleSystem(){
         UpdateDisplay();
         CheckTaskTime("HandleSystem(): HandleIMU()");
         break;
-      case sHeater:
+      case eHeater:
         HandleHeater();
         break;
-      case sDevLocal:
-        HandleDevelopment();
+      case eFrontLights:
+        HandleFrontLights();
         break;
       default:
-        String szLogString= "HandleSystem():Bad switch";
-        LogToSerial(szLogString, wProjectType);
+        Serial << LOG0 << "HandleSystem(): Bad switch, _eProjectType= " << _eProjectType << endl;
         break;
     } //switch
   } //if(millis()>=ulNextHandlerMsec)
@@ -246,37 +185,34 @@ void HandleFrontLights(){
 } //HandleFrontLights
 
 
-/*
-void ScanForI2CDevices(void){
-  byte ucError, ucAddress;
-  int nDevices;
-  nDevices = 0;
-  for(ucAddress = 1; ucAddress < 127; ucAddress++ ){
-    //The i2c_scanner uses the return value of the Write.endTransmisstion to see if
-    //a device did acknowledge to the address.
-    Wire.beginTransmission(ucAddress);
-    ucError = Wire.endTransmission();
-
-    if (ucError == 0){
-      Serial << LOG0 << "ScanForI2CDevices(): I2C device found at address 0x";
-      if (ucAddress<16){
-        Serial.print("0");
-      } //if(ucAddress<16)
-      Serial.println(ucAddress,HEX);
-      nDevices++;
-    } //if(ucError==0)
-    else if (ucError==4) {
-      Serial << LOG0 << "ScanForI2CDevices(): Unknown error at address 0x" << endl;
-      if (ucAddress<16) {
-        Serial << "0";
-      } //if(ucAddress<16)
-      Serial.println(ucAddress,HEX);
-    } //else if(ucError==4)
-  } //for
- if (nDevices == 0){
-    Serial << LOG0 << "ScanForI2CDevices(): ***No I2C devices found***" << endl;
- }  //if(nDevices==0)
-  return;
-} //ScanForDevices
-*/
+#ifdef FRONT_LIGHTS
+  //char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
+  static const char szProjectType[]    = "FRONT_LIGHTS";
+  static int wProjectType= sFrontLights;
+#endif
+#ifdef FIREPLACE
+  //char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
+  static const char   acHostname[]    = "BeckFireplace";
+  static const char   szProjectType[] = "FIREPLACE";
+  static const char   szAlexaName[]   = "Fireplace";
+  static int          wProjectType    = sFireplace;
+  static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
+  static float        _fSetpointF      = 74;
+  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
+#endif
+#ifdef GARAGE
+  //char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
+  static const char   acHostname[]    = "BeckGarage";
+  static const char   szProjectType[] = "GARAGE";
+  static int          wProjectType    = sGarage;
+  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
+  static float        _fSetpointF      = 37;
+  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
+#endif
+#ifdef HEATER
+  //char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
+  static const char acHostname[]       = "BeckHeater";
+  static const char szProjectType[]    = "HEATER";
+  static int wProjectType              = sHeater;
+#endif
 //Last line.

@@ -1,4 +1,4 @@
-// BeckAlexaLib.cpp 2/16/19a
+// BeckAlexaLib.cpp 2/17/19a
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
 #include <BeckLogLib.h>
@@ -13,6 +13,7 @@ fauxmoESP      Alexa;                          //Alexa emulation of Phillips Hue
 void SetupAlexa(int wProjectType){
   String szLogString= "SetupAlexa(): Begin";
   LogToSerial(szLogString);
+/*
   switch (wProjectType){
     case sFireplace:
     case sThermoDev:
@@ -23,6 +24,8 @@ void SetupAlexa(int wProjectType){
       bAlexaOn= false;
       break;
   } //switch
+*/
+  bAlexaOn= true;
   if(bAlexaOn){
     // You have to call enable(true) once you have a WiFi connection
     // You can enable or disable the library at any moment

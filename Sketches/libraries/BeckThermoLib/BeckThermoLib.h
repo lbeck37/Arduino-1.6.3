@@ -1,4 +1,4 @@
-// BeckThermoLib.h 2/1/19a
+// BeckThermoLib.h 2/17/19a
 #pragma once
 
 const long          sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
