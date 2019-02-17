@@ -1,5 +1,13 @@
 //BeckLogLib.cpp, 2/16/19
 #include <BeckLogLib.h>
+#include <BeckNTPLib.h>
+#include <NTPClient.h>
+#include <Timezone.h>
+
+time_t          _lLocalTime;
+
+//Local prototypes
+String  szPrintDigits  (int digits);
 
 //LogToSerial() has multiple versions depending on there being a 2nd variable and its type.
 void LogToSerial(String szLogString){
@@ -27,26 +35,91 @@ void LogToSerial(String szLogString, float fLogValue){
   return;
 } //LogToSerial:float
 
-/*
-//Global variables
-long            lLineCount      = 0;      //Serial Monitor uses for clarity.
-String          szLogLine;
-bool            bDebugLog       = true;   //Used to limit number of printouts.
 
-void LogJustToSerial(String sLogline){
-  String sFullLogline=LOG0 + sLogline;
-  Serial << sFullLogline << endl;
-  return;
-} //LogJustToSerial
+String szLogLineHeader(void){
+  String          szHeader          = "";
+  String          szThousanths      = "";
+  unsigned long   ulCurrentMillis   = millis();
+  char            szDaysFloat[10];
 
+  //Compute a float with N.NNN with a leading zero representing days uptime
+  //Starts out "0.00", 0.01 of a day is 864 seconds or 14.4 minutes
+  float   fDays = ((float)ulCurrentMillis / (float)lMsecPerDay);
 
-String szLogLineHeader(long lLineCount){
-  String szHeader= "";
-  szHeader += lLineCount;
+  szHeader += fDays;
   szHeader += " ";
-  //szHeader += szGetTime(millis());
+#if 1
+  _lLocalTime= lGetLocalTime();
+  szHeader += szFormatTimeString(_lLocalTime);   //szFormatTimeString has a space at the end
+
+  //Replace the space with a decimal point
+  //Follow "." with the lowest 3 digits of the msec count
+  int wNumChar= szHeader.length();
+  szHeader.setCharAt((wNumChar - 1), '.');
+  szThousanths= (ulCurrentMillis % lMsecPerSec);
+
+  //Make sure it is 3 digits, pad wit zeros if not
+  wNumChar= szThousanths.length();
+  switch (wNumChar){
+    case 0:
+      szThousanths += "000";
+      break;
+    case 1:
+      szThousanths += "00";
+      break;
+    case 2:
+      szThousanths += "0";
+      break;
+    default:
+      break;
+  } //switch
+
+  szHeader += szThousanths;
+  szHeader += " ";        //Adds a trailing space
+#endif
   return szHeader;
 } //szLogLineHeader
+
+
+time_t lGetLocalTime(void){
+  //return (oMT_Timezone.toLocal (now(), &pTimeChangeRule));
+  return oNTPClient.getEpochTime();
+} //lGetLocalTime
+
+
+String szFormatTimeString(time_t lLocalTime) {
+  String szReturnString = "";
+  szReturnString += szPrintDigits(hour(lLocalTime));
+  szReturnString += ":";
+  szReturnString += szPrintDigits(minute(lLocalTime));
+  szReturnString += ":";
+  szReturnString += szPrintDigits(second(lLocalTime));
+  szReturnString += " ";
+  return szReturnString;
+} //szFormatTimeString
+
+
+String szFormatDateString(time_t lLocalTime){
+  String szReturnString = "";
+  szReturnString += szPrintDigits(month(lLocalTime));
+  szReturnString += "/";
+  szReturnString += szPrintDigits(day(lLocalTime));
+  szReturnString += "/";
+  szReturnString += String(year(lLocalTime));
+  return szReturnString;
+} //szFormatDateString
+
+
+String szPrintDigits(int digits) {
+  // utility for digital clock display: prints preceding colon and leading 0
+  String digStr = "";
+
+  if (digits < 10)
+    digStr += '0';
+  digStr += String(digits);
+
+  return digStr;
+} //szPrintDigits
 
 
 //szAddLeadingZeros() adds 1 or 2 zeros (depending on sNumDigits being 3 or not).
@@ -61,96 +134,4 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
-
-
-//LogToBoth() and BlynkLogLine()have multiple versions
-//depending on there being a 2nd variable and its type.
-void LogToBoth(String szLogString){
-  Serial << LOG0 << szLogString << endl;
-  BlynkLogLine(szLogString);
-  return;
-} //LogToBoth:empty
-
-
-void LogToBoth(String szLogString, String szLogValue){
-  Serial << LOG0 << szLogString << " " << szLogValue << endl;
-  BlynkLogLine(szLogString, szLogValue);
-  return;
-} //LogToBoth:String
-
-
-void LogToBoth(String szLogString, int sLogValue){
-  Serial << LOG0 << szLogString << " " << sLogValue << endl;
-  BlynkLogLine(szLogString, sLogValue);
-  return;
-} //LogToBoth:int
-
-
-void LogToBoth(String szLogString, UINT32 uwLogValue){
-  Serial << LOG0 << szLogString << " " << uwLogValue << endl;
-  return;
-} //LogToBoth:UINT32
-
-
-void LogToBoth(String szLogString, float fLogValue){
-  Serial << LOG0 << szLogString << " " << fLogValue << endl;
-  BlynkLogLine(szLogString, fLogValue);
-  return;
-} //LogToBoth:float
-
-
-void LogToBoth(String szLogString, double dLogValue){
-  Serial << LOG0 << szLogString << " " << dLogValue << endl;
-  BlynkLogLine(szLogString, dLogValue);
-  return;
-} //LogToBoth:double
-
-void LogToSerial(String szLogString){
-  Serial << LOG0 << szLogString << endl;
-  return;
-} //LogToSerial:empty
-
-
-void LogToSerial(String szLogString, String szLogValue){
-  Serial << LOG0 << szLogString << " " << szLogValue << endl;
-  return;
-} //LogToSerial:String
-
-
-void LogToSerial(String szLogString, int sLogValue){
-  Serial << LOG0 << szLogString << " " << sLogValue << endl;
-  return;
-} //LogToSerial:int
-
-
-void LogToSerial(String szLogString, int sValue1, int sValue2, int sValue3){
-  //Created for logging 3 acceleration axis
-  Serial << LOG0 << szLogString << " " << sValue1 << "   " << sValue2 << "   " << sValue3 << "   " << endl;
-  return;
-} //LogToSerial:int
-
-
-void LogToSerial(String szLogString, UINT16 usLogValue){
-  Serial << LOG0 << szLogString << " " << usLogValue << endl;
-  return;
-} //LogToSerial:UINT16
-
-
-void LogToSerial(String szLogString, UINT32 uwLogValue){
-  Serial << LOG0 << szLogString << " " << uwLogValue << endl;
-  return;
-} //LogToSerial:UINT32
-
-
-void LogToSerial(String szLogString, float fLogValue){
-  Serial << LOG0 << szLogString << " " << fLogValue << endl;
-  return;
-} //LogToSerial:float
-
-
-void LogToSerial(String szLogString, double dLogValue){
-  Serial << LOG0 << szLogString << " " << dLogValue << endl;
-  return;
-} //LogToSerial:double
-*/
 //Last line.

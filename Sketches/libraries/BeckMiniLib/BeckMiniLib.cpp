@@ -1,9 +1,11 @@
 //BeckMiniLib.cpp, Beck 2/16/19
-#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
+#include <BeckLogLib.h>
+/*
 #include <BeckNTPLib.h>
 #include <NTPClient.h>
 #include <Timezone.h>
+*/
 
 const long		lMsecPerSec					= 1000;
 const long		lMsecPerMin					= 60 * lMsecPerSec;
@@ -28,7 +30,7 @@ const long   	lSerialMonitorBaud  = 115200;
   const int       sServoPin          = 16;
 #endif  //ESP32
 
-time_t          _lLocalTime;
+//time_t          _lLocalTime;
 unsigned long   ulLastTaskMsec        = 0;      //For checking time handling tasks
 
   //Local function prototypes
@@ -76,6 +78,7 @@ void CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec){
 } //CheckTaskTime2
 
 
+/*
 String szLogLineHeader(void){
 	String 					szHeader					= "";
 	String 					szThousanths			= "";
@@ -174,4 +177,5 @@ String szAddZeros(int sValue, int sNumDigits){
   szReturn += String(sValue);
   return szReturn;
 } //szAddZeros
+*/
 //Last line.

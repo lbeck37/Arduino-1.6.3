@@ -2,7 +2,6 @@
 #include <BeckThermoLib.h>
 #include <BeckLogLib.h>
 
-//const float  fMaxHeatRangeF      = 0.10;   //Temp above setpoint before heat is turned off
 float        _fSetpointF         = 70.0;
 float        _fThermoOffDegF     = _fSetpointF + fMaxHeatRangeF;
 float          _fMinSetpoint         = 32.0;

@@ -2,8 +2,6 @@
 #pragma once
 #include <Streaming.h>
 
-//#define LOG0    szLogLineHeader()
-
 #define INT8        int8_t
 #define UINT8       uint8_t
 #define INT16       int16_t
@@ -23,9 +21,11 @@ extern unsigned long  ulLastTaskMsec;
 void      CheckTaskTime         (String szTask);
 void      ClearTaskTime2        (unsigned long* pulLastTaskMsec);
 void      CheckTaskTime2        (String szTask, unsigned long* pulLastTaskMsec= NULL);
+/*
 String    szAddZeros            (int sValue, int sNumDigits);
 String    szLogLineHeader       (void);
 time_t    lGetLocalTime         (void);
 String    szFormatTimeString    (time_t lBoiseTime);
 String    szFormatDateString    (time_t lLocalTime);
+*/
 //Last line.
