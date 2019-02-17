@@ -1,4 +1,5 @@
 // BeckThermoLib.h 2/16/19a
+#pragma once
 
 const float         fMaxHeatRangeF      = 0.10;   //Temp above setpoint before heat is turned off
 extern float        _fSetpointF;

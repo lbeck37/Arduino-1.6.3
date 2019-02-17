@@ -4,8 +4,16 @@
 
 float        _fSetpointF         = 70.0;
 float        _fThermoOffDegF     = _fSetpointF + fMaxHeatRangeF;
-float          _fMinSetpoint         = 32.0;
-float          _fMaxSetpoint         = 75.0;
+float        _fMinSetpoint       = 32.0;
+float        _fMaxSetpoint       = 75.0;
+
+
+float fSetThermoSetpoint(int wSetpoint){
+  float fSetpoint= round( ((float)wSetpoint / 255.0) * 100.0);
+  fSetThermoSetpoint(fSetpoint);
+  return fSetpoint;
+} //fSetThermoSetpoint(int)
+
 
 float fSetThermoSetpoint(float fSetpoint){
   float fLastSetpoint= _fSetpointF;

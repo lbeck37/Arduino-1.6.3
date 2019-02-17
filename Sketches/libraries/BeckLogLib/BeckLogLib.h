@@ -4,7 +4,6 @@
 #include <Streaming.h>
 #include <Time.h>
 
-//#define LOG0        szLogLineHeader(++lLineCount)
 #define LOG0        szLogLineHeader()
 
 void      LogToSerial           (String szLogString);
