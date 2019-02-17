@@ -13,5 +13,10 @@ enum ProjectType{
   eLastProjectType
 } ;
 
-extern ProjectType _eProjectType;
+extern char           _acHostname   [50];
+extern char           _acProjectType[50];
+extern ProjectType    _eProjectType;
+
+void  SetupSystem   (ProjectType eProjectType);
+
 //Last line.
