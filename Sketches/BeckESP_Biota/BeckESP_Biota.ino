@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/17/19b";
+const char szFileDate[]    = "Lenny 2/17/19e";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -20,6 +20,7 @@ const char szFileDate[]    = "Lenny 2/17/19b";
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
 #include <BeckDisplayLib.h>
+#include <BeckI2cLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckMPU6050_IMU.h>
@@ -38,15 +39,10 @@ const char szFileDate[]    = "Lenny 2/17/19b";
   #include <BeckNTPLib.h>
 #endif
 
-/*
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>     ////For I2C OLED display
-*/
-
 #include <Streaming.h>
 #include <Time.h>
 #include <WiFiClient.h>
-#include <Wire.h>
+//#include <Wire.h>
 
 static const char     szRouterName[]        = "Aspot24";
 static const char     szRouterPW[]          = "Qazqaz11";
@@ -111,15 +107,6 @@ static int            _wGoodCount           = 0;
   static const int    wProjectType        = sThermoDev;
 #endif
 
-/*
-//From Adafruit demo ssd1306_128x64_i2c.ino
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-Adafruit_SSD1306 oDisplay(SCREEN_WIDTH, SCREEN_HEIGHT);
-*/
-
 
 void setup(){
   //sSetupTime();
@@ -175,24 +162,13 @@ void loop(){
 
 
 /*
-void SetupDisplay(){
-  Serial << LOG0 << "SetupDisplay(): Call oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
-  oDisplay.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
-  // Clear the buffer.
-  oDisplay.clearDisplay();
-  oDisplay.display();
-  delay(10);
-  return;
-} //SetupDisplay
-*/
-
-
 void SetupI2C(){
   Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
   ScanForI2CDevices();
   return;
 } //SetupI2C
+*/
 
 
 void SetupSystem(){
@@ -256,40 +232,11 @@ void HandleSystem(){
 } //HandleSystem
 
 
-/*
-void UpdateDisplay(void){
-  oDisplay.clearDisplay();
-  oDisplay.setTextSize(2);
-  oDisplay.setTextColor(WHITE);
-  oDisplay.setCursor(0,0);
-  String szDisplayLine= "Now " + String(fLastDegF);
-  oDisplay.println(szDisplayLine);
-
-  szDisplayLine= "Set " + String(_fSetpointF);
-  oDisplay.println(szDisplayLine);
-
-  szDisplayLine= "Off " + String(_fThermoOffDegF);
-  oDisplay.println(szDisplayLine);
-  oDisplay.display();
-  //delay(10);
-} //UpdateDisplay
-*/
-
-
 void HandleDevelopment(){
   String szLogString = "HandleDevelopment()";
   LogToSerial(szLogString);
   return;
 } //HandleDevelopment
-
-
-/*
-void HandleHeater(){
-  String szLogString = "HandleHeater()";
-  LogToSerial(szLogString);
-  return;
-} //HandleHeater
-*/
 
 
 void HandleFrontLights(){
@@ -300,25 +247,6 @@ void HandleFrontLights(){
 
 
 /*
-void DebugHandleBlynkLEDs(){
-  String szLogString= "S Now Last: ";
-  int sLastSwitch= 4;
-  for (int sSwitch= 0; sSwitch <= sLastSwitch; sSwitch++){
-    szLogString += sSwitch;
-    szLogString += " ";
-    szLogString += asSwitchState[sSwitch];
-    szLogString += " ";
-    szLogString += asSwitchLastState[sSwitch];
-    if (sSwitch != sLastSwitch){
-      szLogString += ", ";
-    } //if(sSwitch!=sLastSwitch)
-  } //for
-  LogToSerial(szLogString);
-  return;
-} //DebugHandleBlynkLEDs
-*/
-
-
 void ScanForI2CDevices(void){
   byte ucError, ucAddress;
   int nDevices;
@@ -350,4 +278,5 @@ void ScanForI2CDevices(void){
  }  //if(nDevices==0)
   return;
 } //ScanForDevices
+*/
 //Last line.
