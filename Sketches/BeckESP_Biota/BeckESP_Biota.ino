@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckESP_Biota.ino";
-const char szFileDate[]    = "Lenny 2/17/19h";
+const char szFileDate[]    = "Lenny 2/17/19j";
 //Uncomment out desired implementation.
 //#define FRONT_LIGHTS
 //#define FIREPLACE
@@ -61,7 +61,7 @@ void  SetupSystem   (ProjectType eProjectType);
 void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
-  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "/" << _acProjectType << ", " << szFileDate << endl;
+  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   SetupSystem(eThermoDev);
   SetupWiFi(szRouterName, szRouterPW);
   SetupOTAServer(_acHostname);
@@ -74,7 +74,7 @@ void setup(){
   SetupNTP();
 #endif
 #if DO_ALEXA
-  SetupAlexa(_eProjectType);
+  SetupAlexa(_acAlexaName);
 #endif
   SetupDisplay();
   UpdateDisplay();
@@ -111,6 +111,37 @@ void loop(){
 } //loop
 
 
+#ifdef FIREPLACE
+  //char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
+  static const char   acHostname[]    = "BeckFireplace";
+  static const char   szProjectType[] = "FIREPLACE";
+  static const char   szAlexaName[]   = "Fireplace";
+  static int          wProjectType    = sFireplace;
+  static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
+  static float        _fSetpointF      = 74;
+  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
+#endif
+#ifdef HEATER
+  //char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
+  static const char acHostname[]       = "BeckHeater";
+  static const char szProjectType[]    = "HEATER";
+  static int wProjectType              = sHeater; _acAlexaName
+#endif
+#ifdef GARAGE
+  //char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
+  static const char   acHostname[]    = "BeckGarage";
+  static const char   szProjectType[] = "GARAGE";
+  static int          wProjectType    = sGarage;
+  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
+  static float        _fSetpointF      = 37;
+  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
+#endif
+#ifdef FRONT_LIGHTS
+  //char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
+  static const char szProjectType[]    = "FRONT_LIGHTS";
+  static int wProjectType= sFrontLights;
+#endif
+
 void SetupSystem(ProjectType eProjectType){
   Serial << LOG0 << "SetupSystem(): Begin" << endl;
   _eProjectType= eProjectType;
@@ -118,7 +149,32 @@ void SetupSystem(ProjectType eProjectType){
     case eThermoDev:
       strcpy(_acHostname   , "BeckThermoDev");
       strcpy(_acProjectType, "THERMO_DEV");
-      strcpy(_acHostname   , "BeckThermoDev");
+      strcpy(_acAlexaName  , "Larry's Device");
+      break;
+    case eFireplace:
+      strcpy(_acHostname   , "BeckFireplace");
+      strcpy(_acProjectType, "FIREPLACE");
+      strcpy(_acAlexaName  , "Fireplace");
+      break;
+    case eHeater:
+      strcpy(_acHostname   , "BeckHeater");
+      strcpy(_acProjectType, "HEATER");
+      strcpy(_acAlexaName  , "Candy's Heater");
+      break;
+    case eGarage:
+      strcpy(_acHostname   , "BeckGarage");
+      strcpy(_acProjectType, "GARAGE");
+      strcpy(_acAlexaName  , "Garage");
+      break;
+    case eSlopeMeter:
+      strcpy(_acHostname   , "BeckSlopeMeter");
+      strcpy(_acProjectType, "SLOPE_METER");
+      strcpy(_acAlexaName  , "Slope Meter");
+      break;
+    case eFrontLights:
+      strcpy(_acHostname   , "BeckFrontLights");
+      strcpy(_acProjectType, "FRONT_LIGHTS");
+      strcpy(_acAlexaName  , "Front Lights");
       break;
     case eNoProject:
     default:
@@ -183,36 +239,4 @@ void HandleFrontLights(){
   LogToSerial(szLogString);
   return;
 } //HandleFrontLights
-
-
-#ifdef FRONT_LIGHTS
-  //char acBlynkAuthToken[] = "37a58cc7a39045a59bca1fb1281880a2";     //Light Timer Blynk token
-  static const char szProjectType[]    = "FRONT_LIGHTS";
-  static int wProjectType= sFrontLights;
-#endif
-#ifdef FIREPLACE
-  //char acBlynkAuthToken[] = "35131c5204f34f8e93b574436df46397";
-  static const char   acHostname[]    = "BeckFireplace";
-  static const char   szProjectType[] = "FIREPLACE";
-  static const char   szAlexaName[]   = "Fireplace";
-  static int          wProjectType    = sFireplace;
-  static const float  fMaxHeatRangeF  = 0.10;   //Temp above setpoint before heat is turned off
-  static float        _fSetpointF      = 74;
-  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
-#endif
-#ifdef GARAGE
-  //char acBlynkAuthToken[] = "5e9c5f0ae3f8467597983a6fa9d11101";
-  static const char   acHostname[]    = "BeckGarage";
-  static const char   szProjectType[] = "GARAGE";
-  static int          wProjectType    = sGarage;
-  static const float  fMaxHeatRangeF  = 1.00;   //Temp above setpoint before heat is turned off
-  static float        _fSetpointF      = 37;
-  static float        _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
-#endif
-#ifdef HEATER
-  //char acBlynkAuthToken[] = "8fe963d2af4e48b5bfb358d91aad583e";
-  static const char acHostname[]       = "BeckHeater";
-  static const char szProjectType[]    = "HEATER";
-  static int wProjectType              = sHeater;
-#endif
 //Last line.

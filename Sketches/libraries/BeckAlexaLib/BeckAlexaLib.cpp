@@ -8,23 +8,13 @@
 
 int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
+//char            szAlexaName[]   = "Larry's Device";
+char           _acAlexaName[50];
 fauxmoESP      Alexa;                          //Alexa emulation of Phillips Hue Bulb
 
-void SetupAlexa(int wProjectType){
+void SetupAlexa(char szAlexaName[]){
   String szLogString= "SetupAlexa(): Begin";
   LogToSerial(szLogString);
-/*
-  switch (wProjectType){
-    case sFireplace:
-    case sThermoDev:
-      //Only these projects use Alexa
-      bAlexaOn= true;
-      break;
-    default:
-      bAlexaOn= false;
-      break;
-  } //switch
-*/
   bAlexaOn= true;
   if(bAlexaOn){
     // You have to call enable(true) once you have a WiFi connection
@@ -44,15 +34,12 @@ void SetupAlexa(int wProjectType){
     Alexa.addDevice(szAlexaName);
 
     //Define the callback
-    Alexa.onSetState([](unsigned char device_id, const char * device_name, bool state, unsigned char value)
+    Alexa.onSetState([](unsigned char device_id, const char *device_name, bool state, unsigned char value)
       {
       DoAlexaCommand(device_id, device_name, state, value);
       } );  //Alexa.onSetState
   } //if(bAlexaOn)
-  else{
-    szLogString = "SetupAlexa(): Alexa is not enabled for project ";
-    LogToSerial(szLogString, wProjectType);
-  } //if(bAlexaOn)else
+  Serial << LOG0 << "SetupAlexa(): Alexa set up for " << szAlexaName << endl;
   return;
 } //SetupAlexa
 

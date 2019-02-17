@@ -8,12 +8,13 @@
 #if DO_ALEXA
 #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
 
-const char            szAlexaName[]   = "Larry's Device";
+//const char            szAlexaName[]   = "Larry's Device";
+extern char           _acAlexaName[];
 
 extern fauxmoESP      Alexa;                    //Alexa emulation of Phillips Hue Bulb
 extern int            wAlexaHandleCount;
 
-void SetupAlexa       (int wProjectType);
+void SetupAlexa       (char acAlexaName[]);
 void HandleAlexa      ();
 void DoAlexaCommand   (unsigned char ucDdeviceID, const char* szDeviceName,
                        bool bState, unsigned char ucValue);
