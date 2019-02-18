@@ -1,7 +1,7 @@
-//BeckE32_OTAWebServerLib.cpp, Beck 1/21/19
+//BeckOTAWebServerLib.cpp, Beck 2/18/19a
 #include <BeckMiniLib.h>
-#include <BeckE32_OTAWebServerLib.h>
-#include "BeckE32_OTAWebServerPages.h"
+#include <BeckOTAWebServerLib.h>
+#include "BeckOTAWebServerPages.h"
 #include <ArduinoOTA.h>
 #include <WiFi.h>
 #include <WiFiClient.h>

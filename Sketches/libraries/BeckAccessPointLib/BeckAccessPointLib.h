@@ -1,4 +1,4 @@
-//BeckE8266AccessPointLib.h, 2/3/19
+//BeckAccessPointLib.h, 2/18/19a
 #pragma once
 
 void      SetupWiFiNameServer (const char *szAccessPointSSID, const char *szAccessPointPW);

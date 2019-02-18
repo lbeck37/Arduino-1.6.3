@@ -5,7 +5,7 @@
 #include <BeckLogLib.h>
 #include <BeckSwitchLib.h>
 #include <BeckThermoLib.h>
-#include <BeckE8266AccessPointLib.h>
+#include <BeckAccessPointLib.h>
 
 int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.

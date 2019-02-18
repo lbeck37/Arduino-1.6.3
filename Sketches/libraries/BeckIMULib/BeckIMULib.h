@@ -1,4 +1,4 @@
-//BeckMPU6050_IMU.h 2/15/19
+//BeckIMULib.h 2/18/19
 #pragma once
 #include <Streaming.h>
 

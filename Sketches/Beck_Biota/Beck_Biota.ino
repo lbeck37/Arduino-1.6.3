@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "Lenny 2/18/19t";
+const char szFileDate[]    = "Lenny 2/18/19u";
 
 #ifndef ESP8266
   #define ESP8266
@@ -15,12 +15,12 @@ const char szFileDate[]    = "Lenny 2/18/19t";
 #include <BeckI2cLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
-#include <BeckMPU6050_IMU.h>
+#include <BeckIMULib.h>
 #include <BeckSwitchLib.h>
 #include <BeckThermoLib.h>
 #include <BeckWiFiLib.h>
 #if DO_ACCESS_POINT
-  #include <BeckE8266AccessPointLib.h>
+  #include <BeckAccessPointLib.h>
 #endif
 #ifdef ESP8266
   #include <BeckESP_OTAWebServerLib.h>
