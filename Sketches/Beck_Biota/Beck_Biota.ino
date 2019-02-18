@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "Lenny 2/18/19k";
+const char szFileDate[]    = "Lenny 2/18/19s";
 
 #ifndef ESP8266
   #define ESP8266
@@ -61,7 +61,7 @@ void setup(){
       SetupAlexa(_acAlexaName);
     #endif
     SetupDisplay();
-    UpdateDisplay();
+    ClearDisplay();
     SetupSwitches();
     ulLastTaskMsec= millis();
   } //if(_bSystemOk)
@@ -101,6 +101,10 @@ void HandleSystem(){
 #if DO_ALEXA
   HandleAlexa();
   CheckTaskTime("HandleAlexa");
+  if(_bAlexaChanged){
+    _bAlexaChanged= false;
+    UpdateDisplay();
+  } //if(bAlexaChanged)
 #endif
   if (millis() >= ulNextHandlerMsec){
     _wGoodCount= 0;
@@ -120,7 +124,8 @@ void HandleSystem(){
         HandleHeatSwitch();
         CheckTaskTime("HandleSystem(): HandleHeatSwitch()");
         HandleIMU();
-        UpdateDisplay();
+        //UpdateDisplay();
+        UpdateThermDisplay();
         CheckTaskTime("HandleSystem(): HandleIMU()");
         break;
       case eHeater:

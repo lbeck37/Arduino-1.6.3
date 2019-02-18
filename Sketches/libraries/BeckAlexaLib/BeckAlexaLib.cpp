@@ -1,6 +1,7 @@
-// BeckAlexaLib.cpp 2/17/19a
+// BeckAlexaLib.cpp 2/18/19a
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
+#include <BeckDisplayLib.h>
 #include <BeckLogLib.h>
 #include <BeckSwitchLib.h>
 #include <BeckThermoLib.h>
@@ -8,6 +9,7 @@
 
 int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
+bool           _bAlexaChanged        = false;  //Set true when display data changed
 char           _acAlexaName[50];
 fauxmoESP      Alexa;                          //Alexa emulation of Phillips Hue Bulb
 
@@ -52,12 +54,13 @@ void HandleAlexa(){
 
 void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bState, unsigned char ucValue){
   char    szCharString[100];
-  sprintf(szCharString, " DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
+  sprintf(szCharString, "DoAlexaCommand(): Device #%d (%s) bState: %s value: %d",
       ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
   String szLogString= szCharString;
   LogToSerial(szLogString);
   SetAlexaSwitch(bState);
   fSetThermoSetpoint((int)ucValue);
+  _bAlexaChanged= true;
   return;
 } //DoAlexaCommand
 //Last line.

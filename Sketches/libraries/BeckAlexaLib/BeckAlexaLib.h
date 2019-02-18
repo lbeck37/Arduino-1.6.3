@@ -1,4 +1,4 @@
-// BeckAlexaLib.h 2/17/19a
+// BeckAlexaLib.h 2/18/19a
 #pragma once
 
 #ifndef DO_ALEXA
@@ -12,6 +12,7 @@ extern char           _acAlexaName[];
 
 extern fauxmoESP      Alexa;                    //Alexa emulation of Phillips Hue Bulb
 extern int            wAlexaHandleCount;
+extern bool           _bAlexaChanged;
 
 void SetupAlexa       (char acAlexaName[]);
 void HandleAlexa      ();
