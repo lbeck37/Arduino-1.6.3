@@ -1,4 +1,4 @@
-// BeckAlexaLib.h 2/16/19a
+// BeckAlexaLib.h 2/17/19a
 #pragma once
 
 #ifndef DO_ALEXA
@@ -8,7 +8,6 @@
 #if DO_ALEXA
 #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
 
-//const char            szAlexaName[]   = "Larry's Device";
 extern char           _acAlexaName[];
 
 extern fauxmoESP      Alexa;                    //Alexa emulation of Phillips Hue Bulb

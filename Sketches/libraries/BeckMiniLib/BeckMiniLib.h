@@ -1,4 +1,4 @@
-//BeckMiniLib.h, 2/3/19
+//BeckMiniLib.h, 2/17/19a
 #pragma once
 #include <Streaming.h>
 

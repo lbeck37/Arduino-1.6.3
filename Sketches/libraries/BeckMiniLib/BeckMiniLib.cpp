@@ -1,17 +1,12 @@
-//BeckMiniLib.cpp, Beck 2/16/19
+//BeckMiniLib.cpp, Beck 2/17/19a
 #include <BeckMiniLib.h>
 #include <BeckLogLib.h>
-/*
-#include <BeckNTPLib.h>
-#include <NTPClient.h>
-#include <Timezone.h>
-*/
 
-const long		lMsecPerSec					= 1000;
-const long		lMsecPerMin					= 60 * lMsecPerSec;
-const long		lMsecPerHour				= 60 * lMsecPerMin;
-const long		lMsecPerDay					= 24 * lMsecPerHour;
-const long   	lSerialMonitorBaud  = 115200;
+const long    lMsecPerSec         = 1000;
+const long    lMsecPerMin         = 60 * lMsecPerSec;
+const long    lMsecPerHour        = 60 * lMsecPerMin;
+const long    lMsecPerDay         = 24 * lMsecPerHour;
+const long    lSerialMonitorBaud  = 115200;
 
 //Digital Pins
 #ifdef ESP32
@@ -30,10 +25,9 @@ const long   	lSerialMonitorBaud  = 115200;
   const int       sServoPin          = 16;
 #endif  //ESP32
 
-//time_t          _lLocalTime;
 unsigned long   ulLastTaskMsec        = 0;      //For checking time handling tasks
 
-  //Local function prototypes
+//Local function prototypes
 String  szPrintDigits         (int digits);
 
 

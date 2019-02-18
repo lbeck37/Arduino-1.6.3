@@ -8,7 +8,6 @@
 
 int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
-//char            szAlexaName[]   = "Larry's Device";
 char           _acAlexaName[50];
 fauxmoESP      Alexa;                          //Alexa emulation of Phillips Hue Bulb
 
