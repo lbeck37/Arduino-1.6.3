@@ -66,8 +66,8 @@ void UpdateThermDisplay(){
 
 
 void UpdateIMUDisplay(){
-  String szDisplayLine1= "Pitch % "   + String(_dPitchPercent);
-  String szDisplayLine2= "Pitch Deg"  + String(_dPitchDeg);
+  String szDisplayLine1= "P% "   + String(_dPitchPercent);
+  String szDisplayLine2= "PD "  + String(_dPitchDeg);
   String szDisplayLine3= "Roll "      + String(_dRollDeg);
 
   Update4LineDisplay(szDisplayLine1, szDisplayLine2, szDisplayLine3, "");
