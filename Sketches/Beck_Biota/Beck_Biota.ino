@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "Lenny 2/18/19v";
+const char szFileDate[]    = "Lenny 2/18/19x";
 
 #ifndef ESP8266
   #define ESP8266
@@ -124,8 +124,7 @@ void HandleSystem(){
         HandleHeatSwitch();
         CheckTaskTime("HandleSystem(): HandleHeatSwitch()");
         HandleIMU();
-        //UpdateDisplay();
-        UpdateThermDisplay();
+        //UpdateThermDisplay();
         CheckTaskTime("HandleSystem(): HandleIMU()");
         break;
       case eHeater:

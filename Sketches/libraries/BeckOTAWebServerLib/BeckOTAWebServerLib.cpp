@@ -1,4 +1,4 @@
-//BeckESP_OTAWebServerLib.cpp, Beck 2/18/19a
+//BeckOTAWebServerLib.cpp, Beck 2/18/19a
 #include <BeckOTAWebServerLib.h>
 #include "BeckOTAWebServerPages.h"
 #include <BeckLogLib.h>

@@ -1,7 +1,8 @@
-//BeckIMULib.cpp 2/18/19a
+//BeckIMULib.cpp 2/18/19b
+#include <BeckIMULib.h>
+#include <BeckDisplayLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
-#include <BeckIMULib.h>
 #include <BeckIMU_Data.h>
 #include <Wire.h>
 #include <Streaming.h>
@@ -88,6 +89,7 @@ void ComputePitchAndRoll() {
   } //if(dRollDeg_<0.0)else
   _bPitchChanged= true;
   Serial << LOG0 << "ComputePitchAndRoll(): Pitch Deg, Pitch%, Roll " << _dPitchDeg << ", " << _dPitchPercent << ", " << _dRollDeg<< endl;
+  UpdateIMUDisplay();
   return;
 } //ComputePitchAndRoll
 

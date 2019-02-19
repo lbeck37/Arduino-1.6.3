@@ -1,6 +1,7 @@
-// BeckDisplayLib.cpp 2/18/19a
+// BeckDisplayLib.cpp 2/18/19b
 #include <BeckDisplayLib.h>
 #include <BeckBiotaLib.h>
+#include <BeckIMULib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckThermoLib.h>
@@ -51,7 +52,7 @@ void UpdateDisplay(){
       break;
   } //switch
   return;
-} //UpdateThermDisplay
+} //UpdateDisplay
 
 
 void UpdateThermDisplay(){
@@ -62,6 +63,16 @@ void UpdateThermDisplay(){
   Update4LineDisplay(szDisplayLine1, szDisplayLine2, szDisplayLine3, "");
   return;
 } //UpdateThermDisplay
+
+
+void UpdateIMUDisplay(){
+  String szDisplayLine1= "Pitch % "   + String(_dPitchPercent);
+  String szDisplayLine2= "Pitch Deg"  + String(_dPitchDeg);
+  String szDisplayLine3= "Roll "      + String(_dRollDeg);
+
+  Update4LineDisplay(szDisplayLine1, szDisplayLine2, szDisplayLine3, "");
+  return;
+} //UpdateIMUDisplay
 
 
 void Update4LineDisplay(String szLine1, String szLine2, String szLine3, String szLine4){
