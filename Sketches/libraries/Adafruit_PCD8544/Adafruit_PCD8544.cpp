@@ -189,9 +189,11 @@ void Adafruit_PCD8544::begin(uint8_t contrast, uint8_t bias) {
     pinMode(_sclk, OUTPUT);
 
     // Set software SPI ports and masks.
-    clkport     = portOutputRegister(digitalPinToPort(_sclk));
+    //clkport     = portOutputRegister(digitalPinToPort(_sclk)); //Beck 2/19/19
+    clkport     = (PortReg*)portOutputRegister(digitalPinToPort(_sclk));
     clkpinmask  = digitalPinToBitMask(_sclk);
-    mosiport    = portOutputRegister(digitalPinToPort(_din));
+    //mosiport    = portOutputRegister(digitalPinToPort(_din)); //Beck 2/19/19
+    mosiport    = (PortReg*)portOutputRegister(digitalPinToPort(_din));
     mosipinmask = digitalPinToBitMask(_din);
   }
 
