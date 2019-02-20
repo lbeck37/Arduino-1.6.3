@@ -5,7 +5,9 @@
 #include <BeckSwitchLib.h>
 
 void SetupI2C(){
-  Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
+  //Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;
+  Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO <<
+      ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
   ScanForI2CDevices();
   return;

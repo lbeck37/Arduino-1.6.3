@@ -291,8 +291,8 @@ void setup()
       Serial.println(c, HEX);
       while(1) ; // Loop forever if communication doesn't happen
     }
-
   }
+  return;
 } //setup
 
 

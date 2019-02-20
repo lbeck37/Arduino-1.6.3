@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_MPU9150BasicAHRS.ino";
-const char szFileDate[]    = "Lenny 2/20/19b";
+const char szFileDate[]    = "Lenny 2/20/19c";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -240,6 +240,7 @@ int16_t   tempCount;      // Stores the raw internal chip temperature counts
 float     temperature;    // temperature in degrees Centigrade
 float     SelfTest[6];
 
+/*
 // global constants for 9 DoF fusion and AHRS (Attitude and Heading Reference System)
 float     GyroMeasError = PI * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
 float     GyroMeasDrift = PI * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
@@ -257,20 +258,25 @@ float zeta = sqrt(3.0f / 4.0f) * GyroMeasDrift;   // compute zeta, the other fre
 #define Ki 0.0f
 
 uint32_t delt_t = 0; // used to control display output rate
+float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for Mahony method
+*/
 uint32_t count = 0;  // used to control display output rate
 uint32_t mcount = 0; // used to control magnetometer read rate
 uint32_t MagRate;    // read rate for magnetometer data
 
 float pitch, yaw, roll;
-float deltat = 0.0f;        // integration interval for both filter schemes
+//float deltat = 0.0f;        // integration interval for both filter schemes
 
 uint32_t lastUpdate = 0, firstUpdate = 0; // used to calculate integration interval
 uint32_t Now = 0;        // used to calculate integration interval
 
 float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values 
 //float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};    // vector to hold quaternion
-float eInt[3] = {0.0f, 0.0f, 0.0f};       // vector to hold integral error for Mahony method
 
+const int       sSDA_GPIO             =  4;   //I2C, GPIO 4 is D2 on NodeMCU
+const int       sSCL_GPIO             =  5;   //I2C, GPIO 5 is D1 on NodeMCU and labeled D2
+
+const uint32_t  ulPrintPeriodMsec     = 5000; //Beck
 
 void setup()
 {
@@ -279,9 +285,11 @@ void setup()
   Serial.begin(38400);
 */
   Serial.begin(115200);
-  Wire.begin(4, 5); //Beck
+  //Wire.begin(4, 5); //Beck
   delay(1000);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+  Serial << LOG0 << "setup(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
+  Wire.begin(sSDA_GPIO, sSCL_GPIO);
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -390,14 +398,16 @@ void setup()
 
     MagRate = 10; // set magnetometer read rate in Hz; 10 to 100 (max) Hz are reasonable values
 
-  }
+  } //if(c==0x68)
   else
   {
     Serial.print("Could not connect to MPU9150: 0x");
     Serial.println(c, HEX);
     while(1) ; // Loop forever if communication doesn't happen
-  }
-}
+  } //if(c==0x68)else
+  return;
+} //setup
+
 
 void loop()
 {  
@@ -515,7 +525,8 @@ void loop()
   else {
     // Serial print and/or display at 0.5 s rate independent of data rates
     delt_t = millis() - count;
-    if (delt_t > 500) { // update LCD once per half-second independent of read rate
+    //if (delt_t > 500) { // update LCD once per half-second independent of read rate
+    if (delt_t > ulPrintPeriodMsec) { // update LCD once per half-second independent of read rate
       digitalWrite(blinkPin, blinkOn);
 
       if(SerialDebug) {
