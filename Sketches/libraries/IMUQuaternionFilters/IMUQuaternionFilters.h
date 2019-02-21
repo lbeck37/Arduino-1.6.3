@@ -1,4 +1,4 @@
-// IMUQuaternionFilters.h, Beck 2/20/19a
+// IMUQuaternionFilters.h, Beck 2/20/19b
 #pragma once
 #include <Arduino.h>
 
@@ -15,6 +15,5 @@ extern float      deltat;
 extern float      q[4];
 
 void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
-void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz);
 
 //Last line.
