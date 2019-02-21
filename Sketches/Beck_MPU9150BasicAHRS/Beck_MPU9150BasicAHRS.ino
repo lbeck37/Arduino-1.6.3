@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_MPU9150BasicAHRS.ino";
-const char szFileDate[]    = "Lenny 2/20/19t";
+const char szFileDate[]    = "Lenny 2/21/19a";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -21,7 +21,8 @@ const char szFileDate[]    = "Lenny 2/20/19t";
  */
 #include <BeckMiniLib.h>
 #include <BeckLogLib.h>
-#include <IMUQuaternionFilters.h> //Beck
+//#include <IMUQuaternionFilters.h>
+#include <Beck_IMUQuaternionFilters.h> //Beck
 #include "Wire.h"
 
 // Define registers per MPU6050, Register Map and Descriptions, Rev 4.2, 08/19/2013 6 DOF Motion sensor fusion device

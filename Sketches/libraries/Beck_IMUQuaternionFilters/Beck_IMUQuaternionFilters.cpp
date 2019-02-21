@@ -1,6 +1,6 @@
-// Beck_MPU9150BasicAHRS.ino, 2/20/19b
+// Beck_IMUQuaternionFilters.cpp, 2/21/19a
 
-#include <IMUQuaternionFilters.h>
+#include <Beck_IMUQuaternionFilters.h>
 
 float     GyroMeasError = PI * (40.0f / 180.0f);   // gyroscope measurement error in rads/s (start at 40 deg/s)
 float     GyroMeasDrift = PI * (0.0f  / 180.0f);   // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)

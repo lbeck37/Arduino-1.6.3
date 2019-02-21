@@ -1,4 +1,4 @@
-// IMUQuaternionFilters.h, Beck 2/20/19b
+// Beck_IMUQuaternionFilters.h, Beck 2/21/19a
 #pragma once
 #include <Arduino.h>
 
