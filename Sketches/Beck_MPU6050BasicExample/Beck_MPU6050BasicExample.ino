@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_MPU6050BasicExample.ino";
-const char szFileDate[]    = "Lenny 2/20/19b";
+const char szFileDate[]    = "Lenny 2/21/19a";
 /* MPU6050 Basic Example Code
  by: Kris Winer
  date: May 1, 2014
@@ -218,19 +218,23 @@ float     SelfTest[6];               // Gyro and accelerometer self-test sensor 
 uint32_t  count = 0;
 
 uint32_t  ulPrintPeriodMsec   = 5000; //Beck
+bool      bDoDisplay          = true;
 
 void setup()
 {
   //Wire.begin();
   Serial.begin(115200);
-  Wire.begin(4, 5); //Beck
+  delay(200);
   Serial << endl << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+  Serial << LOG0 << "setup(): Call Wire.begin(4, 5)" << endl;
+  Wire.begin(4, 5); //Beck
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
   digitalWrite(intPin, LOW);
 
   //display.begin();         // Initialize the display
+  Serial << LOG0 << "setup(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
   //display.setContrast(58); // Set the contrast
   //display.setRotation(2);  //  0 or 2) width = width, 1 or 3) width = height, swapped etc.
@@ -246,27 +250,29 @@ void setup()
   display.setCursor(0, 30); display.print("motion sensor");
   display.setCursor(20,40); display.print("60 ug LSB");
   display.display();
-  delay(1000);
 
-  // Set up for data display
-  display.setTextSize(1);      // Set text size to normal, 2 is twice normal etc.
-  display.setTextColor(BLACK); // Set pixel color; 1 on the monochrome screen
-  display.clearDisplay();      // clears the screen and buffer
-
+  bDoDisplay= false;
+  if (bDoDisplay){
+    delay(1000);
+    // Set up for data display
+    display.setTextSize(1);      // Set text size to normal, 2 is twice normal etc.
+    display.setTextColor(BLACK); // Set pixel color; 1 on the monochrome screen
+    display.clearDisplay();      // clears the screen and buffer
+  } //if(bDoDisplay)
   // Read the WHO_AM_I register, this is a good test of communication
   uint8_t c = readByte(MPU6050_ADDRESS, WHO_AM_I_MPU6050);  // Read WHO_AM_I register for MPU-6050
-  display.setCursor(20,0); display.print("MPU6050");
-  display.setCursor(0,10); display.print("I AM");
-  display.setCursor(0,20); display.print(c, HEX);  
-  display.setCursor(0,30); display.print("I Should Be");
-  display.setCursor(0,40); display.print(0x68, HEX); 
-  display.display();
-  delay(1000); 
+  if (bDoDisplay){
+    display.setCursor(20,0); display.print("MPU6050");
+    display.setCursor(0,10); display.print("I AM");
+    display.setCursor(0,20); display.print(c, HEX);
+    display.setCursor(0,30); display.print("I Should Be");
+    display.setCursor(0,40); display.print(0x68, HEX);
+    display.display();
+    delay(1000);
+  } //if(bDoDisplay)
 
-  if (c == 0x68) // WHO_AM_I should always be 0x68
-  {  
+  if (c == 0x68){        // WHO_AM_I should always be 0x68
     Serial.println("MPU6050 is online...");
-
     MPU6050SelfTest(SelfTest); // Start by performing self test and reporting values
     Serial.print("x-axis self test: acceleration trim within : "); Serial.print(SelfTest[0],1); Serial.println("% of factory value");
     Serial.print("y-axis self test: acceleration trim within : "); Serial.print(SelfTest[1],1); Serial.println("% of factory value");
@@ -276,22 +282,24 @@ void setup()
     Serial.print("z-axis self test: gyration trim within : "); Serial.print(SelfTest[5],1); Serial.println("% of factory value");
 
     if(SelfTest[0] < 1.0f && SelfTest[1] < 1.0f && SelfTest[2] < 1.0f && SelfTest[3] < 1.0f && SelfTest[4] < 1.0f && SelfTest[5] < 1.0f) {
-      display.clearDisplay();
-      display.setCursor(0, 30); display.print("Pass Selftest!");
-      display.display();
-      delay(1000);
+      if (bDoDisplay){
+        display.clearDisplay();
+        display.setCursor(0, 30); display.print("Pass Selftest!");
+        display.display();
+        delay(1000);
+      } //if(bDoDisplay)
 
       calibrateMPU6050(gyroBias, accelBias); // Calibrate gyro and accelerometers, load biases in bias registers
       initMPU6050(); Serial.println("MPU6050 initialized for active data mode...."); // Initialize device for active mode read of acclerometer, gyroscope, and temperature
 
-    }
+    } //if(SelfTest[0]<1.0f&&...
     else
     {
       Serial.print("Could not connect to MPU6050: 0x");
       Serial.println(c, HEX);
       while(1) ; // Loop forever if communication doesn't happen
-    }
-  }
+    } //if(SelfTest[0]<1.0f&&...ese
+  } //if(c==0x68)
   return;
 } //setup
 
@@ -338,24 +346,25 @@ void loop()
     Serial.print("Temperature is ");  Serial.print(temperature, 2);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
     Serial.println("");
 
-    display.clearDisplay();
+    if (bDoDisplay){
+      display.clearDisplay();
+      display.setCursor(24, 0); display.print("MPU6050");
+      display.setCursor(0, 8); display.print(" x   y   z  ");
 
-    display.setCursor(24, 0); display.print("MPU6050");
-    display.setCursor(0, 8); display.print(" x   y   z  ");
+      display.setCursor(0,  16); display.print((int16_t)(1000*ax));
+      display.setCursor(24, 16); display.print((int16_t)(1000*ay));
+      display.setCursor(48, 16); display.print((int16_t)(1000*az));
+      display.setCursor(72, 16); display.print("mg");
 
-    display.setCursor(0,  16); display.print((int16_t)(1000*ax)); 
-    display.setCursor(24, 16); display.print((int16_t)(1000*ay)); 
-    display.setCursor(48, 16); display.print((int16_t)(1000*az)); 
-    display.setCursor(72, 16); display.print("mg");
+      display.setCursor(0,  24); display.print((int16_t)(gx));
+      display.setCursor(24, 24); display.print((int16_t)(gy));
+      display.setCursor(48, 24); display.print((int16_t)(gz));
+      display.setCursor(66, 24); display.print("o/s");
 
-    display.setCursor(0,  24); display.print((int16_t)(gx)); 
-    display.setCursor(24, 24); display.print((int16_t)(gy)); 
-    display.setCursor(48, 24); display.print((int16_t)(gz)); 
-    display.setCursor(66, 24); display.print("o/s");     
-
-    display.setCursor(0,  40); display.print("Gyro T  "); 
-    display.setCursor(50, 40); display.print(temperature, 1); display.print(" C");
-    display.display();
+      display.setCursor(0,  40); display.print("Gyro T  ");
+      display.setCursor(50, 40); display.print(temperature, 1); display.print(" C");
+      display.display();
+    } //if(bDoDisplay)
 
     count = millis();
   } //if(deltat>ulPrintPeriodMsec)
