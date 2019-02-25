@@ -1,5 +1,5 @@
-const char szSketchName[]  = "Beck_MPU6050BasicExample.ino";
-const char szFileDate[]    = "Lenny 2/24/19t";
+const char szSketchName[]  = "Beck_MPU6050Basic";
+const char szFileDate[]    = "Lenny 2/24/19z";
 /* MPU6050 Basic Example
  by: Kris Winer
  date: May 1, 2014
@@ -215,9 +215,13 @@ float     gyroBias[3], accelBias[3]; // Bias corrections for gyro and accelerome
 int16_t   tempCount;               // Stores the internal chip temperature sensor output
 float     temperature;               // Scaled temperature in degrees Celsius
 float     SelfTest[6];               // Gyro and accelerometer self-test sensor output
-uint32_t  count = 0;
+uint32_t  ulNextPrintMsec   = 0;
+uint32_t  ulNextDisplayMsec = 0;
 
-uint32_t  ulPrintPeriodMsec   = 5000; //Beck
+//uint32_t  ulPrintPeriodMsec   = 5000; //Beck
+const uint32_t  ulPrintPeriodMsec   = 5000; //Beck
+const uint32_t  ulDisplayPeriodMsec = 1000; //Beck
+
 bool      bDoDisplay          = true;
 
 void setup()
@@ -321,7 +325,6 @@ void loop()
 {  
   // If data ready bit set, all data registers have new data
   if(readByte(MPU6050_ADDRESS, INT_STATUS) & 0x01) {  // check if data ready interrupt
-
     readAccelData(accelCount);  // Read the x/y/z adc values
     getAres();
 
@@ -342,9 +345,8 @@ void loop()
     temperature = ((float) tempCount) / 340. + 36.53; // Temperature in degrees Centigrade
   }
 
-  uint32_t deltat = millis() - count;
-  //if(deltat > 500) {
-  if(deltat > ulPrintPeriodMsec) {
+  if(millis() > ulNextPrintMsec) {
+    ulNextPrintMsec= millis() + ulPrintPeriodMsec;
     // Print acceleration values in milligs!
     Serial.print("X-acceleration: "); Serial.print(1000*ax); Serial.print(" mg "); 
     Serial.print("Y-acceleration: "); Serial.print(1000*ay); Serial.print(" mg "); 
@@ -357,45 +359,46 @@ void loop()
 
     // Print temperature in degrees Centigrade
     Serial.print("Temperature is ");  Serial.print(temperature, 2);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
-    Serial.println("");
+  } //if(millis()>ulNextPrintMsec)
 
-    bDoDisplay= true;
-    if (bDoDisplay){
+     if(millis() > ulNextDisplayMsec) {
+      ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
       Serial << LOG0 << "loop(): Display acceleration and gyro values" << endl;
       display.clearDisplay();
       display.setTextSize(1);
       int wDotsPerLine= 10;
-      int wLine       =  0;
+      int wLine       = 0;
       int wYStart     = wLine * wDotsPerLine;
-      display.setCursor(24, wYStart); display.print("MPU6050");
-      wLine= 1;
+      display.setCursor(0, wYStart); display.print(szSketchName);
+
+      wLine++;
+      wYStart= wLine * wDotsPerLine;
+      display.setCursor(0, wYStart); display.print(szFileDate);
+
+      wLine++;
       wYStart= wLine * wDotsPerLine;
       display.setCursor(0, wYStart); display.print(" x     y     z  ");
 
-      wLine= 2;
+      wLine++;
       wYStart= wLine * wDotsPerLine;
       display.setCursor(0,  wYStart); display.print((int16_t)(1000*ax));
       display.setCursor(30, wYStart); display.print((int16_t)(1000*ay));
       display.setCursor(60, wYStart); display.print((int16_t)(1000*az));
       display.setCursor(100, wYStart); display.print(" mg");
 
-      wLine= 3;
+      wLine++;
       wYStart= wLine * wDotsPerLine;
       display.setCursor(0,  wYStart); display.print((int16_t)(gx));
       display.setCursor(30, wYStart); display.print((int16_t)(gy));
       display.setCursor(60, wYStart); display.print((int16_t)(gz));
       display.setCursor(100, wYStart); display.print("o/s");
 
-      wLine= 5;
+      wLine++;
       wYStart= wLine * wDotsPerLine;
       display.setCursor(0, wYStart); display.print("Temperature= ");
-      //display.setCursor(50, wDotsPerLine * 6); display.print(temperature, 1); display.print(" C");
       display.print(temperature, 1); display.print(" C");
       display.display();
-    } //if(bDoDisplay)
-
-    count = millis();
-  } //if(deltat>ulPrintPeriodMsec)
+    } //if(millis()>ulNextDisplayMsec)
   return;
 } //loop
 
