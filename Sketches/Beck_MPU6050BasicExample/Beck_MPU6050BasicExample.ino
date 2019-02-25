@@ -1,6 +1,6 @@
 const char szSketchName[]  = "Beck_MPU6050BasicExample.ino";
-const char szFileDate[]    = "Lenny 2/21/19a";
-/* MPU6050 Basic Example Code
+const char szFileDate[]    = "Lenny 2/24/19t";
+/* MPU6050 Basic Example
  by: Kris Winer
  date: May 1, 2014
  license: Beerware - Use this code however you'd like. If you 
@@ -222,7 +222,7 @@ bool      bDoDisplay          = true;
 
 void setup()
 {
-  //Wire.begin();
+  bDoDisplay= true;
   Serial.begin(115200);
   delay(200);
   Serial << endl << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
@@ -239,21 +239,34 @@ void setup()
   //display.setContrast(58); // Set the contrast
   //display.setRotation(2);  //  0 or 2) width = width, 1 or 3) width = height, swapped etc.
 
-
   // Start device display with ID of sensor
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(WHITE);  //Beck
-  display.setCursor(20,0); display.print("MPU6050");
-  display.setTextSize(1);
-  display.setCursor(0, 20); display.print("6-DOF 16-bit");
-  display.setCursor(0, 30); display.print("motion sensor");
-  display.setCursor(20,40); display.print("60 ug LSB");
+  if (false){
+    display.clearDisplay();
+    display.setTextColor(WHITE);  //Beck
+    display.setTextSize(2);
+    display.setCursor(20,0); display.print("MPU6050");
+    display.setTextSize(1);
+    display.setCursor(0, 20); display.print("6-DOF 16-bit");  //12 chars
+    display.setCursor(0, 30); display.print("motion sensor");
+    display.setCursor(20,40); display.print("60 ug LSB");
+  }
+  else {
+    Serial << LOG0 << "setup(): Display 6.5 lines of test chars" << endl;
+    display.clearDisplay();
+    display.setTextColor(WHITE);  //Beck
+    display.setTextSize(1);
+    //display.setCursor(0,  0); display.print("123456789112345678921");
+    for (int wLine= 1; wLine <= 7; wLine++){
+      display.setCursor(0, (wLine - 1) * 10); display.print("123456789112345678921");
+    } //for
+  } //if(false)
   display.display();
+  delay(1000);
 
   bDoDisplay= false;
+
   if (bDoDisplay){
-    delay(1000);
+    //delay(1000);
     // Set up for data display
     display.setTextSize(1);      // Set text size to normal, 2 is twice normal etc.
     display.setTextColor(BLACK); // Set pixel color; 1 on the monochrome screen
@@ -346,23 +359,38 @@ void loop()
     Serial.print("Temperature is ");  Serial.print(temperature, 2);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
     Serial.println("");
 
+    bDoDisplay= true;
     if (bDoDisplay){
+      Serial << LOG0 << "loop(): Display acceleration and gyro values" << endl;
       display.clearDisplay();
-      display.setCursor(24, 0); display.print("MPU6050");
-      display.setCursor(0, 8); display.print(" x   y   z  ");
+      display.setTextSize(1);
+      int wDotsPerLine= 10;
+      int wLine       =  0;
+      int wYStart     = wLine * wDotsPerLine;
+      display.setCursor(24, wYStart); display.print("MPU6050");
+      wLine= 1;
+      wYStart= wLine * wDotsPerLine;
+      display.setCursor(0, wYStart); display.print(" x     y     z  ");
 
-      display.setCursor(0,  16); display.print((int16_t)(1000*ax));
-      display.setCursor(24, 16); display.print((int16_t)(1000*ay));
-      display.setCursor(48, 16); display.print((int16_t)(1000*az));
-      display.setCursor(72, 16); display.print("mg");
+      wLine= 2;
+      wYStart= wLine * wDotsPerLine;
+      display.setCursor(0,  wYStart); display.print((int16_t)(1000*ax));
+      display.setCursor(30, wYStart); display.print((int16_t)(1000*ay));
+      display.setCursor(60, wYStart); display.print((int16_t)(1000*az));
+      display.setCursor(100, wYStart); display.print(" mg");
 
-      display.setCursor(0,  24); display.print((int16_t)(gx));
-      display.setCursor(24, 24); display.print((int16_t)(gy));
-      display.setCursor(48, 24); display.print((int16_t)(gz));
-      display.setCursor(66, 24); display.print("o/s");
+      wLine= 3;
+      wYStart= wLine * wDotsPerLine;
+      display.setCursor(0,  wYStart); display.print((int16_t)(gx));
+      display.setCursor(30, wYStart); display.print((int16_t)(gy));
+      display.setCursor(60, wYStart); display.print((int16_t)(gz));
+      display.setCursor(100, wYStart); display.print("o/s");
 
-      display.setCursor(0,  40); display.print("Gyro T  ");
-      display.setCursor(50, 40); display.print(temperature, 1); display.print(" C");
+      wLine= 5;
+      wYStart= wLine * wDotsPerLine;
+      display.setCursor(0, wYStart); display.print("Temperature= ");
+      //display.setCursor(50, wDotsPerLine * 6); display.print(temperature, 1); display.print(" C");
+      display.print(temperature, 1); display.print(" C");
       display.display();
     } //if(bDoDisplay)
 
