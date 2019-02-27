@@ -249,7 +249,7 @@ void setup()
     for (int wLine= 1; wLine <= 7; wLine++){
       display.setCursor(0, (wLine - 1) * 10); display.print("123456789112345678921");
     } //for
-  } //if(false)
+  } //if(false)else
   display.display();
   delay(1000);
 

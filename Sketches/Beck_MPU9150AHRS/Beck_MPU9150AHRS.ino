@@ -1,5 +1,5 @@
-const char szSketchName[]  = "Beck_MPU9150AHRS.ino";
-const char szFileDate[]    = "2/25/19a";
+const char szSketchName[]  = "MPU9150AHRS";
+const char szFileDate[]    = " 2/26/19";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -24,6 +24,7 @@ const char szFileDate[]    = "2/25/19a";
 //#include <IMUQuaternionFilters.h>
 #include <Beck_IMUQuaternionFilters.h> //Beck
 #include "Wire.h"
+#include <Adafruit_SSD1306.h>     ////For I2C OLED display
 
 // Define registers per MPU6050, Register Map and Descriptions, Rev 4.2, 08/19/2013 6 DOF Motion sensor fusion device
 // Invensense Inc., www.invensense.com
@@ -236,12 +237,32 @@ float     my;
 float     mz;
 bool      bDoLoopLog  = true;   //Print calls in loop() once
 
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+Adafruit_SSD1306    display(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+const uint32_t  ulDisplayPeriodMsec = 1000; //Beck
+      uint32_t  ulNextDisplayMsec   = 0;
+
+//Function protos
+void  DisplayData     (void);
+
 void setup(){
   Serial.begin(115200);
   delay(1000);
-  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "," << szFileDate << endl;
   Serial << LOG0 << "setup(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
+
+  Serial << LOG0 << "setup(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+
+  Serial << LOG0 << "setup(): Display startup screen" << endl;
+  display.clearDisplay();
+  display.setTextColor(WHITE);  //Beck
+  display.setTextSize(1);
+  DisplayData();
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -422,6 +443,49 @@ void loop()
   } //if(!AHRS)
   return;
 } //loop
+
+
+void DisplayData(void){
+  if(millis() > ulNextDisplayMsec) {
+   ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
+   Serial << LOG0 << "DisplayData(): Display Accel, Pitc and Roll" << endl;
+   display.clearDisplay();
+   display.setTextSize(1);
+   int wDotsPerLine= 11;
+
+   int wLine= 5;
+   int wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart);
+   display.print(szSketchName); display.print(szFileDate);
+
+   //wLine++;
+   wLine= 1;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart); display.print(" x     y     z  ");
+
+   wLine++;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0,  wYStart); display.print((int16_t)(1000*ax));
+   display.setCursor(30, wYStart); display.print((int16_t)(1000*ay));
+   display.setCursor(60, wYStart); display.print((int16_t)(1000*az));
+   display.setCursor(100, wYStart); display.print(" mg");
+
+   wLine++;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0,  wYStart); display.print((int16_t)(gx));
+   display.setCursor(30, wYStart); display.print((int16_t)(gy));
+   display.setCursor(60, wYStart); display.print((int16_t)(gz));
+   display.setCursor(100, wYStart); display.print("o/s");
+
+   wLine++;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart); display.print("Temperature= ");
+   display.print(temperature, 1); display.print(" C");
+   display.display();
+ } //if(millis()>ulNextDisplayMsec)
+
+  return;
+} //DisplayData
 
 
 //===================================================================================================================
