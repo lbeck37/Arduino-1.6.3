@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 2/26/19";
+const char szFileDate[]    = " 2/26/19n";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -254,15 +254,10 @@ void setup(){
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "," << szFileDate << endl;
   Serial << LOG0 << "setup(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
+  //delay(200);
 
   Serial << LOG0 << "setup(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
-
-  Serial << LOG0 << "setup(): Display startup screen" << endl;
-  display.clearDisplay();
-  display.setTextColor(WHITE);  //Beck
-  display.setTextSize(1);
-  DisplayData();
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -440,7 +435,8 @@ void loop()
       blinkOn = ~blinkOn;
       count = millis();
     } //if(delt_t>500)
-  } //if(!AHRS)
+  } //if(!AHRS)else
+  DisplayData();
   return;
 } //loop
 
@@ -448,8 +444,9 @@ void loop()
 void DisplayData(void){
   if(millis() > ulNextDisplayMsec) {
    ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
-   Serial << LOG0 << "DisplayData(): Display Accel, Pitc and Roll" << endl;
+   //Serial << LOG0 << "DisplayData(): Display Accel, Pitch and Roll" << endl;
    display.clearDisplay();
+   display.setTextColor(WHITE);
    display.setTextSize(1);
    int wDotsPerLine= 11;
 
@@ -483,7 +480,6 @@ void DisplayData(void){
    display.print(temperature, 1); display.print(" C");
    display.display();
  } //if(millis()>ulNextDisplayMsec)
-
   return;
 } //DisplayData
 
