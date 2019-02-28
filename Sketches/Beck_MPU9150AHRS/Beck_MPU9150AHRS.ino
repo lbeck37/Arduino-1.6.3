@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 2/27/19b";
+const char szFileDate[]    = " 2/27/19d";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -258,6 +258,7 @@ void setup(){
 
   Serial << LOG0 << "setup(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+  DisplayData();
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -303,8 +304,11 @@ void setup(){
   } //if(c==0x68)
   else{
     Serial << LOG0 << "setup(): Could not connect to MPU9150:" << c << endl;
-    Serial << LOG0 << "setup(): Enter infinite while loop" << endl;
-    while(1) ; // Loop forever if communication doesn't happen
+    unsigned long   ulNextLogMsec= 0;
+    while(true){
+      Serial << LOG0 << "setup(): In infinite loop because didn't connect to MPU9150" << endl;
+      delay(10000); //10 sec
+     }  //while(true)
   } //if(c==0x68)else
   return;
 } //setup
