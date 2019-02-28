@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 2/26/19n";
+const char szFileDate[]    = " 2/27/19b";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -270,13 +270,13 @@ void setup(){
   Serial << LOG0 << "setup(): WHO_AM_I= " << c << ", should be 0x68 (104d)" << endl;
   if (c == 0x68){            // WHO_AM_I should always be 0x68
     Serial << LOG0 << "setup(): MPU9150 is online" << endl;
-    Serial << LOG0 << "setup(): Call MPU6050SelfTest()" << endl;
+    //Serial << LOG0 << "setup(): Call MPU6050SelfTest()" << endl;
     MPU6050SelfTest(SelfTest); // Start by performing self test
 
-    Serial << LOG0 << "setup(): Call calibrateMPU9150()" << endl;
+    //Serial << LOG0 << "setup(): Call calibrateMPU9150()" << endl;
     calibrateMPU9150(gyroBias, accelBias); // Calibrate gyro and accelerometers, load biases in bias registers
 
-    Serial << LOG0 << "setup(): Call initMPU9150()" << endl;
+    //Serial << LOG0 << "setup(): Call initMPU9150()" << endl;
     initMPU9150(); // Inititalize and configure accelerometer and gyroscope
     Serial << LOG0 << "setup(): MPU9150 initialized for active data mode" << endl;
 
@@ -350,10 +350,11 @@ void loop()
       mz = (float)magCount[2]*mRes*magCalibration[2] - magbias[2];
       mcount = 0;
     }
-    if(!AHRS) {
+    //if(!AHRS) {
+    if(true || !AHRS) {
       tempCount = readTempData();  // Read the x/y/z adc values
       temperature = ((float) tempCount) / 340. + 36.53; // Temperature in degrees Centigrade
-    }
+    } //if(true||!AHRS)
   }  //if(readByte(MPU9150_ADDRESS,INT_STATUS)&0x01)
 
   Now = micros();
@@ -393,11 +394,13 @@ void loop()
     if (delt_t > ulPrintPeriodMsec) { // update LCD once per half-second independent of read rate
       digitalWrite(blinkPin, blinkOn);
 
+/*
       Serial << LOG0 << "loop():    ax= " << (int)1000*ax << ", ay= " << (int)1000*ay <<
           ", az= " << (int)1000*az << endl;
       Serial << LOG0 << "loop():    gx= " << gx << ", gy= " << gy << ", gz= " << gz << endl;
       Serial << LOG0 << "loop():    mx= " << (int)mx << ", my= " << (int)my << ", mz= " << (int)mz << endl;
       Serial << LOG0 << "loop():    q0= " << q[0] << ", qx= " << q[1] << ", qy= " << q[2] << ", qz= " << q[3] << endl;
+*/
 
       // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
       // In this coordinate system, the positive z-axis is down toward Earth.
@@ -418,6 +421,13 @@ void loop()
 
       Serial << LOG0 << "loop(): Pitch= " << pitch << ", Roll= " << roll << ", Yaw= " << yaw <<
           ", average rate= " << (1.0f/deltat) << endl;
+
+      Serial << LOG0 << "loop():    ax= " << (int)1000*ax << ", ay= " << (int)1000*ay <<
+          ", az= " << (int)1000*az << endl;
+      Serial << LOG0 << "loop():    gx= " << gx << ", gy= " << gy << ", gz= " << gz << endl;
+      Serial << LOG0 << "loop():    mx= " << (int)mx << ", my= " << (int)my << ", mz= " << (int)mz << endl;
+      //Serial << LOG0 << "loop():    q0= " << q[0] << ", qx= " << q[1] << ", qy= " << q[2] << ", qz= " << q[3] << endl;
+      Serial << LOG0 << "loop():    Temperature= " << temperature << " Deg C" << endl;
 
       // With these settings the filter is updating at a ~145 Hz rate using the Madgwick scheme and
       // >200 Hz using the Mahony scheme even though the display refreshes at only 2 Hz.
@@ -448,38 +458,58 @@ void DisplayData(void){
    display.clearDisplay();
    display.setTextColor(WHITE);
    display.setTextSize(1);
-   int wDotsPerLine= 11;
+   int    wLine;
+   int    wYStart;
+   int    wDotsPerLine= 11;
 
-   int wLine= 5;
-   int wYStart= wLine * wDotsPerLine;
+   wLine= 0;
+   wYStart= wLine * wDotsPerLine;
    display.setCursor(0, wYStart);
-   display.print(szSketchName); display.print(szFileDate);
+   display.print("P "); display.print(pitch, 1);
+   display.print(", R "); display.print(roll, 1);
+   display.display();
 
-   //wLine++;
+   wLine= 1;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart);
+   display.print("Y "); display.print(yaw, 1);
+   display.print(", "); display.print(temperature,1);
+   display.print(" C");
+   display.display();
+
+/*
    wLine= 1;
    wYStart= wLine * wDotsPerLine;
    display.setCursor(0, wYStart); display.print(" x     y     z  ");
+*/
 
-   wLine++;
+   wLine= 2;
    wYStart= wLine * wDotsPerLine;
    display.setCursor(0,  wYStart); display.print((int16_t)(1000*ax));
    display.setCursor(30, wYStart); display.print((int16_t)(1000*ay));
    display.setCursor(60, wYStart); display.print((int16_t)(1000*az));
-   display.setCursor(100, wYStart); display.print(" mg");
+   //display.setCursor(100, wYStart); display.print("mg");
 
-   wLine++;
+   wLine= 3;
    wYStart= wLine * wDotsPerLine;
    display.setCursor(0,  wYStart); display.print((int16_t)(gx));
    display.setCursor(30, wYStart); display.print((int16_t)(gy));
    display.setCursor(60, wYStart); display.print((int16_t)(gz));
-   display.setCursor(100, wYStart); display.print("o/s");
+   //display.setCursor(90, wYStart); display.print("Deg/s");
 
-   wLine++;
+/*
+   wLine= 4;
    wYStart= wLine * wDotsPerLine;
    display.setCursor(0, wYStart); display.print("Temperature= ");
    display.print(temperature, 1); display.print(" C");
    display.display();
- } //if(millis()>ulNextDisplayMsec)
+*/
+
+   wLine= 5;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart);
+   display.print(szSketchName); display.print(szFileDate);
+} //if(millis()>ulNextDisplayMsec)
   return;
 } //DisplayData
 
