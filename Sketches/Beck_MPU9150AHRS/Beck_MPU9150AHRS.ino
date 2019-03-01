@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 2/27/19d";
+const char szFileDate[]    = " 2/28/19d";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -237,6 +237,43 @@ float     my;
 float     mz;
 bool      bDoLoopLog  = true;   //Print calls in loop() once
 
+enum Sensor{
+  eAccel = 0,
+  eGyro,
+  eMag,
+  ePRY,
+  eLastSensor
+} SensorEnum;
+
+enum Axis{
+  eX = 0,
+  eY,
+  eZ,
+  eLastAxis
+} AxisEnum;
+
+enum PRY{
+  ePitch = 0,
+  eRoll,
+  eYaw,
+  eLastPRY
+} PRYEnum;
+
+float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
+    {0.0, 0.0, 0.0},
+    {0.0, 0.0, 0.0},
+    {0.0, 0.0, 0.0},
+    {0.0, 0.0, 0.0}
+};
+
+int16_t asAccGyroMag[eLastSensor - 1][eLastAxis]= {
+    {0, 0, 0},
+    {0, 0, 0},
+    {0, 0, 0}
+    };
+
+float fTemperature  = 0.0;
+
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
@@ -258,7 +295,10 @@ void setup(){
 
   Serial << LOG0 << "setup(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+
+  Serial << LOG0 << "setup(): Call DisplayData()" << endl;
   DisplayData();
+  //delay(5000);
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -455,6 +495,13 @@ void loop()
 } //loop
 
 
+void FillSensorData(){
+  for (int eSensor= eAccel; eSensor < eLastSensor; eSensor++){
+  } //for
+  return;
+} //FillSensorData
+
+
 void DisplayData(void){
   if(millis() > ulNextDisplayMsec) {
    ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
@@ -469,17 +516,21 @@ void DisplayData(void){
    wLine= 0;
    wYStart= wLine * wDotsPerLine;
    display.setCursor(0, wYStart);
+/*
    display.print("P "); display.print(pitch, 1);
    display.print(", R "); display.print(roll, 1);
-   display.display();
+*/
+   display.print("P "); display.print(afAccGyroMagPRY[ePRY][ePitch], 1);
+   display.print(", R "); display.print(afAccGyroMagPRY[ePRY][eRoll], 1);
+   //display.display();
 
    wLine= 1;
    wYStart= wLine * wDotsPerLine;
    display.setCursor(0, wYStart);
-   display.print("Y "); display.print(yaw, 1);
-   display.print(", "); display.print(temperature,1);
+   display.print("Y "); display.print(afAccGyroMagPRY[ePRY][eYaw], 1);
+   display.print(", "); display.print(fTemperature, 1);
    display.print(" C");
-   display.display();
+   //display.display();
 
 /*
    wLine= 1;
@@ -489,10 +540,16 @@ void DisplayData(void){
 
    wLine= 2;
    wYStart= wLine * wDotsPerLine;
+/*
+   display.setCursor(0,  wYStart); display.print((int16_t)(1000*ax));
+   display.setCursor(30, wYStart); display.print((int16_t)(1000*ay));
+   display.setCursor(60, wYStart); display.print((int16_t)(1000*az));
+*/
    display.setCursor(0,  wYStart); display.print((int16_t)(1000*ax));
    display.setCursor(30, wYStart); display.print((int16_t)(1000*ay));
    display.setCursor(60, wYStart); display.print((int16_t)(1000*az));
    //display.setCursor(100, wYStart); display.print("mg");
+   //display.display();
 
    wLine= 3;
    wYStart= wLine * wDotsPerLine;
@@ -500,7 +557,7 @@ void DisplayData(void){
    display.setCursor(30, wYStart); display.print((int16_t)(gy));
    display.setCursor(60, wYStart); display.print((int16_t)(gz));
    //display.setCursor(90, wYStart); display.print("Deg/s");
-
+   //display.display();
 /*
    wLine= 4;
    wYStart= wLine * wDotsPerLine;
@@ -508,11 +565,12 @@ void DisplayData(void){
    display.print(temperature, 1); display.print(" C");
    display.display();
 */
-
    wLine= 5;
    wYStart= wLine * wDotsPerLine;
    display.setCursor(0, wYStart);
    display.print(szSketchName); display.print(szFileDate);
+
+   display.display();
 } //if(millis()>ulNextDisplayMsec)
   return;
 } //DisplayData
