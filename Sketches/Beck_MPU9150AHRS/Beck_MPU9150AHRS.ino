@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 2/28/19d";
+const char szFileDate[]    = " 03/01/19c";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -226,15 +226,15 @@ uint32_t  lastUpdate  = 0; // used to calculate integration interval
 uint32_t  firstUpdate = 0; // used to calculate integration interval
 uint32_t  Now         = 0;        // used to calculate integration interval
 //float ax, ay, az, gx, gy, gz, mx, my, mz; // variables to hold latest sensor data values
-float     ax;
-float     ay;
-float     az;
-float     gx;
-float     gy;
-float     gz;
-float     mx;
-float     my;
-float     mz;
+float     ax= 0.00;
+float     ay= 0.00;
+float     az= 0.00;
+float     gx= 0.00;
+float     gy= 0.00;
+float     gz= 0.00;
+float     mx= 0.00;
+float     my= 0.00;
+float     mz= 0.00;
 bool      bDoLoopLog  = true;   //Print calls in loop() once
 
 enum Sensor{
@@ -243,21 +243,21 @@ enum Sensor{
   eMag,
   ePRY,
   eLastSensor
-} SensorEnum;
+};
 
 enum Axis{
   eX = 0,
   eY,
   eZ,
   eLastAxis
-} AxisEnum;
+};
 
 enum PRY{
   ePitch = 0,
   eRoll,
   eYaw,
   eLastPRY
-} PRYEnum;
+};
 
 float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
     {0.0, 0.0, 0.0},
@@ -266,7 +266,7 @@ float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
     {0.0, 0.0, 0.0}
 };
 
-int16_t asAccGyroMag[eLastSensor - 1][eLastAxis]= {
+int16_t asAccGyroMagMilliInt[eLastSensor - 1][eLastAxis]= {
     {0, 0, 0},
     {0, 0, 0},
     {0, 0, 0}
@@ -283,7 +283,8 @@ const uint32_t  ulDisplayPeriodMsec = 1000; //Beck
       uint32_t  ulNextDisplayMsec   = 0;
 
 //Function protos
-void  DisplayData     (void);
+void  FillSensorData    (void);
+void  DisplayData       (void);
 
 void setup(){
   Serial.begin(115200);
@@ -296,9 +297,10 @@ void setup(){
   Serial << LOG0 << "setup(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
 
-  Serial << LOG0 << "setup(): Call DisplayData()" << endl;
+  Serial << LOG0 << "setup(): Call DisplayData(), wait 5 sec" << endl;
+  display.clearDisplay();
   DisplayData();
-  //delay(5000);
+  delay(5000);
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -490,6 +492,8 @@ void loop()
       count = millis();
     } //if(delt_t>500)
   } //if(!AHRS)else
+
+  FillSensorData();
   DisplayData();
   return;
 } //loop
@@ -497,7 +501,39 @@ void loop()
 
 void FillSensorData(){
   for (int eSensor= eAccel; eSensor < eLastSensor; eSensor++){
+    switch (eSensor){
+      case eAccel:
+        afAccGyroMagPRY[eSensor][eX]= ax;
+        afAccGyroMagPRY[eSensor][eY]= ay;
+        afAccGyroMagPRY[eSensor][eZ]= az;
+        break;
+      case eGyro:
+        afAccGyroMagPRY[eSensor][eX]= gx;
+        afAccGyroMagPRY[eSensor][eY]= gy;
+        afAccGyroMagPRY[eSensor][eZ]= gz;
+        break;
+      case eMag:
+        afAccGyroMagPRY[eSensor][eX]= mx;
+        afAccGyroMagPRY[eSensor][eY]= my;
+        afAccGyroMagPRY[eSensor][eZ]= mz;
+        break;
+      case ePRY:
+        afAccGyroMagPRY[eSensor][ePitch]= pitch;
+        afAccGyroMagPRY[eSensor][eRoll] = roll;
+        afAccGyroMagPRY[eSensor][eYaw]  = yaw;
+        break;
+      default:
+        Serial << LOG0 << "FillSensorData() Bad switch= " << eSensor << endl;
+        break;
+    } //switch
   } //for
+
+  //Change from a float to an integer representing "milli" values
+  for (int eSensor= eAccel; eSensor <= eMag; eSensor++){
+    for (int eAxis= eX; eAxis <= eZ; eAxis++){
+      asAccGyroMagMilliInt[eSensor][eAxis]= (int16_t)(1000.0 * afAccGyroMagPRY[eSensor][eAxis]);
+    } // //for(int eAxis=eX;...
+  } //for(int eSensor=eAccel;...
   return;
 } //FillSensorData
 
@@ -505,7 +541,6 @@ void FillSensorData(){
 void DisplayData(void){
   if(millis() > ulNextDisplayMsec) {
    ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
-   //Serial << LOG0 << "DisplayData(): Display Accel, Pitch and Roll" << endl;
    display.clearDisplay();
    display.setTextColor(WHITE);
    display.setTextSize(1);
@@ -520,7 +555,7 @@ void DisplayData(void){
    display.print("P "); display.print(pitch, 1);
    display.print(", R "); display.print(roll, 1);
 */
-   display.print("P "); display.print(afAccGyroMagPRY[ePRY][ePitch], 1);
+   display.print("P ");   display.print(afAccGyroMagPRY[ePRY][ePitch], 1);
    display.print(", R "); display.print(afAccGyroMagPRY[ePRY][eRoll], 1);
    //display.display();
 
@@ -544,20 +579,25 @@ void DisplayData(void){
    display.setCursor(0,  wYStart); display.print((int16_t)(1000*ax));
    display.setCursor(30, wYStart); display.print((int16_t)(1000*ay));
    display.setCursor(60, wYStart); display.print((int16_t)(1000*az));
+   display.setCursor(100, wYStart); display.print("mg");
+   display.display();
 */
-   display.setCursor(0,  wYStart); display.print((int16_t)(1000*ax));
-   display.setCursor(30, wYStart); display.print((int16_t)(1000*ay));
-   display.setCursor(60, wYStart); display.print((int16_t)(1000*az));
-   //display.setCursor(100, wYStart); display.print("mg");
-   //display.display();
+   display.setCursor(0,  wYStart); display.print(asAccGyroMagMilliInt[eAccel][eX]);
+   display.setCursor(30, wYStart); display.print(asAccGyroMagMilliInt[eAccel][eY]);
+   display.setCursor(60, wYStart); display.print(asAccGyroMagMilliInt[eAccel][eZ]);
 
    wLine= 3;
    wYStart= wLine * wDotsPerLine;
+/*
    display.setCursor(0,  wYStart); display.print((int16_t)(gx));
    display.setCursor(30, wYStart); display.print((int16_t)(gy));
    display.setCursor(60, wYStart); display.print((int16_t)(gz));
-   //display.setCursor(90, wYStart); display.print("Deg/s");
-   //display.display();
+   display.setCursor(90, wYStart); display.print("Deg/s");
+   display.display();
+*/
+   display.setCursor(0,  wYStart); display.print(asAccGyroMagMilliInt[eGyro][eX]);
+   display.setCursor(30, wYStart); display.print(asAccGyroMagMilliInt[eGyro][eY]);
+   display.setCursor(60, wYStart); display.print(asAccGyroMagMilliInt[eGyro][eZ]);
 /*
    wLine= 4;
    wYStart= wLine * wDotsPerLine;
