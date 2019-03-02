@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 03/01/19g";
+const char szFileDate[]    = " 03/01/19aa";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -71,10 +71,12 @@ boolean   blinkOn = false;
 int16_t   accelCount[3];  // Stores the 16-bit signed accelerometer sensor output
 int16_t   gyroCount[3];   // Stores the 16-bit signed gyro sensor output
 int16_t   magCount[3];    // Stores the 16-bit signed magnetometer sensor output
-float     magCalibration[3] = {0, 0, 0}, magbias[3] = {0, 0, 0};  // Factory mag calibration and mag bias
-float     gyroBias[3]       = {0, 0, 0}, accelBias[3] = {0, 0, 0};      // Bias corrections for gyro and accelerometer
+float     magCalibration[3] = {0, 0, 0};
+float     magbias[3]        = {0, 0, 0};  // Factory mag calibration and mag bias
+float     gyroBias[3]       = {0, 0, 0};
+float     accelBias[3]      = {0, 0, 0};      // Bias corrections for gyro and accelerometer
 int16_t   tempCount;      // Stores the raw internal chip temperature counts
-float     temperature;    // temperature in degrees Centigrade
+float     fDegC;          // temperature in degrees Centigrade
 float     SelfTest[6];
 
 uint32_t  count       = 0;  // used to control display output rate
@@ -133,7 +135,7 @@ int16_t asAccGyroMagMilliInt[eLastSensor - 1][eLastAxis]= {
     {0, 0, 0}
     };
 
-float fTemperature  = 0.0;
+char    aszAccGyroMagPRY[eLastSensor][eLastAxis][10];
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -157,11 +159,6 @@ void setup(){
 
   Serial << LOG0 << "setup(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
-
-  Serial << LOG0 << "setup(): Call DisplayData(), wait 5 sec" << endl;
-  display.clearDisplay();
-  DisplayData();
-  delay(5000);
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -256,7 +253,7 @@ void loop()
     //if(!AHRS) {
     if(true || !AHRS) {
       tempCount = readTempData();  // Read the x/y/z adc values
-      temperature = ((float) tempCount) / 340. + 36.53; // Temperature in degrees Centigrade
+      fDegC = ((float) tempCount) / 340. + 36.53;
     } //if(true||!AHRS)
   }  //if(readByte(MPU9150_ADDRESS,INT_STATUS)&0x01)
 
@@ -285,7 +282,7 @@ void loop()
       Serial.print("Y-mag field: "); Serial.print(my); Serial.print(" mG ");
       Serial.print("Z-mag field: "); Serial.print(mz); Serial.println(" mG");
       // Print temperature in degrees Centigrade
-      Serial.print("Temperature is ");  Serial.print(temperature, 1);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
+      Serial.print("Temperature is ");  Serial.print(fDegC, 1);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
       Serial.println("");
       blinkOn = ~blinkOn;
       count = millis();
@@ -313,6 +310,25 @@ void loop()
       yaw   -= 13.8; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
       roll  *= 180.0f / PI;
 
+      FillSensorData();
+/*
+      int   w3737     = 3737;
+      float f37dot37  = 37.37;
+      char  szBuffer[10];
+      Serial << LOG0 << "loop(): ";
+      dtostrf(f37dot37, 7, 3, szBuffer);
+      Serial << LOG0 << "loop(): f37dot37= " << f37dot37 << endl;
+      //printf("Pitch= %5.2f\n", afAccGyroMagPRY[ePRY][ePitch]);
+*/
+
+      float   fDegToRadians= PI/180.0;
+      float   fPitchPercent= 100.0 * tan(fDegToRadians * afAccGyroMagPRY[ePRY][ePitch]);
+
+      fPitchPercent= fmin(+99.99, fPitchPercent);
+      fPitchPercent= fmax(-99.99, fPitchPercent);
+      dtostrf(fPitchPercent, 5, 2, aszAccGyroMagPRY[ePRY][ePitch]);
+      Serial << LOG0 << "loop(): Pitch %= " << aszAccGyroMagPRY[ePRY][ePitch] << endl;
+
       Serial << LOG0 << "loop(): Pitch= " << pitch << ", Roll= " << roll << ", Yaw= " << yaw <<
           ", average rate= " << (1.0f/deltat) << endl;
 
@@ -321,7 +337,7 @@ void loop()
       Serial << LOG0 << "loop():    gx= " << gx << ", gy= " << gy << ", gz= " << gz << endl;
       Serial << LOG0 << "loop():    mx= " << (int)mx << ", my= " << (int)my << ", mz= " << (int)mz << endl;
       //Serial << LOG0 << "loop():    q0= " << q[0] << ", qx= " << q[1] << ", qy= " << q[2] << ", qz= " << q[3] << endl;
-      Serial << LOG0 << "loop():    Temperature= " << temperature << " Deg C" << endl;
+      Serial << LOG0 << "loop():    Temperature= " << fDegC << " Deg C" << endl;
 
       // With these settings the filter is updating at a ~145 Hz rate using the Madgwick scheme and
       // >200 Hz using the Mahony scheme even though the display refreshes at only 2 Hz.
@@ -341,7 +357,7 @@ void loop()
     } //if(delt_t>500)
   } //if(!AHRS)else
 
-  FillSensorData();
+  //FillSensorData();
   DisplayData();
   return;
 } //loop
@@ -406,7 +422,7 @@ void DisplayData(void){
    wYStart= wLine * wDotsPerLine;
    display.setCursor(0, wYStart);
    display.print("Y "); display.print(afAccGyroMagPRY[ePRY][eYaw], 1);
-   display.print(", "); display.print(fTemperature, 1);
+   display.print(", "); display.print(fDegC, 1);
    display.print(" C");
 
    wLine= 2;
