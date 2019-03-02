@@ -204,6 +204,7 @@ void setup(){
   } //if(c==0x68)
   else{
     Serial << LOG0 << "setup(): Could not connect to MPU9150:" << c << endl;
+    unsigned long   ulNextLogMsec= 0;
     while(true){
       Serial << LOG0 << "setup(): In infinite loop because didn't connect to MPU9150" << endl;
       delay(10000); //10 sec
