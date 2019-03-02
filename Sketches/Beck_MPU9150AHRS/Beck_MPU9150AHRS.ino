@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 03/01/19ab";
+const char szFileDate[]    = " 03/02/19c";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -76,7 +76,7 @@ float     magbias[3]        = {0, 0, 0};  // Factory mag calibration and mag bia
 float     gyroBias[3]       = {0, 0, 0};
 float     accelBias[3]      = {0, 0, 0};      // Bias corrections for gyro and accelerometer
 int16_t   tempCount;      // Stores the raw internal chip temperature counts
-float     fDegC;          // temperature in degrees Centigrade
+//float     fDegC;          // temperature in degrees Centigrade
 float     SelfTest[6];
 
 uint32_t  count       = 0;  // used to control display output rate
@@ -122,6 +122,10 @@ enum PRY{
   eLastPRY
 };
 
+const float     fDegToRadians       = PI/180.0;
+const uint32_t  ulDisplayPeriodMsec = 1000;
+const int       wBuffChar           = 20;
+
 float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
     {0.0, 0.0, 0.0},
     {0.0, 0.0, 0.0},
@@ -135,20 +139,27 @@ int16_t asAccGyroMagMilliInt[eLastSensor - 1][eLastAxis]= {
     {0, 0, 0}
     };
 
-char    aszAccGyroMagPRY[eLastSensor][eLastAxis][10];
+char  aszAccGyroMagPRY[eLastSensor][eLastAxis][wBuffChar]{
+  {"", "", ""},
+  {"", "", ""},
+  {"", "", ""},
+  {"", "", ""}
+  };
+
+//char            aszAccGyroMagPRY  [eLastSensor][eLastAxis][wBuffChar];
+char            szDegC            [wBuffChar];
+float           fDegC;
+uint32_t        ulNextDisplayMsec = 0;
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306    display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-const float     fDegToRadians       = PI/180.0;
-const uint32_t  ulDisplayPeriodMsec = 1000; //Beck
-      uint32_t  ulNextDisplayMsec   = 0;
-
 //Function protos
-void  FillSensorData    (void);
-void  DisplayData       (void);
+void  FillSensorData        ();
+void  BuildDisplayStrings   ();
+void  DisplayData           ();
 
 void setup(){
   Serial.begin(115200);
@@ -312,6 +323,7 @@ void loop()
       roll  *= 180.0f / PI;
 
       FillSensorData();
+      BuildDisplayStrings();
 /*
       int   w3737     = 3737;
       float f37dot37  = 37.37;
@@ -393,43 +405,104 @@ void FillSensorData(){
         break;
     } //switch
   } //for
+  return;
+} //FillSensorData
 
-  //Change from a float to an integer representing "milli" values
+
+void BuildDisplayStrings(){
+  //dtostrf(floatvar, StringLengthIncDecimalPoint, numVarsAfterDecimal, charbuf)
+  float   fPitchPercent;
+  char    szBuffer[wBuffChar];
   for (int eSensor= eAccel; eSensor <= eMag; eSensor++){
-/*
-    for (int eAxis= eX; eAxis <= eZ; eAxis++){
-      asAccGyroMagMilliInt[eSensor][eAxis]= (int16_t)(1000.0 * afAccGyroMagPRY[eSensor][eAxis]);
-*/
     switch (eSensor){
       case eAccel:
       case eGyro:
       case eMag:
         for (int eAxis= eX; eAxis <= eZ; eAxis++){
-          dtostrf(aszAccGyroMagPRY[eSensor][eAxis], 5, 2, asAccGyroMagMilliInt[eSensor][eAxis]);
+          dtostrf(afAccGyroMagPRY[eSensor][eAxis], 5, 2, aszAccGyroMagPRY[eSensor][eAxis]);
+        } //for(int eAxis=eX;...
         break;
       case ePRY:
-        float   fPitchPercent= 100.0 * tan(fDegToRadians * afAccGyroMagPRY[ePRY][ePitch]);
+        strcpy(aszAccGyroMagPRY[eSensor][eRoll], "R ");
+        dtostrf(afAccGyroMagPRY[eSensor][eRoll], 5, 2, szBuffer);
+        strcat(aszAccGyroMagPRY[eSensor][eRoll], szBuffer);
+
+        strcpy(aszAccGyroMagPRY[eSensor][eYaw], "Y ");
+        dtostrf(afAccGyroMagPRY[eSensor][eYaw] , 5, 2, szBuffer);
+        strcat(aszAccGyroMagPRY[eSensor][eYaw], szBuffer);
+        strcat(aszAccGyroMagPRY[eSensor][eYaw], ", ");
+
+        //Compute Pitch as a percent rise or fall
+        fPitchPercent= 100.0 * tan(fDegToRadians * afAccGyroMagPRY[ePRY][ePitch]);
         fPitchPercent= fmin(+99.99, fPitchPercent);
         fPitchPercent= fmax(-99.99, fPitchPercent);
-        dtostrf(fPitchPercent, 5, 2, aszAccGyroMagPRY[ePRY][ePitch]);
 
-        dtostrf(aszAccGyroMagPRY[eSensor][eRoll], 5, 2, asAccGyroMagMilliInt[eSensor][eRoll]);
-        dtostrf(aszAccGyroMagPRY[eSensor][eYaw] , 5, 2, asAccGyroMagMilliInt[eSensor][eRoll]);
-/*
-        afAccGyroMagPRY[eSensor][eRoll] = roll;
-        afAccGyroMagPRY[eSensor][eYaw]  = yaw;
-*/
+        strcpy(aszAccGyroMagPRY[eSensor][ePitch], "P ");
+        dtostrf(fPitchPercent, 5, 2, aszAccGyroMagPRY[ePRY][ePitch]);
+        strcat(aszAccGyroMagPRY[eSensor][ePitch], szBuffer);
+        strcat(aszAccGyroMagPRY[eSensor][ePitch], "%, ");
         break;
       default:
         Serial << LOG0 << "FillSensorData() Bad switch= " << eSensor << endl;
         break;
     } //switch
-    } // //for(int eAxis=eX;...
   } //for(int eSensor=eAccel;...
+  Serial << LOG0 << "BuildDisplayStrings(): P R Y " << aszAccGyroMagPRY[ePRY][ePitch] <<
+      aszAccGyroMagPRY[ePRY][eRoll] << aszAccGyroMagPRY[ePRY][eYaw] << endl;
+
+  //Build temperature string
+  dtostrf(fDegC, 4, 1, szDegC);
+  strcat(szDegC, "C");
   return;
-} //FillSensorData
+} //BuildDisplayStrings
 
 
+void DisplayData(void){
+  if(millis() > ulNextDisplayMsec) {
+   ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
+   display.clearDisplay();
+   display.setTextColor(WHITE);
+   display.setTextSize(1);
+   int    wLine;
+   int    wYStart;
+   int    wDotsPerLine= 11;
+
+   wLine= 0;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart);
+   display.print(aszAccGyroMagPRY[ePRY][ePitch]);
+   display.print(aszAccGyroMagPRY[ePRY][eRoll]);
+
+   wLine= 1;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart);
+   display.print(aszAccGyroMagPRY[ePRY][eYaw]);
+   display.print(szDegC);
+
+   wLine= 2;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0,  wYStart); display.print(aszAccGyroMagPRY[eAccel][eX]);
+   display.setCursor(30, wYStart); display.print(aszAccGyroMagPRY[eAccel][eY]);
+   display.setCursor(60, wYStart); display.print(aszAccGyroMagPRY[eAccel][eZ]);
+
+   wLine= 3;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0,  wYStart); display.print(aszAccGyroMagPRY[eGyro][eX]);
+   display.setCursor(30, wYStart); display.print(aszAccGyroMagPRY[eGyro][eY]);
+   display.setCursor(60, wYStart); display.print(aszAccGyroMagPRY[eGyro][eZ]);
+
+   wLine= 5;
+   wYStart= wLine * wDotsPerLine + 1; //Push to the bottom
+   display.setCursor(0, wYStart);
+   display.print(szSketchName); display.print(szFileDate);
+
+   display.display();
+  } //if(millis()>ulNextDisplayMsec)
+  return;
+} //DisplayData
+
+
+/*
 void DisplayData(void){
   if(millis() > ulNextDisplayMsec) {
    ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
@@ -470,9 +543,10 @@ void DisplayData(void){
    display.print(szSketchName); display.print(szFileDate);
 
    display.display();
-} //if(millis()>ulNextDisplayMsec)
+  } //if(millis()>ulNextDisplayMsec)
   return;
 } //DisplayData
+*/
 
 
 //===================================================================================================================
