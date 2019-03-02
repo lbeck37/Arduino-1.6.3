@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 03/01/19aa";
+const char szFileDate[]    = " 03/01/19ab";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -142,6 +142,7 @@ char    aszAccGyroMagPRY[eLastSensor][eLastAxis][10];
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306    display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
+const float     fDegToRadians       = PI/180.0;
 const uint32_t  ulDisplayPeriodMsec = 1000; //Beck
       uint32_t  ulNextDisplayMsec   = 0;
 
@@ -321,13 +322,14 @@ void loop()
       //printf("Pitch= %5.2f\n", afAccGyroMagPRY[ePRY][ePitch]);
 */
 
-      float   fDegToRadians= PI/180.0;
+/*
+      //float   fDegToRadians= PI/180.0;
       float   fPitchPercent= 100.0 * tan(fDegToRadians * afAccGyroMagPRY[ePRY][ePitch]);
-
       fPitchPercent= fmin(+99.99, fPitchPercent);
       fPitchPercent= fmax(-99.99, fPitchPercent);
       dtostrf(fPitchPercent, 5, 2, aszAccGyroMagPRY[ePRY][ePitch]);
       Serial << LOG0 << "loop(): Pitch %= " << aszAccGyroMagPRY[ePRY][ePitch] << endl;
+*/
 
       Serial << LOG0 << "loop(): Pitch= " << pitch << ", Roll= " << roll << ", Yaw= " << yaw <<
           ", average rate= " << (1.0f/deltat) << endl;
@@ -394,8 +396,34 @@ void FillSensorData(){
 
   //Change from a float to an integer representing "milli" values
   for (int eSensor= eAccel; eSensor <= eMag; eSensor++){
+/*
     for (int eAxis= eX; eAxis <= eZ; eAxis++){
       asAccGyroMagMilliInt[eSensor][eAxis]= (int16_t)(1000.0 * afAccGyroMagPRY[eSensor][eAxis]);
+*/
+    switch (eSensor){
+      case eAccel:
+      case eGyro:
+      case eMag:
+        for (int eAxis= eX; eAxis <= eZ; eAxis++){
+          dtostrf(aszAccGyroMagPRY[eSensor][eAxis], 5, 2, asAccGyroMagMilliInt[eSensor][eAxis]);
+        break;
+      case ePRY:
+        float   fPitchPercent= 100.0 * tan(fDegToRadians * afAccGyroMagPRY[ePRY][ePitch]);
+        fPitchPercent= fmin(+99.99, fPitchPercent);
+        fPitchPercent= fmax(-99.99, fPitchPercent);
+        dtostrf(fPitchPercent, 5, 2, aszAccGyroMagPRY[ePRY][ePitch]);
+
+        dtostrf(aszAccGyroMagPRY[eSensor][eRoll], 5, 2, asAccGyroMagMilliInt[eSensor][eRoll]);
+        dtostrf(aszAccGyroMagPRY[eSensor][eYaw] , 5, 2, asAccGyroMagMilliInt[eSensor][eRoll]);
+/*
+        afAccGyroMagPRY[eSensor][eRoll] = roll;
+        afAccGyroMagPRY[eSensor][eYaw]  = yaw;
+*/
+        break;
+      default:
+        Serial << LOG0 << "FillSensorData() Bad switch= " << eSensor << endl;
+        break;
+    } //switch
     } // //for(int eAxis=eX;...
   } //for(int eSensor=eAccel;...
   return;
