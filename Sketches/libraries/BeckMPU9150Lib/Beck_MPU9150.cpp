@@ -1,11 +1,9 @@
-//BeckMPU9150.cpp 3/3/19a
+//BeckMPU9150.cpp 3/3/19c
 #include <Beck_MPU9150.h>
-#include <BeckMiniLib.h>
-//#include <BeckLogLib.h>
 #include <Beck_IMUdefines.h>
 #include <Beck_IMUQuaternionFilters.h>
 #include "Wire.h"
-#include <Adafruit_SSD1306.h>     ////For I2C OLED display
+//#include <Adafruit_SSD1306.h>     ////For I2C OLED display
 
 // Using the GY-521 breakout board, I set ADO to 0 by grounding through a 4k7 resistor
 // Seven-bit device address is 110100 for ADO = 0 and 110101 for ADO = 1
@@ -17,8 +15,8 @@
   #define AK8975A_ADDRESS 0x0C //  Address of magnetometer
 #endif
 
-#define AHRS  true          // set to false for basic data read
-#define SerialDebug true  //Beck
+#define AHRS        true          // set to false for basic data read
+#define SerialDebug true
 
 // Set initial input parameters
 enum Ascale {
@@ -35,9 +33,10 @@ enum Gscale {
   GFS_2000DPS
 };
 
+/*
 const int       sSDA_GPIO             =    4;   //I2C, GPIO 4 is D2 on NodeMCU
 const int       sSCL_GPIO             =    5;   //I2C, GPIO 5 is D1 on NodeMCU and labeled D2
-//const uint32_t  ulPrintPeriodMsec     = 5000; //Beck
+*/
 
 // Specify sensor full scale
 uint8_t   Gscale = GFS_250DPS;
@@ -80,32 +79,9 @@ float     my= 0.00;
 float     mz= 0.00;
 bool      bDoLoopLog  = true;   //Print calls in loop() once
 
-enum Sensor{
-  eAccel = 0,
-  eGyro,
-  eMag,
-  ePRY,
-  eLastSensor
-};
-
-enum Axis{
-  eX = 0,
-  eY,
-  eZ,
-  eLastAxis
-};
-
-enum PRY{
-  ePitch = 0,
-  eRoll,
-  eYaw,
-  eLastPRY
-};
-
 const float     fDegToRadians         = PI/180.0;
-const uint32_t  ulDisplayPeriodMsec   =  200;
 const uint32_t  ulPrintPeriodMsec     = 5000;
-const int       wBuffChar             = 20;
+const int       _wStringBufferSize    = 20;
 
 float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
     {0.0, 0.0, 0.0},
@@ -114,22 +90,23 @@ float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
     {0.0, 0.0, 0.0}
 };
 
-int16_t asAccGyroMagMilliInt[eLastSensor - 1][eLastAxis]= {
-    {0, 0, 0},
-    {0, 0, 0},
-    {0, 0, 0}
-    };
 
+uint32_t        ulNextPrintMsec       = 0;
+uint32_t        _ulUpdatePeriodMsec   =  200;
+uint32_t        _ulNextUpdateMsec     = 0;
 char            aszAccGyroMagPRY  [eLastSensor][eLastAxis][wBuffChar];
 char            szDegC            [wBuffChar];
-float           fDegC;
-uint32_t        ulNextDisplayMsec = 0;
-uint32_t        ulNextPrintMsec   = 0;
+char            _szSketchName     [_wStringBufferSize + 1];
+char            _szFileDate       [_wStringBufferSize + 1];
 
+float           fDegC;
+
+/*
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306    display(SCREEN_WIDTH, SCREEN_HEIGHT);
+*/
 
 //Function protos
 void      FillSensorData();
@@ -149,20 +126,19 @@ void      writeByte         (uint8_t address, uint8_t subAddress, uint8_t data);
 uint8_t   readByte          (uint8_t address, uint8_t subAddress);
 void      readBytes         (uint8_t address, uint8_t subAddress, uint8_t ucCount, uint8_t * dest);
 
-const int _wStringBufferSize= 20;
-char      _szSketchName [_wStringBufferSize + 1];
-char      _szFileDate   [_wStringBufferSize + 1];
 
-//void SetupIMUSystem(){
-void SetupIMUSystem(const char *szSketchName, const char *szFileDate){
+void SetupIMUSystem(const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec){
   strncpy(_szSketchName , szSketchName, _wStringBufferSize);
   strncpy(_szFileDate   , szFileDate  , _wStringBufferSize);
+  _ulUpdatePeriodMsec= ulUpdatePeriodMsec;
 
   Serial << LOG0 << "SetupIMUSystem(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
 
+  /*
   Serial << LOG0 << "SetupIMUSystem(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+*/
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
@@ -171,9 +147,14 @@ void SetupIMUSystem(const char *szSketchName, const char *szFileDate){
   digitalWrite(blinkPin, HIGH);
 
   // Read the WHO_AM_I register, this is a good test of communication
-  uint8_t c = readByte(MPU9150_ADDRESS, WHO_AM_I_MPU9150);  // Read WHO_AM_I register for MPU-9150
-  Serial << LOG0 << "SetupIMUSystem(): WHO_AM_I= " << c << ", should be 0x68 (104d)" << endl;
-  if (c == 0x68){            // WHO_AM_I should always be 0x68
+  Serial << LOG0 << "SetupIMUSystem(): MPU9150_ADDRESS= " <<  MPU9150_ADDRESS <<
+      ", WHO_AM_I_MPU9150= " << WHO_AM_I_MPU9150 << ")" << endl;
+
+  Serial << LOG0 << "SetupIMUSystem(): Call readByte(" <<  MPU9150_ADDRESS << ", " << WHO_AM_I_MPU9150 << ")" << endl;
+  uint8_t ucWhoAmI = readByte(MPU9150_ADDRESS, WHO_AM_I_MPU9150);  // Read WHO_AM_I register for MPU-9150
+
+  Serial << LOG0 << "SetupIMUSystem(): WHO_AM_I= " << ucWhoAmI << ", should be 0x68 (104d)" << endl;
+  if (ucWhoAmI == 0x68){            // WHO_AM_I should always be 0x68
     Serial << LOG0 << "SetupIMUSystem(): MPU9150 is online" << endl;
 
     MPU6050SelfTest   (SelfTest); // Start by performing self test
@@ -198,17 +179,16 @@ void SetupIMUSystem(const char *szSketchName, const char *szFileDate){
 
       Serial.print("Z-Axis sensitivity adjustment value ");
       Serial.println(magCalibration[2], 2);
-    }
-
+    } //if(SerialDebug)
     MagRate = 10; // set magnetometer read rate in Hz; 10 to 100 (max) Hz are reasonable values
-  } //if(c==0x68)
+  } //if(ucWhoAmI==0x68)
   else{
-    Serial << LOG0 << "SetupIMUSystem(): Could not connect to MPU9150:" << c << endl;
+    Serial << LOG0 << "SetupIMUSystem(): Could not connect to MPU9150: ucWhoAmI= " << ucWhoAmI << endl;
     while(true){
       Serial << LOG0 << "SetupIMUSystem(): In infinite loop because didn't connect to MPU9150" << endl;
       delay(10000); //10 sec
      }  //while(true)
-  } //if(c==0x68)else
+  } //if(ucWhoAmI==0x68)else
   return;
 } //SetupIMUSystem
 
@@ -263,6 +243,7 @@ void HandleIMU(){
   MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  my,  mx, mz);
 
   if (!AHRS) {
+/*
     if(millis() > ulNextPrintMsec){
       ulNextPrintMsec = millis() + ulPrintPeriodMsec;
       digitalWrite(blinkPin, blinkOn);
@@ -283,11 +264,12 @@ void HandleIMU(){
       Serial.println("");
       blinkOn = ~blinkOn;
     } // if(millis()>ulNextPrintMsec)
+*/
   } //if(!AHRS)
   else {
     // Serial print and/or display at 0.5 s rate independent of data rates
-    if(millis() > ulNextDisplayMsec){
-      ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
+    if(millis() > _ulNextUpdateMsec){
+      _ulNextUpdateMsec= millis() + _ulUpdatePeriodMsec;
       digitalWrite(blinkPin, blinkOn);
       // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
       // In this coordinate system, the positive z-axis is down toward Earth.
@@ -308,7 +290,7 @@ void HandleIMU(){
 
       FillSensorData();
       BuildDisplayStrings();
-      DisplayData();
+      //DisplayData();
 
       // With these settings the filter is updating at a ~145 Hz rate using the Madgwick scheme and
       // >200 Hz using the Mahony scheme even though the display refreshes at only 2 Hz.
@@ -324,8 +306,9 @@ void HandleIMU(){
       // Display 0.5-second average filter rate
       blinkOn = ~blinkOn;
       ulLastMsec = millis();
-    } //if(millis()>ulNextDisplayMsec)
+    } //if(millis()>_ulNextUpdateMsec)
 
+/*
     if(millis() > ulNextPrintMsec){
       ulNextPrintMsec= millis() + ulPrintPeriodMsec;
       Serial << LOG0 << "HandleIMU(): P R Y " << aszAccGyroMagPRY[ePRY][ePitch] <<
@@ -339,12 +322,14 @@ void HandleIMU(){
       //Serial << LOG0 << "HandleIMU():    q0= " << q[0] << ", qx= " << q[1] << ", qy= " << q[2] << ", qz= " << q[3] << endl;
       Serial << LOG0 << "HandleIMU():    Temperature= " << fDegC << " Deg C" << endl;
     } //if(millis()>ulNextPrintMsec)
+*/
   } //if(!AHRS)else
 
   return;
 } //HandleIMU
 
 
+/*
 void DisplayData(void){
 //  if(millis() > ulNextDisplayMsec) {
    ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
@@ -388,6 +373,7 @@ void DisplayData(void){
 //  } //if(millis()>ulNextDisplayMsec)
   return;
 } //DisplayData
+*/
 
 
 void FillSensorData(){
