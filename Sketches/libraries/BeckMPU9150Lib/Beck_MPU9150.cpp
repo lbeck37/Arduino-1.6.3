@@ -1,7 +1,7 @@
-//BeckMPU9150.cpp 3/2/19a
+//BeckMPU9150.cpp 3/3/19a
 #include <Beck_MPU9150.h>
 #include <BeckMiniLib.h>
-#include <BeckLogLib.h>
+//#include <BeckLogLib.h>
 #include <Beck_IMUdefines.h>
 #include <Beck_IMUQuaternionFilters.h>
 #include "Wire.h"
@@ -55,14 +55,14 @@ int16_t   magCount[3];    // Stores the 16-bit signed magnetometer sensor output
 float     magCalibration[3] = {0, 0, 0};
 float     magbias[3]        = {0, 0, 0};  // Factory mag calibration and mag bias
 float     gyroBias[3]       = {0, 0, 0};
-float     accelBias[3]      = {0, 0, 0};      // Bias corrections for gyro and accelerometer
-int16_t   tempCount;      // Stores the raw internal chip temperature counts
-//float     fDegC;          // temperature in degrees Centigrade
+float     accelBias[3]      = {0, 0, 0};  // Bias corrections for gyro and accelerometer
+int16_t   tempCount;            // Stores the raw internal chip temperature counts
+//float     fDegC;              // temperature in degrees Centigrade
 float     SelfTest[6];
 
-uint32_t  ulLastMsec  = 0;  // used to control display output rate
-uint32_t  mcount      = 0; // used to control magnetometer read rate
-uint32_t  MagRate;    // read rate for magnetometer data
+uint32_t  ulLastMsec      = 0;  // used to control display output rate
+uint32_t  mcount          = 0;  // used to control magnetometer read rate
+uint32_t  MagRate;              // read rate for magnetometer data
 
 float     pitch;
 float     yaw;
@@ -130,17 +130,34 @@ uint32_t        ulNextPrintMsec   = 0;
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306    display(SCREEN_WIDTH, SCREEN_HEIGHT);
-//Function protos
-void  FillSensorData        ();
-void  BuildDisplayStrings   ();
-void  DisplayData           ();
 
-void SetupIMUSystem(){
-/*
-  Serial.begin(115200);
-  delay(1000);
-  Serial << endl << LOG0 << "SetupIMUSystem(): Sketch: " << szSketchName << "," << szFileDate << endl;
-*/
+//Function protos
+void      FillSensorData();
+void      BuildDisplayStrings();
+void      getGres();
+void      getAres();
+void      readAccelData     (int16_t * destination);
+void      readGyroData      (int16_t * destination);
+void      readMagData       (int16_t * destination);
+void      initAK8975A       (float * destination);
+int16_t   readTempData();
+void      LowPowerAccelOnlyMPU6050();
+void      initMPU9150();
+void      calibrateMPU9150  (float * dest1, float * dest2);
+void      MPU6050SelfTest   (float * destination);
+void      writeByte         (uint8_t address, uint8_t subAddress, uint8_t data);
+uint8_t   readByte          (uint8_t address, uint8_t subAddress);
+void      readBytes         (uint8_t address, uint8_t subAddress, uint8_t ucCount, uint8_t * dest);
+
+const int _wStringBufferSize= 20;
+char      _szSketchName [_wStringBufferSize + 1];
+char      _szFileDate   [_wStringBufferSize + 1];
+
+//void SetupIMUSystem(){
+void SetupIMUSystem(const char *szSketchName, const char *szFileDate){
+  strncpy(_szSketchName , szSketchName, _wStringBufferSize);
+  strncpy(_szFileDate   , szFileDate  , _wStringBufferSize);
+
   Serial << LOG0 << "SetupIMUSystem(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
 
@@ -365,7 +382,7 @@ void DisplayData(void){
    wLine= 5;
    wYStart= wLine * wDotsPerLine + 1; //Push to the bottom
    display.setCursor(0, wYStart);
-   display.print(szSketchName); display.print(szFileDate);
+   display.print(_szSketchName); display.print(_szFileDate);
 
    display.display();
 //  } //if(millis()>ulNextDisplayMsec)
@@ -454,7 +471,7 @@ void BuildDisplayStrings(){
 //===================================================================================================================
 //====== Set of useful function to access acceleration. gyroscope, magnetometer, and temperature data
 //===================================================================================================================
-void getGres() {
+void getGres(){
   switch (Gscale){
   // Possible gyro scales (and their register bit settings) are:
   // 250 DPS (00), 500 DPS (01), 1000 DPS (10), and 2000 DPS  (11).
@@ -476,7 +493,7 @@ void getGres() {
 } //getGres
 
 
-void getAres() {
+void getAres(){
   switch (Ascale){
   // Possible accelerometer scales (and their register bit settings) are:
   // 2 Gs (00), 4 Gs (01), 8 Gs (10), and 16 Gs  (11).
