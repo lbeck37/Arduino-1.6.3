@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150";
-const char szFileDate[]    = " 03/03/19k";
+const char szFileDate[]    = " 03/03/19n";
 
 #include <BeckMiniLib.h>
 #include <Beck_MPU9150.h>
@@ -27,13 +27,13 @@ Adafruit_SSD1306    display(wScreenWidth, wScreenHeight);
 //Function protos
 void  DisplayData ();
 void  PrintIMUData();
+void  SetupI2C    ();
 
 void setup(){
   Serial.begin(115200);
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "," << szFileDate << endl;
-  //Serial << LOG0 << "SetupIMUSystem(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
-
+  SetupI2C();
   SetupIMUSystem(szSketchName, szFileDate, ulDisplayPeriodMsec);
   return;
 } //setup
@@ -45,13 +45,14 @@ void loop(){
 } //loop
 
 
-void SetuupI2C(){
+void SetupI2C(){
+  Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
 
   Serial << LOG0 << "SetupIMUSystem(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
   return;
-} //SetuupI2C
+} //SetupI2C
 
 
 void DisplayData(void){
