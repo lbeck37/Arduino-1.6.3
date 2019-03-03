@@ -1,4 +1,4 @@
-// Beck_IMUQuaternionFilters.cpp, 2/21/19a
+// Beck_IMUQuaternionFilters.cpp, 3/2/19a
 
 #include <Beck_IMUQuaternionFilters.h>
 
@@ -14,9 +14,9 @@ float     GyroMeasDrift = PI * (0.0f  / 180.0f);   // gyroscope measurement drif
 // In any case, this is the free parameter in the Madgwick filtering and fusion scheme.
 float     beta    = sqrt(3.0f / 4.0f) * GyroMeasError;   // compute beta
 float     zeta    = sqrt(3.0f / 4.0f) * GyroMeasDrift;   // compute zeta, the other free parameter in the Madgwick scheme usually set to a small or zero value
-uint32_t  delt_t  = 0;                                   // used to control display output rate
+//uint32_t  delt_t  = 0;                                   // used to control display output rate
 float     eInt[3] = {0.0f, 0.0f, 0.0f};                  // vector to hold integral error for Mahony method
-float     deltat  = 0.0f;        // integration interval for both filter schemes
+float     fDeltaT = 0.0f;        // integration interval for both filter schemes
 
 float     q[4]    = {1.0f, 0.0f, 0.0f, 0.0f};            // vector to hold quaternion
 
@@ -130,10 +130,10 @@ void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, 
   qDot4 = 0.5f * ( q1 * gz + q2 * gy - q3 * gx) - beta * s4;
 
   // Integrate to yield quaternion
-  q1 += qDot1 * deltat;
-  q2 += qDot2 * deltat;
-  q3 += qDot3 * deltat;
-  q4 += qDot4 * deltat;
+  q1 += qDot1 * fDeltaT;
+  q2 += qDot2 * fDeltaT;
+  q3 += qDot3 * fDeltaT;
+  q4 += qDot4 * fDeltaT;
   norm = sqrt(q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4);    // normalise quaternion
   norm = 1.0f/norm;
   q[0] = q1 * norm;

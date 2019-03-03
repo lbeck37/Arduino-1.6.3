@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150AHRS";
-const char szFileDate[]    = " 03/02/19h";
+const char szFileDate[]    = " 03/02/19t";
 /* MPU9150 Basic Example Code
  by: Kris Winer
  date: March 1, 2014
@@ -56,7 +56,7 @@ enum Gscale {
 
 const int       sSDA_GPIO             =    4;   //I2C, GPIO 4 is D2 on NodeMCU
 const int       sSCL_GPIO             =    5;   //I2C, GPIO 5 is D1 on NodeMCU and labeled D2
-const uint32_t  ulPrintPeriodMsec     = 5000; //Beck
+//const uint32_t  ulPrintPeriodMsec     = 5000; //Beck
 
 // Specify sensor full scale
 uint8_t   Gscale = GFS_250DPS;
@@ -79,16 +79,15 @@ int16_t   tempCount;      // Stores the raw internal chip temperature counts
 //float     fDegC;          // temperature in degrees Centigrade
 float     SelfTest[6];
 
-uint32_t  count       = 0;  // used to control display output rate
+uint32_t  ulLastMsec  = 0;  // used to control display output rate
 uint32_t  mcount      = 0; // used to control magnetometer read rate
 uint32_t  MagRate;    // read rate for magnetometer data
 
 float     pitch;
 float     yaw;
 float     roll;
-uint32_t  lastUpdate  = 0; // used to calculate integration interval
-uint32_t  firstUpdate = 0; // used to calculate integration interval
-uint32_t  Now         = 0;        // used to calculate integration interval
+uint32_t  ulLastMicroSec  = 0; // used to calculate integration interval
+uint32_t  ulNowMicroSec   = 0;        // used to calculate integration interval
 float     ax= 0.00;
 float     ay= 0.00;
 float     az= 0.00;
@@ -122,9 +121,10 @@ enum PRY{
   eLastPRY
 };
 
-const float     fDegToRadians       = PI/180.0;
-const uint32_t  ulDisplayPeriodMsec = 1000;
-const int       wBuffChar           = 20;
+const float     fDegToRadians         = PI/180.0;
+const uint32_t  ulDisplayPeriodMsec   =  200;
+const uint32_t  ulPrintPeriodMsec     = 5000;
+const int       wBuffChar             = 20;
 
 float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
     {0.0, 0.0, 0.0},
@@ -143,6 +143,7 @@ char            aszAccGyroMagPRY  [eLastSensor][eLastAxis][wBuffChar];
 char            szDegC            [wBuffChar];
 float           fDegC;
 uint32_t        ulNextDisplayMsec = 0;
+uint32_t        ulNextPrintMsec   = 0;
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -150,6 +151,7 @@ uint32_t        ulNextDisplayMsec = 0;
 Adafruit_SSD1306    display(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 //Function protos
+void  HandleIMU             ();
 void  FillSensorData        ();
 void  BuildDisplayStrings   ();
 void  DisplayData           ();
@@ -215,18 +217,23 @@ void setup(){
 
 void loop()
 {
+  HandleIMU();
+  //DisplayData();
+  return;
+} //loop
+
+
+void HandleIMU(){
   // If intPin goes high or data ready status is TRUE, all data registers have new data
   if (readByte(MPU9150_ADDRESS, INT_STATUS) & 0x01) {  // On interrupt, check if data ready interrupt
-    if(bDoLoopLog) Serial << LOG0 << "loop(): Call readAccelData()" << endl;
     readAccelData(accelCount);  // Read the x/y/z adc values
     getAres();
 
-    // Now we'll calculate the accleration value into actual g's
+    // Now we'll calculate the acceleration value into actual g's
     ax = (float)accelCount[0]*aRes;  // get actual g value, this depends on scale being set
     ay = (float)accelCount[1]*aRes;
     az = (float)accelCount[2]*aRes;
 
-    if(bDoLoopLog) Serial << LOG0 << "loop(): Call readGyroData()" << endl;
     readGyroData(gyroCount);  // Read the x/y/z adc values
     getGres();
 
@@ -237,7 +244,6 @@ void loop()
 
     mcount++;
     if (mcount > 200/MagRate) {  // this is a poor man's way of setting the magnetometer read rate (see below)
-      if(bDoLoopLog) Serial << LOG0 << "loop(): Call readMagData()" << endl;
       readMagData(magCount);  // Read the x/y/z adc values
       mRes = 10.*1229./4096.; // Conversion from 1229 microTesla full scale (4096) to 12.29 Gauss full scale
       // So far, magnetometer bias is calculated and subtracted here manually, should construct an algorithm to do it automatically
@@ -260,17 +266,15 @@ void loop()
     } //if(true||!AHRS)
   }  //if(readByte(MPU9150_ADDRESS,INT_STATUS)&0x01)
 
-  Now = micros();
-  deltat = ((Now - lastUpdate)/1000000.0f); // set integration time by time elapsed since last filter update
-  lastUpdate = Now;
+  ulNowMicroSec= micros();
+  fDeltaT = ((ulNowMicroSec - ulLastMicroSec)/1000000.0f); // set integration time by time elapsed since last filter update
+  ulLastMicroSec = ulNowMicroSec;
 
-  if(bDoLoopLog) Serial << LOG0 << "loop(): Call MadgwickQuaternionUpdate()" << endl;
-  bDoLoopLog= false;
   MadgwickQuaternionUpdate(ax, ay, az, gx*PI/180.0f, gy*PI/180.0f, gz*PI/180.0f,  my,  mx, mz);
 
   if (!AHRS) {
-    int delt_t = millis() - count;
-    if(delt_t > 500) {
+    if(millis() > ulNextPrintMsec){
+      ulNextPrintMsec = millis() + ulPrintPeriodMsec;
       digitalWrite(blinkPin, blinkOn);
        // Print acceleration values in milligs!
       Serial.print("X-acceleration: "); Serial.print(1000*ax); Serial.print(" mg ");
@@ -288,13 +292,12 @@ void loop()
       Serial.print("Temperature is ");  Serial.print(fDegC, 1);  Serial.println(" degrees C"); // Print T values to tenths of s degree C
       Serial.println("");
       blinkOn = ~blinkOn;
-      count = millis();
-    } //if(delt_t > 500)
+    } // if(millis()>ulNextPrintMsec)
   } //if(!AHRS)
   else {
     // Serial print and/or display at 0.5 s rate independent of data rates
-    delt_t= millis() - count;
-    if (delt_t > ulPrintPeriodMsec) { // update LCD once per half-second independent of read rate
+    if(millis() > ulNextDisplayMsec){
+      ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
       digitalWrite(blinkPin, blinkOn);
       // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
       // In this coordinate system, the positive z-axis is down toward Earth.
@@ -315,16 +318,7 @@ void loop()
 
       FillSensorData();
       BuildDisplayStrings();
-
-      Serial << LOG0 << "loop(): Pitch= " << pitch << ", Roll= " << roll << ", Yaw= " << yaw <<
-          ", average rate= " << (1.0f/deltat) << endl;
-
-      Serial << LOG0 << "loop():    ax= " << (int)1000*ax << ", ay= " << (int)1000*ay <<
-          ", az= " << (int)1000*az << endl;
-      Serial << LOG0 << "loop():    gx= " << gx << ", gy= " << gy << ", gz= " << gz << endl;
-      Serial << LOG0 << "loop():    mx= " << (int)mx << ", my= " << (int)my << ", mz= " << (int)mz << endl;
-      //Serial << LOG0 << "loop():    q0= " << q[0] << ", qx= " << q[1] << ", qy= " << q[2] << ", qz= " << q[3] << endl;
-      Serial << LOG0 << "loop():    Temperature= " << fDegC << " Deg C" << endl;
+      DisplayData();
 
       // With these settings the filter is updating at a ~145 Hz rate using the Madgwick scheme and
       // >200 Hz using the Mahony scheme even though the display refreshes at only 2 Hz.
@@ -338,16 +332,72 @@ void loop()
       // produced by the on-board Digital Motion Processor of Invensense's MPU6050 6 DoF and MPU9150 9DoF sensors.
       // The 3.3 V 8 MHz Pro Mini is doing pretty well!
       // Display 0.5-second average filter rate
-
       blinkOn = ~blinkOn;
-      count = millis();
-    } //if(delt_t>500)
+      ulLastMsec = millis();
+    } //if(millis()>ulNextDisplayMsec)
+
+    if(millis() > ulNextPrintMsec){
+      ulNextPrintMsec= millis() + ulPrintPeriodMsec;
+      Serial << LOG0 << "HandleIMU(): P R Y " << aszAccGyroMagPRY[ePRY][ePitch] <<
+          aszAccGyroMagPRY[ePRY][eRoll] << aszAccGyroMagPRY[ePRY][eYaw] << endl;
+      Serial << LOG0 << "HandleIMU(): Pitch= " << pitch << ", Roll= " << roll << ", Yaw= " << yaw <<
+          ", average rate= " << (1.0f/fDeltaT) << endl;
+      Serial << LOG0 << "HandleIMU():    ax= " << (int)1000*ax << ", ay= " << (int)1000*ay <<
+          ", az= " << (int)1000*az << endl;
+      Serial << LOG0 << "HandleIMU():    gx= " << gx << ", gy= " << gy << ", gz= " << gz << endl;
+      Serial << LOG0 << "HandleIMU():    mx= " << (int)mx << ", my= " << (int)my << ", mz= " << (int)mz << endl;
+      //Serial << LOG0 << "HandleIMU():    q0= " << q[0] << ", qx= " << q[1] << ", qy= " << q[2] << ", qz= " << q[3] << endl;
+      Serial << LOG0 << "HandleIMU():    Temperature= " << fDegC << " Deg C" << endl;
+    } //if(millis()>ulNextPrintMsec)
   } //if(!AHRS)else
 
-  //FillSensorData();
-  DisplayData();
   return;
-} //loop
+} //HandleIMU
+
+
+void DisplayData(void){
+//  if(millis() > ulNextDisplayMsec) {
+   ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
+   display.clearDisplay();
+   display.setTextColor(WHITE);
+   display.setTextSize(1);
+   int    wLine;
+   int    wYStart;
+   int    wDotsPerLine= 11;
+
+   wLine= 0;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart);
+   display.print(aszAccGyroMagPRY[ePRY][ePitch]);
+   display.print(aszAccGyroMagPRY[ePRY][eRoll]);
+
+   wLine= 1;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0, wYStart);
+   display.print(aszAccGyroMagPRY[ePRY][eYaw]);
+   display.print(szDegC);
+
+   wLine= 2;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0,  wYStart); display.print(aszAccGyroMagPRY[eAccel][eX]);
+   display.setCursor(30, wYStart); display.print(aszAccGyroMagPRY[eAccel][eY]);
+   display.setCursor(60, wYStart); display.print(aszAccGyroMagPRY[eAccel][eZ]);
+
+   wLine= 3;
+   wYStart= wLine * wDotsPerLine;
+   display.setCursor(0,  wYStart); display.print(aszAccGyroMagPRY[eGyro][eX]);
+   display.setCursor(30, wYStart); display.print(aszAccGyroMagPRY[eGyro][eY]);
+   display.setCursor(60, wYStart); display.print(aszAccGyroMagPRY[eGyro][eZ]);
+
+   wLine= 5;
+   wYStart= wLine * wDotsPerLine + 1; //Push to the bottom
+   display.setCursor(0, wYStart);
+   display.print(szSketchName); display.print(szFileDate);
+
+   display.display();
+//  } //if(millis()>ulNextDisplayMsec)
+  return;
+} //DisplayData
 
 
 void FillSensorData(){
@@ -420,8 +470,6 @@ void BuildDisplayStrings(){
         break;
     } //switch
   } //for(int eSensor=eAccel;...
-  Serial << LOG0 << "BuildDisplayStrings(): P R Y " << aszAccGyroMagPRY[ePRY][ePitch] <<
-      aszAccGyroMagPRY[ePRY][eRoll] << aszAccGyroMagPRY[ePRY][eYaw] << endl;
 
   //Build temperature string
   dtostrf(fDegC, 4, 1, szDegC);
@@ -430,56 +478,10 @@ void BuildDisplayStrings(){
 } //BuildDisplayStrings
 
 
-void DisplayData(void){
-  if(millis() > ulNextDisplayMsec) {
-   ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
-   display.clearDisplay();
-   display.setTextColor(WHITE);
-   display.setTextSize(1);
-   int    wLine;
-   int    wYStart;
-   int    wDotsPerLine= 11;
-
-   wLine= 0;
-   wYStart= wLine * wDotsPerLine;
-   display.setCursor(0, wYStart);
-   display.print(aszAccGyroMagPRY[ePRY][ePitch]);
-   display.print(aszAccGyroMagPRY[ePRY][eRoll]);
-
-   wLine= 1;
-   wYStart= wLine * wDotsPerLine;
-   display.setCursor(0, wYStart);
-   display.print(aszAccGyroMagPRY[ePRY][eYaw]);
-   display.print(szDegC);
-
-   wLine= 2;
-   wYStart= wLine * wDotsPerLine;
-   display.setCursor(0,  wYStart); display.print(aszAccGyroMagPRY[eAccel][eX]);
-   display.setCursor(30, wYStart); display.print(aszAccGyroMagPRY[eAccel][eY]);
-   display.setCursor(60, wYStart); display.print(aszAccGyroMagPRY[eAccel][eZ]);
-
-   wLine= 3;
-   wYStart= wLine * wDotsPerLine;
-   display.setCursor(0,  wYStart); display.print(aszAccGyroMagPRY[eGyro][eX]);
-   display.setCursor(30, wYStart); display.print(aszAccGyroMagPRY[eGyro][eY]);
-   display.setCursor(60, wYStart); display.print(aszAccGyroMagPRY[eGyro][eZ]);
-
-   wLine= 5;
-   wYStart= wLine * wDotsPerLine + 1; //Push to the bottom
-   display.setCursor(0, wYStart);
-   display.print(szSketchName); display.print(szFileDate);
-
-   display.display();
-  } //if(millis()>ulNextDisplayMsec)
-  return;
-} //DisplayData
-
-
 //===================================================================================================================
 //====== Set of useful function to access acceleration. gyroscope, magnetometer, and temperature data
 //===================================================================================================================
 void getGres() {
-  if(bDoLoopLog) Serial << LOG0 << "getGres(): Begin" << endl;
   switch (Gscale){
   // Possible gyro scales (and their register bit settings) are:
   // 250 DPS (00), 500 DPS (01), 1000 DPS (10), and 2000 DPS  (11).
@@ -502,7 +504,6 @@ void getGres() {
 
 
 void getAres() {
-  if(bDoLoopLog) Serial << LOG0 << "getAres(): Begin" << endl;
   switch (Ascale){
   // Possible accelerometer scales (and their register bit settings) are:
   // 2 Gs (00), 4 Gs (01), 8 Gs (10), and 16 Gs  (11).
@@ -525,7 +526,6 @@ void getAres() {
 
 
 void readAccelData(int16_t * destination){
-  if(bDoLoopLog) Serial << LOG0 << "readAccelData(): Begin" << endl;
   uint8_t rawData[6];  // x/y/z accel register data stored here
   readBytes(MPU9150_ADDRESS, ACCEL_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers into data array
   destination[0] = ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a signed 16-bit value
@@ -536,7 +536,6 @@ void readAccelData(int16_t * destination){
 
 
 void readGyroData(int16_t * destination){
-  if(bDoLoopLog) Serial << LOG0 << "readGyroData(): Begin" << endl;
   uint8_t rawData[6];  // x/y/z gyro register data stored here
   readBytes(MPU9150_ADDRESS, GYRO_XOUT_H, 6, &rawData[0]);  // Read the six raw data registers sequentially into data array
   destination[0] = ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a signed 16-bit value
@@ -547,7 +546,6 @@ void readGyroData(int16_t * destination){
 
 
 void readMagData(int16_t * destination){
-  if(bDoLoopLog) Serial << LOG0 << "readMagData(): Begin" << endl;
   uint8_t rawData[6];  // x/y/z gyro register data stored here
   writeByte(AK8975A_ADDRESS, AK8975A_CNTL, 0x01); // toggle enable data read from magnetometer, no continuous read mode!
   delay(10);
@@ -564,7 +562,6 @@ void readMagData(int16_t * destination){
 
 
 void initAK8975A(float * destination){
-  Serial << LOG0 << "initAK8975A(): Begin" << endl;
   uint8_t rawData[3];  // x/y/z gyro register data stored here
   writeByte(AK8975A_ADDRESS, AK8975A_CNTL, 0x00); // Power down
   delay(10);
@@ -578,8 +575,7 @@ void initAK8975A(float * destination){
 } //initAK8975A
 
 
-int16_t readTempData()
-{
+int16_t readTempData(){
   uint8_t rawData[2];  // x/y/z gyro register data stored here
   readBytes(MPU9150_ADDRESS, TEMP_OUT_H, 2, &rawData[0]);  // Read the two raw data registers sequentially into data array
   return ((int16_t)rawData[0] << 8) | rawData[1] ;  // Turn the MSB and LSB into a 16-bit value
@@ -888,13 +884,13 @@ uint8_t readByte(uint8_t address, uint8_t subAddress){
   return data;                             // Return data read from slave register
 } //readByte
 
-void readBytes(uint8_t address, uint8_t subAddress, uint8_t count, uint8_t * dest)
+void readBytes(uint8_t address, uint8_t subAddress, uint8_t ucCount, uint8_t * dest)
 {
   Wire.beginTransmission(address);   // Initialize the Tx buffer
   Wire.write(subAddress);            // Put slave register address in Tx buffer
   Wire.endTransmission(false);       // Send the Tx buffer, but send a restart to keep connection alive
   uint8_t i = 0;
-  Wire.requestFrom(address, count);  // Read bytes from slave register address
+  Wire.requestFrom(address, ucCount);  // Read bytes from slave register address
   while (Wire.available()) {    // Put read results in the Rx buffer
     dest[i++] = Wire.read();
   } //while
