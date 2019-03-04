@@ -1,6 +1,6 @@
 // BeckBiotaLib.h 2/17/19b
 #pragma once
-#include <BeckBiotaLib.h>
+//#include <BeckBiotaLib.h>
 
 enum ProjectType{
   eNoProject  = 0,

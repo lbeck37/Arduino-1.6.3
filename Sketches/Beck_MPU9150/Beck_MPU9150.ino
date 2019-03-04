@@ -1,15 +1,12 @@
 const char szSketchName[]  = "MPU9150";
-const char szFileDate[]    = " 03/03/19n";
+const char szFileDate[]    = " 03/04/19a";
 
+#include <BeckDisplayLib.h>
 #include <BeckMiniLib.h>
 #include <Beck_MPU9150.h>
 #include <Adafruit_SSD1306.h>     ////For I2C OLED display
 #include "Wire.h"
 
-/*
-const int       sSDA_GPIO             =   4;   //I2C, GPIO 4 is D2 on NodeMCU
-const int       sSCL_GPIO             =   5;   //I2C, GPIO 5 is D1 on NodeMCU and labeled D2
-*/
 const uint32_t  ulDisplayPeriodMsec   = 200;
 const int       wScreenWidth          = 128;
 const int       wScreenHeight         =  64;
@@ -22,7 +19,7 @@ uint32_t        ulNextDisplayMsec     = 0;
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306    display(SCREEN_WIDTH, SCREEN_HEIGHT);
 */
-Adafruit_SSD1306    display(wScreenWidth, wScreenHeight);
+//Adafruit_SSD1306    display(wScreenWidth, wScreenHeight);
 
 //Function protos
 void  DisplayData ();
@@ -34,6 +31,8 @@ void setup(){
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "," << szFileDate << endl;
   SetupI2C();
+  SetupDisplay();
+  ClearDisplay();
   SetupIMUSystem(szSketchName, szFileDate, ulDisplayPeriodMsec);
   return;
 } //setup
@@ -49,8 +48,10 @@ void SetupI2C(){
   Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
 
+/*
   Serial << LOG0 << "SetupIMUSystem(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+*/
   return;
 } //SetupI2C
 
@@ -116,6 +117,9 @@ void PrintIMUData(){
     Serial << LOG0 << "HandleIMU():    Temperature= " << fDegC << " Deg C" << endl;
   } //if(millis()>ulNextPrintMsec)
 */
+  if(millis() > ulNextPrintMsec){
+    ulNextPrintMsec= millis() + ulPrintPeriodMsec;
+  } //if(millis()>ulNextPrintMsec)
   return;
 } //PrintIMUData
 //Last line.

@@ -118,11 +118,6 @@ void SetupIMUSystem(const char *szSketchName, const char *szFileDate, uint32_t u
   strncpy(_szFileDate   , szFileDate  , _wStringBufferSize);
   _ulUpdatePeriodMsec= ulUpdatePeriodMsec;
 
-/*
-  Serial << LOG0 << "SetupIMUSystem(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
-  Wire.begin(sSDA_GPIO, sSCL_GPIO);
-*/
-
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
   digitalWrite(intPin, LOW);

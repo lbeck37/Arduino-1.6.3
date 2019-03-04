@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "2/25/19a";
+const char szFileDate[]    = "3/4/19a";
 
 #ifndef ESP8266
   #define ESP8266
@@ -60,7 +60,8 @@ void setup(){
     #if DO_ALEXA
       SetupAlexa(_acAlexaName);
     #endif
-    SetupDisplay();
+      //SetupDisplay();
+      SetupDisplay(_eProjectType);
     ClearDisplay();
     SetupSwitches();
     ulLastTaskMsec= millis();
