@@ -2,7 +2,7 @@
 #include <BeckDisplayLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
-#include <Beck_MPU9150.h>
+#include <BeckMPU9150Lib.h>
 #include <BeckThermoLib.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>     ////For I2C OLED display
@@ -46,7 +46,7 @@ void UpdateDisplay(){
     case eHeater:
       UpdateThermDisplay();
       break;
-    case eIMU:
+    case ePitchMeter:
       UpdateIMUDisplay();
       break;
     case eFrontLights:

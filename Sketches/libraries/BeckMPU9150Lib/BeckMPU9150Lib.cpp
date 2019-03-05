@@ -1,5 +1,5 @@
-//BeckMPU9150.cpp 3/3/19e
-#include <Beck_MPU9150.h>
+//BeckMPU9150.cpp 3/5/19a
+#include <BeckMPU9150Lib.h>
 #include <Beck_IMUdefines.h>
 #include <Beck_IMUQuaternionFilters.h>
 #include "Wire.h"
@@ -111,7 +111,7 @@ uint8_t   readByte          (uint8_t address, uint8_t subAddress);
 void      readBytes         (uint8_t address, uint8_t subAddress, uint8_t ucCount, uint8_t * dest);
 
 
-void SetupIMUSystem(const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec){
+void SetupMPU9150(const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec){
   strncpy(_szSketchName , szSketchName, _wStringBufferSize);
   strncpy(_szFileDate   , szFileDate  , _wStringBufferSize);
 
@@ -122,24 +122,24 @@ void SetupIMUSystem(const char *szSketchName, const char *szFileDate, uint32_t u
   digitalWrite(blinkPin, HIGH);
 
   // Read the WHO_AM_I register, this is a good test of communication
-  Serial << LOG0 << "SetupIMUSystem(): MPU9150_ADDRESS= " <<  MPU9150_ADDRESS <<
+  Serial << LOG0 << "SetupMPU9150(): MPU9150_ADDRESS= " <<  MPU9150_ADDRESS <<
       ", WHO_AM_I_MPU9150= " << WHO_AM_I_MPU9150 << ")" << endl;
 
-  Serial << LOG0 << "SetupIMUSystem(): Call readByte(" <<  MPU9150_ADDRESS << ", " << WHO_AM_I_MPU9150 << ")" << endl;
+  Serial << LOG0 << "SetupMPU9150(): Call readByte(" <<  MPU9150_ADDRESS << ", " << WHO_AM_I_MPU9150 << ")" << endl;
   uint8_t ucWhoAmI = readByte(MPU9150_ADDRESS, WHO_AM_I_MPU9150);  // Read WHO_AM_I register for MPU-9150
 
-  Serial << LOG0 << "SetupIMUSystem(): WHO_AM_I= " << ucWhoAmI << ", should be 0x68 (104d)" << endl;
+  Serial << LOG0 << "SetupMPU9150(): WHO_AM_I= " << ucWhoAmI << ", should be 0x68 (104d)" << endl;
   if (ucWhoAmI == 0x68){            // WHO_AM_I should always be 0x68
-    Serial << LOG0 << "SetupIMUSystem(): MPU9150 is online" << endl;
+    Serial << LOG0 << "SetupMPU9150(): MPU9150 is online" << endl;
 
     MPU6050SelfTest   (SelfTest); // Start by performing self test
     calibrateMPU9150  (gyroBias, accelBias); // Calibrate gyro and accelerometers, load biases in bias registers
     initMPU9150       (); // Inititalize and configure accelerometer and gyroscope
-    Serial << LOG0 << "SetupIMUSystem(): MPU9150 initialized for active data mode" << endl;
+    Serial << LOG0 << "SetupMPU9150(): MPU9150 initialized for active data mode" << endl;
 
     // Read the WHO_AM_I register of the magnetometer, this is a good test of communication
     uint8_t c = readByte(AK8975A_ADDRESS, WHO_AM_I_AK8975A);  // Read WHO_AM_I register for AK8975A
-    Serial << LOG0 << "SetupIMUSystem(): Magnetometer WHO_AM_I= " << c << endl;
+    Serial << LOG0 << "SetupMPU9150(): Magnetometer WHO_AM_I= " << c << endl;
 
     // Get magnetometer calibration from AK8975A ROM
     initAK8975A(magCalibration);
@@ -158,17 +158,17 @@ void SetupIMUSystem(const char *szSketchName, const char *szFileDate, uint32_t u
     MagRate = 10; // set magnetometer read rate in Hz; 10 to 100 (max) Hz are reasonable values
   } //if(ucWhoAmI==0x68)
   else{
-    Serial << LOG0 << "SetupIMUSystem(): Could not connect to MPU9150: ucWhoAmI= " << ucWhoAmI << endl;
+    Serial << LOG0 << "SetupMPU9150(): Could not connect to MPU9150: ucWhoAmI= " << ucWhoAmI << endl;
     while(true){
-      Serial << LOG0 << "SetupIMUSystem(): In infinite loop because didn't connect to MPU9150" << endl;
+      Serial << LOG0 << "SetupMPU9150(): In infinite loop because didn't connect to MPU9150" << endl;
       delay(10000); //10 sec
      }  //while(true)
   } //if(ucWhoAmI==0x68)else
   return;
-} //SetupIMUSystem
+} //SetupMPU9150
 
 
-void HandleIMU(){
+void HandleMPU9150(){
   // If intPin goes high or data ready status is TRUE, all data registers have new data
   if (readByte(MPU9150_ADDRESS, INT_STATUS) & 0x01) {  // On interrupt, check if data ready interrupt
     readAccelData(accelCount);  // Read the x/y/z adc values

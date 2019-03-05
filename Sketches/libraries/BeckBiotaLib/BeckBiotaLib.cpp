@@ -55,7 +55,7 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acAccessPointSSID , "GarageSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
       break;
-    case eIMU:
+    case ePitchMeter:
       strcpy(_acHostname        , "BeckIMU");
       strcpy(_acProjectType     , "IMU");
       strcpy(_acAlexaName       , "Pitch Meter");

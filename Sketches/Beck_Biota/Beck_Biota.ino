@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "3/4/19a";
+const char szFileDate[]    = "3/5/19d";
 
 #ifndef ESP8266
   #define ESP8266
@@ -15,7 +15,7 @@ const char szFileDate[]    = "3/4/19a";
 #include <BeckI2cLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
-#include <BeckIMULib.h>
+#include <BeckMPU9150Lib.h>
 #include <BeckSwitchLib.h>
 #include <BeckThermoLib.h>
 #include <BeckWiFiLib.h>
@@ -34,17 +34,18 @@ const char szFileDate[]    = "3/4/19a";
 #include <Time.h>
 #include <WiFiClient.h>
 
-static long           sSystemHandlerSpacing = 10 * lMsecPerSec;                //Number of mSec between running system handlers
-static unsigned long  ulNextHandlerMsec     = 0;
-static int            _wBadCount            = 0;
-static int            _wGoodCount           = 0;
+static const uint32_t   ulDisplayPeriodMsec   = 200;
+static const uint32_t   sSystemHandlerSpacing = 10 * lMsecPerSec; //mSec between running system handler
 
+static uint32_t         ulNextHandlerMsec     = 0;
+static int              _wBadCount            = 0;
+static int              _wGoodCount           = 0;
+static ProjectType      eProjectType          = ePitchMeter;  //Was eThermoDev
 
 void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
-  ProjectType   eProjectType= eThermoDev;
   _bSystemOk= SetupSystem(eProjectType);
   if(_bSystemOk){
     SetupWiFi(_acRouterName, _acRouterPW);
@@ -53,7 +54,7 @@ void setup(){
       SetupWiFiNameServer(_acAccessPointSSID, _acAccessPointPW);
     #endif  //DO_ACCESS_POINT
     SetupI2C();
-    SetupIMU();
+    SetupMPU9150(szSketchName, szFileDate, ulDisplayPeriodMsec);
     #if DO_NTP
       SetupNTP();
     #endif
@@ -124,9 +125,14 @@ void HandleSystem(){
         CheckTaskTime("HandleSystem(): HandleThermostat()");
         HandleHeatSwitch();
         CheckTaskTime("HandleSystem(): HandleHeatSwitch()");
-        HandleIMU();
+        //HandleIMU();
         //UpdateThermDisplay();
+        UpdateDisplay();
         CheckTaskTime("HandleSystem(): HandleIMU()");
+        break;
+      case ePitchMeter:
+        HandleMPU9150();
+        UpdateDisplay();
         break;
       case eHeater:
         HandleHeater();

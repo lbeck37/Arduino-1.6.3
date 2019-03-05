@@ -1,8 +1,10 @@
 const char szSketchName[]  = "MPU9150";
-const char szFileDate[]    = " 03/05/19b";
+const char szFileDate[]    = " 03/05/19c";
 
 #include <BeckDisplayLib.h>
 #include <BeckMiniLib.h>
+#include <BeckMPU9150Lib.h>
+#include <BeckSwitchLib.h>
 #include "Wire.h"
 
 const uint32_t  ulDisplayPeriodMsec   = 200;
@@ -15,14 +17,14 @@ void setup(){
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "," << szFileDate << endl;
   SetupI2C();
-  SetupDisplay(eIMU);
+  SetupDisplay(ePitchMeter);
   ClearDisplay();
-  SetupIMUSystem(szSketchName, szFileDate, ulDisplayPeriodMsec);
+  SetupMPU9150(szSketchName, szFileDate, ulDisplayPeriodMsec);
   return;
 } //setup
 
 void loop(){
-  HandleIMU();
+  HandleMPU9150();
   UpdateDisplay();
   return;
 } //loop

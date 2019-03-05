@@ -8,7 +8,7 @@ enum ProjectType{
   eGarage,
   eHeater,
   eFrontLights,
-  eIMU,
+  ePitchMeter,
   eLastProjectType
 } ;
 
