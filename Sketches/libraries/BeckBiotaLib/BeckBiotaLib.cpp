@@ -1,4 +1,4 @@
-// BeckBiotaLib.cpp 2/17/19b
+// BeckBiotaLib.cpp 3/4/19a
 #include <BeckBiotaLib.h>
 #include <BeckAlexaLib.h>
 #include <BeckLogLib.h>
@@ -55,13 +55,13 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acAccessPointSSID , "GarageSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
       break;
-    case eSlopeMeter:
-      strcpy(_acHostname        , "BeckSlopeMeter");
-      strcpy(_acProjectType     , "SLOPE_METER");
-      strcpy(_acAlexaName       , "Slope Meter");
+    case eIMU:
+      strcpy(_acHostname        , "BeckIMU");
+      strcpy(_acProjectType     , "IMU");
+      strcpy(_acAlexaName       , "Pitch Meter");
       strcpy(_acRouterName      , "Aspot24");
       strcpy(_acRouterPW        , "Qazqaz11");
-      strcpy(_acAccessPointSSID , "SlopeMeterSpot");
+      strcpy(_acAccessPointSSID , "IMUSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
       break;
     case eFrontLights:

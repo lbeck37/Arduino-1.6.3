@@ -1,5 +1,5 @@
 const char szSketchName[]  = "MPU9150";
-const char szFileDate[]    = " 03/04/19a";
+const char szFileDate[]    = " 03/04/19b";
 
 #include <BeckDisplayLib.h>
 #include <BeckMiniLib.h>
@@ -7,19 +7,11 @@ const char szFileDate[]    = " 03/04/19a";
 #include <Adafruit_SSD1306.h>     ////For I2C OLED display
 #include "Wire.h"
 
+const uint32_t  ulPrintPeriodMsec     =  5000;
 const uint32_t  ulDisplayPeriodMsec   = 200;
-const int       wScreenWidth          = 128;
-const int       wScreenHeight         =  64;
 
 uint32_t        ulNextDisplayMsec     = 0;
-
-/*
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-Adafruit_SSD1306    display(SCREEN_WIDTH, SCREEN_HEIGHT);
-*/
-//Adafruit_SSD1306    display(wScreenWidth, wScreenHeight);
+uint32_t        ulNextPrintMsec       = 0;
 
 //Function protos
 void  DisplayData ();
@@ -31,7 +23,7 @@ void setup(){
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << "," << szFileDate << endl;
   SetupI2C();
-  SetupDisplay();
+  SetupDisplay(eIMU);
   ClearDisplay();
   SetupIMUSystem(szSketchName, szFileDate, ulDisplayPeriodMsec);
   return;
@@ -39,7 +31,7 @@ void setup(){
 
 void loop(){
   HandleIMU();
-  DisplayData();
+  UpdateDisplay();
   return;
 } //loop
 
@@ -47,15 +39,11 @@ void loop(){
 void SetupI2C(){
   Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO= " << sSDA_GPIO << ", sSCL_GPIO= " << sSCL_GPIO << ")" << endl;
   Wire.begin(sSDA_GPIO, sSCL_GPIO);
-
-/*
-  Serial << LOG0 << "SetupIMUSystem(): Call display.begin(SSD1306_SWITCHCAPVCC, 0x3C)" << endl;
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
-*/
   return;
 } //SetupI2C
 
 
+/*
 void DisplayData(void){
   if(millis() > ulNextDisplayMsec){
    ulNextDisplayMsec= millis() + ulDisplayPeriodMsec;
@@ -99,6 +87,7 @@ void DisplayData(void){
   } //if(millis()>ulNextDisplayMsec)
   return;
 } //DisplayData
+*/
 
 
 void PrintIMUData(){

@@ -3,7 +3,6 @@
 #include <BeckBiotaLib.h>
 #include <Stream.h>
 
-void  SetupDisplay        ();
 void  SetupDisplay        (ProjectType eDisplayProjectType);
 void  ClearDisplay        ();
 void  UpdateDisplay       ();

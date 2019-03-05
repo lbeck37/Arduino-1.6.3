@@ -83,8 +83,6 @@ float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
     {0.0, 0.0, 0.0}
 };
 
-
-uint32_t        ulNextPrintMsec       = 0;
 uint32_t        _ulUpdatePeriodMsec   =  200;
 uint32_t        _ulNextUpdateMsec     = 0;
 char            aszAccGyroMagPRY  [eLastSensor][eLastAxis][wBuffChar];
@@ -116,7 +114,6 @@ void      readBytes         (uint8_t address, uint8_t subAddress, uint8_t ucCoun
 void SetupIMUSystem(const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec){
   strncpy(_szSketchName , szSketchName, _wStringBufferSize);
   strncpy(_szFileDate   , szFileDate  , _wStringBufferSize);
-  _ulUpdatePeriodMsec= ulUpdatePeriodMsec;
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);

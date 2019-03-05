@@ -1,6 +1,5 @@
-// BeckBiotaLib.h 2/17/19b
+// BeckBiotaLib.h 3/4/19a
 #pragma once
-//#include <BeckBiotaLib.h>
 
 enum ProjectType{
   eNoProject  = 0,
@@ -9,7 +8,7 @@ enum ProjectType{
   eGarage,
   eHeater,
   eFrontLights,
-  eSlopeMeter,
+  eIMU,
   eLastProjectType
 } ;
 

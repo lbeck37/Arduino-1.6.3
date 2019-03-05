@@ -1,4 +1,4 @@
-// BeckMPU9150.h 3/3/19b
+// BeckMPU9150.h 3/4/19a
 #pragma once
 #include <BeckMiniLib.h>
 
@@ -35,5 +35,4 @@ extern char      szDegC            [wBuffChar];
 //Function protos
 void  SetupIMUSystem  (const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec);
 void  HandleIMU       ();
-//void  DisplayData     ();
 //Last line.
