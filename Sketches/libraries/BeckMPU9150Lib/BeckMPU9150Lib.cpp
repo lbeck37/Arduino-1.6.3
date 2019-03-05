@@ -72,8 +72,10 @@ float     my= 0.00;
 float     mz= 0.00;
 bool      bDoLoopLog  = true;   //Print calls in loop() once
 
+/*
 const float     fDegToRadians         = PI/180.0;
 const uint32_t  ulPrintPeriodMsec     = 5000;
+*/
 const int       _wStringBufferSize    = 20;
 
 float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
@@ -85,8 +87,10 @@ float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
 
 uint32_t        _ulUpdatePeriodMsec   =  200;
 uint32_t        _ulNextUpdateMsec     = 0;
+/*
 char            aszAccGyroMagPRY  [eLastSensor][eLastAxis][wBuffChar];
 char            szDegC            [wBuffChar];
+*/
 char            _szSketchName     [_wStringBufferSize + 1];
 char            _szFileDate       [_wStringBufferSize + 1];
 
@@ -265,7 +269,7 @@ void HandleMPU9150(){
       roll  *= 180.0f / PI;
 
       FillSensorData();
-      BuildDisplayStrings();
+      //BuildDisplayStrings();
 
       // With these settings the filter is updating at a ~145 Hz rate using the Madgwick scheme and
       // >200 Hz using the Mahony scheme even though the display refreshes at only 2 Hz.
@@ -319,6 +323,7 @@ void FillSensorData(){
 } //FillSensorData
 
 
+/*
 void BuildDisplayStrings(){
   //dtostrf(floatvar, StringLengthIncDecimalPoint, numVarsAfterDecimal, charbuf)
   float   fPitchPercent;
@@ -363,6 +368,7 @@ void BuildDisplayStrings(){
   strcat(szDegC, "C");
   return;
 } //BuildDisplayStrings
+*/
 
 
 //===================================================================================================================

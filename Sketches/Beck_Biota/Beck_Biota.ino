@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "3/5/19g";
+const char szFileDate[]    = "3/5/19h";
 
 #ifndef ESP8266
   #define ESP8266
@@ -70,7 +70,6 @@ void setup(){
     ulLastTaskMsec= millis();
   } //if(_bSystemOk)
   else{
-    //Serial << LOG0 << "setup(): SetupSystem(): Returned false" << endl;
     while(true){
       Serial << LOG0 << "setup(): In infinite loop because SetupSystem(): Returned false" << endl;
       delay(10000); //10 sec

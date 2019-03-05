@@ -1,3 +1,7 @@
+// This was the example sketch for getting Pitch, Roll and Yaw from MPUU9150 IMU
+// The BeckMPU9150Lib library contains code from this sketch originally.
+// Beck_Bionic.ino had the calls in here merged to it.
+
 const char szSketchName[]  = "MPU9150";
 const char szFileDate[]    = " 03/05/19c";
 

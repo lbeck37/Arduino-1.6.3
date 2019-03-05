@@ -2,6 +2,7 @@
 #include <BeckBiotaLib.h>
 #include <BeckAlexaLib.h>
 #include <BeckLogLib.h>
+#include <BeckMPU9150Lib.h>
 
 ProjectType   _eProjectType;
 char          _acHostname       [50];
@@ -22,7 +23,6 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acHostname        , "BeckThermoDev");
       strcpy(_acProjectType     , "THERMO_DEV");
       strcpy(_acAlexaName       , "Larry's Device");
-
       strcpy(_acRouterName      , "Aspot24");
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "BiotaSpot");
@@ -58,7 +58,8 @@ bool SetupSystem(ProjectType eProjectType){
     case ePitchMeter:
       strcpy(_acHostname        , "BeckIMU");
       strcpy(_acProjectType     , "IMU");
-      strcpy(_acAlexaName       , "Pitch Meter");
+      //strcpy(_acAlexaName       , "Pitch Meter");
+      strcpy(_acAlexaName       , "Larry's Device");
       strcpy(_acRouterName      , "Aspot24");
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "IMUSpot");
