@@ -1,4 +1,4 @@
-// BeckDisplayLib.cpp 3/4/19a
+// BeckDisplayLib.cpp 3/5/19b
 #include <BeckDisplayLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -16,6 +16,11 @@ const uint8_t   ucVccState            = SSD1306_SWITCHCAPVCC;
 ProjectType         _eDisplayProjectType;
 
 Adafruit_SSD1306    oDisplay(wScreenWidth, wScreenHeight);
+
+//Function protos
+void  UpdateThermDisplay      ();
+void  UpdatePitchMeterDisplay ();
+void  Update4LineDisplay      (String szLine1, String szLine2, String szLine3, String szLine4);
 
 void SetupDisplay(ProjectType eDisplayProjectType){
   _eDisplayProjectType= eDisplayProjectType;
@@ -47,7 +52,7 @@ void UpdateDisplay(){
       UpdateThermDisplay();
       break;
     case ePitchMeter:
-      UpdateIMUDisplay();
+      UpdatePitchMeterDisplay();
       break;
     case eFrontLights:
       break;
@@ -69,14 +74,14 @@ void UpdateThermDisplay(){
 } //UpdateThermDisplay
 
 
-void UpdateIMUDisplay(){
+void UpdatePitchMeterDisplay(){
   String szDisplayLine1= String(aszAccGyroMagPRY[ePRY][ePitch]);
   String szDisplayLine2= String(aszAccGyroMagPRY[ePRY][eRoll]);
   String szDisplayLine3= String(aszAccGyroMagPRY[ePRY][eYaw]);
 
   Update4LineDisplay(szDisplayLine1, szDisplayLine2, szDisplayLine3, "");
   return;
-} //UpdateIMUDisplay
+} //UpdatePitchMeterDisplay
 
 
 void Update4LineDisplay(String szLine1, String szLine2, String szLine3, String szLine4){

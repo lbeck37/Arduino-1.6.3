@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "3/5/19d";
+const char szFileDate[]    = "3/5/19g";
 
 #ifndef ESP8266
   #define ESP8266
@@ -34,13 +34,16 @@ const char szFileDate[]    = "3/5/19d";
 #include <Time.h>
 #include <WiFiClient.h>
 
-static const uint32_t   ulDisplayPeriodMsec   = 200;
-static const uint32_t   sSystemHandlerSpacing = 10 * lMsecPerSec; //mSec between running system handler
+static const uint32_t   ulThermHandlerPeriodMsec    = 10 * lMsecPerSec; //mSec between running system handler
+static       uint32_t   ulNextThermHandlerMsec      = 0;
 
-static uint32_t         ulNextHandlerMsec     = 0;
-static int              _wBadCount            = 0;
-static int              _wGoodCount           = 0;
-static ProjectType      eProjectType          = ePitchMeter;  //Was eThermoDev
+static const uint32_t   ulMPU9150HandlerPeriodMsec  = 200;
+static const uint32_t   ulMPU9150DisplayPeriodMsec  = ulMPU9150HandlerPeriodMsec;
+static       uint32_t   ulNextMPU9150DisplayMsec    = 0;
+
+static int              _wBadCount              = 0;
+static int              _wGoodCount             = 0;
+static ProjectType      eProjectType            = ePitchMeter;  //Was eThermoDev
 
 void setup(){
   Serial.begin(lSerialMonitorBaud);
@@ -54,21 +57,24 @@ void setup(){
       SetupWiFiNameServer(_acAccessPointSSID, _acAccessPointPW);
     #endif  //DO_ACCESS_POINT
     SetupI2C();
-    SetupMPU9150(szSketchName, szFileDate, ulDisplayPeriodMsec);
+    SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
     #if DO_NTP
       SetupNTP();
     #endif
     #if DO_ALEXA
       SetupAlexa(_acAlexaName);
     #endif
-      //SetupDisplay();
-      SetupDisplay(_eProjectType);
+    SetupDisplay(_eProjectType);
     ClearDisplay();
     SetupSwitches();
     ulLastTaskMsec= millis();
   } //if(_bSystemOk)
   else{
-    Serial << LOG0 << "setup(): SetupSystem(): Returned false" << endl;
+    //Serial << LOG0 << "setup(): SetupSystem(): Returned false" << endl;
+    while(true){
+      Serial << LOG0 << "setup(): In infinite loop because SetupSystem(): Returned false" << endl;
+      delay(10000); //10 sec
+     }  //while(true)
   } //if(_bSystemOk)else
   return;
 } //setup
@@ -108,43 +114,41 @@ void HandleSystem(){
     UpdateDisplay();
   } //if(bAlexaChanged)
 #endif
-  if (millis() >= ulNextHandlerMsec){
-    _wGoodCount= 0;
-    _wBadCount= 0;
-    ulNextHandlerMsec= millis() + sSystemHandlerSpacing;
-    if (wAlexaHandleCount < 1000){
-      //Typically HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
-      LogToSerial("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
-    } //if (wAlexaHandleCount<1000)
-    wAlexaHandleCount= 0;
-    switch (_eProjectType){
-      case eFireplace:
-      case eGarage:
-      case eThermoDev:
+  wAlexaHandleCount= 0;
+  switch (_eProjectType){
+    case eFireplace:
+    case eGarage:
+    case eThermoDev:
+      if (millis() >= ulNextThermHandlerMsec){
+        _wGoodCount= 0;
+        _wBadCount= 0;
+        if (wAlexaHandleCount < 1000){
+          //Typically HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
+          LogToSerial("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
+        } //if (wAlexaHandleCount<1000)
+        ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
         HandleThermostat();
-        CheckTaskTime("HandleSystem(): HandleThermostat()");
         HandleHeatSwitch();
-        CheckTaskTime("HandleSystem(): HandleHeatSwitch()");
-        //HandleIMU();
-        //UpdateThermDisplay();
         UpdateDisplay();
-        CheckTaskTime("HandleSystem(): HandleIMU()");
-        break;
-      case ePitchMeter:
-        HandleMPU9150();
+      } //if(millis()>=ulNextThermHandlerMsec)
+     break;
+    case ePitchMeter:
+      HandleMPU9150();
+      if (millis() >= ulNextMPU9150DisplayMsec){
+        ulNextMPU9150DisplayMsec= millis() + ulMPU9150DisplayPeriodMsec;
         UpdateDisplay();
-        break;
-      case eHeater:
-        HandleHeater();
-        break;
-      case eFrontLights:
-        //HandleFrontLights();
-        break;
-      default:
-        Serial << LOG0 << "HandleSystem(): Bad switch, _eProjectType= " << _eProjectType << endl;
-        break;
-    } //switch
-  } //if(millis()>=ulNextHandlerMsec)
+      } //if(millis()>=ulNextMPU9150DisplayMsec)
+      break;
+    case eHeater:
+      HandleHeater();
+      break;
+    case eFrontLights:
+      //HandleFrontLights();
+      break;
+    default:
+      Serial << LOG0 << "HandleSystem(): Bad switch, _eProjectType= " << _eProjectType << endl;
+      break;
+  } //switch
   return;
 } //HandleSystem
 //Last line.

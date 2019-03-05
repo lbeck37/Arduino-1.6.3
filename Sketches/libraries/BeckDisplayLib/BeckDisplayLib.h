@@ -1,12 +1,9 @@
-// BeckDisplayLib.h 3/4/19a
+// BeckDisplayLib.h 3/5/19b
 #pragma once
 #include <BeckBiotaLib.h>
 #include <Stream.h>
 
-void  SetupDisplay        (ProjectType eDisplayProjectType);
-void  ClearDisplay        ();
-void  UpdateDisplay       ();
-void  UpdateThermDisplay  ();
-void  UpdateIMUDisplay    ();
-void  Update4LineDisplay  (String szLine1, String szLine2, String szLine3, String szLine4);
+void  SetupDisplay            (ProjectType eDisplayProjectType);
+void  ClearDisplay            ();
+void  UpdateDisplay           ();
 //Last Line.

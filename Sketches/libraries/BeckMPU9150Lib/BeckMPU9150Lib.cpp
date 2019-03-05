@@ -114,6 +114,7 @@ void      readBytes         (uint8_t address, uint8_t subAddress, uint8_t ucCoun
 void SetupMPU9150(const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec){
   strncpy(_szSketchName , szSketchName, _wStringBufferSize);
   strncpy(_szFileDate   , szFileDate  , _wStringBufferSize);
+  _ulUpdatePeriodMsec= ulUpdatePeriodMsec;
 
   // Set up the interrupt pin, its set as active high, push-pull
   pinMode(intPin, INPUT);
