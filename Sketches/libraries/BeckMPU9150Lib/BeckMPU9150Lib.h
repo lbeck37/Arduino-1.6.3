@@ -1,4 +1,4 @@
-// BeckMPU9150.h 3/5/19a
+// BeckMPU9150.h 3/5/19b
 #pragma once
 #include <BeckMiniLib.h>
 
@@ -24,11 +24,6 @@ enum PRY{
   eLastPRY
 };
 
-/*
-const  int       wBuffChar             = 20;
-extern char      aszAccGyroMagPRY  [eLastSensor][eLastAxis][wBuffChar];
-extern char      szDegC            [wBuffChar];
-*/
 extern float    afAccGyroMagPRY[eLastSensor][eLastAxis];
 extern float    fDegC;
 

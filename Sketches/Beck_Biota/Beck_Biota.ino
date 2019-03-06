@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "3/5/19h";
+const char szFileDate[]    = "3/5/19r";
 
 #ifndef ESP8266
   #define ESP8266
@@ -119,6 +119,7 @@ void HandleSystem(){
     case eGarage:
     case eThermoDev:
       if (millis() >= ulNextThermHandlerMsec){
+        ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
         _wGoodCount= 0;
         _wBadCount= 0;
         if (wAlexaHandleCount < 1000){

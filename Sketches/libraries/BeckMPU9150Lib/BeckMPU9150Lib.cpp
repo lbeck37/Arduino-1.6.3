@@ -1,4 +1,4 @@
-//BeckMPU9150.cpp 3/5/19a
+//BeckMPU9150.cpp 3/5/19b
 #include <BeckMPU9150Lib.h>
 #include <Beck_IMUdefines.h>
 #include <Beck_IMUQuaternionFilters.h>
@@ -87,18 +87,13 @@ float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
 
 uint32_t        _ulUpdatePeriodMsec   =  200;
 uint32_t        _ulNextUpdateMsec     = 0;
-/*
-char            aszAccGyroMagPRY  [eLastSensor][eLastAxis][wBuffChar];
-char            szDegC            [wBuffChar];
-*/
+
 char            _szSketchName     [_wStringBufferSize + 1];
 char            _szFileDate       [_wStringBufferSize + 1];
-
 float           fDegC;
 
 //Function protos
 void      FillSensorData();
-void      BuildDisplayStrings();
 void      getGres();
 void      getAres();
 void      readAccelData     (int16_t * destination);
@@ -260,6 +255,7 @@ void HandleMPU9150(){
       // Tait-Bryan angles as well as Euler angles are non-commutative; that is, the get the correct orientation the rotations must be
       // applied in the correct order which for this configuration is yaw, pitch, and then roll.
       // For more see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles which has additional links.
+/*
       yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);
       pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
       roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
@@ -267,9 +263,19 @@ void HandleMPU9150(){
       yaw   *= 180.0f / PI;
       yaw   -= 13.8; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
       roll  *= 180.0f / PI;
+*/
+      yaw   = atan2(2.0f * (q[1] * q[2] + q[0] * q[3]), q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3]);
+      //pitch = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
+      roll = -asin(2.0f * (q[1] * q[3] - q[0] * q[2]));
+      //roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
+      pitch  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
+      pitch *= 180.0f / PI;
+      pitch= -pitch;
+      roll  *= 180.0f / PI;
+      yaw   *= 180.0f / PI;
+      yaw   -= 13.8; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
 
       FillSensorData();
-      //BuildDisplayStrings();
 
       // With these settings the filter is updating at a ~145 Hz rate using the Madgwick scheme and
       // >200 Hz using the Mahony scheme even though the display refreshes at only 2 Hz.
@@ -321,54 +327,6 @@ void FillSensorData(){
   } //for
   return;
 } //FillSensorData
-
-
-/*
-void BuildDisplayStrings(){
-  //dtostrf(floatvar, StringLengthIncDecimalPoint, numVarsAfterDecimal, charbuf)
-  float   fPitchPercent;
-  char    szBuffer[wBuffChar];
-  for (int eSensor= eAccel; eSensor <= ePRY; eSensor++){
-    switch (eSensor){
-      case eAccel:
-      case eGyro:
-      case eMag:
-        for (int eAxis= eX; eAxis <= eZ; eAxis++){
-          dtostrf(afAccGyroMagPRY[eSensor][eAxis], 5, 2, aszAccGyroMagPRY[eSensor][eAxis]);
-        } //for(int eAxis=eX;...
-        break;
-      case ePRY:
-        strcpy(aszAccGyroMagPRY[eSensor][eRoll], "R ");
-        dtostrf(afAccGyroMagPRY[eSensor][eRoll], 5, 2, szBuffer);
-        strcat(aszAccGyroMagPRY[eSensor][eRoll], szBuffer);
-
-        strcpy(aszAccGyroMagPRY[eSensor][eYaw], "Y ");
-        dtostrf(afAccGyroMagPRY[eSensor][eYaw] , 5, 2, szBuffer);
-        strcat(aszAccGyroMagPRY[eSensor][eYaw], szBuffer);
-        strcat(aszAccGyroMagPRY[eSensor][eYaw], ", ");
-
-        //Compute Pitch as a percent rise or fall
-        fPitchPercent= 100.0 * tan(fDegToRadians * afAccGyroMagPRY[ePRY][ePitch]);
-        fPitchPercent= fmin(+99.99, fPitchPercent);
-        fPitchPercent= fmax(-99.99, fPitchPercent);
-
-        strcpy(aszAccGyroMagPRY[eSensor][ePitch], "P ");
-        dtostrf(fPitchPercent, 5, 2, szBuffer);
-        strcat(aszAccGyroMagPRY[eSensor][ePitch], szBuffer);
-        strcat(aszAccGyroMagPRY[eSensor][ePitch], "%, ");
-        break;
-      default:
-        Serial << LOG0 << "FillSensorData() Bad switch= " << eSensor << endl;
-        break;
-    } //switch
-  } //for(int eSensor=eAccel;...
-
-  //Build temperature string
-  dtostrf(fDegC, 4, 1, szDegC);
-  strcat(szDegC, "C");
-  return;
-} //BuildDisplayStrings
-*/
 
 
 //===================================================================================================================
