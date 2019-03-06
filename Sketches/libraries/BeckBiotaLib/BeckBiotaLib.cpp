@@ -62,6 +62,7 @@ bool SetupSystem(ProjectType eProjectType){
       //strcpy(_acAlexaName       , "Pitch Meter");
       strcpy(_acAlexaName       , "Larry's Device");
       strcpy(_acRouterName      , "Aspot24");
+      //strcpy(_acRouterName      , "Dspot");
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "IMUSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");

@@ -1,12 +1,12 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "3/5/19v";
+const char szFileDate[]    = "3/5/19y";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
 #define DO_ALEXA            true
-#define DO_NTP              true
+#define DO_NTP              false
 #define DO_ACCESS_POINT     true
 
 #include <BeckAlexaLib.h>
@@ -83,7 +83,9 @@ void loop(){
   ulLastTaskMsec= millis();
   HandleOTAServer();
   CheckTaskTime("loop(): HandleOTAServer()");
+#if DO_NTP
   HandleNTPUpdate();
+#endif
   CheckTaskTime("loop(): HandleNTPUpdate()");
   #if DO_ACCESS_POINT
     HandleSoftAPClient();       //Listen for HTTP requests from clients
