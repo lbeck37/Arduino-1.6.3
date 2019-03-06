@@ -58,8 +58,29 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
       ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
   String szLogString= szCharString;
   LogToSerial(szLogString);
+/*
   SetAlexaSwitch(bState);
   fSetThermoSetpoint((int)ucValue);
+*/
+  switch (_eProjectType){
+    case eFireplace:
+    case eGarage:
+    case eThermoDev:
+    case eHeater:
+      SetAlexaSwitch(bState);
+      fSetThermoSetpoint((int)ucValue);
+      break;
+    case ePitchMeter:
+      PitchMeterHandleAlexa(ucValue);
+      break;
+    case eFrontLights:
+      break;
+    default:
+      Serial << LOG0 << "BeckDisplayLib.cpp: UpdateDisplay(): Bad switch, _eProjectType= " << _eProjectType << endl;
+      break;
+  } //switch
+
+
   _bAlexaChanged= true;
   return;
 } //DoAlexaCommand

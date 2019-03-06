@@ -1,6 +1,5 @@
-// BeckBiotaLib.h 3/5/19a
+// BeckBiotaLib.h 3/5/19b
 #pragma once
-//#include <BeckMPU9150Lib.h>
 
 enum ProjectType{
   eNoProject  = 0,
@@ -22,5 +21,6 @@ extern char          _acAccessPointPW[];
 extern bool          _bSystemOk;
 extern ProjectType   _eProjectType;
 
-bool  SetupSystem   (ProjectType eProjectType);
+bool  SetupSystem           (ProjectType eProjectType);
+void PitchMeterHandleAlexa  (unsigned char ucValue);
 //Last line.

@@ -1,4 +1,4 @@
-//BeckNTPLib.h, Beck 2/3/19
+//BeckNTPLib.h, Beck 3/5/19a
 #pragma once
 #include <NTPClient.h>
 

@@ -1,6 +1,7 @@
-// BeckBiotaLib.cpp 3/4/19a
+// BeckBiotaLib.cpp 3/5/19a
 #include <BeckBiotaLib.h>
 #include <BeckAlexaLib.h>
+#include <BeckDisplayLib.h>
 #include <BeckLogLib.h>
 #include <BeckMPU9150Lib.h>
 
@@ -83,4 +84,14 @@ bool SetupSystem(ProjectType eProjectType){
   Serial << LOG0 << "SetupSystem(): Project Type set to: " << _acProjectType << endl;
   return bOk;
 } //SetupSystem
+
+
+void PitchMeterHandleAlexa(unsigned char ucValue){
+  int wValuePercent= round(((float)ucValue / 255.0) * 100);
+  Serial << LOG0 << "PitchMeterHandleAlexa(): Received wValuePercent= " << wValuePercent << endl;
+  if(wValuePercent == 10){    //"Alexa set Larry's Device to 10"
+    ClearZeros();
+  } //if(wValuePercent==10)
+  return;
+} //PitchMeterHandleAlexa
 //Last line.

@@ -1,4 +1,4 @@
-//BeckNTPLib.cpp, Beck 2/16/19a
+//BeckNTPLib.cpp, Beck 3/5/19a
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckNTPLib.h>
@@ -18,6 +18,7 @@ long            lSecTimeOffset          = wMtnTimeHourDifference * wSecPerHour;
 
 int             wMinuteUpdateInterval   = 3;
 unsigned long   ulMsecUpdateInterval    = wMinuteUpdateInterval * wMsecPerMinute;
+unsigned long   ulLocalTime;
 char*           szNtpServer             = "pool.ntp.org";
 
 WiFiUDP       oUDPforNTP;
@@ -33,12 +34,18 @@ void SetupNTP(){
   oNTPClient.setUpdateInterval  (ulMsecUpdateInterval);
   oNTPClient.setTimeOffset      (lSecTimeOffset);
   //Try up to 5 times to get the network time
+/*
   while (!bResult && (wCount++ < 5)){
-    Serial << LOG0 << "BeckNTPLib: SetupNTP() Call  oNTPClient.forceUpdate()" << endl;
+    Serial << LOG0 << "BeckNTPLib: SetupNTP() Call oNTPClient.forceUpdate()" << endl;
     bResult= oNTPClient.forceUpdate();
     delay(100);
   } //while
-  unsigned long ulLocalTime= oNTPClient.getEpochTime();
+*/
+  Serial << LOG0 << "BeckNTPLib: SetupNTP() Call oNTPClient.forceUpdate()" << endl;
+  bResult= oNTPClient.forceUpdate();
+  delay(100);
+  Serial << LOG0 << "BeckNTPLib: SetupNTP() Call oNTPClient.getEpochTime()" << endl;
+  ulLocalTime= oNTPClient.getEpochTime();
   Serial << LOG0 << "BeckNTPLib: SetupNTP() Return, Date= " << szFormatDateString(ulLocalTime) << endl;
   return;
 } //SetupNTP

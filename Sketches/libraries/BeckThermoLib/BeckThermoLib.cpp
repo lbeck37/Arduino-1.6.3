@@ -75,6 +75,8 @@ void LogThermostatData(float fDegF){
   LogToSerial(szLogString);
   return;
 } //LogThermostatData
+
+
 float fSetThermoSetpoint(int wSetpoint){
   float fSetpoint= round( ((float)wSetpoint / 255.0) * 100.0);
   fSetThermoSetpoint(fSetpoint);

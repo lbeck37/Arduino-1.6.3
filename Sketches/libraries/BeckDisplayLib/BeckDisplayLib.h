@@ -5,4 +5,5 @@
 void  SetupDisplay            (ProjectType eDisplayProjectType);
 void  ClearDisplay            ();
 void  UpdateDisplay           ();
+void  ClearZeros              ();
 //Last Line.

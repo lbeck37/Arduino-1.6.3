@@ -35,7 +35,6 @@ void  UpdatePitchMeterDisplay ();
 void  Update4LineDisplay      (String szLine1, String szLine2, String szLine3, String szLine4);
 void  BuildDisplayStrings     ();
 void  SetZeros                ();
-void  ClearZeros              ();
 
 void SetupDisplay(ProjectType eDisplayProjectType){
   _eDisplayProjectType= eDisplayProjectType;
@@ -73,6 +72,7 @@ void SetZeros(){
 
 
 void ClearZeros(){
+  Serial << LOG0 << "ClearZeros(): Clearing zero values and setting timer for new values" << endl;
   ulGetZerosMsec= millis() + ulBeforeZerosMsec;
   for (int wSensor= 0; wSensor < eLastSensor; wSensor++){
     for (int wAxis= 0; wAxis < eLastAxis; wAxis++){
