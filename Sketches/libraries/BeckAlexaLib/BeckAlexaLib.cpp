@@ -1,4 +1,4 @@
-// BeckAlexaLib.cpp 2/18/19a
+// BeckAlexaLib.cpp 3/5/19a
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
 #include <BeckDisplayLib.h>
@@ -12,6 +12,10 @@ bool           bAlexaOn              = false;  //Only projects that use Alexa se
 bool           _bAlexaChanged        = false;  //Set true when display data changed
 char           _acAlexaName[50];
 fauxmoESP      Alexa;                          //Alexa emulation of Phillips Hue Bulb
+
+//Function protos
+void ThermoHandleAlexa      (bool bState, unsigned char ucValue);
+void PitchMeterHandleAlexa  (unsigned char ucValue);
 
 void SetupAlexa(char szAlexaName[]){
   String szLogString= "SetupAlexa(): Begin";
@@ -67,8 +71,11 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
     case eGarage:
     case eThermoDev:
     case eHeater:
+/*
       SetAlexaSwitch(bState);
-      fSetThermoSetpoint((int)ucValue);
+      fSetThermoSetpoint((ucValue);
+*/
+      ThermoHandleAlexa(bState, ucValue);
       break;
     case ePitchMeter:
       PitchMeterHandleAlexa(ucValue);
@@ -76,12 +83,49 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
     case eFrontLights:
       break;
     default:
-      Serial << LOG0 << "BeckDisplayLib.cpp: UpdateDisplay(): Bad switch, _eProjectType= " << _eProjectType << endl;
+      Serial << LOG0 << "DoAlexaCommand(): Bad switch, _eProjectType= " << _eProjectType << endl;
       break;
   } //switch
-
-
   _bAlexaChanged= true;
   return;
 } //DoAlexaCommand
+
+
+void ThermoHandleAlexa(bool bState, unsigned char ucValue){
+  int wValuePercent= round(((float)ucValue / 255.0) * 100);
+  Serial << LOG0 << "ThermoHandleAlexa(): Received wValuePercent= " << wValuePercent << endl;
+  if(wValuePercent == 10){    //"Alexa set Larry's Device to 10"
+    SwitchProjectType(ePitchMeter);
+  } //if(wValuePercent==10)
+  else{
+    SetAlexaSwitch(bState);
+    fSetThermoSetpoint(ucValue);
+  } //if(wValuePercent==10)else
+
+  SetAlexaSwitch(bState);
+  fSetThermoSetpoint(ucValue);
+  return;
+} //PitchMeterHandleAlexa
+
+
+void PitchMeterHandleAlexa(unsigned char ucValue){
+  int wValuePercent= round(((float)ucValue / 255.0) * 100);
+  Serial << LOG0 << "PitchMeterHandleAlexa(): Received wValuePercent= " << wValuePercent << endl;
+/*
+  if(wValuePercent == 10){    //"Alexa set Larry's Device to 10"
+    ClearZeros();
+  } //if(wValuePercent==10)
+*/
+  switch (wValuePercent){
+  case 11:
+    ClearZeros();
+    break;
+  case 20:
+    SwitchProjectType(eThermoDev);
+    break;
+    default:
+      break;
+  } //switch
+  return;
+} //PitchMeterHandleAlexa
 //Last line.

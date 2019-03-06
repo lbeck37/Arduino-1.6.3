@@ -1,4 +1,4 @@
-// BeckThermoLib.h 2/17/19a
+// BeckThermoLib.h 3/5/19a
 #pragma once
 
 const long          sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
@@ -13,7 +13,7 @@ extern float        _fMaxSetpoint;
 void    HandleHeater          ();
 void    HandleThermostat      ();
 void    LogThermostatData     (float fDegF);
-float   fSetThermoSetpoint    (int wSetpoint);
+float   fSetThermoSetpoint    (unsigned char ucSetpoint);
 float   fSetThermoSetpoint    (float fSetpoint);
 
 void    HandleHeatSwitch      ();

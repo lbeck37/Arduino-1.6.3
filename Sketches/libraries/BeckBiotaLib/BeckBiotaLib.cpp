@@ -86,12 +86,9 @@ bool SetupSystem(ProjectType eProjectType){
 } //SetupSystem
 
 
-void PitchMeterHandleAlexa(unsigned char ucValue){
-  int wValuePercent= round(((float)ucValue / 255.0) * 100);
-  Serial << LOG0 << "PitchMeterHandleAlexa(): Received wValuePercent= " << wValuePercent << endl;
-  if(wValuePercent == 10){    //"Alexa set Larry's Device to 10"
-    ClearZeros();
-  } //if(wValuePercent==10)
+void SwitchProjectType(ProjectType eProjectType){
+  Serial << LOG0 << "SwitchProjectType(): Switch _eProjectType to: " << eProjectType << endl;
+  _eProjectType= eProjectType;
   return;
-} //PitchMeterHandleAlexa
+} //SwitchProjectType
 //Last line.

@@ -22,5 +22,5 @@ extern bool          _bSystemOk;
 extern ProjectType   _eProjectType;
 
 bool  SetupSystem           (ProjectType eProjectType);
-void PitchMeterHandleAlexa  (unsigned char ucValue);
+void  SwitchProjectType     (ProjectType eProjectType);
 //Last line.

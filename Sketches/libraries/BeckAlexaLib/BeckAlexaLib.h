@@ -14,10 +14,10 @@ extern fauxmoESP      Alexa;                    //Alexa emulation of Phillips Hu
 extern int            wAlexaHandleCount;
 extern bool           _bAlexaChanged;
 
-void SetupAlexa       (char acAlexaName[]);
-void HandleAlexa      ();
-void DoAlexaCommand   (unsigned char ucDdeviceID, const char* szDeviceName,
-                       bool bState, unsigned char ucValue);
+void SetupAlexa             (char acAlexaName[]);
+void HandleAlexa            ();
+void DoAlexaCommand         (unsigned char ucDdeviceID, const char* szDeviceName,
+                             bool bState, unsigned char ucValue);
 
 #endif  //DO_ALEXA
 //Last line.

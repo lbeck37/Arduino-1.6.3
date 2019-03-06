@@ -1,4 +1,4 @@
-// BeckThermoLib.cpp 2/17/19a
+// BeckThermoLib.cpp 3/5/19a
 #include <BeckThermoLib.h>
 #include <BeckLogLib.h>
 #include <BeckSwitchLib.h>
@@ -77,11 +77,11 @@ void LogThermostatData(float fDegF){
 } //LogThermostatData
 
 
-float fSetThermoSetpoint(int wSetpoint){
-  float fSetpoint= round( ((float)wSetpoint / 255.0) * 100.0);
+float fSetThermoSetpoint(unsigned char ucSetpoint){
+  float fSetpoint= round( ((float)ucSetpoint / 255.0) * 100.0);
   fSetThermoSetpoint(fSetpoint);
   return fSetpoint;
-} //fSetThermoSetpoint(int)
+} //fSetThermoSetpoint(unsigned char)
 
 
 float fSetThermoSetpoint(float fSetpoint){
