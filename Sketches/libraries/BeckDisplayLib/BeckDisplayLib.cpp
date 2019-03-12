@@ -16,9 +16,11 @@ const float     fDegToRadians         = PI/180.0;
 const uint32_t  ulPrintPeriodMsec     = 5000;
 const int       wBuffChar             = 20;
 const uint32_t  ulBeforeZerosMsec     = 10000;
+const uint8_t   ucLandscape           = 2;
 
 static       uint32_t   ulNextPrintMsec     = 0;
 static       uint32_t   ulGetZerosMsec      = 0;
+
 
 static ProjectType     _eDisplayProjectType;
 
@@ -40,6 +42,7 @@ void SetupDisplay(ProjectType eDisplayProjectType){
   _eDisplayProjectType= eDisplayProjectType;
   Serial << LOG0 << "SetupDisplay(): Call oDisplay.begin()" << endl;
   oDisplay.begin        (ucVccState, ucDisplayAddress);
+  oDisplay.setRotation(ucLandscape);
   oDisplay.clearDisplay ();
   oDisplay.display      ();
   delay(10);

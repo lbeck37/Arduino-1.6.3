@@ -2,10 +2,11 @@
 #pragma once
 
 const long          sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
-const float         fMaxHeatRangeF        = 0.10;   //Temp above setpoint before heat is turned off
+//const float         fMaxHeatRangeF        = 0.10;   //Temp above setpoint before heat is turned off
 
 extern float        fLastDegF;
 extern float        _fSetpointF;
+extern float        _fMaxHeatRangeF;
 extern float        _fThermoOffDegF;
 extern float        _fMinSetpoint;
 extern float        _fMaxSetpoint;

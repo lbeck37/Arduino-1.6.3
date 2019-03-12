@@ -1,19 +1,20 @@
-// BeckThermoLib.cpp 3/5/19a
+// BeckThermoLib.cpp 3/11/19b
 #include <BeckThermoLib.h>
 #include <BeckLogLib.h>
 #include <BeckSwitchLib.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
+float         _fMaxHeatRangeF       = 0.10;   //Temp above setpoint before heat is turned off
 float         fLastDegF             = 37.88;  //Last temperature reading.
 int           sThermoTimesCount     = 0;      //Number of times temperature out of range
 bool          bThermoOn             = true;   //Whether thermostat is running.
 bool          bHeatOn               = false;  //If switch is on to turn on Heat.
 
 float        _fSetpointF         = 70.0;
-float        _fThermoOffDegF     = _fSetpointF + fMaxHeatRangeF;
 float        _fMinSetpoint       = 32.0;
-float        _fMaxSetpoint       = 75.0;
+float        _fMaxSetpoint       = 80.0;
+float        _fThermoOffDegF     = _fSetpointF + _fMaxHeatRangeF;
 
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
 OneWire             oOneWire(sOneWireGPIO);
@@ -89,7 +90,7 @@ float fSetThermoSetpoint(float fSetpoint){
   if( (fSetpoint >= _fMinSetpoint) && (fSetpoint <= _fMaxSetpoint)){
     if(fSetpoint != _fSetpointF){
       _fSetpointF      = fSetpoint;
-      _fThermoOffDegF  = _fSetpointF + fMaxHeatRangeF;
+      _fThermoOffDegF  = _fSetpointF + _fMaxHeatRangeF;
       Serial << LOG0 << "fSetThermoSetpoint(): Set _fSetpointF to " << _fSetpointF << endl;
     } //if(fSetpoint!=_fSetpointF)
   } //if((fSetpoint>=...

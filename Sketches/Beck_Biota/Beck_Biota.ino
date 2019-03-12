@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "3/5/19y";
+const char szFileDate[]    = "3/11/19e";
 
 #ifndef ESP8266
   #define ESP8266
@@ -9,15 +9,9 @@ const char szFileDate[]    = "3/5/19y";
 #define DO_NTP              false
 #define DO_ACCESS_POINT     true
 
-#include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
-#include <BeckDisplayLib.h>
-#include <BeckI2cLib.h>
-#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
-#include <BeckMPU9150Lib.h>
 #include <BeckSwitchLib.h>
-#include <BeckThermoLib.h>
 #include <BeckWiFiLib.h>
 #if DO_ACCESS_POINT
   #include <BeckAccessPointLib.h>
@@ -43,13 +37,15 @@ static       uint32_t   ulNextMPU9150DisplayMsec    = 0;
 
 static int              _wBadCount              = 0;
 static int              _wGoodCount             = 0;
-static ProjectType      eProjectType            = ePitchMeter;  //Was eThermoDev
+//static ProjectType      eProjectType            = ePitchMeter;
+//static ProjectType      eProjectType            = eThermoDev;
+static ProjectType      eProjectType            = eFireplace;
 
 void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
-  _bSystemOk= SetupSystem(eProjectType);
+  _bSystemOk= SetupSystem(eProjectType);  //BeckBiotaib.cpp
   if(_bSystemOk){
     SetupWiFi(_acRouterName, _acRouterPW);
     SetupOTAServer(_acHostname);
@@ -57,7 +53,9 @@ void setup(){
       SetupWiFiNameServer(_acAccessPointSSID, _acAccessPointPW);
     #endif  //DO_ACCESS_POINT
     SetupI2C();
-    SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
+    if(eProjectType == ePitchMeter){
+      SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
+    } //if(eProjectType==ePitchMeter)
     #if DO_NTP
       SetupNTP();
     #endif
@@ -124,7 +122,7 @@ void HandleSystem(){
         ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
         _wGoodCount= 0;
         _wBadCount= 0;
-        if (wAlexaHandleCount < 1000){
+        if (false && (wAlexaHandleCount < 1000)){
           //Typically HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
           LogToSerial("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
         } //if (wAlexaHandleCount<1000)

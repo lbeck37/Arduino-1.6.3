@@ -1,9 +1,11 @@
-// BeckBiotaLib.cpp 3/5/19a
+// BeckBiotaLib.cpp 3/10/19a
 #include <BeckBiotaLib.h>
 #include <BeckAlexaLib.h>
 #include <BeckDisplayLib.h>
+#include <BeckI2cLib.h>
 #include <BeckLogLib.h>
 #include <BeckMPU9150Lib.h>
+#include <BeckThermoLib.h>
 
 ProjectType   _eProjectType;
 char          _acHostname       [50];
@@ -12,7 +14,7 @@ char          _acRouterName     [50];
 char          _acRouterPW       [50];
 char          _acAccessPointSSID[50];
 char          _acAccessPointPW  [50];
-bool          _bSystemOk              = true;
+bool          _bSystemOk      = true;
 
 
 bool SetupSystem(ProjectType eProjectType){
@@ -28,6 +30,9 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "BiotaSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
+      _fSetpointF   = 71.0;
+      _fMinSetpoint = 65.0;
+      _fMaxSetpoint = 75.0;
       break;
     case eFireplace:
       strcpy(_acHostname        , "BeckFireplace");
@@ -35,8 +40,13 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acAlexaName       , "Fireplace");
       strcpy(_acRouterName      , "Aspot24");
       strcpy(_acRouterPW        , "Qazqaz11");
-      strcpy(_acAccessPointSSID , "FirepaceSpot");
+      strcpy(_acAccessPointSSID , "FireplaceSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
+      _fSetpointF       = 71.0;
+      _fMinSetpoint     = 65.0;
+      _fMaxSetpoint     = 75.0;
+      _fMaxHeatRangeF   = 0.10;
+      _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
       break;
     case eHeater:
       strcpy(_acHostname        , "BeckHeater");
@@ -46,6 +56,11 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "HeaterSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
+      _fSetpointF       = 75.0;
+      _fMinSetpoint     = 55.0;
+      _fMaxSetpoint     = 80.0;
+      _fMaxHeatRangeF   = 0.10;
+      _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
       break;
     case eGarage:
       strcpy(_acHostname        , "BeckGarage");
@@ -55,6 +70,11 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "GarageSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
+      _fSetpointF       = 35.0;
+      _fMinSetpoint     = 33.0;
+      _fMaxSetpoint     = 40.0;
+      _fMaxHeatRangeF   = 1.00;
+      _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
       break;
     case ePitchMeter:
       strcpy(_acHostname        , "BeckIMU");
