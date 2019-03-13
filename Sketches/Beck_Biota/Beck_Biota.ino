@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "3/11/19e";
+const char szFileDate[]    = "3/12/19c";
 
 #ifndef ESP8266
   #define ESP8266
@@ -39,7 +39,8 @@ static int              _wBadCount              = 0;
 static int              _wGoodCount             = 0;
 //static ProjectType      eProjectType            = ePitchMeter;
 //static ProjectType      eProjectType            = eThermoDev;
-static ProjectType      eProjectType            = eFireplace;
+//static ProjectType      eProjectType            = eFireplace;
+static ProjectType      eProjectType            = eHeater;
 
 void setup(){
   Serial.begin(lSerialMonitorBaud);
@@ -116,6 +117,7 @@ void HandleSystem(){
   wAlexaHandleCount= 0;
   switch (_eProjectType){
     case eFireplace:
+    case eHeater:
     case eGarage:
     case eThermoDev:
       if (millis() >= ulNextThermHandlerMsec){
@@ -139,9 +141,11 @@ void HandleSystem(){
         UpdateDisplay();
       } //if(millis()>=ulNextMPU9150DisplayMsec)
       break;
+/*
     case eHeater:
       HandleHeater();
       break;
+*/
     case eFrontLights:
       //HandleFrontLights();
       break;

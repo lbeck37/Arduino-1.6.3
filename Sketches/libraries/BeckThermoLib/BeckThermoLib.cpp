@@ -21,11 +21,13 @@ OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
 
 
+/*
 void HandleHeater(){
   String szLogString = "HandleHeater()";
   LogToSerial(szLogString);
   return;
 } //HandleHeater
+*/
 
 
 void HandleThermostat(){
