@@ -1,11 +1,13 @@
-// BeckBiotaLib.cpp 3/10/19a
+// BeckBiotaLib.cpp 3/13/19a
 #include <BeckBiotaLib.h>
+/*
 #include <BeckAlexaLib.h>
 #include <BeckDisplayLib.h>
 #include <BeckI2cLib.h>
 #include <BeckLogLib.h>
 #include <BeckMPU9150Lib.h>
 #include <BeckThermoLib.h>
+*/
 
 ProjectType   _eProjectType;
 char          _acHostname       [50];
@@ -72,19 +74,18 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acAccessPointPW   , "Qazqaz11");
       _fSetpointF       = 35.0;
       _fMinSetpoint     = 33.0;
-      _fMaxSetpoint     = 40.0;
+      _fMaxSetpoint     = 50.0;
       _fMaxHeatRangeF   = 1.00;
       _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
       break;
     case ePitchMeter:
-      strcpy(_acHostname        , "BeckIMU");
-      strcpy(_acProjectType     , "IMU");
-      //strcpy(_acAlexaName       , "Pitch Meter");
-      strcpy(_acAlexaName       , "Larry's Device");
-      strcpy(_acRouterName      , "Aspot24");
-      //strcpy(_acRouterName      , "Dspot");
+      strcpy(_acHostname        , "BeckPitch");
+      strcpy(_acProjectType     , "PITCH");
+      strcpy(_acAlexaName       , "Pitch Meter");
+      //strcpy(_acRouterName      , "Aspot24");
+      strcpy(_acRouterName      , "Dspot");
       strcpy(_acRouterPW        , "Qazqaz11");
-      strcpy(_acAccessPointSSID , "IMUSpot");
+      strcpy(_acAccessPointSSID , "PitchSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
       break;
     case eFrontLights:

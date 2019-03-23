@@ -1,4 +1,4 @@
-//BeckMPU9150.cpp 3/5/19b
+//BeckMPU9150.cpp 3/23/19a
 #include <BeckMPU9150Lib.h>
 #include <Beck_IMUdefines.h>
 #include <Beck_IMUQuaternionFilters.h>
@@ -110,7 +110,9 @@ uint8_t   readByte          (uint8_t address, uint8_t subAddress);
 void      readBytes         (uint8_t address, uint8_t subAddress, uint8_t ucCount, uint8_t * dest);
 
 
-void SetupMPU9150(const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec){
+int SetupMPU9150(const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec){
+  bool   bFoundMPU9150;
+
   strncpy(_szSketchName , szSketchName, _wStringBufferSize);
   strncpy(_szFileDate   , szFileDate  , _wStringBufferSize);
   _ulUpdatePeriodMsec= ulUpdatePeriodMsec;
@@ -130,6 +132,7 @@ void SetupMPU9150(const char *szSketchName, const char *szFileDate, uint32_t ulU
 
   Serial << LOG0 << "SetupMPU9150(): WHO_AM_I= " << ucWhoAmI << ", should be 0x68 (104d)" << endl;
   if (ucWhoAmI == 0x68){            // WHO_AM_I should always be 0x68
+    bFoundMPU9150= true;
     Serial << LOG0 << "SetupMPU9150(): MPU9150 is online" << endl;
 
     MPU6050SelfTest   (SelfTest); // Start by performing self test
@@ -158,13 +161,16 @@ void SetupMPU9150(const char *szSketchName, const char *szFileDate, uint32_t ulU
     MagRate = 10; // set magnetometer read rate in Hz; 10 to 100 (max) Hz are reasonable values
   } //if(ucWhoAmI==0x68)
   else{
+    bFoundMPU9150= false;
     Serial << LOG0 << "SetupMPU9150(): Could not connect to MPU9150: ucWhoAmI= " << ucWhoAmI << endl;
+/*
     while(true){
       Serial << LOG0 << "SetupMPU9150(): In infinite loop because didn't connect to MPU9150" << endl;
       delay(10000); //10 sec
      }  //while(true)
+*/
   } //if(ucWhoAmI==0x68)else
-  return;
+  return bFoundMPU9150;
 } //SetupMPU9150
 
 

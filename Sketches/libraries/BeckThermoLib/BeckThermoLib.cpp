@@ -1,4 +1,4 @@
-// BeckThermoLib.cpp 3/11/19b
+// BeckThermoLib.cpp 3/13/19a
 #include <BeckThermoLib.h>
 #include <BeckLogLib.h>
 #include <BeckSwitchLib.h>
@@ -19,15 +19,6 @@ float        _fThermoOffDegF     = _fSetpointF + _fMaxHeatRangeF;
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oSensors(&oOneWire);
-
-
-/*
-void HandleHeater(){
-  String szLogString = "HandleHeater()";
-  LogToSerial(szLogString);
-  return;
-} //HandleHeater
-*/
 
 
 void HandleThermostat(){

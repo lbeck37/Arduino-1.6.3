@@ -28,6 +28,6 @@ extern float    afAccGyroMagPRY[eLastSensor][eLastAxis];
 extern float    fDegC;
 
 //Function protos
-void  SetupMPU9150    (const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec);
+int   SetupMPU9150    (const char *szSketchName, const char *szFileDate, uint32_t ulUpdatePeriodMsec);
 void  HandleMPU9150   ();
 //Last line.

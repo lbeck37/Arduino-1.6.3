@@ -1,8 +1,9 @@
-// BeckI2cLib.cpp 2/17/19a
+// BeckI2cLib.cpp 3/23/19a
 #include <BeckI2cLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckSwitchLib.h>
+#include <Wire.h>
 
 void SetupI2C(){
   //Serial << LOG0 << "SetupI2C(): Call Wire.begin(sSDA_GPIO, sSCL_GPIO)" << endl;

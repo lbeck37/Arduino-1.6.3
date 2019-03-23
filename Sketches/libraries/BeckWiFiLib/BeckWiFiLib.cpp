@@ -1,10 +1,15 @@
-//BeckWiFiLib.cpp, Beck Jan 23, 2019
+//BeckWiFiLib.cpp, Beck March 23, 2019
+#include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
-#include <BeckWiFiLib.h>
 //#include <Streaming.h>
 
+bool        _bWiFiConnected;
+
 void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
+  uint32_t    ulWiFiWaitMsec      = 3 * lMsecPerSec; //mSec between running system handler
+  uint32_t    ulWiFiTimeoutMsec;
+
 /*
   Serial << LOG0 << "SetupWiFi()(BeckWiFiLib.cpp): Call WiFi.mode(WIFI_STA)" << endl;
   WiFi.mode(WIFI_STA);
@@ -21,6 +26,11 @@ void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
   Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
   WiFi.begin(szRouterName, szRouterPW);
 
+/*
+  if (millis() >= ulNextThermHandlerMsec){
+    ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
+*/
+/*
   //Wait for WL_CONNECTED
   while (WiFi.status() != WL_CONNECTED) {
     Serial << ".";
@@ -29,6 +39,26 @@ void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
   Serial << endl;
 
   Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << " IP address: " << WiFi.localIP() << endl;
+*/
+//Wait for WL_CONNECTED
+  _bWiFiConnected= false;
+  ulWiFiTimeoutMsec= millis() + ulWiFiWaitMsec;
+  while (!_bWiFiConnected && millis() <= ulWiFiTimeoutMsec){
+    if (WiFi.status() == WL_CONNECTED){
+      _bWiFiConnected= true;
+    } //if(WiFi.status()!=WL_CONNECTED)
+    else {
+      Serial << ".";
+      delay(100);
+    } //if(WiFi.status()!=WL_CONNECTED)else
+  } //while(!_bWiFiConnected&&millis()<=ulWiFiTimeoutMsec)
+  Serial << endl;
+  if (_bWiFiConnected){
+    Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << " IP address: " << WiFi.localIP() << endl;
+  } //if(bWiFiConnected)
+  else{
+    Serial << LOG0 << "SetupWiFi(): WiFi failed to connect." << endl;
+  } //if(bWiFiConnected)else
   return;
 } //SetupWiFi
 

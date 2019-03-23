@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "3/12/19c";
+const char szFileDate[]    = "3/23/19e";
 
 #ifndef ESP8266
   #define ESP8266
@@ -10,7 +10,9 @@ const char szFileDate[]    = "3/12/19c";
 #define DO_ACCESS_POINT     true
 
 #include <BeckBiotaLib.h>
+//#include <BeckI2cLib.h>
 #include <BeckMiniLib.h>
+//#include <BeckMPU9150Lib.h>
 #include <BeckSwitchLib.h>
 #include <BeckWiFiLib.h>
 #if DO_ACCESS_POINT
@@ -28,19 +30,22 @@ const char szFileDate[]    = "3/12/19c";
 #include <Time.h>
 #include <WiFiClient.h>
 
-static const uint32_t   ulThermHandlerPeriodMsec    = 10 * lMsecPerSec; //mSec between running system handler
-static       uint32_t   ulNextThermHandlerMsec      = 0;
+static const  uint32_t    ulThermHandlerPeriodMsec    = 10 * lMsecPerSec; //mSec between running system handler
+static        uint32_t    ulNextThermHandlerMsec      = 0;
 
-static const uint32_t   ulMPU9150HandlerPeriodMsec  = 200;
-static const uint32_t   ulMPU9150DisplayPeriodMsec  = ulMPU9150HandlerPeriodMsec;
-static       uint32_t   ulNextMPU9150DisplayMsec    = 0;
+static const  uint32_t    ulMPU9150HandlerPeriodMsec  = 200;
+static const  uint32_t    ulMPU9150DisplayPeriodMsec  = ulMPU9150HandlerPeriodMsec;
+static        uint32_t    ulNextMPU9150DisplayMsec    = 0;
+static        bool        bMPU9150_On;
 
-static int              _wBadCount              = 0;
-static int              _wGoodCount             = 0;
-//static ProjectType      eProjectType            = ePitchMeter;
-//static ProjectType      eProjectType            = eThermoDev;
-//static ProjectType      eProjectType            = eFireplace;
-static ProjectType      eProjectType            = eHeater;
+static        int              _wBadCount             = 0;
+static        int              _wGoodCount            = 0;
+
+static        ProjectType      eProjectType           = ePitchMeter;
+//static        ProjectType      eProjectType            = eThermoDev;
+//static        ProjectType      eProjectType            = eFireplace;
+//static        ProjectType      eProjectType            = eHeater;
+//static        ProjectType      eProjectType            = eGarage;
 
 void setup(){
   Serial.begin(lSerialMonitorBaud);
@@ -49,13 +54,15 @@ void setup(){
   _bSystemOk= SetupSystem(eProjectType);  //BeckBiotaib.cpp
   if(_bSystemOk){
     SetupWiFi(_acRouterName, _acRouterPW);
-    SetupOTAServer(_acHostname);
-    #if DO_ACCESS_POINT
-      SetupWiFiNameServer(_acAccessPointSSID, _acAccessPointPW);
-    #endif  //DO_ACCESS_POINT
+    if (_bWiFiConnected){
+      SetupOTAServer(_acHostname);
+      #if DO_ACCESS_POINT
+        SetupWiFiNameServer(_acAccessPointSSID, _acAccessPointPW);
+      #endif  //DO_ACCESS_POINT
+    }
     SetupI2C();
     if(eProjectType == ePitchMeter){
-      SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
+      bMPU9150_On= SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
     } //if(eProjectType==ePitchMeter)
     #if DO_NTP
       SetupNTP();
@@ -70,7 +77,7 @@ void setup(){
   } //if(_bSystemOk)
   else{
     while(true){
-      Serial << LOG0 << "setup(): In infinite loop because SetupSystem(): Returned false" << endl;
+      Serial << LOG0 << "setup(): SetupSystem(): Returned false" << endl;
       delay(10000); //10 sec
      }  //while(true)
   } //if(_bSystemOk)else
@@ -84,8 +91,8 @@ void loop(){
   CheckTaskTime("loop(): HandleOTAServer()");
 #if DO_NTP
   HandleNTPUpdate();
-#endif
   CheckTaskTime("loop(): HandleNTPUpdate()");
+#endif
   #if DO_ACCESS_POINT
     HandleSoftAPClient();       //Listen for HTTP requests from clients
     CheckTaskTime("loop(): HandleSoftAPClient()");
@@ -135,17 +142,14 @@ void HandleSystem(){
       } //if(millis()>=ulNextThermHandlerMsec)
      break;
     case ePitchMeter:
-      HandleMPU9150();
+      if (bMPU9150_On){
+        HandleMPU9150();
+      } //if(bMPU9150_On)
       if (millis() >= ulNextMPU9150DisplayMsec){
         ulNextMPU9150DisplayMsec= millis() + ulMPU9150DisplayPeriodMsec;
         UpdateDisplay();
       } //if(millis()>=ulNextMPU9150DisplayMsec)
       break;
-/*
-    case eHeater:
-      HandleHeater();
-      break;
-*/
     case eFrontLights:
       //HandleFrontLights();
       break;

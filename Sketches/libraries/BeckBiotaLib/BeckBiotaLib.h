@@ -10,7 +10,27 @@ enum ProjectType{
   eFrontLights,
   ePitchMeter,
   eLastProjectType
+};
+
+#include <BeckAlexaLib.h>
+#include <BeckDisplayLib.h>
+#include <BeckI2cLib.h>
+#include <BeckLogLib.h>
+#include <BeckMPU9150Lib.h>
+#include <BeckThermoLib.h>
+
+/*
+enum ProjectType{
+  eNoProject  = 0,
+  eThermoDev,
+  eFireplace,
+  eGarage,
+  eHeater,
+  eFrontLights,
+  ePitchMeter,
+  eLastProjectType
 } ;
+*/
 
 extern char           _acHostname   [50];
 extern char           _acProjectType[50];
