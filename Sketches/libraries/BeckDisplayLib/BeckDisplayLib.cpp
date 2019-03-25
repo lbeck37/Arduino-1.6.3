@@ -1,4 +1,4 @@
-// BeckDisplayLib.cpp 3/5/19c
+// BeckDisplayLib.cpp 3/25/19a
 #include <BeckDisplayLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -21,7 +21,6 @@ const uint8_t   ucLandscape           = 2;
 static       uint32_t   ulNextPrintMsec     = 0;
 static       uint32_t   ulGetZerosMsec      = 0;
 
-
 static ProjectType     _eDisplayProjectType;
 
 char            aszAccGyroMagPRY      [eLastSensor][eLastAxis][wBuffChar];
@@ -33,8 +32,10 @@ Adafruit_SSD1306    oDisplay(wScreenWidth, wScreenHeight);
 
 //Function protos
 void  UpdateThermDisplay      ();
-void  UpdatePitchMeterDisplay ();
+void  Update4LinePitchDisplay ();
+void  UpdateJustPitchDisplay  ();
 void  Update4LineDisplay      (String szLine1, String szLine2, String szLine3, String szLine4);
+void  UpdateOneLineDisplay    (String szLine1, uint8_t ucTextSize);
 void  BuildDisplayStrings     ();
 void  SetZeros                ();
 
@@ -99,7 +100,8 @@ void UpdateDisplay(){
       UpdateThermDisplay();
       break;
     case ePitchMeter:
-      UpdatePitchMeterDisplay();
+      //Update4LinePitchDisplay();
+      UpdateJustPitchDisplay();
       break;
     case eFrontLights:
       break;
@@ -121,7 +123,7 @@ void UpdateThermDisplay(){
 } //UpdateThermDisplay
 
 
-void UpdatePitchMeterDisplay(){
+void Update4LinePitchDisplay(){
   BuildDisplayStrings();
 
   String szDisplayLine1= String(aszAccGyroMagPRY[ePRY][ePitch]);
@@ -132,11 +134,44 @@ void UpdatePitchMeterDisplay(){
 
   if (millis() >= ulNextPrintMsec){
     ulNextPrintMsec= millis() + ulPrintPeriodMsec;
-    Serial << LOG0 << "UpdatePitchMeterDisplay(): Pitch= " << aszAccGyroMagPRY[ePRY][ePitch] <<
+    Serial << LOG0 << "Update4LinePitchDisplay(): Pitch= " << aszAccGyroMagPRY[ePRY][ePitch] <<
         ", Roll= " << aszAccGyroMagPRY[ePRY][eRoll] << ", Yaw= " << aszAccGyroMagPRY[ePRY][eYaw] << endl;
   } //if(millis()>=ulNextPrintMsec)
   return;
-} //UpdatePitchMeterDisplay
+} //Update4LinePitchDisplay
+
+
+void UpdateJustPitchDisplay(){
+  float   fPitchPercent;
+  char    szBuffer[wBuffChar];
+  float   fCorrectedPitch;
+
+  //Compute Pitch as a percent rise or fall
+  fCorrectedPitch= afAccGyroMagPRY[ePRY][ePitch] - afZeroAccGyroMagPRY[ePRY][ePitch];
+  //fPitchPercent= 100.0 * tan(fDegToRadians * afAccGyroMagPRY[ePRY][ePitch]);
+  fPitchPercent= 100.0 * tan(fDegToRadians * fCorrectedPitch);
+/*
+  fPitchPercent= fmin(+99.99, fPitchPercent);
+  fPitchPercent= fmax(-99.99, fPitchPercent);
+*/
+  fPitchPercent= fmin(+99.0, fPitchPercent);
+  fPitchPercent= fmax(-99.0, fPitchPercent);
+
+  strcpy(aszAccGyroMagPRY[ePRY][ePitch], "");
+  //dtostrf(fPitchPercent, 5, 2, szBuffer);
+  dtostrf(fPitchPercent, 3, 0, szBuffer);
+  strcat(aszAccGyroMagPRY[ePRY][ePitch], szBuffer);
+  strcat(aszAccGyroMagPRY[ePRY][ePitch], "%");
+
+  String szDisplayLine1= String(aszAccGyroMagPRY[ePRY][ePitch]);
+  UpdateOneLineDisplay(szDisplayLine1, 5);
+
+  if (millis() >= ulNextPrintMsec){
+    ulNextPrintMsec= millis() + ulPrintPeriodMsec;
+    Serial << LOG0 << "UpdateJustPitchDisplay(): Pitch= " << aszAccGyroMagPRY[ePRY][ePitch] << endl;
+  } //if(millis()>=ulNextPrintMsec)
+  return;
+} //UpdateJustPitchDisplay
 
 
 void Update4LineDisplay(String szLine1, String szLine2, String szLine3, String szLine4){
@@ -154,6 +189,24 @@ void Update4LineDisplay(String szLine1, String szLine2, String szLine3, String s
   oDisplay.display();
   return;
 } //Update4LineDisplay
+
+
+void UpdateOneLineDisplay(String szLine1, uint8_t ucTextSize){
+  //Display one line of text
+  //ucTextSize= 2 is 10 characters
+  //ucTextSize= 3 is  7 characters "-99.99%"
+  //ucTextSize= 4 is  5 characters "-100%"
+  oDisplay.clearDisplay();
+  //oDisplay.setTextSize(2);
+  oDisplay.setTextSize(ucTextSize);
+  oDisplay.setTextColor(WHITE);
+  oDisplay.setCursor(0,0);
+
+  oDisplay.println(szLine1);
+
+  oDisplay.display();
+  return;
+} //UpdateOneLineDisplay
 
 
 void BuildDisplayStrings(){
