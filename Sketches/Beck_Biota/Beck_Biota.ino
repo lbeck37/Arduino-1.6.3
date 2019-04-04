@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/3/19n";
+const char szFileDate[]    = "4/3/19r";
 
 #ifndef ESP8266
   #define ESP8266
@@ -60,7 +60,7 @@ void setup(){
       #if DO_ACCESS_POINT
         SetupWiFiNameServer(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT
-    }
+    } //if(_bWiFiConnected)
     SetupI2C();
     if(eProjectType == ePitchMeter){
       bMPU9150_On= SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
@@ -69,7 +69,9 @@ void setup(){
       SetupNTP();
     #endif
     #if DO_ALEXA
-      SetupAlexa(_acAlexaName);
+      if (_bWiFiConnected){
+        SetupAlexa(_acAlexaName);
+      } //if(_bWiFiConnected)
     #endif
     SetupDisplay(_eProjectType);
     ClearDisplay();
@@ -82,21 +84,28 @@ void setup(){
       delay(10000); //10 sec
      }  //while(true)
   } //if(_bSystemOk)else
+  Serial << LOG0 << "setup(): Done" << endl;
   return;
 } //setup
 
 
 void loop(){
   ulLastTaskMsec= millis();
-  HandleOTAServer();
-  CheckTaskTime("loop(): HandleOTAServer()");
+  if (_bWiFiConnected){
+    HandleOTAServer();
+    CheckTaskTime("loop(): HandleOTAServer()");
+  } //if(_bWiFiConnected)
 #if DO_NTP
-  HandleNTPUpdate();
-  CheckTaskTime("loop(): HandleNTPUpdate()");
+  if (_bWiFiConnected){
+    HandleNTPUpdate();
+    CheckTaskTime("loop(): HandleNTPUpdate()");
+  } //if(_bWiFiConnected)
 #endif
   #if DO_ACCESS_POINT
+  if (_bWiFiConnected){
     HandleSoftAPClient();       //Listen for HTTP requests from clients
     CheckTaskTime("loop(): HandleSoftAPClient()");
+  } //if(_bWiFiConnected)
   #endif  //DO_ACCESS_POINT
   if (!_bOTA_Started){
     HandleSystem();
@@ -115,12 +124,14 @@ void loop(){
 
 void HandleSystem(){
 #if DO_ALEXA
-  HandleAlexa();
-  CheckTaskTime("HandleAlexa");
-  if(_bAlexaChanged){
-    _bAlexaChanged= false;
-    UpdateDisplay();
-  } //if(bAlexaChanged)
+  if (_bWiFiConnected){
+    HandleAlexa();
+    CheckTaskTime("HandleAlexa");
+    if(_bAlexaChanged){
+      _bAlexaChanged= false;
+      UpdateDisplay();
+    } //if(bAlexaChanged)
+  } //if(_bWiFiConnected)
 #endif
   wAlexaHandleCount= 0;
   switch (_eProjectType){
