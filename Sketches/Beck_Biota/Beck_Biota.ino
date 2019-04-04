@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/3/19c";
+const char szFileDate[]    = "4/3/19n";
 
 #ifndef ESP8266
   #define ESP8266
@@ -33,9 +33,9 @@ const char szFileDate[]    = "4/3/19c";
 static const  uint32_t    ulThermHandlerPeriodMsec    = 10 * lMsecPerSec; //mSec between running system handler
 static        uint32_t    ulNextThermHandlerMsec      = 0;
 
-static const  uint32_t    ulMPU9150HandlerPeriodMsec  = 200;
-//static const  uint32_t    ulMPU9150DisplayPeriodMsec  = ulMPU9150HandlerPeriodMsec;
-static const  uint32_t    ulMPU9150DisplayPeriodMsec  = 2000;
+//static const  uint32_t    ulMPU9150HandlerPeriodMsec  = 200;
+static const  uint32_t    ulMPU9150HandlerPeriodMsec  = 0;
+static const  uint32_t    ulMPU9150DisplayPeriodMsec  = 1000;
 static        uint32_t    ulNextMPU9150DisplayMsec    = 0;
 static        bool        bMPU9150_On;
 

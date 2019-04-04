@@ -16,6 +16,7 @@ const float     fDegToRadians         = PI/180.0;
 const uint32_t  ulPrintPeriodMsec     = 5000;
 const int       wBuffChar             = 20;
 const uint32_t  ulBeforeZerosMsec     = 10000;
+//const uint32_t  ulBeforeZerosMsec     = 5000;
 const uint8_t   ucLandscape           = 2;
 
 static       uint32_t   ulNextPrintMsec     = 0;
@@ -76,7 +77,7 @@ void SetZeros(){
 
 
 void ClearZeros(){
-  Serial << LOG0 << "ClearZeros(): Clearing zero values and setting timer for new values" << endl;
+  Serial << LOG0 << "BeckDisplayLib.cpp: ClearZeros(): Clearing zero values and setting timer for new values" << endl;
   ulGetZerosMsec= millis() + ulBeforeZerosMsec;
   for (int wSensor= 0; wSensor < eLastSensor; wSensor++){
     for (int wAxis= 0; wAxis < eLastAxis; wAxis++){
@@ -144,8 +145,9 @@ void UpdateJustPitchDisplay(){
   float   fPitchPercent;
   char    szBuffer[wBuffChar];
   float   fCorrectedPitch;   //wSumCount afSumPRY
+  int     wCount= wSumCount;
 
-  Serial << LOG0 << "UpdateJustPitchDisplay(): wSumCount= " << wSumCount << endl;
+  //Serial << LOG0 << "UpdateJustPitchDisplay(): wSumCount= " << wSumCount << endl;
   //for(PRY eAxis= ePitch; eAxis <= eYaw; eAxis++) {
   for(int eAxis= ePitch; eAxis <= eYaw; eAxis++) {
     afAccGyroMagPRY[ePRY][eAxis]= afSumPRY[eAxis] / wSumCount;
@@ -173,10 +175,13 @@ void UpdateJustPitchDisplay(){
   String szDisplayLine1= String(aszAccGyroMagPRY[ePRY][ePitch]);
   UpdateOneLineDisplay(szDisplayLine1, 5);
 
+/*
   if (millis() >= ulNextPrintMsec){
     ulNextPrintMsec= millis() + ulPrintPeriodMsec;
     Serial << LOG0 << "UpdateJustPitchDisplay(): Pitch= " << aszAccGyroMagPRY[ePRY][ePitch] << endl;
   } //if(millis()>=ulNextPrintMsec)
+*/
+  Serial << LOG0 << "UpdateJustPitchDisplay(): wSumCount= "<< wCount << ", Pitch= " << aszAccGyroMagPRY[ePRY][ePitch] << endl;
   return;
 } //UpdateJustPitchDisplay
 
