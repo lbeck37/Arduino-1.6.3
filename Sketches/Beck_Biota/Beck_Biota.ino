@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/3/19r";
+const char szFileDate[]    = "4/3/19s";
 
 #ifndef ESP8266
   #define ESP8266
@@ -66,7 +66,9 @@ void setup(){
       bMPU9150_On= SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
     } //if(eProjectType==ePitchMeter)
     #if DO_NTP
-      SetupNTP();
+      if (_bWiFiConnected){
+        SetupNTP();
+      } //if(_bWiFiConnected)
     #endif
     #if DO_ALEXA
       if (_bWiFiConnected){
