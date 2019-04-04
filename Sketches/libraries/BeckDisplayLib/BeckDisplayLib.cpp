@@ -100,7 +100,6 @@ void UpdateDisplay(){
       UpdateThermDisplay();
       break;
     case ePitchMeter:
-      //Update4LinePitchDisplay();
       UpdateJustPitchDisplay();
       break;
     case eFrontLights:
@@ -144,7 +143,15 @@ void Update4LinePitchDisplay(){
 void UpdateJustPitchDisplay(){
   float   fPitchPercent;
   char    szBuffer[wBuffChar];
-  float   fCorrectedPitch;
+  float   fCorrectedPitch;   //wSumCount afSumPRY
+
+  Serial << LOG0 << "UpdateJustPitchDisplay(): wSumCount= " << wSumCount << endl;
+  //for(PRY eAxis= ePitch; eAxis <= eYaw; eAxis++) {
+  for(int eAxis= ePitch; eAxis <= eYaw; eAxis++) {
+    afAccGyroMagPRY[ePRY][eAxis]= afSumPRY[eAxis] / wSumCount;
+    afSumPRY[eAxis]= 0;
+  } //for(int eAxis=ePitch...
+  wSumCount= 0;
 
   //Compute Pitch as a percent rise or fall
   fCorrectedPitch= afAccGyroMagPRY[ePRY][ePitch] - afZeroAccGyroMagPRY[ePRY][ePitch];

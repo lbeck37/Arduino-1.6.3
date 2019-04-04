@@ -1,4 +1,4 @@
-//BeckMPU9150.cpp 3/23/19a
+//BeckMPU9150.cpp 4/3/19a
 #include <BeckMPU9150Lib.h>
 #include <Beck_IMUdefines.h>
 #include <Beck_IMUQuaternionFilters.h>
@@ -84,6 +84,9 @@ float afAccGyroMagPRY[eLastSensor][eLastAxis]= {
     {0.0, 0.0, 0.0},
     {0.0, 0.0, 0.0}
 };
+
+int   wSumCount= 0;
+float afSumPRY[eLastPRY]= {0.0, 0.0, 0.0};
 
 uint32_t        _ulUpdatePeriodMsec   =  200;
 uint32_t        _ulNextUpdateMsec     = 0;
@@ -276,7 +279,7 @@ void HandleMPU9150(){
       //roll  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
       pitch  = atan2(2.0f * (q[0] * q[1] + q[2] * q[3]), q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3]);
       pitch *= 180.0f / PI;
-      pitch= -pitch;
+      //pitch= -pitch;
       roll  *= 180.0f / PI;
       yaw   *= 180.0f / PI;
       yaw   -= 13.8; // Declination at Danville, California is 13 degrees 48 minutes and 47 seconds on 2014-04-04
@@ -321,10 +324,18 @@ void FillSensorData(){
         afAccGyroMagPRY[eSensor][eY]= my;
         afAccGyroMagPRY[eSensor][eZ]= mz;
         break;
+/*
       case ePRY:
         afAccGyroMagPRY[eSensor][ePitch]= pitch;
         afAccGyroMagPRY[eSensor][eRoll] = roll;
         afAccGyroMagPRY[eSensor][eYaw]  = yaw;
+        break;
+*/
+      case ePRY:
+        afSumPRY[ePitch]  += pitch;
+        afSumPRY[eRoll]   += roll;
+        afSumPRY[eYaw]    += yaw;
+        wSumCount++;
         break;
       default:
         Serial << LOG0 << "FillSensorData() Bad switch= " << eSensor << endl;

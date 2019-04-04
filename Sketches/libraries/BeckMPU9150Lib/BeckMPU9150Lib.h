@@ -1,4 +1,4 @@
-// BeckMPU9150.h 3/5/19b
+// BeckMPU9150.h 4/3/19a
 #pragma once
 #include <BeckMiniLib.h>
 
@@ -24,6 +24,8 @@ enum PRY{
   eLastPRY
 };
 
+extern int      wSumCount;
+extern float    afSumPRY[eLastPRY];
 extern float    afAccGyroMagPRY[eLastSensor][eLastAxis];
 extern float    fDegC;
 
