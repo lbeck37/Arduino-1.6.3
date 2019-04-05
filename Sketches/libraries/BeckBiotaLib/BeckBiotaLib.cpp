@@ -1,13 +1,5 @@
-// BeckBiotaLib.cpp 3/13/19a
+// BeckBiotaLib.cpp 4/4/19a
 #include <BeckBiotaLib.h>
-/*
-#include <BeckAlexaLib.h>
-#include <BeckDisplayLib.h>
-#include <BeckI2cLib.h>
-#include <BeckLogLib.h>
-#include <BeckMPU9150Lib.h>
-#include <BeckThermoLib.h>
-*/
 
 ProjectType   _eProjectType;
 char          _acHostname       [50];

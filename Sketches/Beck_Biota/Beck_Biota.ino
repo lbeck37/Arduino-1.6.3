@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/3/19s";
+const char szFileDate[]    = "4/4/19g";
 
 #ifndef ESP8266
   #define ESP8266
@@ -30,6 +30,12 @@ const char szFileDate[]    = "4/3/19s";
 #include <Time.h>
 #include <WiFiClient.h>
 
+static        ProjectType      eProjectType           = ePitchMeter;
+//static        ProjectType      eProjectType            = eThermoDev;
+//static        ProjectType      eProjectType            = eFireplace;
+//static        ProjectType      eProjectType            = eHeater;
+//static        ProjectType      eProjectType            = eGarage;
+
 static const  uint32_t    ulThermHandlerPeriodMsec    = 10 * lMsecPerSec; //mSec between running system handler
 static        uint32_t    ulNextThermHandlerMsec      = 0;
 
@@ -42,19 +48,15 @@ static        bool        bMPU9150_On;
 static        int              _wBadCount             = 0;
 static        int              _wGoodCount            = 0;
 
-static        ProjectType      eProjectType           = ePitchMeter;
-//static        ProjectType      eProjectType            = eThermoDev;
-//static        ProjectType      eProjectType            = eFireplace;
-//static        ProjectType      eProjectType            = eHeater;
-//static        ProjectType      eProjectType            = eGarage;
-
 void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   _bSystemOk= SetupSystem(eProjectType);  //BeckBiotaib.cpp
   if(_bSystemOk){
-    SetupWiFi(_acRouterName, _acRouterPW);
+    //SetupWiFi(_acRouterName, _acRouterPW);
+    //SetupWiFi(_acRouterNames[_wNumRouters], _acRouterPWs[_wNumRouters]);
+    SetupWiFi();
     if (_bWiFiConnected){
       SetupOTAServer(_acHostname);
       #if DO_ACCESS_POINT

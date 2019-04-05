@@ -34,7 +34,7 @@ void ScanForI2CDevices(){
       nDevices++;
     } //if(ucError==0)
     else if (ucError==4) {
-      Serial << LOG0 << "ScanForI2CDevices(): Unknown error at address 0x" << endl;
+      Serial << LOG0 << "ScanForI2CDevices(): Unknown error at address 0x";
       if (ucAddress<16) {
         Serial << "0";
       } //if(ucAddress<16)

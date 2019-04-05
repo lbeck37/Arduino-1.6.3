@@ -1,4 +1,4 @@
-//BeckWiFiLib.h, 3/23/19
+//BeckWiFiLib.h, 4/4/19a
 #pragma once
 #ifdef ESP8266
   #include <ESP8266WiFi.h>
@@ -6,9 +6,9 @@
   #include <WiFi.h>
 #endif    //ESP8266
 
-extern bool        _bWiFiConnected;
+extern        bool     _bWiFiConnected;
 
-void    SetupWiFi     (const char szRouterName[], const char szRouterPW[]);
+void    SetupWiFi     ();
 String  szWiFiStatus  (wl_status_t eWiFiStatus);
 
 //Last line.

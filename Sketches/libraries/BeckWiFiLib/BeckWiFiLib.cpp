@@ -1,58 +1,46 @@
-//BeckWiFiLib.cpp, Beck March 23, 2019
+//BeckWiFiLib.cpp, 4/4/19a
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 //#include <Streaming.h>
 
-bool        _bWiFiConnected;
+const int     _wRouterNumChar = 30;
+const int     _wNumRouters    =  3;
+//char          _acRouterNames     [_wNumRouters][_wRouterNumChar] = {"Aspot24" , "Cspot"   , "Dspot"};
+char          _acRouterNames     [_wNumRouters][_wRouterNumChar] = {"Cspot"   , "Aspot24" , "Dspot"};
+char          _acRouterPWs       [_wNumRouters][_wRouterNumChar] = {"Qazqaz11", "Qazqaz11", "Qazqaz11"};
+bool          _bWiFiConnected;
 
-void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
-  uint32_t    ulWiFiWaitMsec      = 3 * lMsecPerSec; //mSec between running system handler
+//void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
+//void SetupWiFi(const char szRouterName[][_wRouterNumChar], const char szRouterPW[][_wRouterNumChar]){
+void SetupWiFi(){
+  uint32_t    ulWiFiWaitMsec      = 5 * lMsecPerSec; //mSec to wait for connect
   uint32_t    ulWiFiTimeoutMsec;
 
-/*
-  Serial << LOG0 << "SetupWiFi()(BeckWiFiLib.cpp): Call WiFi.mode(WIFI_STA)" << endl;
-  WiFi.mode(WIFI_STA);
-
-  Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
-  //Reports 0.0.0
-  Serial << LOG0 << "SetupWiFi(): Local IP: " << WiFi.localIP() << endl;
-*/
   // Set WIFI module to STA mode
   WiFi.mode(WIFI_STA);
 
-  //Connect
-  Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< szRouterName << ", " << szRouterPW << ")" << endl;
-  WiFi.begin(szRouterName, szRouterPW);
-
-/*
-  if (millis() >= ulNextThermHandlerMsec){
-    ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
-*/
-/*
-  //Wait for WL_CONNECTED
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial << ".";
-    delay(100);
-  }
-  Serial << endl;
-
-  Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << " IP address: " << WiFi.localIP() << endl;
-*/
-//Wait for WL_CONNECTED
   _bWiFiConnected= false;
-  ulWiFiTimeoutMsec= millis() + ulWiFiWaitMsec;
-  while (!_bWiFiConnected && millis() <= ulWiFiTimeoutMsec){
-    if (WiFi.status() == WL_CONNECTED){
-      _bWiFiConnected= true;
-    } //if(WiFi.status()!=WL_CONNECTED)
-    else {
-      Serial << ".";
-      delay(100);
-    } //if(WiFi.status()!=WL_CONNECTED)else
-  } //while(!_bWiFiConnected&&millis()<=ulWiFiTimeoutMsec)
-  Serial << endl;
+  for (int wRouterNum= 0; !_bWiFiConnected && (wRouterNum < _wNumRouters); wRouterNum++){
+    Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< _acRouterNames[wRouterNum] << "," << _acRouterPWs[wRouterNum] << ")" << endl;
+    WiFi.begin(_acRouterNames[wRouterNum], _acRouterPWs[wRouterNum]);
+/*
+    Serial << LOG0 << "SetupWiFi(): Call WiFi.begin("<< "Cspot" << "," << "Qazqaz11" << ")" << endl;
+    WiFi.begin("Cspot", "Qazqaz11");
+*/
+    //Wait for WL_CONNECTED
+    ulWiFiTimeoutMsec= millis() + ulWiFiWaitMsec;
+    while (!_bWiFiConnected && millis() <= ulWiFiTimeoutMsec){
+      if (WiFi.status() == WL_CONNECTED){
+        _bWiFiConnected= true;
+      } //if(WiFi.status()!=WL_CONNECTED)
+      else {
+        Serial << ".";
+        delay(100);
+      } //if(WiFi.status()!=WL_CONNECTED)else
+    } //while(!_bWiFiConnected&&millis()<=ulWiFiTimeoutMsec)
+    Serial << endl;
+  } //for(int wRouterNum=0;...
   if (_bWiFiConnected){
     Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << " IP address: " << WiFi.localIP() << endl;
   } //if(bWiFiConnected)
