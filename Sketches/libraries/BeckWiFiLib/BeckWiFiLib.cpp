@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, 4/4/19a
+//BeckWiFiLib.cpp, 4/6/19
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -8,13 +8,12 @@ const int     _wPWNumChar     = 65;
 const int     _wNumRouters    =  3;
 char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Aspot24" , "Cspot"   , "Dspot"};
 //char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Cspot"   , "Aspot24" , "Dspot"};
+//char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Dspot"   , "Aspot24" , "Cspot"};
 char          _acRouterPWs       [_wNumRouters][_wPWNumChar]   = {"Qazqaz11", "Qazqaz11", "Qazqaz11"};
 bool          _bWiFiConnected;
 
-//void SetupWiFi(const char szRouterName[], const char szRouterPW[]){
-//void SetupWiFi(const char szRouterName[][_wRouterNumChar], const char szRouterPW[][_wRouterNumChar]){
 void SetupWiFi(){
-  uint32_t    ulWiFiWaitMsec      = 3 * lMsecPerSec; //mSec to wait for connect
+  uint32_t    ulWiFiWaitMsec      = 10 * lMsecPerSec; //mSec to wait for connect
   uint32_t    ulWiFiTimeoutMsec;
 
   // Set WIFI module to STA mode
@@ -29,6 +28,7 @@ void SetupWiFi(){
     while (!_bWiFiConnected && millis() <= ulWiFiTimeoutMsec){
       if (WiFi.status() == WL_CONNECTED){
         _bWiFiConnected= true;
+        //Serial << endl << LOG0 << "SetupWiFi(): WiFi connected." << endl;
       } //if(WiFi.status()!=WL_CONNECTED)
       else {
         Serial << ".";
@@ -36,9 +36,11 @@ void SetupWiFi(){
       } //if(WiFi.status()!=WL_CONNECTED)else
     } //while(!_bWiFiConnected&&millis()<=ulWiFiTimeoutMsec)
     Serial << endl;
+/*
     if (!_bWiFiConnected){
       WiFi.disconnect();
     } //if(!_bWiFiConnected)
+*/
   } //for(int wRouterNum=0;...
   if (_bWiFiConnected){
     Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << " IP address: " << WiFi.localIP() << endl;
