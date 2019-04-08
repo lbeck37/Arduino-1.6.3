@@ -1,3 +1,4 @@
+//Beck 4/8/19
 /*
   Asynchronous WebServer library for Espressif MCUs
 
@@ -29,13 +30,14 @@
 #include "StringArray.h"
 
 #ifdef ESP32
-#include <WiFi.h>
-#include <AsyncTCP.h>
+  #include <WiFi.h>
+  //#include <AsyncTCP.h>   //Beck 4/8/19
+  #include "AsyncTCP.h"   //Beck 4/8/19
 #elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#include <ESPAsyncTCP.h>
+  #include <ESP8266WiFi.h>
+  #include <ESPAsyncTCP.h>
 #else
-#error Platform not supported
+  #error Platform not supported
 #endif
 
 #define DEBUGF(...) //Serial.printf(__VA_ARGS__)

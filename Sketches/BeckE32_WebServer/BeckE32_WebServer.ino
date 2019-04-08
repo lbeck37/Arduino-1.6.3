@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_WebServer.ino";
-const String FileDate    = "April 7, 2019aa";
+const String FileDate    = "April 8, 2019c";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
@@ -7,6 +7,8 @@ const String FileDate    = "April 7, 2019aa";
 
 // Import required libraries
 #include "WiFi.h"
+#include "FS.h"
+#include "AsyncTCP.h"
 #include "ESPAsyncWebServer.h"
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -140,6 +142,7 @@ void setup(){
   dht.begin();
 
   // Connect to Wi-Fi
+  Serial << endl << "setup(): Call WiFi.begin(" << ssid << ", " << password << ")" << endl;
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);

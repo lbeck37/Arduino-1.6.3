@@ -1,3 +1,4 @@
+//Beck 4/8/19
 /*
   Asynchronous WebServer library for Espressif MCUs
 
@@ -21,8 +22,9 @@
 #define ASYNCEVENTSOURCE_H_
 
 #include <Arduino.h>
+#include <Streaming.h>   //Beck 4/8/19
 #ifdef ESP32
-#include <AsyncTCP.h>
+  #include <AsyncTCP.h>   //Beck 4/8/19
 #else
 #include <ESPAsyncTCP.h>
 #endif
