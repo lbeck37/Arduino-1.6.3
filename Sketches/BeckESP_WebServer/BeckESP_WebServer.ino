@@ -1,27 +1,27 @@
 const String SketchName  = "BeckESP_WebServer.ino";
-const String FileDate    = "April 8, 2019f";
+const String FileDate    = "April 8, 2019m";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
 *********/
 
-// Import required libraries
+#include <BeckDHTSensorLib.h>
+#include <BeckWebServerLib.h>
 #if ESP32
   #include "WiFi.h"
 #else
   #include <ESP8266WiFi.h>
 #endif
-//#include "FS.h"
-//#include "AsyncTCP.h"
-#include "ESPAsyncWebServer.h"
+//#include "ESPAsyncWebServer.h"
 #include <Adafruit_Sensor.h>
-#include <DHT.h>
+//#include <DHT.h>
 #include <Streaming.h>
 
 // Replace with your network credentials
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
+/*
 #define DHTPIN 27     // Digital pin connected to the DHT sensor
 
 // Uncomment the type of sensor in use:
@@ -30,10 +30,14 @@ const char* password = "Qazqaz11";
 //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
 
 DHT dht(DHTPIN, DHTTYPE);
+*/
 
+/*
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
+*/
 
+/*
 String readDHTTemperature() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read temperature as Celsius (the default)
@@ -63,7 +67,9 @@ String readDHTHumidity() {
     return String(h);
   }
 }
+*/
 
+/*
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
 <head>
@@ -125,7 +131,9 @@ setInterval(function ( ) {
 }, 10000 ) ;
 </script>
 </html>)rawliteral";
+*/
 
+/*
 // Replaces placeholder with DHT values
 String processor(const String& var){
   //Serial.println(var);
@@ -137,13 +145,15 @@ String processor(const String& var){
   }
   return String();
 }
+*/
 
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
-  dht.begin();
+  //dht.begin();
+  StartDHTSensor();
 
   // Connect to Wi-Fi
   Serial << endl << "setup(): Call WiFi.begin(" << ssid << ", " << password << ")" << endl;
@@ -153,9 +163,10 @@ void setup(){
     Serial.println("Connecting to WiFi..");
   }
 
-  // Print ESP32 Local IP Address
+  // Print ESP Local IP Address
   Serial.println(WiFi.localIP());
 
+/*
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, processor);
@@ -169,8 +180,12 @@ void setup(){
 
   // Start server
   server.begin();
-}
+*/
+  StartWebServer();
+  return;
+} //setup
 
 void loop(){
-
-}
+  //Do nothing
+  return;
+} //loop
