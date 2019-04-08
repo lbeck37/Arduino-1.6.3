@@ -1,5 +1,5 @@
-const String SketchName  = "BeckE32_WebServer.ino";
-const String FileDate    = "April 8, 2019e";
+const String SketchName  = "BeckESP_WebServer.ino";
+const String FileDate    = "April 8, 2019f";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
