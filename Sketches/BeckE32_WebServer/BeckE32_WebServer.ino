@@ -1,14 +1,18 @@
 const String SketchName  = "BeckE32_WebServer.ino";
-const String FileDate    = "April 8, 2019c";
+const String FileDate    = "April 8, 2019e";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
 *********/
 
 // Import required libraries
-#include "WiFi.h"
-#include "FS.h"
-#include "AsyncTCP.h"
+#if ESP32
+  #include "WiFi.h"
+#else
+  #include <ESP8266WiFi.h>
+#endif
+//#include "FS.h"
+//#include "AsyncTCP.h"
 #include "ESPAsyncWebServer.h"
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
