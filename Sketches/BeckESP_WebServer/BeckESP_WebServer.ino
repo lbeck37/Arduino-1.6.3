@@ -1,5 +1,5 @@
 const String SketchName  = "BeckESP_WebServer.ino";
-const String FileDate    = "April 8, 2019s";
+const String FileDate    = "April 9, 2019k";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
@@ -21,7 +21,7 @@ void setup(){
   Serial.begin(115200);
   Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
   // Connect to Wi-Fi
-  Serial << endl << "setup(): Call WiFi.begin(" << ssid << ", " << password << ")" << endl;
+  Serial << "setup(): Call WiFi.begin(" << ssid << ", " << password << ")" << endl;
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
