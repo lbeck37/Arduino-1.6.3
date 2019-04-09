@@ -1,6 +1,6 @@
 //BeckDHTSensorLib.cpp, 4/8/19
-
 #include <BeckDHTSensorLib.h>
+#include <Adafruit_Sensor.h>
 #include <DHT.h>
 
 #define DHTPIN 27     // Digital pin connected to the DHT sensor

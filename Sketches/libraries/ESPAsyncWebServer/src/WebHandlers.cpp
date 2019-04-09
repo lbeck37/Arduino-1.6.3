@@ -1,3 +1,4 @@
+//Beck, WebHandlers.cpp, 4/8/19
 /*
   Asynchronous WebServer library for Espressif MCUs
 
@@ -18,6 +19,7 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#include "time.h"   //Beck 4/8/19
 #include "ESPAsyncWebServer.h"
 #include "WebHandlerImpl.h"
 
@@ -81,8 +83,8 @@ AsyncStaticWebHandler& AsyncStaticWebHandler::setLastModified(){
 }
 #endif
 bool AsyncStaticWebHandler::canHandle(AsyncWebServerRequest *request){
-  if(request->method() != HTTP_GET 
-    || !request->url().startsWith(_uri) 
+  if(request->method() != HTTP_GET
+    || !request->url().startsWith(_uri)
     || !request->isExpectedRequestedConnType(RCT_DEFAULT, RCT_HTTP)
   ){
     return false;

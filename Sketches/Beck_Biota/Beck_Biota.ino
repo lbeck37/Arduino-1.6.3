@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/6/19f";
+const char szFileDate[]    = "4/8/19b";
 
 #ifndef ESP8266
   #define ESP8266
@@ -10,11 +10,12 @@ const char szFileDate[]    = "4/6/19f";
 #define DO_ACCESS_POINT     true
 
 #include <BeckBiotaLib.h>
-//#include <BeckI2cLib.h>
 #include <BeckMiniLib.h>
-//#include <BeckMPU9150Lib.h>
 #include <BeckSwitchLib.h>
 #include <BeckWiFiLib.h>
+
+#include <BeckWebServerLib.h>
+
 #if DO_ACCESS_POINT
   #include <BeckAccessPointLib.h>
 #endif
@@ -23,6 +24,7 @@ const char szFileDate[]    = "4/6/19f";
 #else
   #include <BeckOTALib.h>   //Beck 1/24/19 not tested
 #endif  //ESP8266
+
 #if DO_NTP
   #include <BeckNTPLib.h>
 #endif
@@ -63,6 +65,9 @@ void setup(){
         SetupWiFiNameServer(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT
     } //if(_bWiFiConnected)
+
+     StartWebServer();
+
     SetupI2C();
     if(eProjectType == ePitchMeter){
       bMPU9150_On= SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
