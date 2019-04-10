@@ -1,4 +1,4 @@
-//BeckOTAWebServerPages.h, Beck 2/18/19a
+//BeckOTAWebServerPages.h, Beck 4/9/19a
 #pragma once
 
 //Login page
@@ -7,7 +7,7 @@ const char* loginIndex =
     "<table width='20%' bgcolor='A09F9F' align='center'>"
         "<tr>"
             "<td colspan=2>"
-                "<center><font size=4><b>ESP32 Login Page</b></font></center>"
+                "<center><font size=4><b>BIOTA Login Page</b></font></center>"
                 "<br>"
             "</td>"
             "<br>"
@@ -49,7 +49,7 @@ const char* serverIndex =
 "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
 "<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
    "<input type='file' name='update'>"
-        "<input type='submit' value='Update'>"
+        "<input type='submit' value='Do Update'>"
     "</form>"
  "<div id='prg'>progress: 0%</div>"
  "<script>"

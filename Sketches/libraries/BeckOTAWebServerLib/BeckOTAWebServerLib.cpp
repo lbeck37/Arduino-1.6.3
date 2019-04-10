@@ -1,4 +1,4 @@
-//BeckOTAWebServerLib.cpp, Beck 2/18/19a
+//BeckOTAWebServerLib.cpp, 4/9/19a
 #include <BeckOTAWebServerLib.h>
 #include "BeckOTAWebServerPages.h"
 #include <BeckLogLib.h>
@@ -43,7 +43,7 @@ void SetupOTAServer(const char *acHostname) {
     } //while
   } //if (!MDNS.begin(acHostname))
   /*return index page which is stored in serverIndex */
-  oWebServer.on("/", HTTP_GET, []() {
+  oWebServer.on("/login", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
     oWebServer.send(200, "text/html", loginIndex);
   });

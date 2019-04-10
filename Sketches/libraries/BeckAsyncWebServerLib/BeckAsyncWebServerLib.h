@@ -2,6 +2,6 @@
 #pragma once
 
 //Function protos
-void StartWebServer();
+void StartAsyncWebServer();
 
 //Last line.
