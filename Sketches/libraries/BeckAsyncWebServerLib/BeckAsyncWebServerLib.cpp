@@ -1,6 +1,7 @@
-//BeckAsyncWebServerLib.cpp, 4/10/19b
+//BeckAsyncWebServerLib.cpp, 4/10/19d
 #include <BeckAsyncWebServerLib.h>
 #include <BeckMiniLib.h>
+#include <BeckThermoLib.h>
 #include "ESPAsyncWebServer.h"
 #include <Streaming.h>
 #ifdef ESP8266
@@ -14,25 +15,31 @@ AsyncWebServer oAsyncWebServer(80);
 
 String CallBackFunc(const String& var){
   if(var == "TEMPERATURE"){
-    //return readDHTTemperature();
     return "99.99";
   }
-  else if(var == "HUMIDITY"){
-    //return readDHTHumidity();
+  else if(var == "SET_POINT"){
+    return "99.99";
+  }
+  else if(var == "THERMO_OFF"){
     return "99.99";
   }
   return String();
 } //CallBackFunc
 
 
-String readDummyTemperature() {
-  return "68.37";
-} //readDummyTemperature
+String szLastDegF() {
+  return(String(fLastDegF, 2));
+} //szLastDegF
 
 
-String readDummyHumidity() {
-  return "70.00";
-} //readDummyHumidity
+String szSetPointDegF() {
+  return(String(_fSetpointF, 2));
+} //szSetPointDegF
+
+
+String szTermoOffDegF() {
+  return(String(_fThermoOffDegF, 2));
+} //szTermoOffDegF
 
 
 void StartAsyncWebServer(const char *acHostname){
@@ -50,13 +57,17 @@ void StartAsyncWebServer(const char *acHostname){
   oAsyncWebServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, CallBackFunc);
   });
-  oAsyncWebServer.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
-    //request->send_P(200, "text/plain", readDHTTemperature().c_str());
-    request->send_P(200, "text/plain", readDummyTemperature().c_str());
+
+  oAsyncWebServer.on("/LastDegF", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", szLastDegF().c_str());
   });
-  oAsyncWebServer.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
-    //request->send_P(200, "text/plain", readDHTHumidity().c_str());
-    request->send_P(200, "text/plain", readDummyHumidity().c_str());
+
+  oAsyncWebServer.on("/SetPointDegF", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", szSetPointDegF().c_str());
+  });
+
+  oAsyncWebServer.on("/TermoOffDegF", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", szTermoOffDegF().c_str());
   });
 
   // Start server

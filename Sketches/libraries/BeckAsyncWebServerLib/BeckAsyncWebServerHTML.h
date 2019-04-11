@@ -1,5 +1,5 @@
 const char index_html[] PROGMEM = R"rawliteral(
-<!-- BeckAsyncWebServerHTML.h, 8/10/19a -->
+<!-- BeckAsyncWebServerHTML.h, 8/10/19b -->
 <!DOCTYPE HTML><html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,31 +26,32 @@ const char index_html[] PROGMEM = R"rawliteral(
   <p>
     <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
     <span class="dht-labels">Current</span>
-    <span id="temperature">%TEMPERATURE%</span>
+    <span id="LastDegF">%TEMPERATURE%</span>
     <sup class="units">&deg;F</sup>
   </p>
   <p>
     <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
     <span class="dht-labels">Setpoint</span>
-    <span id="humidity">%HUMIDITY%</span>
+    <span id="SetPointDegF">%SET_POINT%</span>
     <sup class="units">&deg;F</sup>
   </p>
   <p>
     <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
     <span class="dht-labels">Offpoint</span>
-    <span id="humidity">%HUMIDITY%</span>
+    <span id="TermoOffDegF">%THERMO_OFF%</span>
     <sup class="units">&deg;F</sup>
   </p>
 </body>
+
 <script>
 setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("temperature").innerHTML = this.responseText;
+      document.getElementById("LastDegF").innerHTML = this.responseText;
     }
   };
-  xhttp.open("GET", "/temperature", true);
+  xhttp.open("GET", "/LastDegF", true);
   xhttp.send();
 }, 1000 ) ;
 
@@ -58,11 +59,23 @@ setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("humidity").innerHTML = this.responseText;
+      document.getElementById("SetPointDegF").innerHTML = this.responseText;
     }
   };
-  xhttp.open("GET", "/humidity", true);
+  xhttp.open("GET", "/SetPointDegF", true);
   xhttp.send();
 }, 1000 ) ;
+
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("TermoOffDegF").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/TermoOffDegF", true);
+  xhttp.send();
+}, 1000 ) ;
+
 </script>
 </html>)rawliteral";
