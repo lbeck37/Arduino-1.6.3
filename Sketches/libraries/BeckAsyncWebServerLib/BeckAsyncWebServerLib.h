@@ -1,7 +1,7 @@
-//BeckWebServerLib.h, 4/8/19c
+//BeckAsyncWebServerLib.h, 4/10/19a
 #pragma once
 
 //Function protos
-void StartAsyncWebServer();
+void StartAsyncWebServer(const char *acHostname);
 
 //Last line.

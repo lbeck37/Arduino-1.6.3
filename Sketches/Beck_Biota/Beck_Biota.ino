@@ -1,29 +1,30 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/9/19d";
+const char szFileDate[]    = "4/10/19p";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
-#define DO_ALEXA            true
-#define DO_NTP              false
-#define DO_ACCESS_POINT     true
+#define DO_ALEXA              true
+#define DO_NTP                false
+#define DO_ACCESS_POINT       true
+#define DO_ASYNC_WEB_SERVER   true
 
 #include <BeckBiotaLib.h>
-#include <BeckMiniLib.h>
-#include <BeckSwitchLib.h>
-#include <BeckWiFiLib.h>
-
 #include <BeckAsyncWebServerLib.h>
-
-#if DO_ACCESS_POINT
-  #include <BeckAccessPointLib.h>
-#endif
+#include <BeckMiniLib.h>
+//#include <BeckOTAWebServerLib.h>
 #ifdef ESP8266
   #include <BeckOTAWebServerLib.h>
 #else
   #include <BeckOTALib.h>   //Beck 1/24/19 not tested
 #endif  //ESP8266
+#include <BeckSwitchLib.h>
+#include <BeckWiFiLib.h>
+
+#if DO_ACCESS_POINT
+  #include <BeckAccessPointLib.h>
+#endif
 
 #if DO_NTP
   #include <BeckNTPLib.h>
@@ -32,8 +33,8 @@ const char szFileDate[]    = "4/9/19d";
 #include <Time.h>
 #include <WiFiClient.h>
 
-static        ProjectType      eProjectType           = ePitchMeter;
-//static        ProjectType      eProjectType            = eThermoDev;
+//static        ProjectType      eProjectType           = ePitchMeter;
+static        ProjectType      eProjectType            = eThermoDev;
 //static        ProjectType      eProjectType            = eFireplace;
 //static        ProjectType      eProjectType            = eHeater;
 //static        ProjectType      eProjectType            = eGarage;
@@ -50,6 +51,9 @@ static        bool        bMPU9150_On;
 static        int              _wBadCount             = 0;
 static        int              _wGoodCount            = 0;
 
+//Protos
+void HandleSystem();
+
 void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
@@ -60,13 +64,12 @@ void setup(){
     //SetupWiFi(_acRouterNames[_wNumRouters], _acRouterPWs[_wNumRouters]);
     SetupWiFi();
     if (_bWiFiConnected){
-      SetupOTAServer(_acHostname);
+      StartAsyncWebServer(_acHostname);
+      StartOTAServer();
       #if DO_ACCESS_POINT
-        SetupWiFiNameServer(_acAccessPointSSID, _acAccessPointPW);
+        SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT
     } //if(_bWiFiConnected)
-
-    StartAsyncWebServer();
 
     SetupI2C();
     if(eProjectType == ePitchMeter){

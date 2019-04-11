@@ -1,4 +1,4 @@
-//BeckAccessPointLib.cpp, 2/18/19a
+//BeckAccessPointLib.cpp, 4/10/19a
 #include <BeckAccessPointLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -10,19 +10,20 @@ IPAddress             _oAccessPtIPAddress;
 ESP8266WebServer     *_pSoftAPWebServer;
 
 //Local function prototypes
-void      SetupWebServer        (IPAddress oIPAddress);
-void      handleRoot            ();
-void      HandleWiFiCredentials ();
-void      handleNotFound        ();
+void      StartAccessPtWebServer  (IPAddress oIPAddress);
+void      handleRoot              ();
+void      HandleWiFiCredentials   ();
+void      handleNotFound          ();
 
-void SetupWiFiNameServer(const char *szAccessPointSSID, const char *szAccessPointPW){
-  WiFi.softAP(szAccessPointSSID, szAccessPointPW);             // Start the access point
+void SetupAccessPt(const char *szAccessPointSSID, const char *szAccessPointPW){
+  Serial << LOG0 << "SetupAccessPt(): Begin" << endl;
+  WiFi.softAP(szAccessPointSSID, szAccessPointPW);
   _oAccessPtIPAddress= WiFi.softAPIP();
-  SetupWebServer(_oAccessPtIPAddress);
-  Serial << LOG0 << "SetupWiFiNameServer(): Web Server started at " << _oAccessPtIPAddress <<
+  StartAccessPtWebServer(_oAccessPtIPAddress);
+  Serial << LOG0 << "SetupAccessPt(): Web Server started at " << _oAccessPtIPAddress <<
       " on " << szAccessPointSSID << "/" << szAccessPointPW << endl;
   return;
-} //SetupWiFiNameServer
+} //SetupAccessPtWebServer
 
 
 void HandleSoftAPClient(){
@@ -31,7 +32,8 @@ void HandleSoftAPClient(){
 } //HandleSoftAPClient
 
 
-void SetupWebServer(IPAddress oIPAddress){
+void StartAccessPtWebServer(IPAddress oIPAddress){
+  Serial << LOG0 << "StartAccessPtWebServer(): Begin" << endl;
   _pSoftAPWebServer= new ESP8266WebServer(oIPAddress, wWebServerPort);
 
   _pSoftAPWebServer->on("/", HTTP_GET, handleRoot);         //Function to call when a client requests URI "/"
@@ -39,7 +41,7 @@ void SetupWebServer(IPAddress oIPAddress){
   _pSoftAPWebServer->onNotFound(handleNotFound);            //When a client requests an unknown URI
   _pSoftAPWebServer->begin();                               //Actually start the server
   return;
-} //SetupWebServer
+} //StartAccessPtWebServer
 
 
 void handleRoot() {

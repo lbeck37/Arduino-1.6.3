@@ -1,15 +1,17 @@
-//BeckWebServerLib.cpp, 4/9/19d
+//BeckAsyncWebServerLib.cpp, 4/10/19b
 #include <BeckAsyncWebServerLib.h>
+#include <BeckMiniLib.h>
 #include "ESPAsyncWebServer.h"
 #include <Streaming.h>
+#ifdef ESP8266
+  #include <ESP8266mDNS.h>
+#else   //ESP32
+  #include <ESPmDNS.h>
+#endif    //ESP8266
 
 #include "BeckAsyncWebServerHTML.h"
+AsyncWebServer oAsyncWebServer(80);
 
-// Create AsyncWebServer object on port 80
-AsyncWebServer BiotaAsyncWebServer(80);
-
-// Replaces placeholder with DHT values
-//String processor(const String& var){
 String CallBackFunc(const String& var){
   if(var == "TEMPERATURE"){
     //return readDHTTemperature();
@@ -33,23 +35,35 @@ String readDummyHumidity() {
 } //readDummyHumidity
 
 
-void StartAsyncWebServer(){
-  Serial << "BeckWebServerLib.cpp: StartWebServer(): Start" << endl;
-  // Route for root / web page
-  BiotaAsyncWebServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+void StartAsyncWebServer(const char *acHostname){
+  //Use MDNS for host name resolution
+  Serial << LOG0 << "StartAsyncWebServer(): Start mDNS for " << acHostname << endl;
+  if (!MDNS.begin(acHostname)) {
+    Serial << LOG0 << "StartAsyncWebServer(): Error setting up MDNS responder" << endl;
+    while (1) {
+      delay(1000);
+    } //while
+  } //if (!MDNS.begin(acHostname))
+
+  Serial << LOG0 << "StartAsyncWebServer(): Set up handlers" << endl;
+  oAsyncWebServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/html", index_html, CallBackFunc);
   });
-  BiotaAsyncWebServer.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
+  oAsyncWebServer.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
     //request->send_P(200, "text/plain", readDHTTemperature().c_str());
     request->send_P(200, "text/plain", readDummyTemperature().c_str());
   });
-  BiotaAsyncWebServer.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
+  oAsyncWebServer.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
     //request->send_P(200, "text/plain", readDHTHumidity().c_str());
     request->send_P(200, "text/plain", readDummyHumidity().c_str());
   });
 
   // Start server
-  BiotaAsyncWebServer.begin();
+  Serial << LOG0 << "StartAsyncWebServer(): Call oAsyncWebServer.begin()" << endl;
+  oAsyncWebServer.begin();
+
+  MDNS.addService("http", "tcp", 80);
+  Serial << LOG0 << "StartAsyncWebServer(): Open http://" << acHostname << " to access webpage" << endl;
   return;
 } //StartAsyncWebServer
 //Last line

@@ -1,6 +1,6 @@
-//BeckAccessPointLib.h, 2/18/19a
+//BeckAccessPointLib.h, 4/10/19a
 #pragma once
 
-void      SetupWiFiNameServer (const char *szAccessPointSSID, const char *szAccessPointPW);
+void      SetupAccessPt       (const char *szAccessPointSSID, const char *szAccessPointPW);
 void      HandleSoftAPClient  ();
 //Last line.

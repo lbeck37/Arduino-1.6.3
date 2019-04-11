@@ -1,11 +1,12 @@
 /*
-  time.h - low level time and date functions
+  TimeLib.h - low level time and date functions
 */
 
 /*
   July 3 2011 - fixed elapsedSecsThisWeek macro (thanks Vincent Valdy for this)
               - fixed  daysToTime_t macro (thanks maniacbug)
 */     
+//#pragma once
 
 #ifndef _Time_h
 #ifdef __cplusplus

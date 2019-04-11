@@ -1,18 +1,15 @@
-//BeckOTAWebServerLib.cpp, 4/9/19a
+//BeckOTAWebServerLib.cpp, 4/10/19b
 #include <BeckOTAWebServerLib.h>
 #include "BeckOTAWebServerPages.h"
+#include <BeckAsyncWebServerLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <ArduinoOTA.h>
 #include <WiFiClient.h>
 #ifdef ESP8266
-  #include <ESP8266WiFi.h>
-  #include <ESP8266mDNS.h>
   #include <ESP8266WebServer.h>
   #include <Updater.h>
-#else   //ESP32
-  #include <WiFi.h>
-  #include <ESPmDNS.h>
+#else   //ESP32   //Not tested
   #include <WebServer.h>
   #include <Update.h>
 #endif    //ESP8266
@@ -22,9 +19,9 @@ unsigned long       _ulUpdateTimeoutMsec   = 0;
 bool                _bOTA_Started         = false;   //Turns off Blynk.
 
 #ifdef ESP8266
-  ESP8266WebServer    oWebServer(80);
+  ESP8266WebServer    oOTAWebServer(81);    //OTA uses port 81, ie: 192.168.0.169:81/login
 #else   //ESP32
-  WebServer           oWebServer(80);
+  WebServer           oOTAWebServer(81);
 #endif    //ESP8266
 
 #ifdef ESP8266
@@ -33,38 +30,28 @@ bool                _bOTA_Started         = false;   //Turns off Blynk.
   #endif
 #endif    //ESP8266
 
-void SetupOTAServer(const char *acHostname) {
-  Serial << LOG0 << "SetupOTAServer(): Start mDNS for " << acHostname << endl;
-  /*use mdns for host name resolution*/
-  if (!MDNS.begin(acHostname)) { //http://esp32.local
-    Serial.println("Error setting up MDNS responder!");
-    while (1) {
-      delay(1000);
-    } //while
-  } //if (!MDNS.begin(acHostname))
-  /*return index page which is stored in serverIndex */
-  oWebServer.on("/login", HTTP_GET, []() {
-    oWebServer.sendHeader("Connection", "close");
-    oWebServer.send(200, "text/html", loginIndex);
+void StartOTAServer(void){
+  oOTAWebServer.on("/login", HTTP_GET, []() {
+    oOTAWebServer.sendHeader("Connection", "close");
+    oOTAWebServer.send(200, "text/html", loginIndex);
   });
-  oWebServer.on("/serverIndex", HTTP_GET, []() {
-    oWebServer.sendHeader("Connection", "close");
-    oWebServer.send(200, "text/html", serverIndex);
+  oOTAWebServer.on("/serverIndex", HTTP_GET, []() {
+    oOTAWebServer.sendHeader("Connection", "close");
+    oOTAWebServer.send(200, "text/html", serverIndex);
   });
-  /*handling uploading firmware file */
-  oWebServer.on("/update", HTTP_POST, []() {
-    oWebServer.sendHeader("Connection", "close");
-    oWebServer.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+  oOTAWebServer.on("/update", HTTP_POST, []() {
+    oOTAWebServer.sendHeader("Connection", "close");
+    oOTAWebServer.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
     ESP.restart();
   }, []() {
-    HTTPUpload& upload = oWebServer.upload();
+    HTTPUpload& upload = oOTAWebServer.upload();
     if (upload.status == UPLOAD_FILE_START) {
       Serial.printf("Update: %s\n", upload.filename.c_str());
       if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
         Update.printError(Serial);
       }
     } else if (upload.status == UPLOAD_FILE_WRITE) {
-      /* flashing firmware to ESP*/
+      //flashing firmware to ESP
       if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
         Update.printError(Serial);
       }
@@ -76,15 +63,15 @@ void SetupOTAServer(const char *acHostname) {
       }
     }
   });
-  oWebServer.begin();
-  MDNS.addService("http", "tcp", 80);
-  Serial << LOG0 << "SetupOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
+  oOTAWebServer.begin();
+  //MDNS.addService("http", "tcp", 80);
+  //Serial << LOG0 << "StartOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
   return;
-} //SetupOTAServer
+} //StartOTAServer
 
 
 void HandleOTAServer(void){
-  oWebServer.handleClient();
+  oOTAWebServer.handleClient();
   delay(1);
   return;
 } //HandleOTAServer
