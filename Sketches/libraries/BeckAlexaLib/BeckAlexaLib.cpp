@@ -1,4 +1,4 @@
-// BeckAlexaLib.cpp 3/5/19a
+// BeckAlexaLib.cpp 4/11/19a
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
 #include <BeckDisplayLib.h>
@@ -21,6 +21,7 @@ void SetupAlexa(char szAlexaName[]){
   String szLogString= "SetupAlexa(): Begin";
   LogToSerial(szLogString);
   bAlexaOn= true;
+  SetAlexaSwitch(1);
   if(bAlexaOn){
     // You have to call enable(true) once you have a WiFi connection
     // You can enable or disable the library at any moment
