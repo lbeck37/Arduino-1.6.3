@@ -28,7 +28,7 @@ String CallBackFunc(const String& var){
 
 
 String szLastDegF() {
-  return(String(fLastDegF, 2));
+  return(String(_fLastDegF, 2));
 } //szLastDegF
 
 

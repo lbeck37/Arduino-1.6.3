@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/10/19y";
+const char szFileDate[]    = "4/11/19m";
 
 #ifndef ESP8266
   #define ESP8266
@@ -38,7 +38,7 @@ static        ProjectType      eProjectType            = eThermoDev;
 //static        ProjectType      eProjectType            = eHeater;
 //static        ProjectType      eProjectType            = eGarage;
 
-static const  uint32_t    ulThermHandlerPeriodMsec    = 10 * lMsecPerSec; //mSec between running system handler
+static const  uint32_t    ulThermHandlerPeriodMsec    = 1 * lMsecPerSec; //mSec between running system handler
 static        uint32_t    ulNextThermHandlerMsec      = 0;
 
 //static const  uint32_t    ulMPU9150HandlerPeriodMsec  = 200;

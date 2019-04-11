@@ -1,4 +1,4 @@
-// BeckBiotaLib.cpp 4/4/19a
+// BeckBiotaLib.cpp 4/11/19a
 #include <BeckBiotaLib.h>
 
 ProjectType   _eProjectType;
@@ -24,9 +24,11 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "BiotaSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
-      _fSetpointF   = 71.0;
-      _fMinSetpoint = 65.0;
-      _fMaxSetpoint = 75.0;
+      _fSetpointF       =  75.0;
+      _fMinSetpoint     =  20.0;
+      _fMaxSetpoint     =  99.0;
+      _fMaxHeatRangeF   = 0.10;
+      _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
       break;
     case eFireplace:
       strcpy(_acHostname        , "BeckFireplace");

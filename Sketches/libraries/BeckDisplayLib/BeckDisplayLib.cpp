@@ -1,4 +1,4 @@
-// BeckDisplayLib.cpp 3/25/19a
+// BeckDisplayLib.cpp 4/11/19a
 #include <BeckDisplayLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -16,7 +16,6 @@ const float     fDegToRadians         = PI/180.0;
 const uint32_t  ulPrintPeriodMsec     = 5000;
 const int       wBuffChar             = 20;
 const uint32_t  ulBeforeZerosMsec     = 10000;
-//const uint32_t  ulBeforeZerosMsec     = 5000;
 const uint8_t   ucLandscape           = 2;
 
 static       uint32_t   ulNextPrintMsec     = 0;
@@ -48,7 +47,7 @@ void SetupDisplay(ProjectType eDisplayProjectType){
   oDisplay.clearDisplay ();
   oDisplay.display      ();
   delay(10);
-  ClearZeros();
+  //ClearZeros();
   return;
 } //SetupDisplay
 
@@ -90,9 +89,6 @@ void ClearZeros(){
 
 
 void UpdateDisplay(){
-  if(!bZeroSet){
-    SetZeros();
-  } //if(!bZeroSet)
   switch (_eDisplayProjectType){
     case eFireplace:
     case eGarage:
@@ -101,6 +97,9 @@ void UpdateDisplay(){
       UpdateThermDisplay();
       break;
     case ePitchMeter:
+      if(!bZeroSet){
+        SetZeros();
+      } //if(!bZeroSet)
       UpdateJustPitchDisplay();
       break;
     case eFrontLights:
@@ -114,7 +113,7 @@ void UpdateDisplay(){
 
 
 void UpdateThermDisplay(){
-  String szDisplayLine1= "Now " + String(fLastDegF);
+  String szDisplayLine1= "Now " + String(_fLastDegF);
   String szDisplayLine2= "Set " + String(_fSetpointF);
   String szDisplayLine3= "Off " + String(_fThermoOffDegF);
 

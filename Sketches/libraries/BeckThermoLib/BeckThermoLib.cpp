@@ -1,38 +1,44 @@
-// BeckThermoLib.cpp 3/13/19a
+// BeckThermoLib.cpp 4/11/19a
 #include <BeckThermoLib.h>
-#include <BeckLogLib.h>
+#include <BeckMiniLib.h>
 #include <BeckSwitchLib.h>
 #include <DallasTemperature.h>
 #include <OneWire.h>
 
-float         _fMaxHeatRangeF       = 0.10;   //Temp above setpoint before heat is turned off
-float         fLastDegF             = 37.88;  //Last temperature reading.
-int           sThermoTimesCount     = 0;      //Number of times temperature out of range
-bool          bThermoOn             = true;   //Whether thermostat is running.
-bool          bHeatOn               = false;  //If switch is on to turn on Heat.
-
-float        _fSetpointF         = 70.0;
-float        _fMinSetpoint       = 32.0;
-float        _fMaxSetpoint       = 80.0;
-float        _fThermoOffDegF     = _fSetpointF + _fMaxHeatRangeF;
+float           _fMaxHeatRangeF       = 0.10;   //Temp above setpoint before heat is turned off
+float           _fLastDegF            = 37.01;  //Last temperature reading.
+/*
+float           _fSetpointF           = 70.0;
+float           _fMinSetpoint         = 32.0;
+float           _fMaxSetpoint         = 80.0;
+*/
+float           _fMinSetpoint         = 37.02;
+float           _fSetpointF           = 37.03;
+float           _fMaxSetpoint         = 37.04;
+float           _fThermoOffDegF       = _fSetpointF + _fMaxHeatRangeF;
+int             sThermoTimesCount     = 0;      //Number of times temperature out of range
+bool            bThermoOn             = true;   //Whether thermostat is running.
+bool            bHeatOn               = false;  //If switch is on to turn on Heat.
+unsigned long   ulNextThermPrintMsec  = 0;
+const uint32_t  ulThermPrintPeriodMsec= 10 * lMsecPerSec; //mSec between running system handler
 
 //Create OneWire instance and tell Dallas Temperature Library to use oneWire Library
 OneWire             oOneWire(sOneWireGPIO);
-DallasTemperature   oSensors(&oOneWire);
+DallasTemperature   oDallasTempSensor(&oOneWire);
 
 
 void HandleThermostat(){
+  static bool     bStateChanged= false;
   unsigned long   ulStartTime;
-  ClearTaskTime2(&ulStartTime);
+
   //Only do something if the thermostat is turned on.
   if (bThermoOn){
-    float fDegF= fGetDegF(true);
-    CheckTaskTime2("HandleThermostat(): fGetDegF", &ulStartTime);
+    float fDegF= fGetDegF();
     if (bHeatOn){
       if (fDegF >= _fThermoOffDegF){
+        bStateChanged= true;
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnHeatOn(false);
-          CheckTaskTime2("HandleThermostat(): TurnHeatOn(false)", &ulStartTime);
           sThermoTimesCount= 0;
         } //if(sThermoTimesCount>=sThermoTimesInRow)
       } //if(fDegF>=_fThermoOffDegF)
@@ -42,9 +48,9 @@ void HandleThermostat(){
     } //if(bHeatOn)
     else{
       if (fDegF <= _fSetpointF){
+        bStateChanged= true;
         if (++sThermoTimesCount >= sThermoTimesInRow){
           TurnHeatOn(true);
-          CheckTaskTime2("HandleThermostat(): TurnHeatOn(true)", &ulStartTime);
           sThermoTimesCount= 0;
         } //if(sThermoTimesCount>=sThermoTimesInRow)
       } //if(fDegF<_fSetpointF)
@@ -52,8 +58,11 @@ void HandleThermostat(){
         sThermoTimesCount= 0;
       } //if(fDegF<_fSetpointF)else
     } //if(bHeatOn)else
-    LogThermostatData(fDegF);
-    CheckTaskTime2("HandleThermostat(): LogThermostatData()", &ulStartTime);
+    if(bStateChanged || (millis() >= ulNextThermPrintMsec)){
+      bStateChanged= false;
+      ulNextThermPrintMsec= millis() + ulThermPrintPeriodMsec;
+      LogThermostatData(fDegF);
+    }
   } //if(bThermoOn)
   else{
     String szLogString= " bThermoOn is false";
@@ -106,25 +115,11 @@ void HandleHeatSwitch(){
 } //HandleHeatSwitch
 
 
-float fGetDegF(bool bTakeReading){
-  float fDegFReturn= 37.99;   //Value used for default in testing w/o reading sensor. fLastDegF
-  if (bTakeReading){
-    oSensors.requestTemperatures(); // Send the command to get temperatures
-    fDegFReturn= oSensors.getTempFByIndex(0);
-    fLastDegF= fDegFReturn;
-  } //if(bTakeReading)
-  else{
-    fDegFReturn= fLastDegF;
-  } //if(bTakeReading)else
-  return fDegFReturn;
+float fGetDegF(){
+  oDallasTempSensor.requestTemperatures(); // Send the command to get temperatures
+  _fLastDegF= oDallasTempSensor.getTempFByIndex(0);
+  return _fLastDegF;
 }  //fGetDegF
-
-
-float fRound(float fNum){
-  oSensors.requestTemperatures(); // Send the command to get temperatures
-  float fRounded= floor(fNum + 0.5);
-  return fRounded;
-}  //fRound
 
 
 void TurnHeatOn(bool bTurnOn){
@@ -144,5 +139,4 @@ void TurnHeatOn(bool bTurnOn){
   } //if(bTurnOn)else
   return;
 } //TurnHeatOn
-
 //Last line.

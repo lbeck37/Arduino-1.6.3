@@ -1,10 +1,9 @@
-// BeckThermoLib.h 3/13/19a
+// BeckThermoLib.h 4/11/19a
 #pragma once
 
-const long          sThermoTimesInRow     = 3;      //Max times temp is outside range before switch
-//const float         fMaxHeatRangeF        = 0.10;   //Temp above setpoint before heat is turned off
+const long          sThermoTimesInRow = 3;      //Max times temp is outside range before switch
 
-extern float        fLastDegF;
+extern float        _fLastDegF;
 extern float        _fSetpointF;
 extern float        _fMaxHeatRangeF;
 extern float        _fThermoOffDegF;
@@ -17,8 +16,6 @@ float   fSetThermoSetpoint    (unsigned char ucSetpoint);
 float   fSetThermoSetpoint    (float fSetpoint);
 
 void    HandleHeatSwitch      ();
-float   fGetDegF              (bool bTakeReading);
-float   fRound                (float fNum);
+float   fGetDegF              ();
 void    TurnHeatOn            (bool bTurnOn);
-
 //Last line.
