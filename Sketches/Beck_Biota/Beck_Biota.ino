@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/10/19p";
+const char szFileDate[]    = "4/10/19s";
 
 #ifndef ESP8266
   #define ESP8266
@@ -13,7 +13,6 @@ const char szFileDate[]    = "4/10/19p";
 #include <BeckBiotaLib.h>
 #include <BeckAsyncWebServerLib.h>
 #include <BeckMiniLib.h>
-//#include <BeckOTAWebServerLib.h>
 #ifdef ESP8266
   #include <BeckOTAWebServerLib.h>
 #else
@@ -60,12 +59,10 @@ void setup(){
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   _bSystemOk= SetupSystem(eProjectType);  //BeckBiotaib.cpp
   if(_bSystemOk){
-    //SetupWiFi(_acRouterName, _acRouterPW);
-    //SetupWiFi(_acRouterNames[_wNumRouters], _acRouterPWs[_wNumRouters]);
     SetupWiFi();
     if (_bWiFiConnected){
       StartAsyncWebServer(_acHostname);
-      StartOTAServer();
+      StartOTAWebServer();
       #if DO_ACCESS_POINT
         SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT

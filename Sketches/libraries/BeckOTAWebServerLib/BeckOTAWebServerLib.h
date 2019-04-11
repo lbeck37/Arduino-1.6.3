@@ -4,7 +4,6 @@
 extern bool                _bOTA_Started;   //Turns off Blynk.
 extern unsigned long       _ulUpdateTimeoutMsec;
 
-//void StartOTAServer     (const char *acHostname);
-void StartOTAServer     (void);
+void StartOTAWebServer  (void);
 void HandleOTAServer    (void);
 //Last line.

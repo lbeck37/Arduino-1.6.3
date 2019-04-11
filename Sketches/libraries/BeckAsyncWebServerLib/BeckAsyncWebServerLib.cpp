@@ -36,6 +36,7 @@ String readDummyHumidity() {
 
 
 void StartAsyncWebServer(const char *acHostname){
+  Serial << LOG0 << "StartAsyncWebServer(): Begin" << endl;
   //Use MDNS for host name resolution
   Serial << LOG0 << "StartAsyncWebServer(): Start mDNS for " << acHostname << endl;
   if (!MDNS.begin(acHostname)) {
@@ -64,6 +65,7 @@ void StartAsyncWebServer(const char *acHostname){
 
   MDNS.addService("http", "tcp", 80);
   Serial << LOG0 << "StartAsyncWebServer(): Open http://" << acHostname << " to access webpage" << endl;
+  Serial << LOG0 << "StartAsyncWebServer(): Open http://" << WiFi.localIP() << " to access webpage" << endl;
   return;
 } //StartAsyncWebServer
 //Last line

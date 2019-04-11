@@ -30,7 +30,8 @@ bool                _bOTA_Started         = false;   //Turns off Blynk.
   #endif
 #endif    //ESP8266
 
-void StartOTAServer(void){
+void StartOTAWebServer(void){
+  Serial << LOG0 << "StartOTAWebServer(): Begin" << endl;
   oOTAWebServer.on("/login", HTTP_GET, []() {
     oOTAWebServer.sendHeader("Connection", "close");
     oOTAWebServer.send(200, "text/html", loginIndex);
@@ -65,9 +66,10 @@ void StartOTAServer(void){
   });
   oOTAWebServer.begin();
   //MDNS.addService("http", "tcp", 80);
-  //Serial << LOG0 << "StartOTAServer(): Open http://" << acHostname << ".local to perform an OTA update" << endl;
+  //Serial << LOG0 << "StartOTAWebServer(): Open http://" << acHostname << ":81/login to perform an OTA update" << endl;
+  Serial << LOG0 << "StartOTAWebServer(): Open http://" << WiFi.localIP() << ":81/login to perform an OTA update" << endl;
   return;
-} //StartOTAServer
+} //StartOTAWebServer
 
 
 void HandleOTAServer(void){
