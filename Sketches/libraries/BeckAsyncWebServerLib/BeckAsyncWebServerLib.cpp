@@ -1,4 +1,4 @@
-//BeckAsyncWebServerLib.cpp, 4/10/19d
+//BeckAsyncWebServerLib.cpp, 4/14/19a
 #include <BeckAsyncWebServerLib.h>
 #include <BeckMiniLib.h>
 #include <BeckThermoLib.h>
@@ -11,6 +11,13 @@
 #endif    //ESP8266
 
 #include "BeckAsyncWebServerHTML.h"
+/*
+const char index_html[] PROGMEM = R"rawliteral(
+  #include "BeckAsyncWebServerHTML.h"
+  )rawliteral";
+*/
+
+
 AsyncWebServer oAsyncWebServer(80);
 
 String CallBackFunc(const String& var){
