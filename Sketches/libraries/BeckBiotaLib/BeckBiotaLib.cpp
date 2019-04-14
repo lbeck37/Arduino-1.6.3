@@ -68,7 +68,7 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acAccessPointPW   , "Qazqaz11");
       _fSetpointF       = 35.0;
       _fMinSetpoint     = 33.0;
-      _fMaxSetpoint     = 50.0;
+      _fMaxSetpoint     = 80.0;
       _fMaxHeatRangeF   = 1.00;
       _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
       break;

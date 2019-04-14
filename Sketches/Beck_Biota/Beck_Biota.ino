@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota";
-const char szFileDate[]    = "4/11/19q";
+const char szFileDate[]    = "4/14/19a";
 
 #ifndef ESP8266
   #define ESP8266
@@ -33,10 +33,10 @@ const char szFileDate[]    = "4/11/19q";
 #include <WiFiClient.h>
 
 //static        ProjectType      eProjectType           = ePitchMeter;
-static        ProjectType      eProjectType            = eThermoDev;
+//static        ProjectType      eProjectType            = eThermoDev;
 //static        ProjectType      eProjectType            = eFireplace;
 //static        ProjectType      eProjectType            = eHeater;
-//static        ProjectType      eProjectType            = eGarage;
+static        ProjectType      eProjectType            = eGarage;
 
 static const  uint32_t    ulThermHandlerPeriodMsec    = 1 * lMsecPerSec; //mSec between running system handler
 static        uint32_t    ulNextThermHandlerMsec      = 0;

@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, 4/6/19
+//BeckWiFiLib.cpp, 4/13/19a
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
