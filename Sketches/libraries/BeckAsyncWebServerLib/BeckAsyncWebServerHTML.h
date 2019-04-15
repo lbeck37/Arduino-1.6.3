@@ -1,90 +1,73 @@
 const char index_html[] PROGMEM = R"rawliteral(
-<!-- BeckAsyncWebServerHTML.h, 4/14/19b AngularJS Example-->
-<!-- File: chapter5/simple-angularjs-service/index.html -->
+<!-- BeckAsyncWebServerHTML.h, 4/14/19c AngularJS Example -->
+<!-- File: chapter6/public/http-post-example.html -->
 <html ng-app="notesApp">
+
+<head>
+  <title>HTTP Post Example</title>
+  <style>
+    .item {
+      padding: 10px;
+    }
+  </style>
+</head>
+
 <body ng-controller="MainCtrl as mainCtrl">
-  <h1>Hello Controllers!</h1>
-  <button ng-click="mainCtrl.open('first')">
-    Open First
-  </button>
-  <button ng-click="mainCtrl.open('second')">
-    Open Second
-  </button>
-  <div ng-switch on="mainCtrl.tab">
-    <div ng-switch-when="first">
-      <div ng-controller="SubCtrl as ctrl">
-        <h3>First tab</h3>
-        <ul>
-          <li ng-repeat="item in ctrl.list()">
-            <span ng-bind="item.label"></span>
-          </li>
-        </ul>
-
-        <button ng-click="ctrl.add()">
-          Add More Items
-        </button>
-      </div>
-
-    </div>
-    <div ng-switch-when="second">
-      <div ng-controller="SubCtrl as ctrl">
-        <h3>Second tab</h3>
-        <ul>
-          <li ng-repeat="item in ctrl.list()">
-            <span ng-bind="item.label"></span>
-          </li>
-        </ul>
-
-        <button ng-click="ctrl.add()">
-          Add More Items
-        </button>
-      </div>
-    </div>
+  <h1>Hello Servers!</h1>
+  <div ng-repeat="todo in mainCtrl.items"
+       class="item">
+    <div><span ng-bind="todo.label"></span></div>
+    <div>- by <span ng-bind="todo.author"></span></div>
   </div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
+  <div>
+    <form name="addForm"
+          ng-submit="mainCtrl.add()">
+      <input type="text"
+             placeholder="Label"
+             ng-model="mainCtrl.newTodo.label"
+             required>
+      <input type="text"
+             placeholder="Author"
+             ng-model="mainCtrl.newTodo.author"
+             required>
+      <input type="submit"
+             value="Add"
+             ng-disabled="addForm.$invalid">
+    </form>
+  </div>
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
 </script>
-<<!-- <script src="app.js"></script> -->
-<<!-- File: chapter5/simple-angularjs-service/app.js -->
 <script>
   angular.module('notesApp', [])
-    .controller('MainCtrl', [function() {
+    .controller('MainCtrl', ['$http', function($http) {
       var self = this;
-      self.tab = 'first';
-      self.open = function(tab) {
-        self.tab = tab;
-      };
-    }])
-    .controller('SubCtrl', ['ItemService',
-        function(ItemService) {
-      var self = this;
-      self.list = function() {
-        return ItemService.list();
-      };
-  
-      self.add = function() {
-        ItemService.add({
-          id: self.list().length + 1,
-          label: 'Item ' + self.list().length
+      self.items = [];
+      self.newTodo = {};
+      var fetchTodos = function() {
+        return $http.get('/api/note').then(
+            function(response) {
+          self.items = response.data;
+        }, function(errResponse) {
+          console.error('Error while fetching notes');
         });
       };
-    }])
-    .factory('ItemService', [function() {
-      var items = [
-        {id: 1, label: 'Item 0'},
-        {id: 2, label: 'Item 1'}
-      ];
-      return {
-        list: function() {
-          return items;
-        },
-        add: function(item) {
-          items.push(item);
-        }
+
+      fetchTodos();
+
+      self.add = function() {
+        $http.post('/api/note', self.newTodo)
+            .then(fetchTodos)
+            .then(function(response) {
+              self.newTodo = {};
+            });
       };
+
     }]);
 </script>
 </body>
-
-</html>)rawliteral";
+</html>
+)rawliteral";
 
