@@ -1,18 +1,24 @@
-//BeckOTAWebServerLib.cpp, 4/10/19b
-#include <BeckOTAWebServerLib.h>
-#include "BeckOTAWebServerPages.h"
-#include <BeckAsyncWebServerLib.h>
-#include <BeckLogLib.h>
+//BeckOTALib.cpp, 4/16/19b
+#if 0
+#include <BeckOTALib.h>
+#include "BeckOTALibHTML.h"
+//#include <BeckAsyncWebServerLib.h>
+//#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
-#include <ArduinoOTA.h>
-#include <WiFiClient.h>
+#include <BeckWebServer.h>
+//#include <ArduinoOTA.h>
+//#include <WiFiClient.h>
+/*
 #ifdef ESP8266
+  #include <ESP8266mDNS.h>
   #include <ESP8266WebServer.h>
   #include <Updater.h>
 #else   //ESP32   //Not tested
+  #include <ESPmDNS.h>
   #include <WebServer.h>
   #include <Update.h>
 #endif    //ESP8266
+*/
 
 //const char*         acServerIndex         = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 unsigned long       _ulUpdateTimeoutMsec   = 0;
@@ -30,8 +36,9 @@ bool                _bOTA_Started         = false;   //Turns off Blynk.
   #endif
 #endif    //ESP8266
 
-void StartOTAWebServer(void){
-  Serial << LOG0 << "StartOTAWebServer(): Begin" << endl;
+void SetupOTAWebPages(){
+  Serial << LOG0 << "SetupOTAWebPages(): Begin" << endl;
+
   oOTAWebServer.on("/login", HTTP_GET, []() {
     oOTAWebServer.sendHeader("Connection", "close");
     oOTAWebServer.send(200, "text/html", loginIndex);
@@ -64,17 +71,21 @@ void StartOTAWebServer(void){
       }
     }
   });
+/*
   oOTAWebServer.begin();
-  //MDNS.addService("http", "tcp", 80);
-  //Serial << LOG0 << "StartOTAWebServer(): Open http://" << acHostname << ":81/login to perform an OTA update" << endl;
-  Serial << LOG0 << "StartOTAWebServer(): Open http://" << WiFi.localIP() << ":81/login to perform an OTA update" << endl;
+  MDNS.addService("http", "tcp", 80);
+  Serial << LOG0 << "StartOTAWebServerPages(): Open http://" << acHostname << "/login to perform an OTA update" << endl;
+  Serial << LOG0 << "StartOTAWebServerPages(): Open http://" << WiFi.localIP() << "/login to perform an OTA update" << endl;
+*/
   return;
-} //StartOTAWebServer
+} //SetupOTAWebPages
 
-
+/*
 void HandleOTAServer(void){
   oOTAWebServer.handleClient();
   delay(1);
   return;
 } //HandleOTAServer
+*/
+#endif  //0
 //Last line.

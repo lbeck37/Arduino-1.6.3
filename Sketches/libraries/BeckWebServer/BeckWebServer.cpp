@@ -1,23 +1,17 @@
-//BeckWebServer.cpp, 4/16/19a
+//BeckWebServer.cpp, 4/16/19b
 #include <BeckWebServer.h>
-#include "BeckWebServerHTML.h"
-#include <BeckLogLib.h>
+//#include "BeckWebServerHTML.h"
+#include "BeckOTALibHTML.h"
+//#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <WiFiClient.h>
-/*
-#ifdef ESP8266
-  #include <ESP8266WebServer.h>
-#else   //ESP32   //Not tested
-  #include <WebServer.h>
-#endif    //ESP8266
-*/
 
 #ifdef ESP8266
-  #include <ESP8266mDNS.h>
+  //#include <ESP8266mDNS.h>
   #include <ESP8266WebServer.h>
   #include <ESP8266WiFi.h>
 #else   //ESP32
-  #include <ESPmDNS.h>
+  //#include <ESPmDNS.h>
   #include <WebServer.h>
   #include <WiFi.h>
 #endif    //ESP8266
@@ -37,11 +31,13 @@
 
 void StartWebServer(const char *acHostname){
   Serial << LOG0 << "StartWebServer(): Begin" << endl;
+/*
   //Use MDNS for host name resolution
   Serial << LOG0 << "StartWebServer(): Start mDNS for " << acHostname << endl;
   if (!MDNS.begin(acHostname)) {
     Serial << LOG0 << "StartWebServer(): Error setting up MDNS responder" << endl;
   } //if (!MDNS.begin(acHostname))
+*/
 
   oWebServer.on("/login", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
@@ -75,10 +71,11 @@ void StartWebServer(const char *acHostname){
       }
     }
   });
-  oWebServer.begin();
+/*
   MDNS.addService("http", "tcp", 80);
   Serial << LOG0 << "StartWebServer(): Open http://" << acHostname << "/login to perform an OTA update" << endl;
-  Serial << LOG0 << "StartWebServer(): Open http://" << WiFi.localIP() << "/login to perform an OTA update" << endl;
+*/
+  oWebServer.begin();
   return;
 } //StartWebServer
 

@@ -1,29 +1,13 @@
 const String szSketchName  = "BeckAngularJS_Test.ino";
-const String szFileDate    = "April 16, 2019h";
+const String szFileDate    = "April 16, 2019m";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
 *********/
 #include <BeckMiniLib.h>
+#include <BeckOTALib.h>
 #include <BeckWebServer.h>
 #include <BeckWiFiLib.h>
-/*
-#if ESP32
-  #include "WiFi.h"
-#else
-  #include <ESP8266WiFi.h>
-#endif
-*/
-/*
-#ifdef ESP8266
-  #include <ESP8266WiFi.h>
-  #include <ESP8266mDNS.h>
-#else   //ESP32
-  #include <WiFi.h>
-  #include <ESPmDNS.h>
-#endif    //ESP8266
-*/
-//#include <Streaming.h>
 
 const   char        _acHostname[]       = "Beckboard";
 const   uint32_t    ulLogPeriodMsec     = 10 * lMsecPerSec; //mSec between running system handler
@@ -36,7 +20,9 @@ void setup(){
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   SetupWiFi();
   if (_bWiFiConnected){
+    //SetupOTAWebPages();
     StartWebServer(_acHostname);
+    Serial << LOG0 << "setup(): Open http://" << WiFi.localIP() << "/login to perform an OTA update" << endl;
   } //if(_bWiFiConnected)
   else{
     while(true){
