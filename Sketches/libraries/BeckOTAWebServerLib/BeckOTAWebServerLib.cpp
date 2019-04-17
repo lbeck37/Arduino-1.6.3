@@ -65,7 +65,7 @@ void StartOTAWebServer(void){
     }
   });
   oOTAWebServer.begin();
-  //MDNS.addService("http", "tcp", 80);
+  MDNS.addService("http", "tcp", 80);
   //Serial << LOG0 << "StartOTAWebServer(): Open http://" << acHostname << ":81/login to perform an OTA update" << endl;
   Serial << LOG0 << "StartOTAWebServer(): Open http://" << WiFi.localIP() << ":81/login to perform an OTA update" << endl;
   return;
