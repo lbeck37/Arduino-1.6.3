@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckAngularJS_Test.ino";
-const String szFileDate    = "April 16, 2019m";
+const String szFileDate    = "April 17, 2019d";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
@@ -20,7 +20,7 @@ void setup(){
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   SetupWiFi();
   if (_bWiFiConnected){
-    //SetupOTAWebPages();
+    SetupOTAWebPages();
     StartWebServer(_acHostname);
     Serial << LOG0 << "setup(): Open http://" << WiFi.localIP() << "/login to perform an OTA update" << endl;
   } //if(_bWiFiConnected)

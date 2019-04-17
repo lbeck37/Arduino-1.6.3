@@ -1,7 +1,7 @@
-//BeckWebServer.cpp, 4/16/19b
+//BeckWebServer.cpp, 4/17/19a
 #include <BeckWebServer.h>
 //#include "BeckWebServerHTML.h"
-#include "BeckOTALibHTML.h"
+//#include "BeckOTALibHTML.h"
 //#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <WiFiClient.h>
@@ -38,14 +38,16 @@ void StartWebServer(const char *acHostname){
     Serial << LOG0 << "StartWebServer(): Error setting up MDNS responder" << endl;
   } //if (!MDNS.begin(acHostname))
 */
-
+#if 0
   oWebServer.on("/login", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
-    oWebServer.send(200, "text/html", loginIndex);
+    //oWebServer.send(200, "text/html", loginIndex);
+    oWebServer.send(200, "text/html", acOTA_LoginHTML);
   });
   oWebServer.on("/serverIndex", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
-    oWebServer.send(200, "text/html", serverIndex);
+    //oWebServer.send(200, "text/html", serverIndex);
+    oWebServer.send(200, "text/html", acOTA_ServerHTML);
   });
   oWebServer.on("/update", HTTP_POST, []() {
     oWebServer.sendHeader("Connection", "close");
@@ -71,6 +73,7 @@ void StartWebServer(const char *acHostname){
       }
     }
   });
+#endif  //0
 /*
   MDNS.addService("http", "tcp", 80);
   Serial << LOG0 << "StartWebServer(): Open http://" << acHostname << "/login to perform an OTA update" << endl;

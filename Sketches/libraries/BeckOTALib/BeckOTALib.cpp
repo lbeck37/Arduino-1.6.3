@@ -1,5 +1,5 @@
-//BeckOTALib.cpp, 4/16/19b
-#if 0
+//BeckOTALib.cpp, 4/17/19a
+#if 1
 #include <BeckOTALib.h>
 #include "BeckOTALibHTML.h"
 //#include <BeckAsyncWebServerLib.h>
@@ -21,14 +21,16 @@
 */
 
 //const char*         acServerIndex         = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+/*
 unsigned long       _ulUpdateTimeoutMsec   = 0;
 bool                _bOTA_Started         = false;   //Turns off Blynk.
 
 #ifdef ESP8266
-  ESP8266WebServer    oOTAWebServer(81);    //OTA uses port 81, ie: 192.168.0.169:81/login
+  ESP8266WebServer    oWebServer(81);    //OTA uses port 81, ie: 192.168.0.169:81/login
 #else   //ESP32
-  WebServer           oOTAWebServer(81);
+  WebServer           oWebServer(81);
 #endif    //ESP8266
+*/
 
 #ifdef ESP8266
   #ifndef UPDATE_SIZE_UNKNOWN
@@ -39,20 +41,20 @@ bool                _bOTA_Started         = false;   //Turns off Blynk.
 void SetupOTAWebPages(){
   Serial << LOG0 << "SetupOTAWebPages(): Begin" << endl;
 
-  oOTAWebServer.on("/login", HTTP_GET, []() {
-    oOTAWebServer.sendHeader("Connection", "close");
-    oOTAWebServer.send(200, "text/html", loginIndex);
+  oWebServer.on("/login", HTTP_GET, []() {
+    oWebServer.sendHeader("Connection", "close");
+    oWebServer.send(200, "text/html", acOTA_LoginHTML);
   });
-  oOTAWebServer.on("/serverIndex", HTTP_GET, []() {
-    oOTAWebServer.sendHeader("Connection", "close");
-    oOTAWebServer.send(200, "text/html", serverIndex);
+  oWebServer.on("/serverIndex", HTTP_GET, []() {
+    oWebServer.sendHeader("Connection", "close");
+    oWebServer.send(200, "text/html", acOTA_ServerHTML);
   });
-  oOTAWebServer.on("/update", HTTP_POST, []() {
-    oOTAWebServer.sendHeader("Connection", "close");
-    oOTAWebServer.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+  oWebServer.on("/update", HTTP_POST, []() {
+    oWebServer.sendHeader("Connection", "close");
+    oWebServer.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
     ESP.restart();
   }, []() {
-    HTTPUpload& upload = oOTAWebServer.upload();
+    HTTPUpload& upload = oWebServer.upload();
     if (upload.status == UPLOAD_FILE_START) {
       Serial.printf("Update: %s\n", upload.filename.c_str());
       if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
@@ -71,21 +73,15 @@ void SetupOTAWebPages(){
       }
     }
   });
-/*
-  oOTAWebServer.begin();
-  MDNS.addService("http", "tcp", 80);
-  Serial << LOG0 << "StartOTAWebServerPages(): Open http://" << acHostname << "/login to perform an OTA update" << endl;
-  Serial << LOG0 << "StartOTAWebServerPages(): Open http://" << WiFi.localIP() << "/login to perform an OTA update" << endl;
-*/
   return;
 } //SetupOTAWebPages
 
 /*
 void HandleOTAServer(void){
-  oOTAWebServer.handleClient();
+  oWebServer.handleClient();
   delay(1);
   return;
 } //HandleOTAServer
 */
-#endif  //0
+#endif  //0 or 1
 //Last line.
