@@ -1,4 +1,4 @@
-//BeckWiFiLib.h, 4/4/19a
+//BeckWiFiLib.h, 4/18/19a
 #pragma once
 #ifdef ESP8266
   #include <ESP8266WiFi.h>

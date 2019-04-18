@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckAngularTest.ino";
-const String szFileDate    = "April 17, 2019k";
+const String szFileDate    = "April 18, 2019a";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
