@@ -1,6 +1,6 @@
-//BeckAngularTestPages.cpp, 4/17/19a
+//BeckAngularTestPages.cpp, 4/18/19a
 #include <BeckAngularTestPages.h>
-#include "BeckThermostatTestPagesHTML.h"
+#include "BeckAngularThermostatTestPagesHTML.h"
 #include <BeckMiniLib.h>
 #include <BeckWebServer.h>
 
