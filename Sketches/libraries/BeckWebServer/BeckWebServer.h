@@ -1,4 +1,4 @@
-//BeckWebServer.h, Beck 4/16/19b
+//BeckWebServer.h, Beck 4/18/19a
 #pragma once
 
 #ifdef ESP8266
@@ -10,5 +10,5 @@
 #endif    //ESP8266
 
 void StartWebServer     (const char *acHostname);
-void HandleWebServer    (void);
+void HandleWebServer    ();
 //Last line.

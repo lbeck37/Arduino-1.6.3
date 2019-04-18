@@ -1,5 +1,6 @@
-//BeckAngularTestPages.h, Beck 4/17/19a
+//BeckAngularTestPages.h, Beck 4/18/19a
 #pragma once
 
-void SetupAngularTestPages  ();
+void SetupFormTestPages       ();
+void SetupTermostatTestPages  ();
 //Last line.

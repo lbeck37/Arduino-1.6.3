@@ -1,8 +1,5 @@
-//const char acAngularTestPagesHTML[] PROGMEM = R"rawliteral(
-//const char* acOTA_LoginHTML=
-//const char* acAngularTestPagesHTML= R"rawliteral(
-const char* acAngularTestPagesHTML= R"(
-<!-- BeckAngularTestPagesHTML.h, 4/17/19a -->
+const char* acThermostatTestPagesHTML= R"(
+<!-- BeckThermostatTestPagesHTML.h, 4/18/19a -->
 <!DOCTYPE HTML><html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">

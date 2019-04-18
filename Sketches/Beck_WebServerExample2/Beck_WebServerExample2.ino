@@ -13,6 +13,7 @@ ESP8266WiFiMulti wifiMulti;     // Create an instance of the ESP8266WiFiMulti cl
 
 ESP8266WebServer WebServer(80);    // Create a webserver object that listens for HTTP request on port 80
 
+//Function protos
 void HandleTestRoot   ();
 void HandleLoginRoot  ();
 void HandleTestFunc   ();

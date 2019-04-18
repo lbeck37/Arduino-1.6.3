@@ -1,4 +1,4 @@
-//BeckOTALib.cpp, 4/17/19a
+//BeckOTALib.cpp, 4/18/19a
 #include <BeckOTALib.h>
 #include "BeckOTALibHTML.h"
 #include <BeckMiniLib.h>
@@ -13,7 +13,8 @@
 void SetupOTAWebPages(){
   Serial << LOG0 << "SetupOTAWebPages(): Begin" << endl;
 
-  oWebServer.on("/login", HTTP_GET, []() {
+  //oWebServer.on("/login", HTTP_GET, []() {
+  oWebServer.on("/ota", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
     oWebServer.send(200, "text/html", acOTA_LoginHTML);
   });
