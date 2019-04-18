@@ -1,36 +1,8 @@
 //BeckOTALib.cpp, 4/17/19a
-#if 1
 #include <BeckOTALib.h>
 #include "BeckOTALibHTML.h"
-//#include <BeckAsyncWebServerLib.h>
-//#include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <BeckWebServer.h>
-//#include <ArduinoOTA.h>
-//#include <WiFiClient.h>
-/*
-#ifdef ESP8266
-  #include <ESP8266mDNS.h>
-  #include <ESP8266WebServer.h>
-  #include <Updater.h>
-#else   //ESP32   //Not tested
-  #include <ESPmDNS.h>
-  #include <WebServer.h>
-  #include <Update.h>
-#endif    //ESP8266
-*/
-
-//const char*         acServerIndex         = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
-/*
-unsigned long       _ulUpdateTimeoutMsec   = 0;
-bool                _bOTA_Started         = false;   //Turns off Blynk.
-
-#ifdef ESP8266
-  ESP8266WebServer    oWebServer(81);    //OTA uses port 81, ie: 192.168.0.169:81/login
-#else   //ESP32
-  WebServer           oWebServer(81);
-#endif    //ESP8266
-*/
 
 #ifdef ESP8266
   #ifndef UPDATE_SIZE_UNKNOWN
@@ -75,13 +47,4 @@ void SetupOTAWebPages(){
   });
   return;
 } //SetupOTAWebPages
-
-/*
-void HandleOTAServer(void){
-  oWebServer.handleClient();
-  delay(1);
-  return;
-} //HandleOTAServer
-*/
-#endif  //0 or 1
 //Last line.

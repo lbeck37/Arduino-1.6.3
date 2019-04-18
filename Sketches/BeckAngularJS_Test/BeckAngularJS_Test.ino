@@ -1,15 +1,16 @@
 const String szSketchName  = "BeckAngularJS_Test.ino";
-const String szFileDate    = "April 17, 2019d";
+const String szFileDate    = "April 17, 2019h";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
 *********/
+#include <BeckAngularTestPages.h>
 #include <BeckMiniLib.h>
 #include <BeckOTALib.h>
 #include <BeckWebServer.h>
 #include <BeckWiFiLib.h>
 
-const   char        _acHostname[]       = "Beckboard";
+const   char        _acHostname[]       = "beckboard";
 const   uint32_t    ulLogPeriodMsec     = 10 * lMsecPerSec; //mSec between running system handler
         uint32_t    ulNextLogMsec       = 0;
         int         wLogCount           = 0;
@@ -21,6 +22,7 @@ void setup(){
   SetupWiFi();
   if (_bWiFiConnected){
     SetupOTAWebPages();
+    SetupAngularTestPages();
     StartWebServer(_acHostname);
     Serial << LOG0 << "setup(): Open http://" << WiFi.localIP() << "/login to perform an OTA update" << endl;
   } //if(_bWiFiConnected)

@@ -1,9 +1,5 @@
-//BeckOTALib.h, Beck 4/16/19b
+//BeckOTALib.h, Beck 4/17/19a
 #pragma once
 
-extern bool                _bOTA_Started;   //Turns off Blynk.
-extern unsigned long       _ulUpdateTimeoutMsec;
-
 void SetupOTAWebPages  ();
-//void HandleOTAServer    (void);
 //Last line.
