@@ -1,6 +1,6 @@
-//BeckAngularTestPages.cpp, 4/18/19a
+//BeckAngularTestPages.cpp, 4/18/19b
 #include <BeckAngularTestPages.h>
-#include "BeckAngularThermostatTestPagesHTML.h"
+#include "BeckAngularTestPagesHTML.h"
 #include <BeckMiniLib.h>
 #include <BeckWebServer.h>
 
@@ -14,6 +14,19 @@ void HandleLoginRoot  ();
 void HandleTestFunc   ();
 void HandleLoginFunc  ();
 //void HandleNotFound   ();
+
+
+void SetupAngularTestPages(){
+  Serial << LOG0 << "SetupAngularTestPages(): Begin" << endl;
+
+  Serial << LOG0 << "SetupAngularTestPages(): Set up handlers" << endl;
+  oWebServer.on("/ajs", HTTP_GET, [](){
+    oWebServer.sendHeader("Connection", "close");
+    oWebServer.send(200, "text/html", acAngularTestPagesHTML);
+  });
+  return;
+} //SetupAngularTestPages
+
 
 void SetupFormTestPages(void){
   oWebServer.on("/"            , HTTP_GET,   HandleTestRoot);
@@ -66,13 +79,6 @@ void HandleLoginFunc() {                         // If a POST request is made to
   return;
 } //HandleLoginFunc
 
-
-/*
-void HandleNotFound(){
-  oWebServer.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
-} //HandleNotFound
-*/
-
 /* Actual original HTML text
 <form action="/login" method="POST">
     <input type="text" name="username" placeholder="Username"></br>
@@ -83,6 +89,7 @@ void HandleNotFound(){
     Try 'dude' and '111' ...
 </p>
 */
+
 String CallBackFunc(const String& var){
   if(var == "TEMPERATURE"){
     return "99.99";

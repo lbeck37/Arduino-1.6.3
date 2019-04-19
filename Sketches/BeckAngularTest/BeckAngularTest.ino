@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckAngularTest.ino";
-const String szFileDate    = "April 18, 2019d";
+const String szFileDate    = "April 18, 2019g";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
@@ -21,6 +21,7 @@ void setup(){
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   SetupWiFi();
   if (_bWiFiConnected){
+    SetupAngularTestPages();
     SetupOTAWebPages();
     SetupFormTestPages();
     SetupTermostatTestPages();
