@@ -1,22 +1,32 @@
-//BeckAsyncWebServerHTML.h, 4/18/19a
+//BeckAsyncWebServerHTML.h, 4/24/19a
 #pragma once
 
 const char* acAngularTestPagesHTML= R"(
 <!DOCTYPE HTML><html>
 <!doctype html>
-<html ng-app>
+<html>
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+    <script>
+      var BeckApp = angular.module("BeckModule", []);
+      BeckApp.controller("BeckController", function ($scope) {
+        $scope.Message = "Hello To The Dude's First AngularJS Program";
+      });
+    </script>
   </head>
   <body>
-    <div>
+    <div ng-app>
       <label>Name:</label>
       <input type="text" ng-model="yourName" placeholder="Enter a name here">
       <hr>
       <h1>Hello {{yourName}}!</h1>
     </div>
+
+    <div ng-app= "BeckApp" ng-controller= ”BeckController”>
+        <h2>{{Message}}</h2>
+    </div>
   </body>
-</html>)";
+</html> )";
 
 
 const char* acThermostatTestPagesHTML= R"(
