@@ -1,4 +1,4 @@
-//BeckAngularTestPages.cpp, 4/18/19b
+//BeckAngularTestPages.cpp, 4/26/19a
 #include <BeckAngularTestPages.h>
 #include "BeckAngularTestPagesHTML.h"
 #include <BeckMiniLib.h>
@@ -126,6 +126,7 @@ void SetupTermostatTestPages(){
   oWebServer.on("/Thermostat", HTTP_GET, [](){
     oWebServer.sendHeader("Connection", "close");
     oWebServer.send(200, "text/html", acThermostatTestPagesHTML);
+    Serial << endl << LOG0 << "SetupTermostatTestPages(): Servicing HTTP_GET at /Thermostat" << endl;
   });
 
   oWebServer.on("/LastDegF", HTTP_GET, [](){

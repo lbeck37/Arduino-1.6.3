@@ -1,6 +1,7 @@
-//BeckAsyncWebServerHTML.h, 4/24/19a
+//BeckAsyncWebServerHTML.h, 4/26/19a
 #pragma once
 
+/*
 const char* acAngularTestPagesHTML= R"(
 <!DOCTYPE HTML><html>
 <!doctype html>
@@ -27,11 +28,42 @@ const char* acAngularTestPagesHTML= R"(
     </div>
   </body>
 </html> )";
+*/
+const char* acAngularTestPagesHTML= R"(
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+
+  <p>Try to change the names.</p>
+
+  <div ng-app="myApp" ng-controller="myCtrl">
+
+    First Name: <input type="text" ng-model="firstName"><br>
+    Last Name: <input type="text" ng-model="lastName"><br>
+    <br>
+    Full Name: {{firstName + " " + lastName}}
+
+  </div>
+
+  <script>
+  var app = angular.module('myApp', []);
+  app.controller('myCtrl', function($scope) {
+      $scope.firstName= "John";
+      $scope.lastName= "Doe";
+  });
+  </script>
+
+</body>
+</html>
+ )";
 
 
 const char* acThermostatTestPagesHTML= R"(
-<!-- BeckThermostatTestPagesHTML.h, 4/18/19a -->
-<!DOCTYPE HTML><html>
+<!-- BeckThermostatTestPagesHTML.h, 4/26/19a -->
+<!DOCTYPE HTML>
+<html>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
@@ -53,25 +85,28 @@ const char* acThermostatTestPagesHTML= R"(
   </style>
 </head>
 <body>
-  <h2>BIOTA</h2>
-  <p>
-    <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
-    <span class="dht-labels">Current</span>
-    <span id="LastDegF">%TEMPERATURE%</span>
-    <sup class="units">&deg;F</sup>
-  </p>
-  <p>
-    <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
-    <span class="dht-labels">Setpoint</span>
-    <span id="SetPointDegF">%SET_POINT%</span>
-    <sup class="units">&deg;F</sup>
-  </p>
-  <p>
-    <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
-    <span class="dht-labels">Offpoint</span>
-    <span id="TermoOffDegF">%THERMO_OFF%</span>
-    <sup class="units">&deg;F</sup>
-  </p>
+  <div ng-app="" ng-init= "DegF='70.37'; SetPoint='72.00'; OffPoint='72.10'">
+    <h2>BIOTA</h2>
+    <p>
+      <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
+      <span class="dht-labels">Current</span>
+      <span id="LastDegF">{{DegF}}</span>
+      <sup class="units">&deg;F</sup>
+    </p>
+    <p>
+      <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
+      <span class="dht-labels">Setpoint</span>
+      <span id="SetPointDegF">{{SetPoint}}</span>
+      <sup class="units">&deg;F</sup>
+    </p>
+    <p>
+      <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
+      <span class="dht-labels">Offpoint</span>
+      <span id="TermoOffDegF">{{OffPoint}}</span>
+      <sup class="units">&deg;F</sup>
+    </p>
+  </div>
 </body>
-</html>)";
-//ast line.
+</html>
+)";
+//Last line.
