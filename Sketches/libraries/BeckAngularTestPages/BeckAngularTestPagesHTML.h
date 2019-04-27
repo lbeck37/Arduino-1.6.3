@@ -1,26 +1,132 @@
-//BeckAsyncWebServerHTML.h, 4/26/19a
+//BeckAsyncWebServerHTML.h, 4/27/19a
 #pragma once
 
-/*
 const char* acAngularTestPagesHTML= R"(
 <!DOCTYPE HTML><html>
 <!doctype html>
-<html>
-  <head>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
-  </head>
-  <body>
-    <div ng-app>
-      <label>Name:</label>
-      <input type="text" ng-model="yourName" placeholder="Enter a name here">
-      <hr>
-      <h1>You are typing.: {{yourName}}</h1>
-    </div>
+<!-- File: chapter4/form-error-messages.html -->
+<html ng-app="notesApp">
+<head><title>Notes App</title></head>
+<body ng-controller="MainCtrl as ctrl">
+
+  <form ng-submit="ctrl.submit() " name="myForm">
+    <input type="text"
+           name="uname"
+           ng-model="ctrl.user.username"
+           required
+           ng-minlength="4">
+    <span ng-show="myForm.uname.$error.required">
+      This is a required field
+    </span>
+    <span ng-show="myForm.uname.$error.minlength">
+      Minimum length required is 4
+    </span>
+    <span ng-show="myForm.uname.$invalid">
+      This field is invalid
+    </span>
+    <input type="password"
+           name="pwd"
+           ng-model="ctrl.user.password"
+           required>
+    <span ng-show="myForm.pwd.$error.required">
+      This is a required field
+    </span>
+    <input type="submit"
+           value="Submit"
+           ng-disabled="myForm.$invalid">
+  </form>
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
+</script>
+<script type="text/javascript">
+  angular.module('notesApp', [])
+    .controller('MainCtrl', [function () {
+      var self = this;
+      self.submit = function () {
+        console.log('User clicked submit with ', self.user);
+      };
+    }]);
+</script>
+</body>
+</html>
+)";
+
+
+const char* acAngularTestPagesHTML4= R"(
+<!DOCTYPE HTML><html>
+<!doctype html>
+<!-- File: chapter4/two-forms-databinding.html -->
+<html ng-app="notesApp">
+<head><title>Notes App</title></head>
+<body ng-controller="MainCtrl as ctrl">
+
+  <form ng-submit="ctrl.submit1() ">
+    <input type="text" ng-model="ctrl.username">
+    <input type="password" ng-model="ctrl.password">
+    <input type="submit" value="Submit">
+  </form>
+
+  <form ng-submit="ctrl.submit2() ">
+    <input type="text" ng-model="ctrl.user.username">
+    <input type="password" ng-model="ctrl.user.password">
+    <input type="submit" value="Submit">
+  </form>
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
+</script>
+<script type="text/javascript">
+  angular.module('notesApp', [])
+    .controller('MainCtrl', [function() {
+      var self = this;
+      self.submit1 = function() {
+        // Create user object to send to the server
+        var user = {username: self.username, password: self.password};
+        console.log('First form submit with ', user);
+      };
+      self.submit2 = function() {
+        console.log('Second form submit with ', self.user);
+      };
+    }]);
+</script>
+</body>
+</html>
+)";
+
+
+const char* acAngularTestPagesHTML3= R"(
+<!DOCTYPE HTML><html>
+<!doctype html>
+<!-- File: chapter4/simple-form.html -->
+<html ng-app="notesApp">
+  <head><title>Notes App</title></head>
+  <script
+    src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
+  </script>
+  <body ng-controller="MainCtrl as ctrl">
+
+    <form ng-submit="ctrl.submit() ">
+      <input type="text" ng-model="ctrl.user.username">
+      <input type="password" ng-model="ctrl.user.password">
+      <input type="submit" value="Submit">
+    </form>
+
+  <script type="text/javascript">
+    angular.module('notesApp', [])
+      .controller('MainCtrl', [function() {
+        var self = this;
+        self.submit = function() {
+          console.log('User clicked submit with ', self.user);
+        };
+      }]);
+  </script>
   </body>
 </html>
- )";
-*/
-const char* acAngularTestPagesHTML= R"(
+)";
+
+
+const char* acAngularTestPagesHTML2= R"(
 <!DOCTYPE HTML><html>
 <!doctype html>
 <!-- File: chapter4/simple-ng-model.html -->
@@ -43,6 +149,8 @@ const char* acAngularTestPagesHTML= R"(
 </body>
 </html>
  )";
+
+
 
 
 const char* acThermostatTestPagesHTML= R"(
