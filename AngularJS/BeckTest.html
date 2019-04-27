@@ -8,38 +8,52 @@ const char* acAngularTestPagesHTML= R"(
 <html>
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+    <script>
+      var BeckApp = angular.module("BeckModule", []);
+      BeckApp.controller("BeckController", function ($scope) {
+        $scope.Message = "Hello To The Dude's First AngularJS Program";
+      });
+    </script>
   </head>
   <body>
     <div ng-app>
       <label>Name:</label>
       <input type="text" ng-model="yourName" placeholder="Enter a name here">
       <hr>
-      <h1>You are typing.: {{yourName}}</h1>
+      <h1>Hello {{yourName}}!</h1>
+    </div>
+
+    <div ng-app= "BeckApp" ng-controller= ”BeckController”>
+        <h2>{{Message}}</h2>
     </div>
   </body>
-</html>
- )";
+</html> )";
 */
 const char* acAngularTestPagesHTML= R"(
-<!DOCTYPE HTML><html>
-<!doctype html>
-<!-- File: chapter4/simple-ng-model.html -->
-<html ng-app="notesApp">
-<head><title>Notes App</title></head>
-<body ng-controller="MainCtrl as ctrl">
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
 
-  <input type="text" ng-model="ctrl.username"/>
-  You typed {{ctrl.username}}
+  <p>Try to change the names.</p>
 
-<script
-  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
-</script>
-<script type="text/javascript">
-  angular.module('notesApp', [])
-    .controller('MainCtrl', [function() {
-      this.username = 'nothing';
-    }]);
-</script>
+  <div ng-app="myApp" ng-controller="myCtrl">
+
+    First Name: <input type="text" ng-model="firstName"><br>
+    Last Name: <input type="text" ng-model="lastName"><br>
+    <br>
+    Full Name: {{firstName + " " + lastName}}
+
+  </div>
+
+  <script>
+  var app = angular.module('myApp', []);
+  app.controller('myCtrl', function($scope) {
+      $scope.firstName= "John";
+      $scope.lastName= "Doe";
+  });
+  </script>
+
 </body>
 </html>
  )";

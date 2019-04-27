@@ -1,0 +1,123 @@
+<!-- Beck 4/26/19a -->
+
+<!--
+ng-app
+The ng-app directive defines an AJS application.
+
+The ng-app directive tells AJS that the <div> element is the "owner" of an AJS application.
+
+ng-model
+The ng-model directive binds the value of HTML controls (input, select, textarea) to application data.
+
+The ng-model directive binds the value of the input field to the application variable TextBox.
+
+ng-bind
+The ng-bind directive binds application data to the HTML view.
+
+The ng-bind directive binds the content of the <p> element to the application data variable TextBox.
+-->
+
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+
+  <div ng-app="">
+    <p>Input something in the Text box:</p>
+    <p>Text: <input type="text" ng-model="TextBox"></p>
+    <p ng-bind="TextBox"></p>
+  </div>
+
+</body>
+</html>
+
+
+<!--
+The ng-init directive initializes AngularJS application variables.
+
+You can use data-ng-, instead of ng-, if you want to make your page HTML valid.
+
+AngularJS expressions are written inside double braces: {{ expression }}.
+AngularJS will "output" data exactly where the expression is written.
+AngularJS expressions bind AngularJS data to HTML the same way as the ng-bind directive.
+-->
+
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+  <div ng-app="" ng-init="firstName='John'">
+
+    <p>The name is <span ng-bind="firstName"></span></p>
+
+  </div>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+
+  <div ng-app="">
+
+    <p>Input something in the input box:</p>
+    <p>Name: <input type="text" ng-model="TextBox"></p>
+    <p>{{TextBox}}</p>
+
+  </div>
+
+</body>
+</html>
+
+
+<!--
+AJS Applications
+
+AJS modules define AJS applications.
+
+AJS controllers control AJS applications.
+
+The ng-app directive defines the application.
+
+The ng-controller directive defines the controller.
+
+AJS modules define applications:
+    var app = angular.module('myApp', []);
+
+AJS controllers control applications:
+    app.controller('myCtrl', function($scope) {
+      $scope.firstName= "John";
+      $scope.lastName= "Doe";
+    });
+-->
+
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body>
+
+  <p>Try to change the names.</p>
+
+  <div ng-app="myApp" ng-controller="myCtrl">
+
+    First Name: <input type="text" ng-model="firstName"><br>
+    Last Name: <input type="text" ng-model="lastName"><br>
+    <br>
+    Full Name: {{firstName + " " + lastName}}
+
+  </div>
+
+  <script>
+  var app = angular.module('myApp', []);
+  app.controller('myCtrl', function($scope) {
+      $scope.firstName= "John";
+      $scope.lastName= "Doe";
+  });
+  </script>
+
+</body>
+</html>
+
+<!-- Last line -->
