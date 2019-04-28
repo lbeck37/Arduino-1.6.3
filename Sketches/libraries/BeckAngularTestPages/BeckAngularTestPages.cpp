@@ -109,6 +109,15 @@ String szLastDegF() {
 } //szLastDegF
 
 
+String szDummyDegF() {
+  static float    fCurrent= 0.37;
+
+  float fReturn= fCurrent;
+  fCurrent += 1.00;
+  return(String(fReturn, 2));
+} //szDummyDegF
+
+
 String szSetPointDegF() {
   return(String(_fSetpointF, 2));
 } //szSetPointDegF
@@ -130,7 +139,9 @@ void SetupTermostatTestPages(){
   });
 
   oWebServer.on("/LastDegF", HTTP_GET, [](){
-    oWebServer.send(200, "text/plain", szLastDegF().c_str());
+    //oWebServer.send(200, "text/plain", szLastDegF().c_str());
+    oWebServer.send(200, "text/plain", szDummyDegF().c_str());
+    //oWebServer.send(200, "text/plain", "Hello");
   });
 
   oWebServer.on("/SetPointDegF", HTTP_GET, [](){

@@ -1,4 +1,53 @@
-<!-- Beck 4/27/19b, C:\Dev\_Repos\Arduino\AngularJS\AJS_UpAndRunning_Book\Use$http.html -->
+<!-- Beck 4/28/19a, C:\Dev\_Repos\Arduino\AngularJS\AJS_UpAndRunning_Book\Use$http.html -->
+
+const char* acAngularTestPagesHTML= R"(
+<!DOCTYPE HTML><html>
+<!doctype html>
+<!-- File: chapter4/simple-form.html -->
+<html ng-app="notesApp">
+<head><title>Notes App</title></head>
+<body ng-controller="MainCtrl as ctrl">
+
+  <form ng-submit="ctrl.submit() ">
+    <input type="text" ng-model="ctrl.Current.DegF">
+    You typed {{ctrl.Current.DegF}}
+
+    <input type="submit" value="DoIt">
+  </form>
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
+</script>
+<script type="text/javascript">
+  angular.module('notesApp', [])
+    .controller('MainCtrl', ['$http', function($http) {
+      var Biota = this;
+
+      $http.get('/LastDegF').then(function(response) {
+        console.log('Setup controller, Return from $http.get(/LastDegF), response= ', response);
+        Biota.DegF = response.data;
+      }, function(errResponse) {
+        console.error('Error while fetching notes');
+      });
+
+      Biota.submit = function() {
+        console.log('User clicked DoIt with ', Biota.Current);
+
+        $http.get('/LastDegF').then(function(response) {
+        console.log('Return from $http.get(/LastDegF), response= ', response);
+          Biota.DegF = response.data;
+        }, function(errResponse) {
+          console.error('Error while fetching notes');
+        });
+
+      };
+
+    }]);
+</script>
+</body>
+</html>
+)";
+
 
 <!-- File: chapter4/simple-form.html -->
 <html ng-app="notesApp">

@@ -1,4 +1,4 @@
-//BeckAsyncWebServerHTML.h, 4/27/19a
+//BeckAsyncWebServerHTML.h, 4/28/19a
 #pragma once
 
 const char* acAngularTestPagesHTML= R"(
@@ -21,16 +21,77 @@ const char* acAngularTestPagesHTML= R"(
 </script>
 <script type="text/javascript">
   angular.module('notesApp', [])
-    .controller('MainCtrl', [function() {
+    .controller('MainCtrl', ['$http', function($http) {
       var Biota = this;
+
       $http.get('/LastDegF').then(function(response) {
+        console.log('Setup controller, Return from $http.get(/LastDegF), response= ', response);
         Biota.DegF = response.data;
       }, function(errResponse) {
         console.error('Error while fetching notes');
       });
+
       Biota.submit = function() {
         console.log('User clicked DoIt with ', Biota.Current);
+
+        $http.get('/LastDegF').then(function(response) {
+        console.log('Return from $http.get(/LastDegF), response= ', response);
+          Biota.DegF = response.data;
+        }, function(errResponse) {
+          console.error('Error while fetching notes');
+        });
+
       };
+
+    }]);
+</script>
+</body>
+</html>
+)";
+
+
+const char* acAngularTestPagesHTML6= R"(
+<!DOCTYPE HTML><html>
+<!doctype html>
+<!-- File: chapter4/simple-form.html -->
+<html ng-app="notesApp">
+<head><title>Notes App</title></head>
+<body ng-controller="MainCtrl as ctrl">
+
+  <form ng-submit="ctrl.submit() ">
+    <input type="text" ng-model="ctrl.Current.DegF">
+    You typed {{ctrl.Current.DegF}}
+
+    <input type="submit" value="DoIt">
+  </form>
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
+</script>
+<script type="text/javascript">
+  angular.module('notesApp', [])
+    .controller('MainCtrl', ['$http', function($http) {
+      var Biota = this;
+
+      $http.get('/LastDegF').then(function(response) {
+        console.log('Return from $http.get(), response= ', response);
+        Biota.DegF = response.data;
+      }, function(errResponse) {
+        console.error('Error while fetching notes');
+      });
+
+      Biota.submit = function() {
+        console.log('User clicked DoIt with ', Biota.Current);
+
+        $http.get('/LastDegF').then(function(response) {
+          console.log('Return from $http.get), response= ', response);
+          Biota.DegF = response.data;
+        }, function(errResponse) {
+          console.error('Error while fetching notes');
+        });
+
+      };
+
     }]);
 </script>
 </body>
@@ -187,8 +248,6 @@ const char* acAngularTestPagesHTML2= R"(
 </body>
 </html>
  )";
-
-
 
 
 const char* acThermostatTestPagesHTML= R"(
