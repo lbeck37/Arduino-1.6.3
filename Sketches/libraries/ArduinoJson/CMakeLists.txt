@@ -1,20 +1,22 @@
-cmake_minimum_required(VERSION 2.8.4)
+# ArduinoJson - arduinojson.org
+# Copyright Benoit Blanchon 2014-2019
+# MIT License
+
+cmake_minimum_required(VERSION 3.0)
 project(ArduinoJson)
 
 enable_testing()
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-
-if(MSVC)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS -W4)
+add_definitions(-DARDUINOJSON_DEBUG)
+if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
+	add_compile_options(-g -O0)
 endif()
 
 if(${COVERAGE})
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -coverage")
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage")
+	set(CMAKE_CXX_FLAGS "-fprofile-arcs -ftest-coverage")
 endif()
 
-add_subdirectory(src)
+include_directories(${CMAKE_CURRENT_LIST_DIR}/src)
+add_subdirectory(third-party/catch)
 add_subdirectory(test)
+add_subdirectory(fuzzing)

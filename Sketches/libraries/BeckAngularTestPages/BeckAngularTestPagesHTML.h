@@ -1,50 +1,129 @@
-//BeckAsyncWebServerHTML.h, 4/28/19a
+// BeckAngularTestPagesHTML.h, 4/30/19a
 #pragma once
 
 const char* acAngularTestPagesHTML= R"(
-<!DOCTYPE HTML><html>
 <!doctype html>
-<!-- File: chapter4/simple-form.html -->
+<!-- Beck 4/30/19a
+From C:\Dev\_Repos\Arduino\Books\AngularJS_UpAndRunning_Book\chapter6\public\http-post-example.html
+-->
 <html ng-app="notesApp">
-<head><title>Notes App</title></head>
-<body ng-controller="MainCtrl as ctrl">
 
-  <form ng-submit="ctrl.submit() ">
-    <input type="text" ng-model="ctrl.Current.DegF">
-    You typed {{ctrl.Current.DegF}}
+<head>
+  <title>HTTP Post Example</title>
+  <style>
+    .item {
+      padding: 10px;
+    }
+  </style>
+</head>
 
-    <input type="submit" value="DoIt">
-  </form>
+<body ng-controller="MainCtrl as mainCtrl">
+  <h1>Hello Servers!</h1>
+  <div ng-repeat="todo in mainCtrl.items"
+       class="item">
+    <div><span ng-bind="todo.label"></span></div>
+    <div>- by <span ng-bind="todo.author"></span></div>
+  </div>
+
+  <div>
+    <form name="addForm"
+          ng-submit="mainCtrl.add() ">
+      <input type="text"
+             placeholder="Label"
+             ng-model="mainCtrl.newTodo.label"
+             required>
+      <input type="text"
+             placeholder="Author"
+             ng-model="mainCtrl.newTodo.author"
+             required>
+      <input type="submit"
+             value="Add"
+             ng-disabled="addForm.$invalid">
+    </form>
+  </div>
 
 <script
   src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
 </script>
-<script type="text/javascript">
+<script>
   angular.module('notesApp', [])
     .controller('MainCtrl', ['$http', function($http) {
-      var Biota = this;
-
-      $http.get('/LastDegF').then(function(response) {
-        console.log('Setup controller, Return from $http.get(/LastDegF), response= ', response);
-        Biota.DegF = response.data;
-      }, function(errResponse) {
-        console.error('Error while fetching notes');
-      });
-
-      Biota.submit = function() {
-        console.log('User clicked DoIt with ', Biota.Current);
-
-        $http.get('/LastDegF').then(function(response) {
-        console.log('Return from $http.get(/LastDegF), response= ', response);
-          Biota.DegF = response.data;
+      var self = this;
+      self.items = [];
+      self.newTodo = {};
+      var fetchTodos = function() {
+        return $http.get('/ajs/get').then(
+            function(response) {
+          self.items = response.data;
         }, function(errResponse) {
           console.error('Error while fetching notes');
         });
+      };
 
+<!--
+      fetchTodos();
+-->
+      self.add = function() {
+<!--
+        $http.post('/ajs/post', self.newTodo)
+            .then(fetchTodos)
+            .then(function(response) {
+              self.newTodo = {};
+            });
+->
       };
 
     }]);
 </script>
+</body>
+</html>
+)";
+
+
+const char* acAngularTestPagesHTML7= R"(
+<!doctype html>
+<html ng-app="GoogleFinance">
+  <head>
+    <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+      <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+     <script src="http://code.angularjs.org/1.0.6/angular-resource.js"></script>
+     <script>
+      angular.module('GoogleFinance', ['ngResource']);
+      function AppCtrl($scope, $resource) {
+        $scope.googleFinance = $resource('https://finance.google.com/finance/info', 
+                                           {client:'ig', q: 'AAPL', callback:'JSON_CALLBACK'},
+                                           {get: {method:'JSONP', isArray: true}});
+          $scope.indexResult = $scope.googleFinance.get();
+      
+        $scope.doSearch = function () {
+          console.log($scope.searchTerm)
+              $scope.indexResult = $scope.googleFinance.get({q: $scope.searchTerm});
+          };
+      }
+  
+     </script>
+  </head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="span3">&nbsp;</div>
+  </div>  
+  <div class="row">
+    <div class="span3">
+      <div ng-controller="AppCtrl">
+
+  <div class="input-append">
+    <input class="span2" type="text" ng-model="searchTerm" />
+    <span class="add-on"><i class="icon-search"></i></span>
+    <button class="btn" ng-click="doSearch() ">Search</button>
+  </div>
+  
+  Current Price: {{indexResult[0].l_cur}}<br/>
+  Change:        {{indexResult[0].c}}<br/>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 )";
