@@ -1,19 +1,68 @@
-// BeckAngularTestPagesHTML.h, 4/30/19b
+// BeckAngularTestPagesHTML.h, 5/1/2019a
 #pragma once
 
 const char* acAngularTestPagesHTML= R"(
+<!-- BeckAjsTestPage050119.HTML  -->
+<!DOCTYPE HTML><html>
+<!doctype html>
+<html ng-app="ThermoApp">
+<head><title>Thermo App</title></head>
+<body ng-controller="MainCtrl as ctrl">
+  <h1>Thermostat 5/1/2019q</h1>
+  <form ng-submit="ctrl.submit() ">
+    <div>Current Temperature= {{ctrl.DummyTemp}} </div>
+    <div>
+      <input type="text" ng-model="ctrl.Thermo.Setpoint">
+      New Setpoint will be: {{ctrl.DummyTemp}} Degrees F
+    </div>
+    <input type="submit" value="DoIt">
+  </form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js"> </script>
+<script type="text/javascript">
+  angular.module('ThermoApp', []).
+    controller('MainCtrl', ['$http', 
+      function($http){
+          var self= this;
+          self.DummyTemp;
+
+          self.DoThermoGet= function(){
+            console.log('DoThermoGet(): Begin');
+            self.DummyTemp= 47.73;
+          };  //DoThermoGet
+  
+          self.DoThermoGet();
+          
+          self.DoThermoPost= function(){
+            console.log('DoThermoPost(): Begin');
+            self.DoThermoGet();
+          };  //DoThermoPost
+          
+          self.submit= function(){
+            console.log('submit(): Begin');
+            self.DoThermoPost();
+          };  //submit        
+      } //function($http)
+  ]);
+</script>
+</body>
+</html>
+)";
+
+
+const char* acAngularTestPagesHTML_10= R"(
 <!-- BeckAjsTestPage043019.HTML  -->
 <!DOCTYPE HTML><html>
 <!doctype html>
 <html ng-app="ThermoApp">
-<head><title>Notes App</title></head>
+<head><title>Thermo App</title></head>
 <body ng-controller="MainCtrl as ctrl">
-  <h1>Thermostat 4/30/19f</h1>
+  <h1>Thermostat 5/1/2019g</h1>
   <form ng-submit="ctrl.submit() ">
-    <div>Current DegF= {{ctrl.Thermo.DegF}} </div>
+    <div>Current Temperature= {{ctrl.DummyTemp}} </div>
     <div>
       <input type="text" ng-model="ctrl.Thermo.Setpoint">
-      New Setpoint will be: {{ctrl.Thermo.Setpoint}} Degrees F
+      New Setpoint will be: {{ctrl.DummyTemp}} Degrees F
     </div>
     <input type="submit" value="DoIt">
   </form>
@@ -22,36 +71,49 @@ const char* acAngularTestPagesHTML= R"(
   src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
 </script>
 <script type="text/javascript">
-  angular.module('ThermoApp', [])
-    .controller('MainCtrl', ['$http', function($http) {
-      var self= this;
-      self.Thermo.DegF     = 99.99
-      self.Thermo.Setpoint = 99.99
-      self.Thermo.Offpoint = 99.99
-
-      var fFetchThermoData= function(){
-        return $http.get('/ThermoGet').then(function(response) {
-          console.log('Return from $http.get(/ThermoGet) #1, response= ', response);
-          self.Thermo = response.data;
-        }, function(errResponse) {
-          console.error('Error doing $http.get(/ThermoGet) #1');
-        }); }
-
-     fFetchThermoData();
-
-     self.add = function() {
-      $http.post('/api/note', self.Thermo).then(fFetchThermoData)
-          .then(function(response) {
-            self.Thermo = {};
-          } );
+  angular.module('ThermoApp', []).
+    controller('MainCtrl', ['$http', 
+      function($http){
+        var self= this;
+        var DummyTemp= 37.73;
+<!--
+        self.Thermo.DegF     = 99.99;
+        self.Thermo.Setpoint = 99.99;
+        self.Thermo.Offpoint = 99.99;
+        var DoThermoGet= function(){
+        console.log('DoThermoGet(): Begin', self.Thermo);
+          return $http.get('/ThermoGet').then(function(response){
+            console.log('Return from $http.get(/ThermoGet) #1, response= ', response);
+            self.Thermo.DegF = response.data;
+          }, function(errResponse){
+            console.error('Error doing $http.get(/ThermoGet) #1');
+          }); }
+  
+       DoThermoGet();
+  
+       self.DoThermoPost = function(){
+        console.log('DoThermoPost(): Begin', self.Thermo);
+        $http.post('/ThermoPost', self.Thermo).
+          then( DoThermoGet() ).
+          then( function(response){self.Thermo= response.data;} );
+          };
+-->
+       var DoThermoGet= function(){
+          console.log('DoThermoGet(): Begin', self.Thermo);
+          DummyTemp= 47.73;
+       };
+  
+       DoThermoGet();
+  
+       self.DoThermoPost= function(){
+          console.log('DoThermoPost(): Begin', self.Thermo);
+          DoThermoGet();
+       };
+  
+       self.submit= function() {
+          console.log('User clicked DoIt with ', self.Thermo);
+          DoThermoGet();
         };
-
-
-      self.submit = function() {
-        console.log('User clicked DoIt with ', self.Thermo);
-
-
-      };
 
     }]);
 </script>

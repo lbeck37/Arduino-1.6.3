@@ -20,7 +20,7 @@ void SetupAngularTestPages(){
   Serial << LOG0 << "SetupAngularTestPages(): Begin" << endl;
 
   Serial << LOG0 << "SetupAngularTestPages(): Set up handlers" << endl;
-  oWebServer.on("/ajs2", HTTP_GET, [](){
+  oWebServer.on("/ajs3", HTTP_GET, [](){
     Serial << LOG0 << "SetupAngularTestPages(): Got a GET on /ajs" << endl;
     oWebServer.sendHeader("Connection", "close");
     oWebServer.send(200, "text/html", acAngularTestPagesHTML);
@@ -137,6 +137,20 @@ void SetupTermostatTestPages(){
     oWebServer.sendHeader("Connection", "close");
     oWebServer.send(200, "text/html", acThermostatTestPagesHTML);
     Serial << endl << LOG0 << "SetupTermostatTestPages(): Servicing HTTP_GET at /Thermostat" << endl;
+  });
+
+  oWebServer.on("/ThermoGet", HTTP_GET, [](){
+    Serial << LOG0 << "SetupTermoTestPages(): Got a GET on /ThermoGet" << endl;
+    //oWebServer.send(200, "text/plain", szLastDegF().c_str());
+    oWebServer.send(200, "text/plain", szDummyDegF().c_str());
+    //oWebServer.send(200, "text/plain", "Hello");
+  });
+
+  oWebServer.on("/ThermoPost", HTTP_POST, [](){
+    Serial << LOG0 << "SetupTermoTestPages(): Got a POST on /ThermoPost" << endl;
+    //oWebServer.send(200, "text/plain", szLastDegF().c_str());
+    //oWebServer.send(200, "text/plain", szDummyDegF().c_str());
+    //oWebServer.send(200, "text/plain", "Hello");
   });
 
   oWebServer.on("/LastDegF", HTTP_GET, [](){
