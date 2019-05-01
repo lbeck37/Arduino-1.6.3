@@ -1,10 +1,11 @@
-<!-- Beck 4/30/19a
+<!doctype html>
+<!-- Beck 4/30/19b
 From C:\Dev\_Repos\Arduino\Books\AngularJS_UpAndRunning_Book\chapter6\public\http-post-example.html
 -->
-<html ng-app="notesApp">
+<html ng-app="BeckApp">
 
 <head>
-  <title>HTTP Post Example</title>
+  <title>Beck $http.get() and post() Example</title>
   <style>
     .item {
       padding: 10px;
@@ -13,27 +14,30 @@ From C:\Dev\_Repos\Arduino\Books\AngularJS_UpAndRunning_Book\chapter6\public\htt
 </head>
 
 <body ng-controller="MainCtrl as mainCtrl">
-  <h1>Hello Servers!</h1>
-  <div ng-repeat="todo in mainCtrl.items"
-       class="item">
-    <div><span ng-bind="todo.label"></span></div>
-    <div>- by <span ng-bind="todo.author"></span></div>
-  </div>
+  <h1>BIOTA</h1>
+    <div>Current DegF= <span ng-bind="mainCtrl.Thermo.DegF"></span></div>
+    <div>Setpoint    = <span ng-bind="mainCtrl.Thermo.Setpoint"></span></div>
 
   <div>
-    <form name="addForm"
-          ng-submit="mainCtrl.add()">
+    <form name="ThermoForm"
+          ng-submit="mainCtrl.add() ">
+  <div>
       <input type="text"
-             placeholder="Label"
-             ng-model="mainCtrl.newTodo.label"
+             placeholder="Current DegF"
+             ng-model="mainCtrl.Thermo.DegF"
              required>
+  </div>
+  <div>
       <input type="text"
-             placeholder="Author"
-             ng-model="mainCtrl.newTodo.author"
+             placeholder="Set Point"
+             ng-model="mainCtrl.Thermo.SetPoint"
              required>
-      <input type="submit"
-             value="Add"
-             ng-disabled="addForm.$invalid">
+  </div>
+  <div>
+     <input type="submit"
+             value="Go For It"
+             ng-disabled="ThermoForm.$invalid">
+  </div>
     </form>
   </div>
 
@@ -43,27 +47,27 @@ From C:\Dev\_Repos\Arduino\Books\AngularJS_UpAndRunning_Book\chapter6\public\htt
 <script>
   angular.module('notesApp', [])
     .controller('MainCtrl', ['$http', function($http) {
-      var self = this;
-      self.items = [];
-      self.newTodo = {};
-      var fetchTodos = function() {
-        return $http.get('/ajs/get').then(
-            function(response) {
-          self.items = response.data;
+      var self              = this;
+      self.Thermo           = {};
+      self.Thermo.Setpoint  = 71.37;
+      var fFetchThermo = function() {
+        return $http.get('/LastDegF').then(
+          function(response) {
+            console.log('Received $http.get(/'LastDegF') response');
+            self.Thermo.DegF= response.data;
         }, function(errResponse) {
-          console.error('Error while fetching notes');
+          console.error('Error while fetching LastDegF');
         });
       };
 
-<!--
-      fetchTodos();
--->
+      fFetchThermo();
+
       self.add = function() {
 <!--
-        $http.post('/ajs/post', self.newTodo)
-            .then(fetchTodos)
+        $http.post('/ajs/post', self.Thermo)
+            .then(fFetchThermo)
             .then(function(response) {
-              self.newTodo = {};
+              self.Thermo = {};
             });
 ->
       };
@@ -72,3 +76,4 @@ From C:\Dev\_Repos\Arduino\Books\AngularJS_UpAndRunning_Book\chapter6\public\htt
 </script>
 </body>
 </html>
+

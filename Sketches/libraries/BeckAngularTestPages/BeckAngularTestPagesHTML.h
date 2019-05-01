@@ -1,15 +1,123 @@
-// BeckAngularTestPagesHTML.h, 4/30/19a
+// BeckAngularTestPagesHTML.h, 4/30/19b
 #pragma once
 
 const char* acAngularTestPagesHTML= R"(
+<!-- BeckAjsTestPage043019.HTML  -->
+<!DOCTYPE HTML><html>
 <!doctype html>
-<!-- Beck 4/30/19a
+<html ng-app="ThermoApp">
+<head><title>Notes App</title></head>
+<body ng-controller="MainCtrl as ctrl">
+  <h1>Thermostat 4/30/19f</h1>
+  <form ng-submit="ctrl.submit() ">
+    <div>Current DegF= {{ctrl.Thermo.DegF}} </div>
+    <div>
+      <input type="text" ng-model="ctrl.Thermo.Setpoint">
+      New Setpoint will be: {{ctrl.Thermo.Setpoint}} Degrees F
+    </div>
+    <input type="submit" value="DoIt">
+  </form>
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
+</script>
+<script type="text/javascript">
+  angular.module('ThermoApp', [])
+    .controller('MainCtrl', ['$http', function($http) {
+      var self= this;
+      self.Thermo.DegF     = 99.99
+      self.Thermo.Setpoint = 99.99
+      self.Thermo.Offpoint = 99.99
+
+      var fFetchThermoData= function(){
+        return $http.get('/ThermoGet').then(function(response) {
+          console.log('Return from $http.get(/ThermoGet) #1, response= ', response);
+          self.Thermo = response.data;
+        }, function(errResponse) {
+          console.error('Error doing $http.get(/ThermoGet) #1');
+        }); }
+
+     fFetchThermoData();
+
+     self.add = function() {
+      $http.post('/api/note', self.Thermo).then(fFetchThermoData)
+          .then(function(response) {
+            self.Thermo = {};
+          } );
+        };
+
+
+      self.submit = function() {
+        console.log('User clicked DoIt with ', self.Thermo);
+
+
+      };
+
+    }]);
+</script>
+</body>
+</html>
+)";
+
+
+const char* acAngularTestPagesHTML9= R"(
+<!-- BeckAjsTestPage043019.HTML, 04/30/19b  -->
+<!DOCTYPE HTML><html>
+<!doctype html>
+<html ng-app="notesApp">
+<head><title>Notes App</title></head>
+<body ng-controller="MainCtrl as ctrl">
+
+  <form ng-submit="ctrl.submit() ">
+    <input type="text" ng-model="ctrl.DegF">
+    You typed {{ctrl.DegF}}
+
+    <input type="submit" value="DoIt">
+  </form>
+
+<script
+  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
+</script>
+<script type="text/javascript">
+  angular.module('notesApp', [])
+    .controller('MainCtrl', ['$http', function($http) {
+      var self= this;
+
+      $http.get('/LastDegF').then(function(response) {
+        console.log('Return from $http.get() #1, response= ', response);
+        self.DegF = response.data;
+      }, function(errResponse) {
+        console.error('Error while fetching DegF');
+      });
+
+      self.submit = function() {
+        console.log('User clicked DoIt with ', self.DegF);
+
+        $http.get('/LastDegF').then(function(response) {
+          console.log('Return from $http.get) #2, response= ', response);
+          self.DegF = response.data;
+        }, function(errResponse) {
+          console.error('Error while fetching notes');
+        });
+
+      };
+
+    }]);
+</script>
+</body>
+</html>
+)";
+
+
+const char* acAngularTestPagesHTML8= R"(
+<!doctype html>
+<!-- Beck 4/30/19b
 From C:\Dev\_Repos\Arduino\Books\AngularJS_UpAndRunning_Book\chapter6\public\http-post-example.html
 -->
-<html ng-app="notesApp">
+<html ng-app="BeckApp">
 
 <head>
-  <title>HTTP Post Example</title>
+  <title>Beck $http.get() and post() Example</title>
   <style>
     .item {
       padding: 10px;
@@ -18,27 +126,30 @@ From C:\Dev\_Repos\Arduino\Books\AngularJS_UpAndRunning_Book\chapter6\public\htt
 </head>
 
 <body ng-controller="MainCtrl as mainCtrl">
-  <h1>Hello Servers!</h1>
-  <div ng-repeat="todo in mainCtrl.items"
-       class="item">
-    <div><span ng-bind="todo.label"></span></div>
-    <div>- by <span ng-bind="todo.author"></span></div>
-  </div>
+  <h1>BIOTA 4/30/19c</h1>
+    <div>Current DegF= <span ng-bind="mainCtrl.Thermo.DegF"></span></div>
+    <div>Setpoint    = <span ng-bind="mainCtrl.Thermo.Setpoint"></span></div>
 
   <div>
-    <form name="addForm"
+    <form name="ThermoForm"
           ng-submit="mainCtrl.add() ">
+  <div>
       <input type="text"
-             placeholder="Label"
-             ng-model="mainCtrl.newTodo.label"
+             placeholder="Current DegF"
+             ng-model="mainCtrl.Thermo.DegF"
              required>
+  </div>
+  <div>
       <input type="text"
-             placeholder="Author"
-             ng-model="mainCtrl.newTodo.author"
+             placeholder="Set Point"
+             ng-model="mainCtrl.Thermo.SetPoint"
              required>
-      <input type="submit"
-             value="Add"
-             ng-disabled="addForm.$invalid">
+  </div>
+  <div>
+     <input type="submit"
+             value="Go For It"
+             ng-disabled="ThermoForm.$invalid">
+  </div>
     </form>
   </div>
 
@@ -48,27 +159,27 @@ From C:\Dev\_Repos\Arduino\Books\AngularJS_UpAndRunning_Book\chapter6\public\htt
 <script>
   angular.module('notesApp', [])
     .controller('MainCtrl', ['$http', function($http) {
-      var self = this;
-      self.items = [];
-      self.newTodo = {};
-      var fetchTodos = function() {
-        return $http.get('/ajs/get').then(
-            function(response) {
-          self.items = response.data;
+      var self              = this;
+      self.Thermo           = {};
+      self.Thermo.Setpoint  = 71.37;
+      var fFetchThermo = function() {
+        return $http.get('/LastDegF').then(
+          function(response) {
+            console.log('Received $http.get(/'LastDegF') response');
+            self.Thermo.DegF= response.data;
         }, function(errResponse) {
-          console.error('Error while fetching notes');
+          console.error('Error while fetching LastDegF');
         });
       };
 
-<!--
-      fetchTodos();
--->
+      fFetchThermo();
+
       self.add = function() {
 <!--
-        $http.post('/ajs/post', self.newTodo)
-            .then(fetchTodos)
+        $http.post('/ajs/post', self.Thermo)
+            .then(fFetchThermo)
             .then(function(response) {
-              self.newTodo = {};
+              self.Thermo = {};
             });
 ->
       };
@@ -124,55 +235,6 @@ const char* acAngularTestPagesHTML7= R"(
     </div>
   </div>
 </div>
-</body>
-</html>
-)";
-
-
-const char* acAngularTestPagesHTML6= R"(
-<!DOCTYPE HTML><html>
-<!doctype html>
-<!-- File: chapter4/simple-form.html -->
-<html ng-app="notesApp">
-<head><title>Notes App</title></head>
-<body ng-controller="MainCtrl as ctrl">
-
-  <form ng-submit="ctrl.submit() ">
-    <input type="text" ng-model="ctrl.Current.DegF">
-    You typed {{ctrl.Current.DegF}}
-
-    <input type="submit" value="DoIt">
-  </form>
-
-<script
-  src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
-</script>
-<script type="text/javascript">
-  angular.module('notesApp', [])
-    .controller('MainCtrl', ['$http', function($http) {
-      var Biota = this;
-
-      $http.get('/LastDegF').then(function(response) {
-        console.log('Return from $http.get(), response= ', response);
-        Biota.DegF = response.data;
-      }, function(errResponse) {
-        console.error('Error while fetching notes');
-      });
-
-      Biota.submit = function() {
-        console.log('User clicked DoIt with ', Biota.Current);
-
-        $http.get('/LastDegF').then(function(response) {
-          console.log('Return from $http.get), response= ', response);
-          Biota.DegF = response.data;
-        }, function(errResponse) {
-          console.error('Error while fetching notes');
-        });
-
-      };
-
-    }]);
-</script>
 </body>
 </html>
 )";
@@ -319,7 +381,7 @@ const char* acAngularTestPagesHTML2= R"(
   src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.11/angular.js">
 </script>
 <script type="text/javascript">
-  angular.module('notesApp', [])
+  angular.module('BeckApp', [])
     .controller('MainCtrl', [function() {
       this.username = 'nothing';
     }]);
