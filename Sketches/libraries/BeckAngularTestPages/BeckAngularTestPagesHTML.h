@@ -28,23 +28,23 @@ const char* acThermostatTestPagesHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-    <h2>BIOTA 5/3/19n</h2>
+    <h2>BIOTA 5/3/19u</h2>
     <p>
       <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
       <span class="dht-labels">Current</span>
-      <span id="LastDegF">{{ctrl.oThermo.DegF}}</span>
+      <span id="LastDegF">{{ctrl.oThermo.dDegF}}</span>
       <sup class="units">&deg;F</sup>
     </p>
     <p>
       <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
       <span class="dht-labels">Setpoint</span>
-      <span id="SetPointDegF">{{ctrl.oThermo.SetPoint}}</span>
+      <span id="SetPointDegF">{{ctrl.oThermo.dSetpoint}}</span>
       <sup class="units">&deg;F</sup>
     </p>
     <p>
       <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
       <span class="dht-labels">Offpoint</span>
-      <span id="TermoOffDegF">{{ctrl.oThermo.OffPoint}}</span>
+      <span id="TermoOffDegF">{{ctrl.oThermo.dOffpoint}}</span>
       <sup class="units">&deg;F</sup>
     </p>
   </div>
@@ -56,9 +56,9 @@ const char* acThermostatTestPagesHTML= R"(
           var self= this;
 
           self.oThermo= {};
-          self.oThermo.DegF= 99.99;
-          self.oThermo.SetPoint= 88.99;
-          self.oThermo.OffPoint= 77.99;
+          self.oThermo.dDegF    = 99.99;
+          self.oThermo.dSetpoint= 88.99;
+          self.oThermo.dOffpoint= 77.99;
 
        
           self.DoThermoGet= function(){
@@ -66,14 +66,16 @@ const char* acThermostatTestPagesHTML= R"(
             ReturnVal= $http.get('/ThermoGet').
               then(function(response){
                 console.log('Return from $http.get(/ThermoGet), response= ', response);
-/*
-                self.DegF=      response.data.DegF;
-                self.SetPoint=  response.data.SetPoint;
-                self.OffPoint=  response.data.OffPoint;
-                szPerson= JSON.stringify  (oPerson);
-                oPerson2= JSON.parse      (response.data); 
-*/
-                self.oThermo= JSON.parse(response.data); 
+
+                console.log('DoThermoGet(): self.oThermo(1)= ', self.oThermo);
+                console.log('DoThermoGet(): response.data= ', response.data);
+                console.log('DoThermoGet(): response.data.dDegF= ', response.data.dDegF);
+
+                self.oThermo= response.data;
+                console.log('DoThermoGet(): self.oThermo.dDegF= '    , self.oThermo.dDegF);
+                console.log('DoThermoGet(): self.oThermo.dSetpoint= ', self.oThermo.dSetpoint);
+                console.log('DoThermoGet(): self.oThermo.dOffpoint= ', self.oThermo.dOffpoint);
+                console.log('DoThermoGet(): self.oThermo(2)= ', self.oThermo);
               }, 
               function(errResponse){
                 console.error('Error doing $http.get(/LastDegF)');
@@ -180,7 +182,7 @@ const char* acThermostatTestPagesHTML_1= R"(
     <p>
       <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
       <span class="dht-labels">Current</span>
-      <span id="LastDegF">{{DegF}}</span>                     
+      <span id="LastDegF">{{dDegF}}</span>                     
       <sup class="units">&deg;F</sup>
     </p>
     <p>
