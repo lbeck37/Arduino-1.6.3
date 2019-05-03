@@ -28,23 +28,23 @@ const char* acThermostatTestPagesHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-    <h2>BIOTA 5/2/19b</h2>
+    <h2>BIOTA 5/3/19n</h2>
     <p>
       <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
       <span class="dht-labels">Current</span>
-      <span id="LastDegF">{{ctrl.DegF}}</span>
+      <span id="LastDegF">{{ctrl.oThermo.DegF}}</span>
       <sup class="units">&deg;F</sup>
     </p>
     <p>
       <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
       <span class="dht-labels">Setpoint</span>
-      <span id="SetPointDegF">{{ctrl.SetPoint}}</span>
+      <span id="SetPointDegF">{{ctrl.oThermo.SetPoint}}</span>
       <sup class="units">&deg;F</sup>
     </p>
     <p>
       <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
       <span class="dht-labels">Offpoint</span>
-      <span id="TermoOffDegF">{{ctrl.OffPoint}}</span>
+      <span id="TermoOffDegF">{{ctrl.oThermo.OffPoint}}</span>
       <sup class="units">&deg;F</sup>
     </p>
   </div>
@@ -54,19 +54,26 @@ const char* acThermostatTestPagesHTML= R"(
       controller('MainCtrl', ['$http', 
         function($http){
           var self= this;
-          self.DummyTemp;
-          self.DegF; 
-          self.SetPoint;  
-          self.OffPoint;
 
+          self.oThermo= {};
+          self.oThermo.DegF= 99.99;
+          self.oThermo.SetPoint= 88.99;
+          self.oThermo.OffPoint= 77.99;
+
+       
           self.DoThermoGet= function(){
             console.log('DoThermoGet(): Begin');
             ReturnVal= $http.get('/ThermoGet').
               then(function(response){
-                console.log('Return from $http.get(/LastDegF), response= ', response);
+                console.log('Return from $http.get(/ThermoGet), response= ', response);
+/*
                 self.DegF=      response.data.DegF;
                 self.SetPoint=  response.data.SetPoint;
                 self.OffPoint=  response.data.OffPoint;
+                szPerson= JSON.stringify  (oPerson);
+                oPerson2= JSON.parse      (response.data); 
+*/
+                self.oThermo= JSON.parse(response.data); 
               }, 
               function(errResponse){
                 console.error('Error doing $http.get(/LastDegF)');

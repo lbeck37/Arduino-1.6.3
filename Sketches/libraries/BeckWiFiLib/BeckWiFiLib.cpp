@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, 4/18/19a
+//BeckWiFiLib.cpp, 5/3/19a
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -14,10 +14,10 @@
 const int     _wSSIDNumChar   = 32;
 const int     _wPWNumChar     = 65;
 const int     _wNumRouters    =  3;
-//char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Aspot24" , "Dspot"   , "Cspot"};
-//char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Cspot"   , "Aspot24" , "Dspot"};
-char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Dspot"   , "Aspot24" , "Cspot"};
-//char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Cspot"   , "Dspot"   , "Aspot24"};
+char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Aspot24" , "Lspot"   , "Cspot"};
+//char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Cspot"   , "Aspot24" , "Lspot"};
+//char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Lspot"   , "Aspot24" , "Cspot"};
+//char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Cspot"   , "Lspot"   , "Aspot24"};
 char          _acRouterPWs       [_wNumRouters][_wPWNumChar]   = {"Qazqaz11", "Qazqaz11", "Qazqaz11"};
 bool          _bWiFiConnected;
 

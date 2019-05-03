@@ -25,11 +25,11 @@ struct stThermostat {
 
 // Enough space for:
 // + 1 object with 3 members
-const int wJSONCapacity = JSON_OBJECT_SIZE(3);
+const int wJsonCapacity = JSON_OBJECT_SIZE(3);
 
-StaticJsonDocument<wJSONCapacity>     oJsonDoc;
+StaticJsonDocument<wJsonCapacity>     oJsonDoc;
 
-char      szActualJsonDocument[128];
+char      szJsonText[128];
 
 void SetupAngularTestPages(){
   Serial << LOG0 << "SetupAngularTestPages(): Begin" << endl;
@@ -130,11 +130,11 @@ void HandleThermoDataGet() {
   oJsonDoc["dSetpoint"] = 20.37;
   oJsonDoc["dOffpoint"] = 30.37;
 
-  serializeJson(oJsonDoc, szActualJsonDocument);
+  serializeJson(oJsonDoc, szJsonText);
 
   //oWebServer.send(200, "text/plain", szDummyDegF().c_str());
-  //oWebServer.send(200, "text/plain", szActualJsonDocument.c_str());
-  oWebServer.send(200, "text/plain", szActualJsonDocument);
+  //oWebServer.send(200, "text/plain", szJsonText.c_str());
+  oWebServer.send(200, "text/plain", szJsonText);
   return;
 } //HandleThermoDataGet
 
