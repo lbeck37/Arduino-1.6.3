@@ -2,7 +2,7 @@
 #pragma once
 
 const char* acThermostatTestPagesHTML= R"(
-<!-- BeckThermostatTestPagesHTML.h, 5/2/19a -->
+<!-- BeckThermostatTestPagesHTML.h, 5/2/19b -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
@@ -61,12 +61,12 @@ const char* acThermostatTestPagesHTML= R"(
 
           self.DoThermoGet= function(){
             console.log('DoThermoGet(): Begin');
-            ReturnVal= $http.get('/LastDegF').
+            ReturnVal= $http.get('/ThermoGet').
               then(function(response){
                 console.log('Return from $http.get(/LastDegF), response= ', response);
-                self.DegF=      response.DegF;
-                self.SetPoint=  response.SetPoint;
-                self.OffPoint=  response.OffPoint;
+                self.DegF=      response.data.DegF;
+                self.SetPoint=  response.data.SetPoint;
+                self.OffPoint=  response.data.OffPoint;
               }, 
               function(errResponse){
                 console.error('Error doing $http.get(/LastDegF)');
