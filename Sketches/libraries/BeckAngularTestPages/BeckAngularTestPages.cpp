@@ -1,4 +1,4 @@
-//BeckAngularTestPages.cpp, 5/2/19a
+//BeckAngularTestPages.cpp, 5/3/19a
 #include <BeckAngularTestPages.h>
 #include "BeckAngularTestPagesHTML.h"
 #include <BeckMiniLib.h>
@@ -126,14 +126,13 @@ String szLastDegF() {
 
 
 void HandleThermoDataGet() {
-  oJsonDoc["dDegF"]     = 10.37;
-  oJsonDoc["dSetpoint"] = 20.37;
-  oJsonDoc["dOffpoint"] = 30.37;
+  static double dCount= 0.00;
+  oJsonDoc["dDegF"]     = 10.37 + dCount;
+  oJsonDoc["dSetpoint"] = 20.37 + dCount;
+  oJsonDoc["dOffpoint"] = 30.37 + dCount;
+  dCount++;
 
   serializeJson(oJsonDoc, szJsonText);
-
-  //oWebServer.send(200, "text/plain", szDummyDegF().c_str());
-  //oWebServer.send(200, "text/plain", szJsonText.c_str());
   oWebServer.send(200, "text/plain", szJsonText);
   return;
 } //HandleThermoDataGet

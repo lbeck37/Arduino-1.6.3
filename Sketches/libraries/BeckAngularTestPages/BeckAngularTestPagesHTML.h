@@ -29,24 +29,29 @@ const char* acThermostatTestPagesHTML= R"(
 <body ng-controller="MainCtrl as ctrl">
   <div>
     <h2>BIOTA 5/3/19u</h2>
-    <p>
-      <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
-      <span class="dht-labels">Current</span>
-      <span id="LastDegF">{{ctrl.oThermo.dDegF}}</span>
-      <sup class="units">&deg;F</sup>
-    </p>
-    <p>
-      <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
-      <span class="dht-labels">Setpoint</span>
-      <span id="SetPointDegF">{{ctrl.oThermo.dSetpoint}}</span>
-      <sup class="units">&deg;F</sup>
-    </p>
-    <p>
-      <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
-      <span class="dht-labels">Offpoint</span>
-      <span id="TermoOffDegF">{{ctrl.oThermo.dOffpoint}}</span>
-      <sup class="units">&deg;F</sup>
-    </p>
+   <form ng-submit="ctrl.submit() ">
+     <p>
+        <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
+        <span class="dht-labels">Current</span>
+        <span id="LastDegF">{{ctrl.oThermo.dDegF}}</span>
+        <sup class="units">&deg;F</sup>
+      </p>
+      <p>
+        <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
+        <span class="dht-labels">Setpoint</span>
+        <span id="SetPointDegF">{{ctrl.oThermo.dSetpoint}}</span>
+        <sup class="units">&deg;F</sup>
+      </p>
+      <p>
+        <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
+        <span class="dht-labels">Offpoint</span>
+        <span id="TermoOffDegF">{{ctrl.oThermo.dOffpoint}}</span>
+        <sup class="units">&deg;F</sup>
+      </p>
+      <p>
+      <input type="submit" value="New Values">
+      </p>
+    </form>
   </div>
 
   <script type="text/javascript">
@@ -65,23 +70,26 @@ const char* acThermostatTestPagesHTML= R"(
             console.log('DoThermoGet(): Begin');
             ReturnVal= $http.get('/ThermoGet').
               then(function(response){
+/*
                 console.log('Return from $http.get(/ThermoGet), response= ', response);
-
                 console.log('DoThermoGet(): self.oThermo(1)= ', self.oThermo);
                 console.log('DoThermoGet(): response.data= ', response.data);
                 console.log('DoThermoGet(): response.data.dDegF= ', response.data.dDegF);
-
+*/
                 self.oThermo= response.data;
+                console.log('DoThermoGet(): self.oThermo= ', self.oThermo);
+/*
                 console.log('DoThermoGet(): self.oThermo.dDegF= '    , self.oThermo.dDegF);
                 console.log('DoThermoGet(): self.oThermo.dSetpoint= ', self.oThermo.dSetpoint);
                 console.log('DoThermoGet(): self.oThermo.dOffpoint= ', self.oThermo.dOffpoint);
                 console.log('DoThermoGet(): self.oThermo(2)= ', self.oThermo);
+*/
               }, 
               function(errResponse){
                 console.error('Error doing $http.get(/LastDegF)');
               });
             return ReturnVal;
-          }; 
+          }; //DoThermoGet
 
             self.DoThermoGet();
             
@@ -92,7 +100,7 @@ const char* acThermostatTestPagesHTML= R"(
             
             self.submit= function(){
               console.log('submit(): Begin');
-              self.DoThermoPost();
+              self.DoThermoGet();
             };  //submit        
         } //function($http)
     ]);
