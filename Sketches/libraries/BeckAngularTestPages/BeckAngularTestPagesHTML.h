@@ -1,8 +1,8 @@
-// BeckAngularTestPagesHTML.h, 5/1/2019q
+// BeckAngularTestPagesHTML.h, 5/2/2019a
 #pragma once
 
 const char* acThermostatTestPagesHTML= R"(
-<!-- BeckThermostatTestPagesHTML.h, 5/1/19a -->
+<!-- BeckThermostatTestPagesHTML.h, 5/2/19a -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
@@ -28,7 +28,7 @@ const char* acThermostatTestPagesHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-    <h2>BIOTA 5/1/19w</h2>
+    <h2>BIOTA 5/2/19b</h2>
     <p>
       <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
       <span class="dht-labels">Current</span>
@@ -58,35 +58,15 @@ const char* acThermostatTestPagesHTML= R"(
           self.DegF; 
           self.SetPoint;  
           self.OffPoint;
-/*
-            self.DoThermoGet= function(){
-              console.log('DoThermoGet(): Begin');
-              self.DegF= 47.73;
-              self.SetPoint= 48.73;
-              self.OffPoint= 49.73;
-            };  //DoThermoGet
 
-          self.DoThermoGet= function(){
-            console.log('DoThermoGet(): Begin');
-            return $http.get('/LastDegF').
-
-            then(function(response){
-              console.log('Return from $http.get(/LastDegF), response= ', response);
-              self.DegF= response.data;
-            }, 
-
-            function(errResponse){
-              console.error('Error doing $http.get(/LastDegF)');
-            } )}; 
-*/ 
           self.DoThermoGet= function(){
             console.log('DoThermoGet(): Begin');
             ReturnVal= $http.get('/LastDegF').
               then(function(response){
                 console.log('Return from $http.get(/LastDegF), response= ', response);
-                self.DegF= response.data;
-                self.SetPoint= self.DegF;
-                self.OffPoint= self.DegF;
+                self.DegF=      response.DegF;
+                self.SetPoint=  response.SetPoint;
+                self.OffPoint=  response.OffPoint;
               }, 
               function(errResponse){
                 console.error('Error doing $http.get(/LastDegF)');

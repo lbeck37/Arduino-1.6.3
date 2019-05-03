@@ -1,8 +1,9 @@
-//BeckAngularTestPages.cpp, 4/26/19a
+//BeckAngularTestPages.cpp, 5/2/19a
 #include <BeckAngularTestPages.h>
 #include "BeckAngularTestPagesHTML.h"
 #include <BeckMiniLib.h>
 #include <BeckWebServer.h>
+#include <ArduinoJson.h>
 
 float _fLastDegF      = 70.37;
 float _fSetpointF     = 71.00;
@@ -15,6 +16,20 @@ void HandleTestFunc   ();
 void HandleLoginFunc  ();
 //void HandleNotFound   ();
 
+//Get set up for using JSON in GET and POST transfers
+struct stThermostat {
+  double dDegF;
+  double dSetpoint;
+  double dOffpoint;
+};
+
+// Enough space for:
+// + 1 object with 3 members
+const int wJSONCapacity = JSON_OBJECT_SIZE(3);
+
+StaticJsonDocument<wJSONCapacity>     oJsonDoc;
+
+char      szActualJsonDocument[128];
 
 void SetupAngularTestPages(){
   Serial << LOG0 << "SetupAngularTestPages(): Begin" << endl;
@@ -102,12 +117,33 @@ String CallBackFunc(const String& var){
     return "99.99";
   }
   return String();
-} //CallBackFunc
+} //CallBackFunc GetThermoData
 
 
 String szLastDegF() {
   return(String(_fLastDegF, 2));
 } //szLastDegF
+
+
+void HandleThermoDataGet() {
+  oJsonDoc["dDegF"]     = 10.37;
+  oJsonDoc["dSetpoint"] = 20.37;
+  oJsonDoc["dOffpoint"] = 30.37;
+
+  serializeJson(oJsonDoc, szActualJsonDocument);
+
+  //oWebServer.send(200, "text/plain", szDummyDegF().c_str());
+  //oWebServer.send(200, "text/plain", szActualJsonDocument.c_str());
+  oWebServer.send(200, "text/plain", szActualJsonDocument);
+  return;
+} //HandleThermoDataGet
+
+
+void HandleThermoDataPost() {
+
+  //oWebServer.send(200, "text/plain", szDummyDegF().c_str());
+  return;
+} //HandleThermoDataPost
 
 
 String szDummyDegF() {
@@ -117,6 +153,15 @@ String szDummyDegF() {
   fCurrent += 1.00;
   return(String(fReturn, 2));
 } //szDummyDegF
+
+
+float fDummyDegF() {
+  static float    fCurrent= 0.37;
+
+  float fReturn= fCurrent;
+  fCurrent += 1.00;
+  return(fReturn);
+} //fDummyDegF
 
 
 String szSetPointDegF() {
@@ -142,8 +187,9 @@ void SetupTermostatTestPages(){
   oWebServer.on("/ThermoGet", HTTP_GET, [](){
     Serial << LOG0 << "SetupTermoTestPages(): Got a GET on /ThermoGet" << endl;
     //oWebServer.send(200, "text/plain", szLastDegF().c_str());
-    oWebServer.send(200, "text/plain", szDummyDegF().c_str());
+    //oWebServer.send(200, "text/plain", szDummyDegF().c_str());
     //oWebServer.send(200, "text/plain", "Hello");
+    HandleThermoDataGet();
   });
 
   oWebServer.on("/ThermoPost", HTTP_POST, [](){
@@ -151,13 +197,14 @@ void SetupTermostatTestPages(){
     //oWebServer.send(200, "text/plain", szLastDegF().c_str());
     //oWebServer.send(200, "text/plain", szDummyDegF().c_str());
     //oWebServer.send(200, "text/plain", "Hello");
+    HandleThermoDataPost();
   });
 
   oWebServer.on("/LastDegF", HTTP_GET, [](){
     Serial << LOG0 << "SetupTermoTestPages(): Got a GET on /LastDegF" << endl;
     //oWebServer.send(200, "text/plain", szLastDegF().c_str());
     oWebServer.send(200, "text/plain", szDummyDegF().c_str());
-    //oWebServer.send(200, "text/plain", "Hello");
+    //oWebServer.send(200, "text/plain", fDummyDegF());
   });
 
   oWebServer.on("/SetPointDegF", HTTP_GET, [](){
