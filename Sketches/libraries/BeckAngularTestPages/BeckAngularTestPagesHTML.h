@@ -2,7 +2,7 @@
 #pragma once
 
 const char* acThermostatTestPagesHTML= R"(
-<!-- BeckThermostatTestPagesHTML.h, 5/2/19b -->
+<!-- BeckThermostatTestPagesHTML.h, 5/3/19c -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
@@ -28,7 +28,7 @@ const char* acThermostatTestPagesHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-    <h2>BIOTA 5/3/19u</h2>
+   <h2>BIOTA 5/3/19ab</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -44,8 +44,8 @@ const char* acThermostatTestPagesHTML= R"(
       </p>
       <p>
         <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
-        <span class="dht-labels">Offpoint</span>
-        <span id="TermoOffDegF">{{ctrl.oThermo.dOffpoint}}</span>
+        <span class="dht-labels">Max Heat Range</span>
+        <span id="TermoOffDegF">{{ctrl.oThermo.dMaxHeatRange}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
@@ -63,7 +63,7 @@ const char* acThermostatTestPagesHTML= R"(
           self.oThermo= {};
           self.oThermo.dDegF    = 99.99;
           self.oThermo.dSetpoint= 88.99;
-          self.oThermo.dOffpoint= 77.99;
+          self.oThermo.dMaxHeatRange= 77.99;
 
        
           self.DoThermoGet= function(){
@@ -81,7 +81,7 @@ const char* acThermostatTestPagesHTML= R"(
 /*
                 console.log('DoThermoGet(): self.oThermo.dDegF= '    , self.oThermo.dDegF);
                 console.log('DoThermoGet(): self.oThermo.dSetpoint= ', self.oThermo.dSetpoint);
-                console.log('DoThermoGet(): self.oThermo.dOffpoint= ', self.oThermo.dOffpoint);
+                console.log('DoThermoGet(): self.oThermo.dMaxHeatRange= ', self.oThermo.dMaxHeatRange);
                 console.log('DoThermoGet(): self.oThermo(2)= ', self.oThermo);
 */
               }, 
@@ -95,12 +95,12 @@ const char* acThermostatTestPagesHTML= R"(
             
             self.DoThermoPost= function(){
               console.log('DoThermoPost(): Begin');
-              self.DoThermoGet();
+              $http.post('/ThermoPost', self.oThermo).then(self.DoThermoGet)
             };  //DoThermoPost
             
             self.submit= function(){
               console.log('submit(): Begin');
-              self.DoThermoGet();
+              self.DoThermoPost();
             };  //submit        
         } //function($http)
     ]);

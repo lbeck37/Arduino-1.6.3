@@ -1,4 +1,4 @@
-//BeckAngularTestPages.cpp, 5/3/19a
+//BeckAngularTestPages.cpp, 5/3/19b
 #include <BeckAngularTestPages.h>
 #include "BeckAngularTestPagesHTML.h"
 #include <BeckMiniLib.h>
@@ -20,14 +20,15 @@ void HandleLoginFunc  ();
 struct stThermostat {
   double dDegF;
   double dSetpoint;
-  double dOffpoint;
+  double dMaxHeatRange;
 };
 
 // Enough space for:
 // + 1 object with 3 members
 const int wJsonCapacity = JSON_OBJECT_SIZE(3);
 
-StaticJsonDocument<wJsonCapacity>     oJsonDoc;
+StaticJsonDocument<wJsonCapacity>     oGetJsonDoc;
+StaticJsonDocument<wJsonCapacity>     oPostJsonDoc;
 
 char      szJsonText[128];
 
@@ -124,23 +125,71 @@ String szLastDegF() {
   return(String(_fLastDegF, 2));
 } //szLastDegF
 
+double dDegF          = 70.00;
+double dSetpoint      = 71.00;
+double dMaxHeatRange  =  0.10;
 
 void HandleThermoDataGet() {
-  static double dCount= 0.00;
-  oJsonDoc["dDegF"]     = 10.37 + dCount;
-  oJsonDoc["dSetpoint"] = 20.37 + dCount;
-  oJsonDoc["dOffpoint"] = 30.37 + dCount;
-  dCount++;
+  static double dChange= 0.00;
+  Serial << LOG0 << "HandleThermoDataGet(): Begin" << endl;
 
-  serializeJson(oJsonDoc, szJsonText);
+  oGetJsonDoc["dDegF"]          = dDegF         + dChange;
+  oGetJsonDoc["dSetpoint"]      = dSetpoint     + dChange;
+  oGetJsonDoc["dMaxHeatRange"]  = dMaxHeatRange + dChange;
+  dChange += 0.01;
+
+  serializeJson(oGetJsonDoc, szJsonText);
   oWebServer.send(200, "text/plain", szJsonText);
   return;
 } //HandleThermoDataGet
 
 
-void HandleThermoDataPost() {
+bool bVerifySinglePostArg(String szPostArgName) {
+  bool  bReturn= true;
+  if(!oWebServer.hasArg(szPostArgName) || (oWebServer.arg("szPostArgName") == NULL)) {
+    Serial << LOG0 << "bVerifySinglePostArg(): " << szPostArgName << " is either missing or is NULL" << endl;
+    bReturn= false;
+  } //if(!oWebServer.hasArg(...
+  return bReturn;
+} //bVerifySinglePostArg
 
-  //oWebServer.send(200, "text/plain", szDummyDegF().c_str());
+
+bool bVerifyAllPostArgs() {
+  Serial << LOG0 << "bVerifyAllPostArgs(): Begin" << endl;
+  bool  bReturn= true;
+  if(!bVerifySinglePostArg("dDegF")     ||
+     !bVerifySinglePostArg("dSetpoint") ||
+     !bVerifySinglePostArg("dMaxHeatRange")){
+    bReturn= false;
+  } //if(!bVerifySinglePostArg("dDegF")||
+  return bReturn;
+} //bVerifyPostArgs
+
+
+void SaveThermoPostArgs() {
+  Serial << LOG0 << "SaveThermoPostArgs(): Begin" << endl;
+  //Make sure all arguments are in POST message
+  if(!bVerifyAllPostArgs()) {
+    Serial << LOG0 << "SaveThermoPostArgs(): bVerifyAllPostArgs() returned false" << endl;
+    //oWebServer.send(400, "text/plain", "400: Invalid Request");
+  } //if(!bVerifyAllPostArgs())
+  else {
+/*
+    dDegF         = oWebServer.arg("dDegF");
+    dSetpoint     = oWebServer.arg("dSetpoint");
+    dMaxHeatRange = oWebServer.arg("dMaxHeatRange");
+*/
+    Serial << LOG0 << "SaveThermoPostArgs(): oWebServer.arg(\"dDegF\")= " << oWebServer.arg("dDegF") << endl;
+  } //if(!bVerifyAllPostArgs())else
+  oWebServer.send(200, "text/plain", "200: OK");
+
+  return;
+} //SaveThermoPostArgs
+
+
+void HandleThermoDataPost() {
+  Serial << LOG0 << "HandleThermoDataPost(): Begin" << endl;
+  SaveThermoPostArgs();
   return;
 } //HandleThermoDataPost
 
