@@ -1,4 +1,4 @@
-// BeckAngularTestPagesHTML.h, 5/2/2019a
+// BeckAngularTestPagesHTML.h, 5/5/2019a
 #pragma once
 
 const char* acThermostatTestPagesHTML= R"(
@@ -28,7 +28,7 @@ const char* acThermostatTestPagesHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>BIOTA 5/5/19b</h2>
+   <h2>BIOTA 5/5/19c</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>

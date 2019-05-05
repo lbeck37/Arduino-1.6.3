@@ -17,28 +17,6 @@ void HandleTestFunc   ();
 void HandleLoginFunc  ();
 //void HandleNotFound   ();
 
-/*
-//Get set up for using JSON in GET and POST transfers
-struct ThermostatStruct_t {
-  double dDegF;
-  double dSetpoint;
-  double dMaxHeatRange;
-} stThermostat ;
-
-ThermostatStruct_t  stThermostat2;
-
-stThermostat.dDegF          = 70.37;
-stThermostat.dSetpoint      = 71.00;
-stThermostat.dMaxHeatRange  = 71.10;
-
-
-stThermostat2.dDegF= 70.37;
-stThermostat2.dSetpoint    = 71.00;
-stThermostat2.dMaxHeatRange    = 71.10;
-
-*/
-
-
 // Enough space for:
 // + 1 object with 3 members
 const int wJsonCapacity = JSON_OBJECT_SIZE(3);
@@ -176,6 +154,25 @@ bool bSaveThermoPostArgs() {
   String szPlain= oWebServer.arg("plain");
   Serial << LOG0 << "bSaveThermoPostArgs(): oWebServer.arg(" << "'plain'" << ") is " << szPlain << endl;
 
+  //double dDegF= oPostJsonDoc["dDegF"];
+  String szDegF= oPostJsonDoc["dDegF"];
+  Serial << LOG0 << "bSaveThermoPostArgs(): Received szDegF= " << szDegF << endl;
+
+  double dSetpoint= oPostJsonDoc["dSetpoint"];
+  Serial << LOG0 << "bSaveThermoPostArgs(): Received dSetpoint= " << dSetpoint << endl;
+
+  double dMaxHeatRange= oPostJsonDoc["dMaxHeatRange"];
+  Serial << LOG0 << "bSaveThermoPostArgs(): Received dMaxHeatRange= " << dMaxHeatRange << endl;
+
+  //_dLastDegF      = oPostJsonDoc["dDegF"];
+  //_dSetpointF     = oPostJsonDoc["dSetpoint"];
+  //_dMaxHeatRangeF = oPostJsonDoc["dMaxHeatRange"];
+  _dLastDegF      = 37.0;
+  _dSetpointF     = dSetpoint;
+  _dMaxHeatRangeF = dMaxHeatRange;
+
+  //Don't use posted _dThermoOffDegF value
+  _dThermoOffDegF   = _dSetpointF + _dMaxHeatRangeF;
   return bReturn;
 } //bSaveThermoPostArgs
 
