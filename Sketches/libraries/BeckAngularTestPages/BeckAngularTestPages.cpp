@@ -1,4 +1,4 @@
-//BeckAngularTestPages.cpp, 5/3/19b
+//BeckAngularTestPages.cpp, 5/4/19a
 #include <BeckAngularTestPages.h>
 #include "BeckAngularTestPagesHTML.h"
 #include <BeckMiniLib.h>
@@ -146,6 +146,10 @@ void HandleThermoDataGet() {
 
 bool bVerifySinglePostArg(String szPostArgName) {
   bool  bReturn= true;
+
+  String szArg= oWebServer.arg("szPostArgName");
+  Serial << LOG0 << "bVerifySinglePostArg(): oWebServer.arg(" << szPostArgName << ") is " << szArg << endl;
+
   if(!oWebServer.hasArg(szPostArgName) || (oWebServer.arg("szPostArgName") == NULL)) {
     Serial << LOG0 << "bVerifySinglePostArg(): " << szPostArgName << " is either missing or is NULL" << endl;
     bReturn= false;
@@ -157,6 +161,11 @@ bool bVerifySinglePostArg(String szPostArgName) {
 bool bVerifyAllPostArgs() {
   Serial << LOG0 << "bVerifyAllPostArgs(): Begin" << endl;
   bool  bReturn= true;
+
+  Serial << LOG0 << "bVerifyAllPostArgs(): Number of args= " << oWebServer.args() << endl;
+  Serial << LOG0 << "bVerifyAllPostArgs(): oWebServer.argName(0)= " << oWebServer.argName(0) << endl;
+  Serial << LOG0 << "bVerifyAllPostArgs(): oWebServer.argName(1)= " << oWebServer.argName(1) << endl;
+
   if(!bVerifySinglePostArg("dDegF")     ||
      !bVerifySinglePostArg("dSetpoint") ||
      !bVerifySinglePostArg("dMaxHeatRange")){
@@ -181,7 +190,7 @@ void SaveThermoPostArgs() {
 */
     Serial << LOG0 << "SaveThermoPostArgs(): oWebServer.arg(\"dDegF\")= " << oWebServer.arg("dDegF") << endl;
   } //if(!bVerifyAllPostArgs())else
-  oWebServer.send(200, "text/plain", "200: OK");
+  oWebServer.send(200, "text/plain", "200: 10-4");
 
   return;
 } //SaveThermoPostArgs

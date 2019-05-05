@@ -28,7 +28,7 @@ const char* acThermostatTestPagesHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>BIOTA 5/3/19ab</h2>
+   <h2>BIOTA 5/4/19b</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -64,7 +64,7 @@ const char* acThermostatTestPagesHTML= R"(
           self.oThermo.dDegF    = 99.99;
           self.oThermo.dSetpoint= 88.99;
           self.oThermo.dMaxHeatRange= 77.99;
-
+          self.dDegF= 'LBeck';
        
           self.DoThermoGet= function(){
             console.log('DoThermoGet(): Begin');
@@ -91,17 +91,22 @@ const char* acThermostatTestPagesHTML= R"(
             return ReturnVal;
           }; //DoThermoGet
 
-            self.DoThermoGet();
+          //self.DoThermoGet();
             
-            self.DoThermoPost= function(){
-              console.log('DoThermoPost(): Begin');
-              $http.post('/ThermoPost', self.oThermo).then(self.DoThermoGet)
-            };  //DoThermoPost
+          self.DoThermoPost= function(){
+            dDegF= 'LBeck';
+            console.log('DoThermoPost(): Begin');
+            $http.post('/ThermoPost', self.oThermo).then(self.DoThermoGet)
+            //$http.post('/ThermoPost', dDegF).then(self.DoThermoGet)
+          };  //DoThermoPost
             
-            self.submit= function(){
-              console.log('submit(): Begin');
-              self.DoThermoPost();
-            };  //submit        
+          self.submit= function(){
+            console.log('submit(): Begin');
+            self.DoThermoPost();
+          };  //submit   
+   
+          self.DoThermoGet();
+
         } //function($http)
     ]);
 </script>
