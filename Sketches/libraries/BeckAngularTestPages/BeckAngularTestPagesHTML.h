@@ -28,7 +28,7 @@ const char* acThermostatTestPagesHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>BIOTA 5/4/19b</h2>
+   <h2>BIOTA 5/5/19b</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -49,6 +49,12 @@ const char* acThermostatTestPagesHTML= R"(
         <sup class="units">&deg;F</sup>
       </p>
       <p>
+        <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
+        <span class="dht-labels">Offpoint</span>
+        <span id="TermoOffDegF">{{ctrl.oThermo.dThermoOffDeg}}</span>
+        <sup class="units">&deg;F</sup>
+      </p>
+      <p>
       <input type="submit" value="New Values">
       </p>
     </form>
@@ -64,26 +70,16 @@ const char* acThermostatTestPagesHTML= R"(
           self.oThermo.dDegF    = 99.99;
           self.oThermo.dSetpoint= 88.99;
           self.oThermo.dMaxHeatRange= 77.99;
+          self.oThermo.dThermoOffDeg= 77.99;
           self.dDegF= 'LBeck';
        
           self.DoThermoGet= function(){
             console.log('DoThermoGet(): Begin');
             ReturnVal= $http.get('/ThermoGet').
               then(function(response){
-/*
-                console.log('Return from $http.get(/ThermoGet), response= ', response);
-                console.log('DoThermoGet(): self.oThermo(1)= ', self.oThermo);
-                console.log('DoThermoGet(): response.data= ', response.data);
-                console.log('DoThermoGet(): response.data.dDegF= ', response.data.dDegF);
-*/
                 self.oThermo= response.data;
+                self.oThermo.dThermoOffDeg= self.oThermo.dSetpoint + self.oThermo.dMaxHeatRange;
                 console.log('DoThermoGet(): self.oThermo= ', self.oThermo);
-/*
-                console.log('DoThermoGet(): self.oThermo.dDegF= '    , self.oThermo.dDegF);
-                console.log('DoThermoGet(): self.oThermo.dSetpoint= ', self.oThermo.dSetpoint);
-                console.log('DoThermoGet(): self.oThermo.dMaxHeatRange= ', self.oThermo.dMaxHeatRange);
-                console.log('DoThermoGet(): self.oThermo(2)= ', self.oThermo);
-*/
               }, 
               function(errResponse){
                 console.error('Error doing $http.get(/LastDegF)');
