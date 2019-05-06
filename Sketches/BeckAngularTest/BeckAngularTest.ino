@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckAngularTest.ino";
-const String szFileDate    = "May 5, 2019d";
+const String szFileDate    = "May 6, 2019e";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
@@ -25,7 +25,7 @@ void setup(){
     //SetupAngularTestPages();
     SetupOTAWebPages();
     //SetupFormTestPages();
-    SetupTermostatTestPages();
+    SetupTermoWebPage();
     StartWebServer(_acHostname);
     Serial << LOG0 << "setup(): Open http://" << WiFi.localIP() << "/login to perform an OTA update" << endl;
   } //if(_bWiFiConnected)

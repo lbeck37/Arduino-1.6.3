@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "4/16/19b";
+const char szFileDate[]    = "5/6/19a";
 
 #ifndef ESP8266
   #define ESP8266
@@ -11,14 +11,21 @@ const char szFileDate[]    = "4/16/19b";
 #define DO_ASYNC_WEB_SERVER   true
 
 #include <BeckBiotaLib.h>
-#include <BeckAsyncWebServerLib.h>
+//#include <BeckAsyncWebServerLib.h>
 #include <BeckMiniLib.h>
+
+/*
 #ifdef ESP8266
   #include <BeckOTAWebServerLib.h>
 #else
   #include <BeckOTALib.h>   //Beck 1/24/19 not tested
 #endif  //ESP8266
+*/
+
+#include <BeckOTALib.h>
 #include <BeckSwitchLib.h>
+#include <BeckWebPages.h>
+#include <BeckWebServer.h>
 #include <BeckWiFiLib.h>
 
 #if DO_ACCESS_POINT
@@ -61,8 +68,11 @@ void setup(){
   if(_bSystemOk){
     SetupWiFi();
     if (_bWiFiConnected){
-      StartAsyncWebServer(_acHostname);
-      StartOTAWebServer();
+      //StartAsyncWebServer(_acHostname);
+      //StartOTAWebServer();
+      SetupOTAWebPages();
+      SetupTermoWebPage();
+      StartWebServer(_acHostname);
       #if DO_ACCESS_POINT
         SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT
@@ -101,7 +111,8 @@ void setup(){
 void loop(){
   ulLastTaskMsec= millis();
   if (_bWiFiConnected){
-    HandleOTAServer();
+    //HandleOTAServer();
+    HandleWebServer();
     CheckTaskTime("loop(): HandleOTAServer()");
   } //if(_bWiFiConnected)
 #if DO_NTP

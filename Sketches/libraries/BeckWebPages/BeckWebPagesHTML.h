@@ -1,8 +1,8 @@
-// BeckWebPagesHTML.h, 5/5/2019a
+// BeckWebPagesHTML.h, 5/6/2019a
 #pragma once
 
 const char* acThermoWebPageHTML= R"(
-<!-- BeckWebPagesHTML.h, 5/5/19c -->
+<!-- BeckWebPagesHTML.h, 5/6/19c -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
@@ -28,7 +28,7 @@ const char* acThermoWebPageHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>BIOTA 5/5/19h</h2>
+   <h2>BIOTA 5/6/19a</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>

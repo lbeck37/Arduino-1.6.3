@@ -1,8 +1,12 @@
-//BeckOTALib.cpp, 4/18/19a
+//BeckOTALib.cpp, 5/6/19a
 #include <BeckOTALib.h>
 #include "BeckOTALibHTML.h"
 #include <BeckMiniLib.h>
 #include <BeckWebServer.h>
+
+//These are set and used from Beck_Biota.ino
+unsigned long       _ulUpdateTimeoutMsec   = 0;
+bool                _bOTA_Started         = false;   //Turns off Blynk.
 
 #ifdef ESP8266
   #ifndef UPDATE_SIZE_UNKNOWN
