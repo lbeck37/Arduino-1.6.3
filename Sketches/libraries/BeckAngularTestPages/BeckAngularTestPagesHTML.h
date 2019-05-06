@@ -2,7 +2,7 @@
 #pragma once
 
 const char* acThermostatTestPagesHTML= R"(
-<!-- BeckThermostatTestPagesHTML.h, 5/3/19c -->
+<!-- BeckThermostatTestPagesHTML.h, 5/5/19b -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
@@ -28,30 +28,30 @@ const char* acThermostatTestPagesHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>BIOTA 5/5/19c</h2>
+   <h2>BIOTA 5/5/19g</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
         <span class="dht-labels">Current</span>
-        <span id="LastDegF">{{ctrl.oThermo.dDegF}}</span>
+        <span id="LastDegF">{{ctrl.oThermo.dLastDegF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
         <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
         <span class="dht-labels">Setpoint</span>
-        <span id="SetPointDegF">{{ctrl.oThermo.dSetpoint}}</span>
+        <span id="SetPointDegF">{{ctrl.oThermo.dSetpointF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
         <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
         <span class="dht-labels">Max Heat Range</span>
-        <span id="TermoOffDegF">{{ctrl.oThermo.dMaxHeatRange}}</span>
+        <span id="TermoOffDegF">{{ctrl.oThermo.dMaxHeatRangeF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
         <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
         <span class="dht-labels">Offpoint</span>
-        <span id="TermoOffDegF">{{ctrl.oThermo.dThermoOffDeg}}</span>
+        <span id="TermoOffDegF">{{ctrl.dThermoOffDegF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
@@ -67,18 +67,20 @@ const char* acThermostatTestPagesHTML= R"(
           var self= this;
 
           self.oThermo= {};
-          self.oThermo.dDegF    = 99.99;
-          self.oThermo.dSetpoint= 88.99;
-          self.oThermo.dMaxHeatRange= 77.99;
-          self.oThermo.dThermoOffDeg= 77.99;
-          self.dDegF= 'LBeck';
-       
+          self.oThermo.dLastDegF;
+          self.oThermo.dSetpointF;
+          self.oThermo.dMaxHeatRangeF;
+          //self.oThermo.dThermoOffDegF;
+
+          self.dThermoOffDegF;
+
+//***Function declarations begin***
           self.DoThermoGet= function(){
             console.log('DoThermoGet(): Begin');
             ReturnVal= $http.get('/ThermoGet').
               then(function(response){
                 self.oThermo= response.data;
-                self.oThermo.dThermoOffDeg= self.oThermo.dSetpoint + self.oThermo.dMaxHeatRange;
+                self.dThermoOffDegF= self.oThermo.dSetpointF + self.oThermo.dMaxHeatRangeF;
                 console.log('DoThermoGet(): self.oThermo= ', self.oThermo);
               }, 
               function(errResponse){
@@ -87,22 +89,22 @@ const char* acThermostatTestPagesHTML= R"(
             return ReturnVal;
           }; //DoThermoGet
 
-          //self.DoThermoGet();
             
           self.DoThermoPost= function(){
-            dDegF= 'LBeck';
             console.log('DoThermoPost(): Begin');
             $http.post('/ThermoPost', self.oThermo).then(self.DoThermoGet)
-            //$http.post('/ThermoPost', dDegF).then(self.DoThermoGet)
           };  //DoThermoPost
+
             
           self.submit= function(){
             console.log('submit(): Begin');
             self.DoThermoPost();
+            self.DoThermoGet();
           };  //submit   
+//***Function declarations end***
    
           self.DoThermoGet();
-
+          return;
         } //function($http)
     ]);
 </script>
@@ -191,7 +193,7 @@ const char* acThermostatTestPagesHTML_1= R"(
     <p>
       <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
       <span class="dht-labels">Current</span>
-      <span id="LastDegF">{{dDegF}}</span>                     
+      <span id="LastDegF">{{dLastDegF}}</span>                     
       <sup class="units">&deg;F</sup>
     </p>
     <p>

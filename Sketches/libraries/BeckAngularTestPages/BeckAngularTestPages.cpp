@@ -1,4 +1,4 @@
-//BeckAngularTestPages.cpp, 5/5/19a
+//BeckAngularTestPages.cpp, 5/5/19b
 #include <BeckAngularTestPages.h>
 #include "BeckAngularTestPagesHTML.h"
 #include <BeckMiniLib.h>
@@ -18,20 +18,13 @@ void HandleLoginFunc  ();
 //void HandleNotFound   ();
 
 // Enough space for:
-// + 1 object with 3 members
-const int wJsonCapacity = JSON_OBJECT_SIZE(3);
+// + 1 object with 6 members
+const int wJsonCapacity = JSON_OBJECT_SIZE(6);
 
 //For GET
 StaticJsonDocument<wJsonCapacity>     oGetJsonDoc;
 StaticJsonDocument<wJsonCapacity>     oPostJsonDoc;
 char      szJsonText[128];
-/*
-//For POST
-StaticJsonBuffer<200> jsonBuffer;
-JsonObject& root = jsonBuffer.parseObject(server.arg("plain"));
-StaticJsonBuffer<200> oStaticJsonBuffer;
-JsonObject& pJsonObject = oStaticJsonBuffer.parseObject(server.arg("plain"));
-*/
 
 
 void SetupAngularTestPages(){
@@ -128,66 +121,66 @@ String szLastDegF() {
 } //szLastDegF
 
 
-double dChange= 0.01;
-void HandleThermoDataGet() {
-  Serial << LOG0 << "HandleThermoDataGet(): Begin" << endl;
+void ChangeDataValues() {
+  Serial << LOG0 << "ChangeDataValues(): Begin" << endl;
+  static const double dChange= 0.01;
 
   _dLastDegF       += dChange;
   _dSetpointF      += dChange;
-  _dMaxHeatRangeF  += dChange / 10;
+  _dMaxHeatRangeF  += (dChange / 10.0);
   _dThermoOffDegF   = _dSetpointF + _dMaxHeatRangeF;
+  return;
+}
 
+void HandleThermoDataGet() {
+  ChangeDataValues();
   //Add args to Json Doc
-  oGetJsonDoc["dDegF"]          = _dLastDegF;
-  oGetJsonDoc["dSetpoint"]      = _dSetpointF;
-  oGetJsonDoc["dMaxHeatRange"]  = _dMaxHeatRangeF;
-  //dChange += 0.01;
+  oGetJsonDoc["dLastDegF"]        = _dLastDegF;
+  oGetJsonDoc["dSetpointF"]       = _dSetpointF;
+  oGetJsonDoc["dMaxHeatRangeF"]   = _dMaxHeatRangeF;
 
   serializeJson(oGetJsonDoc, szJsonText);
+  Serial << LOG0 << "HandleThermoDataGet(): Sending " << szJsonText << endl;
+
   oWebServer.send(200, "text/plain", szJsonText);
   return;
 } //HandleThermoDataGet
 
 
-bool bSaveThermoPostArgs() {
-  bool  bReturn= true;
-  String szPlain= oWebServer.arg("plain");
-  Serial << LOG0 << "bSaveThermoPostArgs(): oWebServer.arg(" << "'plain'" << ") is " << szPlain << endl;
-
-  //double dDegF= oPostJsonDoc["dDegF"];
-  String szDegF= oPostJsonDoc["dDegF"];
-  Serial << LOG0 << "bSaveThermoPostArgs(): Received szDegF= " << szDegF << endl;
-
-  double dSetpoint= oPostJsonDoc["dSetpoint"];
-  Serial << LOG0 << "bSaveThermoPostArgs(): Received dSetpoint= " << dSetpoint << endl;
-
-  double dMaxHeatRange= oPostJsonDoc["dMaxHeatRange"];
-  Serial << LOG0 << "bSaveThermoPostArgs(): Received dMaxHeatRange= " << dMaxHeatRange << endl;
-
-  //_dLastDegF      = oPostJsonDoc["dDegF"];
-  //_dSetpointF     = oPostJsonDoc["dSetpoint"];
-  //_dMaxHeatRangeF = oPostJsonDoc["dMaxHeatRange"];
-  _dLastDegF      = 37.0;
-  _dSetpointF     = dSetpoint;
-  _dMaxHeatRangeF = dMaxHeatRange;
-
-  //Don't use posted _dThermoOffDegF value
-  _dThermoOffDegF   = _dSetpointF + _dMaxHeatRangeF;
-  return bReturn;
-} //bSaveThermoPostArgs
-
-
 void HandleThermoDataPost() {
-  Serial << LOG0 << "HandleThermoDataPost(): Begin" << endl;
-  bSaveThermoPostArgs();
-  oWebServer.send(200, "text/plain", "200: 10-4 Good buddy");
+  const String szPlain= oWebServer.arg("plain");
+  Serial << LOG0 << "HandleThermoDataPost(): Received " << szPlain << endl;
+  DeserializationError oDeserialError= deserializeJson(oPostJsonDoc, szPlain);
+  if(oDeserialError == DeserializationError::Ok){
+    Serial << LOG0 << "HandleThermoDataPost(): oDeserialError is DeserializationError::Ok " << endl;
+  }
+/*
+  _dLastDegF      = oPostJsonDoc["dLastDegF"];
+  _dSetpointF     = oPostJsonDoc["dSetpointF"];
+  _dMaxHeatRangeF = oPostJsonDoc["dMaxHeatRangeF"];
+*/
+/*
+  double dLastDegF      = oPostJsonDoc["dLastDegF"];
+  double dSetpointF     = oPostJsonDoc["dSetpointF"];
+  double dMaxHeatRangeF = oPostJsonDoc["dMaxHeatRangeF"];
+
+  Serial << LOG0 << "HandleThermoDataPost(): dLastDegF, dSetpointF, dMaxHeatRangeF: " << endl;
+  Serial << LOG0 << "HandleThermoDataPost(): " << dLastDegF << ", " << dSetpointF << ", " << dMaxHeatRangeF << endl;
+*/
+
+  _dLastDegF      = oPostJsonDoc["dLastDegF"];
+  _dSetpointF     = oPostJsonDoc["dSetpointF"];
+  _dMaxHeatRangeF = oPostJsonDoc["dMaxHeatRangeF"];
+
+  _dThermoOffDegF= _dSetpointF + _dMaxHeatRangeF;
+  Serial << LOG0 << "HandleThermoDataPost(): _dLastDegF, _dSetpointF, _dMaxHeatRangeF, _dThermoOffDegF: " << endl;
+  Serial << LOG0 << "HandleThermoDataPost(): " << _dLastDegF << ", " << _dSetpointF << ", " << _dMaxHeatRangeF << ", " << _dThermoOffDegF << endl;
   return;
 } //HandleThermoDataPost
 
 
 String szDummyDegF() {
   static float    fCurrent= 0.37;
-
   float fReturn= fCurrent;
   fCurrent += 1.00;
   return(String(fReturn, 2));
@@ -196,7 +189,6 @@ String szDummyDegF() {
 
 float fDummyDegF() {
   static float    fCurrent= 0.37;
-
   float fReturn= fCurrent;
   fCurrent += 1.00;
   return(fReturn);
@@ -214,40 +206,43 @@ String szTermoOffDegF() {
 
 
 void SetupTermostatTestPages(){
-  Serial << LOG0 << "SetupTermoTestPages(): Begin" << endl;
-
-  Serial << LOG0 << "SetupTermoTestPages(): Set up handlers" << endl;
+  Serial << LOG0 << "SetupTermostatTestPages(): Set up handlers" << endl;
   oWebServer.on("/Thermostat", HTTP_GET, [](){
+    Serial << LOG0 << "SetupTermostatTestPages(): Got a GET on /Thermostat, sending acThermostatTestPagesHTML[]" << endl;
     oWebServer.sendHeader("Connection", "close");
     oWebServer.send(200, "text/html", acThermostatTestPagesHTML);
-    Serial << endl << LOG0 << "SetupTermostatTestPages(): Servicing HTTP_GET at /Thermostat" << endl;
+    return;
   });
 
   oWebServer.on("/ThermoGet", HTTP_GET, [](){
-    Serial << LOG0 << "SetupTermoTestPages(): Got a GET on /ThermoGet" << endl;
+    Serial << LOG0 << "SetupTermostatTestPages(): Got a GET on /ThermoGet" << endl;
     HandleThermoDataGet();
   });
 
   oWebServer.on("/ThermoPost", HTTP_POST, [](){
-    Serial << LOG0 << "SetupTermoTestPages(): Got a POST on /ThermoPost" << endl;
+    Serial << LOG0 << "SetupTermostatTestPages(): Got a POST on /ThermoPost" << endl;
     HandleThermoDataPost();
+    return;
   });
 
   oWebServer.on("/LastDegF", HTTP_GET, [](){
-    Serial << LOG0 << "SetupTermoTestPages(): Got a GET on /LastDegF" << endl;
+    Serial << LOG0 << "SetupTermostatTestPages(): Got a GET on /LastDegF" << endl;
     //oWebServer.send(200, "text/plain", szLastDegF().c_str());
     oWebServer.send(200, "text/plain", szDummyDegF().c_str());
     //oWebServer.send(200, "text/plain", fDummyDegF());
+    return;
   });
 
   oWebServer.on("/SetPointDegF", HTTP_GET, [](){
     oWebServer.send(200, "text/plain", szSetPointDegF().c_str());
+    return;
   });
 
   oWebServer.on("/TermoOffDegF", HTTP_GET, [](){
     oWebServer.send(200, "text/plain", szTermoOffDegF().c_str());
+    return;
   });
 
   return;
-} //SetupTermoTestPages
+} //SetupTermostatTestPages
 //Last line.
