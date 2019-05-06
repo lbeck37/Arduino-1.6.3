@@ -1,10 +1,11 @@
 const String szSketchName  = "BeckAngularTest.ino";
-const String szFileDate    = "May 5, 2019c";
+const String szFileDate    = "May 5, 2019d";
 /*********
   Rui Santos
   Complete project details at https://randomnerdtutorials.com
 *********/
-#include <BeckAngularTestPages.h>
+//#include <BeckAngularTestPages.h>
+#include <BeckWebPages.h>
 #include <BeckMiniLib.h>
 #include <BeckOTALib.h>
 #include <BeckWebServer.h>
@@ -21,9 +22,9 @@ void setup(){
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   SetupWiFi();
   if (_bWiFiConnected){
-    SetupAngularTestPages();
+    //SetupAngularTestPages();
     SetupOTAWebPages();
-    SetupFormTestPages();
+    //SetupFormTestPages();
     SetupTermostatTestPages();
     StartWebServer(_acHostname);
     Serial << LOG0 << "setup(): Open http://" << WiFi.localIP() << "/login to perform an OTA update" << endl;

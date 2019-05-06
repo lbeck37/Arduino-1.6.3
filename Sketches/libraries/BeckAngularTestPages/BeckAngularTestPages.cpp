@@ -1,4 +1,4 @@
-//BeckAngularTestPages.cpp, 5/5/19b
+//BeckAngularTestPages.cpp, 5/5/19c
 #include <BeckAngularTestPages.h>
 #include "BeckAngularTestPagesHTML.h"
 #include <BeckMiniLib.h>
@@ -15,7 +15,6 @@ void HandleTestRoot   ();
 void HandleLoginRoot  ();
 void HandleTestFunc   ();
 void HandleLoginFunc  ();
-//void HandleNotFound   ();
 
 // Enough space for:
 // + 1 object with 6 members
@@ -46,10 +45,8 @@ void SetupFormTestPages(void){
   oWebServer.on("/handlelogin" , HTTP_POST,  HandleLoginFunc);
   oWebServer.on("/handletest"  , HTTP_POST,  HandleTestFunc);
 
-  //oWebServer.onNotFound(HandleNotFound);           // When a client requests an unknown URI (i.e. something other than "/"), call function "handleNotFound"
-
   oWebServer.begin();                            // Actually start the server
-  Serial << endl << LOG0 << "setup(): HTTP Web Server started" << endl;
+  Serial << endl << LOG0 << "setup(): ESP8266WebServer started" << endl;
   return;
 } //SetupFormTestPages
 
