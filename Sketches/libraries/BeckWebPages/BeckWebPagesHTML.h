@@ -28,7 +28,7 @@ const char* acThermoWebPageHTML= R"(
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>BIOTA 5/6/19a</h2>
+   <h2>Thermostat 5/6/19c</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>

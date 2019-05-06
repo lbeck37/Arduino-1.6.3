@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "5/6/19a";
+const char szFileDate[]    = "5/6/19d";
 
 #ifndef ESP8266
   #define ESP8266
@@ -11,22 +11,15 @@ const char szFileDate[]    = "5/6/19a";
 #define DO_ASYNC_WEB_SERVER   true
 
 #include <BeckBiotaLib.h>
-//#include <BeckAsyncWebServerLib.h>
 #include <BeckMiniLib.h>
-
-/*
-#ifdef ESP8266
-  #include <BeckOTAWebServerLib.h>
-#else
-  #include <BeckOTALib.h>   //Beck 1/24/19 not tested
-#endif  //ESP8266
-*/
-
 #include <BeckOTALib.h>
 #include <BeckSwitchLib.h>
 #include <BeckWebPages.h>
 #include <BeckWebServer.h>
 #include <BeckWiFiLib.h>
+#include <Streaming.h>
+#include <Time.h>
+#include <WiFiClient.h>
 
 #if DO_ACCESS_POINT
   #include <BeckAccessPointLib.h>
@@ -35,15 +28,12 @@ const char szFileDate[]    = "5/6/19a";
 #if DO_NTP
   #include <BeckNTPLib.h>
 #endif
-#include <Streaming.h>
-#include <Time.h>
-#include <WiFiClient.h>
 
 //static        ProjectType      eProjectType           = ePitchMeter;
-//static        ProjectType      eProjectType            = eThermoDev;
+static        ProjectType      eProjectType            = eThermoDev;
 //static        ProjectType      eProjectType            = eFireplace;
 //static        ProjectType      eProjectType            = eHeater;
-static        ProjectType      eProjectType            = eGarage;
+//static        ProjectType      eProjectType            = eGarage;
 
 static const  uint32_t    ulThermHandlerPeriodMsec    = 1 * lMsecPerSec; //mSec between running system handler
 static        uint32_t    ulNextThermHandlerMsec      = 0;
@@ -68,8 +58,6 @@ void setup(){
   if(_bSystemOk){
     SetupWiFi();
     if (_bWiFiConnected){
-      //StartAsyncWebServer(_acHostname);
-      //StartOTAWebServer();
       SetupOTAWebPages();
       SetupTermoWebPage();
       StartWebServer(_acHostname);
@@ -111,9 +99,8 @@ void setup(){
 void loop(){
   ulLastTaskMsec= millis();
   if (_bWiFiConnected){
-    //HandleOTAServer();
     HandleWebServer();
-    CheckTaskTime("loop(): HandleOTAServer()");
+    CheckTaskTime("loop(): HandleWebServer()");
   } //if(_bWiFiConnected)
 #if DO_NTP
   if (_bWiFiConnected){

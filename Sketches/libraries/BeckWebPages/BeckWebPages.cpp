@@ -6,14 +6,6 @@
 #include <BeckWebServer.h>
 #include <ArduinoJson.h>
 
-#define TEST_BECKWEBPAGES   false
-#if TEST_BECKWEBPAGES
-double _dLastDegF      = 70.37;
-double _dSetpointF     = 71.00;
-double _dMaxHeatRangeF = 00.10;
-double _dThermoOffDegF = _dSetpointF + _dMaxHeatRangeF;
-#endif
-
 // Enough space for:
 // + 1 object with 6 members
 const int wJsonCapacity = JSON_OBJECT_SIZE(6);
@@ -24,27 +16,7 @@ StaticJsonDocument<wJsonCapacity>     oPostJsonDoc;
 char      szJsonText[128];
 
 
-#if TEST_BECKWEBPAGES
-  void ChangeDataValues() {
-    Serial << LOG0 << "ChangeDataValues(): Begin" << endl;
-    static const double dChange= 0.01;
-
-    _dLastDegF       += dChange;
-    _dSetpointF      += dChange;
-    _dMaxHeatRangeF  += (dChange / 10.0);
-    _dThermoOffDegF   = _dSetpointF + _dMaxHeatRangeF;
-    return;
-  }
-#endif
-
-
 void HandleThermoDataGet() {
-  #if TEST_BECKWEBPAGES
-    ChangeDataValues();
-    oGetJsonDoc["dLastDegF"]        = _dLastDegF;
-    oGetJsonDoc["dSetpointF"]       = _dSetpointF;
-    oGetJsonDoc["dMaxHeatRangeF"]   = _dMaxHeatRangeF;
-  #endif
   //Add args to Json Doc
   oGetJsonDoc["dLastDegF"]        = _fLastDegF;
   oGetJsonDoc["dSetpointF"]       = _fSetpointF;
@@ -70,9 +42,11 @@ void HandleThermoDataPost() {
     oWebServer.send(200, "text/plain", "200: Good POST");
   }
 
+/*
   _fLastDegF      = oPostJsonDoc["dLastDegF"];
   _fSetpointF     = oPostJsonDoc["dSetpointF"];
   _fMaxHeatRangeF = oPostJsonDoc["dMaxHeatRangeF"];
+*/
 
   _fThermoOffDegF= _fSetpointF + _fMaxHeatRangeF;
   //Serial << LOG0 << "HandleThermoDataPost(): _fLastDegF, _fSetpointF, _fMaxHeatRangeF, _fThermoOffDegF: " << endl;
