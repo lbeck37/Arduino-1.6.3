@@ -139,6 +139,7 @@ void HandleThermoDataGet() {
   oGetJsonDoc["dSetpointF"]       = _dSetpointF;
   oGetJsonDoc["dMaxHeatRangeF"]   = _dMaxHeatRangeF;
 
+  Serial << LOG0 << "HandleThermoDataGet(): Call serializeJson()" << endl;
   serializeJson(oGetJsonDoc, szJsonText);
   Serial << LOG0 << "HandleThermoDataGet(): Sending " << szJsonText << endl;
 
@@ -151,30 +152,20 @@ void HandleThermoDataPost() {
   const String szPlain= oWebServer.arg("plain");
   Serial << LOG0 << "HandleThermoDataPost(): Received " << szPlain << endl;
   DeserializationError oDeserialError= deserializeJson(oPostJsonDoc, szPlain);
-  if(oDeserialError == DeserializationError::Ok){
-    Serial << LOG0 << "HandleThermoDataPost(): oDeserialError is DeserializationError::Ok " << endl;
+  if(oDeserialError != DeserializationError::Ok){
+    Serial << LOG0 << "HandleThermoDataPost(): ERROR: oDeserialError is NOT DeserializationError::Ok " << endl;
   }
-/*
-  _dLastDegF      = oPostJsonDoc["dLastDegF"];
-  _dSetpointF     = oPostJsonDoc["dSetpointF"];
-  _dMaxHeatRangeF = oPostJsonDoc["dMaxHeatRangeF"];
-*/
-/*
-  double dLastDegF      = oPostJsonDoc["dLastDegF"];
-  double dSetpointF     = oPostJsonDoc["dSetpointF"];
-  double dMaxHeatRangeF = oPostJsonDoc["dMaxHeatRangeF"];
-
-  Serial << LOG0 << "HandleThermoDataPost(): dLastDegF, dSetpointF, dMaxHeatRangeF: " << endl;
-  Serial << LOG0 << "HandleThermoDataPost(): " << dLastDegF << ", " << dSetpointF << ", " << dMaxHeatRangeF << endl;
-*/
+  else{
+    oWebServer.send(200, "text/plain", "200: Good POST");
+  }
 
   _dLastDegF      = oPostJsonDoc["dLastDegF"];
   _dSetpointF     = oPostJsonDoc["dSetpointF"];
   _dMaxHeatRangeF = oPostJsonDoc["dMaxHeatRangeF"];
 
   _dThermoOffDegF= _dSetpointF + _dMaxHeatRangeF;
-  Serial << LOG0 << "HandleThermoDataPost(): _dLastDegF, _dSetpointF, _dMaxHeatRangeF, _dThermoOffDegF: " << endl;
-  Serial << LOG0 << "HandleThermoDataPost(): " << _dLastDegF << ", " << _dSetpointF << ", " << _dMaxHeatRangeF << ", " << _dThermoOffDegF << endl;
+  //Serial << LOG0 << "HandleThermoDataPost(): _dLastDegF, _dSetpointF, _dMaxHeatRangeF, _dThermoOffDegF: " << endl;
+  //Serial << LOG0 << "HandleThermoDataPost(): " << _dLastDegF << ", " << _dSetpointF << ", " << _dMaxHeatRangeF << ", " << _dThermoOffDegF << endl;
   return;
 } //HandleThermoDataPost
 
