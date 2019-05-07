@@ -1,5 +1,6 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "5/6/19d";
+const char szFileDate[]    = "5/7/19a";
+// acYUI_Dial_InteractiveScrollPicturePageHTML
 
 #ifndef ESP8266
   #define ESP8266

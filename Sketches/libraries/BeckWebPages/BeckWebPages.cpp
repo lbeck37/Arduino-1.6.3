@@ -1,4 +1,4 @@
-//BeckWebPages.cpp, 5/6/19a
+//BeckWebPages.cpp, 5/7/19a
 #include <BeckWebPages.h>
 #include "BeckWebPagesHTML.h"
 #include <BeckMiniLib.h>
@@ -58,10 +58,11 @@ void HandleThermoDataPost() {
 void SetupTermoWebPage(){
   Serial << LOG0 << "SetupTermoWebPage(): Set up handlers" << endl;
   oWebServer.on("/Thermostat", HTTP_GET, [](){
-    Serial << LOG0 << "SetupTermoWebPage(): Got a GET on /Thermostat, sending acThermostatTestPagesHTML[]" << endl;
+    Serial << LOG0 << "SetupTermoWebPage(): Got a GET on /Thermostat, sending web page" << endl;
     oWebServer.sendHeader("Connection", "close");
     //oWebServer.send(200, "text/html", acThermostatTestPagesHTML);
-    oWebServer.send(200, "text/html", acThermoWebPageHTML);
+    //oWebServer.send(200, "text/html", acThermoWebPageHTML);
+    oWebServer.send(200, "text/html", acYUI_Dial_InteractiveScrollPicturePageHTML);
     return;
   });
 
