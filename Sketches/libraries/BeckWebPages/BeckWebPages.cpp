@@ -62,7 +62,7 @@ void SetupTermoWebPage(){
     oWebServer.sendHeader("Connection", "close");
     //oWebServer.send(200, "text/html", acThermostatTestPagesHTML);
     //oWebServer.send(200, "text/html", acThermoWebPageHTML);
-    oWebServer.send(200, "text/html", acYUI_Dial_InteractiveScrollPicturePageHTML);
+    oWebServer.send(200, "text/html", acTestPageHTML);
     return;
   });
 
