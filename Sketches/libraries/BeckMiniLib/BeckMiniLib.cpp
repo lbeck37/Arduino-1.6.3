@@ -1,5 +1,12 @@
-//BeckMiniLib.cpp, Dec 16, 2017, Lenny-a
+//BeckMiniLib.cpp, Beck 2/17/19a
 #include <BeckMiniLib.h>
+#include <BeckLogLib.h>
+
+const long    lMsecPerSec         = 1000;
+const long    lMsecPerMin         = 60 * lMsecPerSec;
+const long    lMsecPerHour        = 60 * lMsecPerMin;
+const long    lMsecPerDay         = 24 * lMsecPerHour;
+const long    lSerialMonitorBaud  = 115200;
 
 //Digital Pins
 #ifdef ESP32
@@ -18,19 +25,49 @@
   const int       sServoPin          = 16;
 #endif  //ESP32
 
+unsigned long   ulLastTaskMsec        = 0;      //For checking time handling tasks
 
-String szGetTime(long lMsec){
-  String  szString;
-  int sDays    =    lMsec                                               / lMsecPerDay ;
-  int sHours   =   (lMsec % lMsecPerDay)                                / lMsecPerHour;
-  int sMinutes =  ((lMsec % lMsecPerDay) % lMsecPerHour)                / lMsecPerMin ;
-  int sSeconds = (((lMsec % lMsecPerDay) % lMsecPerHour) % lMsecPerMin) / lMsecPerSec;
-  int sMsec    =    lMsec % lMsecPerSec;
-  szString = String(sDays) + ":";
-  szString+= String(szAddZeros(sHours, 2)) + ":";
-  szString+= String(szAddZeros(sMinutes, 2)) + ":";
-  szString+= String(szAddZeros(sSeconds, 2)) + ".";
-  szString+= String(szAddZeros(sMsec, 3)) + " ";  //Trailing blank.
-  return szString;
-} //szGetTime
+//Local function prototypes
+String  szPrintDigits         (int digits);
+
+
+void CheckTaskTime(String szTask){
+  unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
+  unsigned long    ulNowMsec= millis();
+  unsigned long    ulTaskMsec= ulNowMsec - ulLastTaskMsec;
+  if (ulTaskMsec >  ulMaxTaskMsec){
+    float fTaskSeconds= (float)ulTaskMsec / 1000.0;
+    Serial << LOG0 << "CheckTaskTime(): " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
+  } //
+  ulLastTaskMsec= millis();
+  return;
+} //CheckTaskTime
+
+
+void ClearTaskTime2(unsigned long* pulLastTaskMsec){
+  if (pulLastTaskMsec){
+    *pulLastTaskMsec= millis();
+  }
+  else{
+    Serial << LOG0 << "ClearTaskTime2(): ERROR: Passed in NULL pointer" << endl;
+  }
+  return;
+} //ClearTaskTime2
+
+
+void CheckTaskTime2(String szTask, unsigned long* pulLastTaskMsec){
+  unsigned long    ulMaxTaskMsec= lMsecPerSec / 2;  //Half second time limit before reporting task.
+  unsigned long    ulNowMsec= millis();
+  if (pulLastTaskMsec == NULL){
+    pulLastTaskMsec= &ulLastTaskMsec;
+  } //if (plLastTaskMsec==NULL)
+  unsigned long    ulTaskMsec= ulNowMsec - *pulLastTaskMsec;
+
+  if (ulTaskMsec >  ulMaxTaskMsec){
+    float fTaskSeconds= (float)ulTaskMsec / 1000.0;
+    Serial << LOG0 << "CheckTaskTime2(): " << szTask << " task took " << fTaskSeconds << " seconds"<< endl;
+  } //
+  *pulLastTaskMsec= millis();
+  return;
+} //CheckTaskTime2
 //Last line.

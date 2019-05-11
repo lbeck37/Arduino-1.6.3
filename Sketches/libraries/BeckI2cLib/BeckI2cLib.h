@@ -1,14 +1,13 @@
-//BeckI2cLib.h
-// ***OBSOLETE*** See Sketches\libraries\BeckI2C
-#ifndef BECKI2CLIB_H
-#define BECKI2CLIB_H
-#include <BeckLib.h>
-//#include <Adafruit_ADS1015.h>   //Just for the defines
+// BeckI2cLib.h 3/23/19a
+#pragma once
 
-extern INT16    sSetup_I2C();
-extern INT16    sSetup_ADS1115();
-extern double   dRead_ADS1115(INT16 sChannel, adsGain_t eGain);
-extern INT16    sSetup_Gyro();
-extern void     Read_Gyro();
+/*
+#include <BeckI2cLib.h>
+#include <BeckLogLib.h>
+#include <BeckMiniLib.h>
+#include <Wire.h>
+*/
 
-#endif  //BECKI2CLIB_H
+void  SetupI2C            ();
+void  ScanForI2CDevices   ();
+//Last line.

@@ -1,5 +1,5 @@
 const String SketchName  = "BeckE32_TankMonitor.ino";
-const String FileDate    = "July 23, 2018-b";
+const String FileDate    = "April 7, 2019a";
 /******************************************************************************
 ESP32_Water_Sensor_SMS_Example.ino
 Example for sending a text message using the ESP32 Thing and IFTTT
@@ -8,12 +8,14 @@ February 7th 2017
 ******************************************************************************/
 
 #include <Streaming.h>
+/*
 #include "BluetoothSerial.h"		//Classic Bluetooth, not BLE
 #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
+*/
 
-BluetoothSerial SerialBT;
+//BluetoothSerial SerialBT;
 
 const byte  touchPin = 4;                             // IO pin for capacitive touch sensing
 
@@ -21,7 +23,7 @@ void setup() {
 	Serial.begin(115200); // Start serial communication for debug information
 	Serial << endl << "setup(): Begin " << SketchName << ", " << FileDate << endl;
 
-  SerialBT.begin("Beck_TankMonitor"); //Bluetooth device name
+  //SerialBT.begin("Beck_TankMonitor"); //Bluetooth device name
 	return;
 }	//setup
 
@@ -43,7 +45,7 @@ void loop()
 
   dtostrf(dSensorReading, 8, 4, szNumber);
   //Write touch sensor reading to BT
-  SerialBT.write((uint8_t*)szNumber, strlen(szNumber));
+  //SerialBT.write((uint8_t*)szNumber, strlen(szNumber));
 
 	delay(1000);
 	return;
