@@ -28,7 +28,8 @@ JsonArray &JsonBuffer::parseArray(char *json, uint8_t nestingLimit) {
   return parser.parseArray();
 }
 
-JsonObject &JsonBuffer::parseObject(char *json, uint8_t nestingLimit) {
+//JsonObject &JsonBuffer::parseObject(char *json, uint8_t nestingLimit) {
+JsonObject &JsonBuffer::parseObject(const char *json, uint8_t nestingLimit) {     //Beck 5/19/19
   JsonParser parser(this, json, nestingLimit);
   return parser.parseObject();
 }

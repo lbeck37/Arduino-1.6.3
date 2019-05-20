@@ -1,5 +1,5 @@
-// Beck 4/24/16
-#include <BeckLib.h>
+// Beck 5/19/19
+//#include <BeckLib.h>
 #include "Firebase.h"
 //#define DEBUG_LOGGING
 

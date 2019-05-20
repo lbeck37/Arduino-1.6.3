@@ -1,4 +1,4 @@
-//BeckLib.h, 12/30/17
+//BeckLib.h, 5/19/19
 #ifndef BECKLIB_H
 #define BECKLIB_H
 #include <BeckMiniLib.h>
@@ -6,7 +6,7 @@
 #include <Time.h>
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
-#include <BlynkSimpleEsp8266.h>
+//#include <BlynkSimpleEsp8266.h>
 //#include <Firebase.h>
 //#include <BeckFirebase.h>
 #include <Adafruit_ADS1015.h>   //Just for the defines

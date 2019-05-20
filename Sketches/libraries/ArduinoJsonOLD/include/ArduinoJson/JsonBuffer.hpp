@@ -65,7 +65,8 @@ class JsonBuffer {
   //
   // Returns a reference to the new JsonObject or JsonObject::invalid() if the
   // allocation fails.
-  JsonObject &parseObject(char *json, uint8_t nestingLimit = DEFAULT_LIMIT);
+  //JsonObject &parseObject(char *json, uint8_t nestingLimit = DEFAULT_LIMIT);
+  JsonObject &parseObject(const char *json, uint8_t nestingLimit = DEFAULT_LIMIT);    //Beck 5/19/19
 
   // Allocates n bytes in the JsonBuffer.
   // Return a pointer to the allocated memory or NULL if allocation fails.
