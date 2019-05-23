@@ -1,0 +1,73 @@
+<!-- Thermostat.html, 5/22/19a -->
+<!DOCTYPE HTML>
+<html ng-app="ThermoApp">
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+  <style>
+    html {
+     font-family: Arial;
+     display: inline-block;
+     margin: 0px auto;
+     text-align: center;
+    }
+    h2 { font-size: 3.0rem; }
+    p { font-size: 3.0rem; }
+    .units { font-size: 1.2rem; }
+    .dht-labels{
+      font-size: 1.5rem;
+      vertical-align:middle;
+      padding-bottom: 15px;
+    }
+  </style>
+</head>
+<body ng-controller="MainCtrl as ctrl">
+  <div>
+   <h2>Thermostat 5/22/19b</h2>
+   <form ng-submit="ctrl.submit() ">
+     <p>
+        <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
+        <span class="dht-labels">Current</span>
+        <span id="LastDegF">{{ctrl.oThermo.dLastDegF}}</span>
+        <sup class="units">&deg;F</sup>
+      </p>
+      <p>
+        <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
+        <span class="dht-labels">Setpoint</span>
+        <span id="SetPointDegF">{{ctrl.oThermo.dSetpointF}}</span>
+        <sup class="units">&deg;F</sup>
+      </p>
+      <p>
+        <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
+        <span class="dht-labels">Max Heat Range</span>
+        <span id="TermoOffDegF">{{ctrl.oThermo.dMaxHeatRangeF}}</span>
+        <sup class="units">&deg;F</sup>
+      </p>
+      <p>
+        <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
+        <span class="dht-labels">Offpoint</span>
+        <span id="TermoOffDegF">{{ctrl.dThermoOffDegF}}</span>
+        <sup class="units">&deg;F</sup>
+      </p>
+      <p>
+      <input type="submit" value="New Values">
+      </p>
+    </form>
+  </div>
+
+    <!-- Bootstrap required JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script src="Thermostat.js"></script>
+</body>
+</html>
