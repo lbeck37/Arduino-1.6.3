@@ -1,13 +1,44 @@
-// Beck 5/22/19a
+// Beck 5/25/19b
+
 var todoApp = angular.module('TodoApp', ['firebase']);
 
+var firebaseConfig = {
+    apiKey: "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A",
+    authDomain: "fir-mariestep1.firebaseapp.com",
+    databaseURL: "https://fir-mariestep1.firebaseio.com",
+    projectId: "fir-mariestep1",
+    storageBucket: "fir-mariestep1.appspot.com",
+    messagingSenderId: "754022099819",
+    appId: "1:754022099819:web:50b456b2ed48aa27"
+  };
 
+
+// Initialize your Firebase app
+firebase.initializeApp(firebaseConfig);
+
+/*
 todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
     function($scope, $firebaseArray) {
 
         // CREATE A FIREBASE REFERENCE
         //var todosRef = new Firebase('https://your-firebase-url.firebaseio.com/');
         var todosRef = new Firebase('https://fir-mariestep1.firebaseio.com/');
+
+        // GET TODOS AS AN ARRAY
+        $scope.todos = $firebaseArray(todosRef);
+todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray', '$firebaseObject',
+    function($scope, $firebaseArray, $firebaseObject) {
+*/
+todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
+    function($scope, $firebaseArray) {
+
+        // CREATE A FIREBASE REFERENCE
+        //var todosRef = new Firebase('https://your-firebase-url.firebaseio.com/');
+        //var todosRef = new Firebase('https://fir-mariestep1.firebaseio.com/');
+
+		// Reference to your entire Firebase database
+		var todosRef = firebase.database().ref();
+
 
         // GET TODOS AS AN ARRAY
         $scope.todos = $firebaseArray(todosRef);
@@ -26,7 +57,7 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
 
             $scope.todoName = "";
 
-        };
+        };	//addTodo
 
         // REMOVE TODO ITEM METHOD
         $scope.removeTodo = function (index, todo) {
@@ -37,7 +68,7 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
             // FIREBASE: REMOVE ITEM FROM LIST
             $scope.todos.$remove(todo);
 
-        };
+        };	//removeTodo
 
         // MARK TODO AS IN PROGRESS METHOD
         $scope.startTodo = function (index, todo) {
@@ -49,7 +80,7 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
             todo.status = 'in progress';
             $scope.todos.$save(todo);
 
-        };
+        };	//startTodo
 
         // MARK TODO AS COMPLETE METHOD
         $scope.completeTodo = function (index, todo) {
@@ -60,6 +91,5 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
             // UPDATE STATUS TO COMPLETE AND SAVE
             todo.status = 'complete';
             $scope.todos.$save(todo);
-        };
-
-    }]);
+        };	//completeTodo
+    }]);	//controller

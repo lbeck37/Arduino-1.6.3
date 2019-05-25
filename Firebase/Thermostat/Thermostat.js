@@ -1,4 +1,4 @@
-// Thermostat.js, 5/22/19a
+// Thermostat.js, 5/22/19b
 // <script type="text/javascript">
     angular.module('ThermoApp', []).
       controller('MainCtrl', ['$http',
