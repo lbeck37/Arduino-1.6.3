@@ -1,4 +1,4 @@
-// Beck 5/25/19b
+// Beck 5/25/19c
 
 var todoApp = angular.module('TodoApp', ['firebase']);
 
@@ -12,79 +12,53 @@ var firebaseConfig = {
     appId: "1:754022099819:web:50b456b2ed48aa27"
   };
 
-
 // Initialize your Firebase app
 firebase.initializeApp(firebaseConfig);
 
-/*
 todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
     function($scope, $firebaseArray) {
-
-        // CREATE A FIREBASE REFERENCE
-        //var todosRef = new Firebase('https://your-firebase-url.firebaseio.com/');
-        var todosRef = new Firebase('https://fir-mariestep1.firebaseio.com/');
-
-        // GET TODOS AS AN ARRAY
-        $scope.todos = $firebaseArray(todosRef);
-todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray', '$firebaseObject',
-    function($scope, $firebaseArray, $firebaseObject) {
-*/
-todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
-    function($scope, $firebaseArray) {
-
-        // CREATE A FIREBASE REFERENCE
-        //var todosRef = new Firebase('https://your-firebase-url.firebaseio.com/');
-        //var todosRef = new Firebase('https://fir-mariestep1.firebaseio.com/');
-
-		// Reference to your entire Firebase database
+		// Reference to entire Firebase database
 		var todosRef = firebase.database().ref();
 
-
         // GET TODOS AS AN ARRAY
         $scope.todos = $firebaseArray(todosRef);
 
-        // ADD TODO ITEM METHOD
+        // ADD_TODO ITEM METHOD
         $scope.addTodo = function () {
-
             // CREATE A UNIQUE ID
             var timestamp = new Date().valueOf();
-
             $scope.todos.$add({
                 id: timestamp,
                 name: $scope.todoName,
                 status: 'pending'
             });
-
             $scope.todoName = "";
-
         };	//addTodo
 
-        // REMOVE TODO ITEM METHOD
-        $scope.removeTodo = function (index, todo) {
 
+        // REMOVE_TODO ITEM METHOD
+        $scope.removeTodo = function (index, todo) {
             // CHECK THAT ITEM IS VALID
-            if (todo.id === undefined)return;
+            if (todo.id === undefined) return;
 
             // FIREBASE: REMOVE ITEM FROM LIST
             $scope.todos.$remove(todo);
-
         };	//removeTodo
+
 
         // MARK TODO AS IN PROGRESS METHOD
         $scope.startTodo = function (index, todo) {
-
             // CHECK THAT ITEM IS VALID
             if (todo.id === undefined)return;
 
             // UPDATE STATUS TO IN PROGRESS AND SAVE
             todo.status = 'in progress';
             $scope.todos.$save(todo);
-
         };	//startTodo
+
 
         // MARK TODO AS COMPLETE METHOD
         $scope.completeTodo = function (index, todo) {
-
             // CHECK THAT ITEM IS VALID
             if (todo.id === undefined)return;
 
@@ -93,3 +67,4 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
             $scope.todos.$save(todo);
         };	//completeTodo
     }]);	//controller
+//Last Line.
