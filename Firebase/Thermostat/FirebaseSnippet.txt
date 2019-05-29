@@ -1,0 +1,8 @@
+"Thermostat": {
+      "DegF": 37.73,
+      "Setpoint": 71.00,
+      "DeltaOff": 0.10,
+      "Thermostat State": true,
+      "Relay State": false
+    }
+"Thermostat": {"DegF": 37.73, "Setpoint": 71.00}
