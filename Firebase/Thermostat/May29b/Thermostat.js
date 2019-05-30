@@ -1,9 +1,9 @@
 // Thermostat.js, 5/29/19b
     angular.module('ThermoApp', []).
-      //controller('MainCtrl', ["$scope", "$firebaseObject",
-        //function($scope, $firebaseObject){
-      controller('MainCtrl', ["$scope", "$firebaseArray",
-        function($scope, $firebaseArray){
+      controller('MainCtrl', ["$scope", "$firebaseObject",
+        function($scope, $firebaseObject){
+      //controller('MainCtrl', ["$scope",
+        //function($scope){
       //controller('MainCtrl', [
         //function(){
           var self= this;
