@@ -1,4 +1,4 @@
-<!-- Thermostat.html, 6/2/19a -->
+<!-- Thermostat.html, 5/31/19c -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <head>
@@ -39,7 +39,7 @@
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>Thermostat 6/2/19b</h2>
+   <h2>Thermostat 5/31/19d</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -81,8 +81,13 @@
 
   <!-- JavaScript code, there is not a Thermostat.js file -->
   <script type="text/javascript">
+    //angular.module('ThermoApp', []).
+    //controller('MainCtrl', [
+    //function(){
 
-    var ThermoModule= angular.module('ThermoApp', ['firebase']);
+//var todoApp = angular.module('TodoApp', ['firebase']);
+
+    angular.module('ThermoApp', ['firebase']).
 
     var firebaseConfig = {
         apiKey: "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A",
@@ -94,22 +99,22 @@
         appId: "1:754022099819:web:50b456b2ed48aa27"
       };
 
-    //Initialize your Firebase app
+    // Initialize your Firebase app
     firebase.initializeApp(firebaseConfig);
 
-    ThermoModule.controller('MainCtrl', ['$scope', '$firebaseObject',
+    //todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray', '$firebaseObject',
+      //function($scope, $firebaseArray, $firebaseObject) {
+
+    controller('MainCtrl', ['$scope', '$firebaseObject',
       function($scope, $firebaseObject){
 
-        //Reference to Thermo
-        var ThermoRef = firebase.database().ref('Thermo');
-
-        //var ThermoObj= $firebaseObject(ThermoRef);
+        // Reference to entire Firebase database
+        var ThermoRef = firebase.database().ref();
 
         var self= this;
 
         self.oThermo= {};
-        //self.oThermo.dLastDegF      = 70.37;
-        self.oThermo.dLastDegF      = ThermoRef.child('DegF').toString();;
+        self.oThermo.dLastDegF      = 70.37;
         self.oThermo.dSetpointF     = 71.00;
         self.oThermo.dMaxHeatRangeF =  0.10;
 

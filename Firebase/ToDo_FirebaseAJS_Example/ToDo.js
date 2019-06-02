@@ -1,4 +1,4 @@
-// Beck 5/25/19c
+// Beck 5/30/19a
 
 var todoApp = angular.module('TodoApp', ['firebase']);
 
@@ -15,10 +15,10 @@ var firebaseConfig = {
 // Initialize your Firebase app
 firebase.initializeApp(firebaseConfig);
 
-todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
-    function($scope, $firebaseArray) {
-		// Reference to entire Firebase database
-		var todosRef = firebase.database().ref();
+todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray', '$firebaseObject',
+    function($scope, $firebaseArray, $firebaseObject) {
+    // Reference to entire Firebase database
+    var todosRef = firebase.database().ref();
 
         // GET TODOS AS AN ARRAY
         $scope.todos = $firebaseArray(todosRef);
@@ -33,7 +33,7 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
                 status: 'pending'
             });
             $scope.todoName = "";
-        };	//addTodo
+        };  //addTodo
 
 
         // REMOVE_TODO ITEM METHOD
@@ -43,7 +43,7 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
 
             // FIREBASE: REMOVE ITEM FROM LIST
             $scope.todos.$remove(todo);
-        };	//removeTodo
+        };  //removeTodo
 
 
         // MARK TODO AS IN PROGRESS METHOD
@@ -54,7 +54,7 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
             // UPDATE STATUS TO IN PROGRESS AND SAVE
             todo.status = 'in progress';
             $scope.todos.$save(todo);
-        };	//startTodo
+        };  //startTodo
 
 
         // MARK TODO AS COMPLETE METHOD
@@ -65,6 +65,6 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
             // UPDATE STATUS TO COMPLETE AND SAVE
             todo.status = 'complete';
             $scope.todos.$save(todo);
-        };	//completeTodo
-    }]);	//controller
+        };  //completeTodo
+    }]);  //controller
 //Last Line.

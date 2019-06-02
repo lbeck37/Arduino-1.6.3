@@ -1,4 +1,4 @@
-<!-- Thermostat.html, 6/2/19a -->
+<!-- Thermostat.html, 5/31/19a -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <head>
@@ -39,7 +39,7 @@
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>Thermostat 6/2/19b</h2>
+   <h2>Thermostat 5/30/19d</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -71,6 +71,29 @@
     </form>
   </div>
 
+  <!-- JavaScript code, there is not a Thermostat.js file -->
+  <script type="text/javascript">
+    angular.module('ThermoApp', []).
+      controller('MainCtrl', ['$firebaseObject',
+        function($firebaseObject){
+          var self= this;
+
+          self.oThermo= {};
+          self.oThermo.dLastDegF      = 70.37;
+          self.oThermo.dSetpointF     = 71.00;
+          self.oThermo.dMaxHeatRangeF =  0.10;
+
+          self.dThermoOffDegF= self.oThermo.dSetpointF + self.oThermo.dMaxHeatRangeF;
+
+          self.submit= function(){
+            console.log('submit(): Begin');
+          };  //submit
+
+          return;
+        } //function()
+    ]);
+  </script>
+
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
   <!-- jQuery JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -78,51 +101,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <!-- Bootstrap JS -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-  <!-- JavaScript code, there is not a Thermostat.js file -->
-  <script type="text/javascript">
-
-    var ThermoModule= angular.module('ThermoApp', ['firebase']);
-
-    var firebaseConfig = {
-        apiKey: "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A",
-        authDomain: "fir-mariestep1.firebaseapp.com",
-        databaseURL: "https://fir-mariestep1.firebaseio.com",
-        projectId: "fir-mariestep1",
-        storageBucket: "fir-mariestep1.appspot.com",
-        messagingSenderId: "754022099819",
-        appId: "1:754022099819:web:50b456b2ed48aa27"
-      };
-
-    //Initialize your Firebase app
-    firebase.initializeApp(firebaseConfig);
-
-    ThermoModule.controller('MainCtrl', ['$scope', '$firebaseObject',
-      function($scope, $firebaseObject){
-
-        //Reference to Thermo
-        var ThermoRef = firebase.database().ref('Thermo');
-
-        //var ThermoObj= $firebaseObject(ThermoRef);
-
-        var self= this;
-
-        self.oThermo= {};
-        //self.oThermo.dLastDegF      = 70.37;
-        self.oThermo.dLastDegF      = ThermoRef.child('DegF').toString();;
-        self.oThermo.dSetpointF     = 71.00;
-        self.oThermo.dMaxHeatRangeF =  0.10;
-
-        self.dThermoOffDegF= self.oThermo.dSetpointF + self.oThermo.dMaxHeatRangeF;
-
-        self.submit= function(){
-          console.log('submit(): Begin');
-        };  //submit
-
-        return;
-      } //function()
-    ]);
-  </script>
 
 </body>
 </html>
