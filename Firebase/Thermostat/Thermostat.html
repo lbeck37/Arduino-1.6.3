@@ -1,4 +1,4 @@
-<!-- Thermostat.html, 6/2/19a -->
+<!-- Thermostat.html, 6/3/19a -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <head>
@@ -39,7 +39,7 @@
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>Thermostat 6/2/19b</h2>
+   <h2>Thermostat 6/3/19b</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -97,8 +97,10 @@
     //Initialize your Firebase app
     firebase.initializeApp(firebaseConfig);
 
-    ThermoModule.controller('MainCtrl', ['$scope', '$firebaseObject',
-      function($scope, $firebaseObject){
+    //ThermoModule.controller('MainCtrl', ['$scope', '$firebaseObject',
+      //function($scope, $firebaseObject){
+    ThermoModule.controller('MainCtrl', ['$firebaseObject',
+      function($firebaseObject){
 
         //Reference to Thermo
         var ThermoRef = firebase.database().ref('Thermo');
@@ -109,7 +111,8 @@
 
         self.oThermo= {};
         //self.oThermo.dLastDegF      = 70.37;
-        self.oThermo.dLastDegF      = ThermoRef.child('DegF').toString();;
+        //self.oThermo.dLastDegF      = ThermoRef.child('DegF').toString();
+        self.oThermo.dLastDegF      = ThermoRef.child('DegF');
         self.oThermo.dSetpointF     = 71.00;
         self.oThermo.dMaxHeatRangeF =  0.10;
 
