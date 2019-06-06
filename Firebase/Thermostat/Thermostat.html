@@ -39,12 +39,14 @@
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>Thermostat 6/3/19b</h2>
+   <h2>Thermostat 6/5/19j</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
         <span class="dht-labels">Current</span>
-        <span id="LastDegF">{{ctrl.oThermo.dLastDegF}}</span>
+<!-- LastDegF
+        <span id="LastDegF">{{ctrl.oThermo.dLastDegF}}</span> -->
+        <span id="LastDegF">{{ctrl.ThermoObj.DegF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
@@ -101,18 +103,22 @@
       //function($scope, $firebaseObject){
     ThermoModule.controller('MainCtrl', ['$firebaseObject',
       function($firebaseObject){
+         var self= this;
 
-        //Reference to Thermo
+       //Reference to Thermo
         var ThermoRef = firebase.database().ref('Thermo');
+        //var ThermoRef = firebase.database().ref();
 
-        //var ThermoObj= $firebaseObject(ThermoRef);
-
-        var self= this;
+        //var dLastDegF= $firebaseObject(ThermoRef.child('DegF'));
+        //var dLastDegF= $firebaseObject(ThermoRef.child('DegF')).$value;
+        self.ThermoObj= $firebaseObject(ThermoRef);
 
         self.oThermo= {};
         //self.oThermo.dLastDegF      = 70.37;
         //self.oThermo.dLastDegF      = ThermoRef.child('DegF').toString();
-        self.oThermo.dLastDegF      = ThermoRef.child('DegF');
+        //self.oThermo.dLastDegF      = ThermoRef.child('DegF');
+        //self.oThermo.dLastDegF      = ThermoRef.child('Thermo').child('DegF');
+        //self.oThermo.dLastDegF      = dLastDegF;
         self.oThermo.dSetpointF     = 71.00;
         self.oThermo.dMaxHeatRangeF =  0.10;
 
