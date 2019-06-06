@@ -1,4 +1,4 @@
-<!-- Thermostat.html, 6/6/19 -->
+<!-- Thermostat.html, 6/3/19a -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <head>
@@ -39,7 +39,7 @@
 </head>
 <body ng-controller="MainCtrl as ctrl">
   <div>
-   <h2>Thermostat 6/6/19g</h2>
+   <h2>Thermostat 6/5/19j</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -52,18 +52,14 @@
       <p>
         <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
         <span class="dht-labels">Setpoint</span>
-<!-- SetPointDegF
-        <span id="SetPointDegF">{{ctrl.oThermo.dSetpointF}}</span> -->
-        <span id="SetPointDegF">{{ctrl.ThermoObj.Setpoint}}</span>
+        <span id="SetPointDegF">{{ctrl.oThermo.dSetpointF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
         <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
         <span class="dht-labels">Max Heat Range</span>
-<!-- MaxHeatRange
-        <span id="TermoOffDegF">{{ctrl.oThermo.dMaxHeatRangeF}}</span> -->
-        <span id="TermoOffDegF">{{ctrl.ThermoObj.DeltaOff}}</span>
-       <sup class="units">&deg;F</sup>
+        <span id="TermoOffDegF">{{ctrl.oThermo.dMaxHeatRangeF}}</span>
+        <sup class="units">&deg;F</sup>
       </p>
       <p>
         <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
@@ -109,21 +105,24 @@
       function($firebaseObject){
          var self= this;
 
-        //Get Thermo FirebaseObject
+       //Reference to Thermo
         var ThermoRef = firebase.database().ref('Thermo');
+        //var ThermoRef = firebase.database().ref();
+
+        //var dLastDegF= $firebaseObject(ThermoRef.child('DegF'));
+        //var dLastDegF= $firebaseObject(ThermoRef.child('DegF')).$value;
         self.ThermoObj= $firebaseObject(ThermoRef);
 
-        //self.oThermo= {};
-        //self.oThermo.dSetpointF     = 71.00;
-        //self.oThermo.dMaxHeatRangeF =  0.10;
+        self.oThermo= {};
+        //self.oThermo.dLastDegF      = 70.37;
+        //self.oThermo.dLastDegF      = ThermoRef.child('DegF').toString();
+        //self.oThermo.dLastDegF      = ThermoRef.child('DegF');
+        //self.oThermo.dLastDegF      = ThermoRef.child('Thermo').child('DegF');
+        //self.oThermo.dLastDegF      = dLastDegF;
+        self.oThermo.dSetpointF     = 71.00;
+        self.oThermo.dMaxHeatRangeF =  0.10;
 
-        var localDegF= ThermoRef.child('DegF');
-        //console.log("DegF= " + self.ThermoObj.DegF);
-        console.log("DegF= " + localDegF);
-        console.log("Setpoint= " + self.ThermoObj.Setpoint);
-
-        self.dThermoOffDegF= self.ThermoObj.Setpoint + self.ThermoObj.DeltaOff;
-        //self.dThermoOffDegF= ThermoObj.Setpoint + ThermoObj.DeltaOff;
+        self.dThermoOffDegF= self.oThermo.dSetpointF + self.oThermo.dMaxHeatRangeF;
 
         self.submit= function(){
           console.log('submit(): Begin');
