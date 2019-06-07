@@ -1,3 +1,4 @@
+//****************
 app.controller("MyCtrl", ["$scope", "$firebaseObject",
   function($scope, $firebaseObject) {
      var ref = firebase.database().ref();
@@ -21,3 +22,16 @@ app.controller("MyCtrl", ["$scope", "$firebaseObject",
      obj.$bindTo($scope, "data");
   }
 ]);
+
+
+//****************
+// The key of a root reference is null
+var rootRef = firebase.database().ref();
+var key = rootRef.key;  // key === null
+
+
+//****************
+// The key of any non-root reference is the last token in the path
+var adaRef = firebase.database().ref("users/ada");
+var key = adaRef.key;  // key === "ada"
+key = adaRef.child("name/last").key;  // key === "last"

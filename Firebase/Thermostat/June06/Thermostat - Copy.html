@@ -40,33 +40,35 @@
 <body ng-controller="MainCtrl as ctrl">
   <div>
 <!-- ****** Date Code ****** -->
-   <h2>Thermostat 6/6/19z</h2>
+   <h2>Thermostat 6/6/19y</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
         <span class="dht-labels">Current</span>
-<!-- LastDegF -->
+<!-- LastDegF
+        <span id="LastDegF">{{ctrl.oThermo.dLastDegF}}</span> -->
         <span id="LastDegF">{{ctrl.ThermoObj.DegF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
         <i class="fas fa-tachometer-alt" style="color: Tomato;"></i>
         <span class="dht-labels">Setpoint</span>
-<!-- SetPointDegF -->
+<!-- SetPointDegF
+        <span id="SetPointDegF">{{ctrl.oThermo.dSetpointF}}</span> -->
         <span id="SetPointDegF">{{ctrl.ThermoObj.Setpoint}}</span>
         <sup class="units">&deg;F</sup>
       </p>
       <p>
         <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
         <span class="dht-labels">Max Heat Range</span>
-<!-- DeltaOff -->
-        <span id="DeltaOff">{{ctrl.ThermoObj.DeltaOff}}</span>
+<!-- MaxHeatRange
+        <span id="TermoOffDegF">{{ctrl.oThermo.dMaxHeatRangeF}}</span> -->
+        <span id="TermoOffDegF">{{ctrl.ThermoObj.DeltaOff}}</span>
        <sup class="units">&deg;F</sup>
       </p>
       <p>
         <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
         <span class="dht-labels">Offpoint</span>
-<!-- Offpoint, calculated from database values -->
         <span id="TermoOffDegF">{{ctrl.dThermoOffDegF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
@@ -114,6 +116,17 @@
 
         //Wait for data from Firebase
         self.ThermoObj.$loaded().then(function() {
+          console.log("loaded record:", self.ThermoObj.$id, self.ThermoObj.Setpoint);
+          //To iterate the key/value pairs of the object, use angular.forEach()
+          angular.forEach(self.ThermoObj, function(value, key) {
+            console.log(key, value);
+          });
+
+          var localSetpoint= self.ThermoObj.Setpoint;
+          var localDeltaOff= self.ThermoObj.DeltaOff;
+          console.log("localSetpoint= " + localSetpoint);
+          console.log("localDeltaOff= " + localDeltaOff);
+
           self.dThermoOffDegF= self.ThermoObj.Setpoint + self.ThermoObj.DeltaOff;
           console.log("dThermoOffDegF= " + self.dThermoOffDegF);
         });
