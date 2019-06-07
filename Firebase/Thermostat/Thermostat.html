@@ -40,7 +40,7 @@
 <body ng-controller="MainCtrl as ctrl">
   <div>
 <!-- ****** Date Code ****** -->
-   <h2>Thermostat 6/6/19z</h2>
+   <h2>Thermostat 6/7/19a</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -102,8 +102,6 @@
     //Initialize your Firebase app
     firebase.initializeApp(firebaseConfig);
 
-    //ThermoModule.controller('MainCtrl', ['$scope', '$firebaseObject',
-      //function($scope, $firebaseObject){
     ThermoModule.controller('MainCtrl', ['$firebaseObject',
       function($firebaseObject){
         var self= this;
@@ -119,7 +117,11 @@
         });
 
         self.submit= function(){
-          console.log('submit(): Begin');
+          self.ThermoObj.$save().then(function(){
+            console.log('submit(): ThermoObj saved back to Firebase');
+            }).catch(function(error){
+              console.log('submit(): ThermoObj saved back to Firebase');
+            });
         };  //submit
 
         return;
