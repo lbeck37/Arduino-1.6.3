@@ -40,7 +40,7 @@
 <body ng-controller="MainCtrl as ctrl">
   <div>
 <!-- ****** Date Code ****** -->
-   <h2>Thermostat 6/7/19a</h2>
+   <h2>Thermostat 6/7/19e</h2>
    <form ng-submit="ctrl.submit() ">
      <p>
         <i class="fas fa-thermometer-half" style="color:#059e8a;"></i>
@@ -58,7 +58,7 @@
       </p>
       <p>
         <i class="fas fa-stroopwafel fa-spin" style="color: Dodgerblue;"></i>
-        <span class="dht-labels">Max Heat Range</span>
+        <span class="dht-labels">DeltaOff</span>
 <!-- DeltaOff -->
         <span id="DeltaOff">{{ctrl.ThermoObj.DeltaOff}}</span>
        <sup class="units">&deg;F</sup>
@@ -70,6 +70,17 @@
         <span id="TermoOffDegF">{{ctrl.dThermoOffDegF}}</span>
         <sup class="units">&deg;F</sup>
       </p>
+
+      <p>
+      <label>New Setpoint:</label>
+      <input type="text" ng-model="ctrl.ThermoObj.Setpoint">
+      </p>
+
+      <p>
+      <label>New DeltaOff:</label>
+      <input type="text" ng-model="ctrl.ThermoObj.DeltaOff">
+      </p>
+
       <p>
       <input type="submit" value="New Values">
       </p>
@@ -117,6 +128,8 @@
         });
 
         self.submit= function(){
+          console.log("submit(): self.ThermoObj.Setpoint= " + self.ThermoObj.Setpoint);
+          self.dThermoOffDegF= self.ThermoObj.Setpoint + self.ThermoObj.DeltaOff;
           self.ThermoObj.$save().then(function(){
             console.log('submit(): ThermoObj saved back to Firebase');
             }).catch(function(error){
