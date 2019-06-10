@@ -1,6 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "5/19/19a";
-// acYUI_Dial_InteractiveScrollPicturePageHTML
+const char szFileDate[]    = "6/8/19a";
 
 #ifndef ESP8266
   #define ESP8266
@@ -9,15 +8,16 @@ const char szFileDate[]    = "5/19/19a";
 #define DO_ALEXA              true
 #define DO_NTP                false
 #define DO_ACCESS_POINT       true
-#define DO_ASYNC_WEB_SERVER   true
+//#define DO_ASYNC_WEB_SERVER   false
 
 #include <BeckBiotaLib.h>
 #include <BeckMiniLib.h>
 #include <BeckOTALib.h>
 #include <BeckSwitchLib.h>
-#include <BeckWebPages.h>
-#include <BeckWebServer.h>
+//#include <BeckWebPages.h>
+//#include <BeckWebServer.h>
 #include <BeckWiFiLib.h>
+//#include <FirebaseArduino.h>
 #include <Streaming.h>
 #include <Time.h>
 #include <WiFiClient.h>
@@ -60,8 +60,8 @@ void setup(){
     SetupWiFi();
     if (_bWiFiConnected){
       SetupOTAWebPages();
-      SetupTermoWebPage();
-      StartWebServer(_acHostname);
+      //SetupTermoWebPage();
+      //StartWebServer(_acHostname);
       #if DO_ACCESS_POINT
         SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT
@@ -99,22 +99,24 @@ void setup(){
 
 void loop(){
   ulLastTaskMsec= millis();
+/*
   if (_bWiFiConnected){
     HandleWebServer();
     CheckTaskTime("loop(): HandleWebServer()");
   } //if(_bWiFiConnected)
+*/
 #if DO_NTP
   if (_bWiFiConnected){
     HandleNTPUpdate();
     CheckTaskTime("loop(): HandleNTPUpdate()");
   } //if(_bWiFiConnected)
 #endif
-  #if DO_ACCESS_POINT
+#if DO_ACCESS_POINT
   if (_bWiFiConnected){
     HandleSoftAPClient();       //Listen for HTTP requests from clients
     CheckTaskTime("loop(): HandleSoftAPClient()");
   } //if(_bWiFiConnected)
-  #endif  //DO_ACCESS_POINT
+#endif  //DO_ACCESS_POINT
   if (!_bOTA_Started){
     HandleSystem();
     CheckTaskTime("loop(): HandleSystem()");

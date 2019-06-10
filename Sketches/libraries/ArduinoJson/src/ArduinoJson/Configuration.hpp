@@ -12,8 +12,10 @@
 
 #if __cplusplus >= 201103L
 #define ARDUINOJSON_HAS_LONG_LONG 1
+#define ARDUINOJSON_HAS_NULLPTR 1
 #else
 #define ARDUINOJSON_HAS_LONG_LONG 0
+#define ARDUINOJSON_HAS_NULLPTR 0
 #endif
 
 // Small or big machine?
@@ -133,6 +135,16 @@
 // Convert unicode escape sequence (\u0123) to UTF-8
 #ifndef ARDUINOJSON_DECODE_UNICODE
 #define ARDUINOJSON_DECODE_UNICODE 0
+#endif
+
+// Support NaN in JSON
+#ifndef ARDUINOJSON_ENABLE_NAN
+#define ARDUINOJSON_ENABLE_NAN 0
+#endif
+
+// Support Infinity in JSON
+#ifndef ARDUINOJSON_ENABLE_INFINITY
+#define ARDUINOJSON_ENABLE_INFINITY 0
 #endif
 
 // Control the exponentiation threshold for big numbers
