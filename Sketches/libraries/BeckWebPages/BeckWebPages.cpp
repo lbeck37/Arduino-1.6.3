@@ -1,6 +1,7 @@
-//BeckWebPages.cpp, 5/10/19a
+//BeckWebPages.cpp, 8/11/19a
 #include <BeckWebPages.h>
-#include "BeckWebPagesHTML.h"
+//#include "BeckWebPagesHTML.h"
+#include "BeckThermoFirebaseHTML.h"
 #include <BeckMiniLib.h>
 #include <BeckThermoLib.h>
 #include <BeckWebServer.h>
@@ -61,7 +62,8 @@ void SetupTermoWebPage(){
     Serial << LOG0 << "SetupTermoWebPage(): Got a GET on /Thermostat, sending web page" << endl;
     oWebServer.sendHeader("Connection", "close");
     //oWebServer.send(200, "text/html", acTestPageHTML);
-    oWebServer.send(200, "text/html", acThermoWebPageHTML);
+    //oWebServer.send(200, "text/html", acThermoWebPageHTML);
+    oWebServer.send(200, "text/html", acThermoFirebaseHTML);
     return;
   });
 
