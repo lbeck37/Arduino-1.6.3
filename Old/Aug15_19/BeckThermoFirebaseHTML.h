@@ -1,28 +1,30 @@
 // BeckThermoFirebaseHTML.h
 #pragma once
+
 const char* acThermoFirebaseHTML= R"(
+<!-- Thermostat.html, 6/6/19 -->
 <!DOCTYPE HTML>
 <html ng-app="ThermoApp">
 <head>
   <meta charset="utf-8">
   <title>My Site</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- AngularJS.js -->
+    <!-- AngularJS -->
       <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
-    <!-- Firebase.js -->
+    <!-- Firebase -->
       <script src="https://www.gstatic.com/firebasejs/3.1.0/firebase.js"></script>
-    <!-- AngularFire.js -->
+    <!-- AngularFire was 1.1.2 -->
       <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
     <!-- Bootstrap.css -->
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <!-- FontAwesome.css -->
+    <!-- FontAwesome -->
       <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
   <style>
     html {
      font-family: Arial;
      display: inline-block;
      margin: 0px auto;
-     text-align: left;
+     text-align: center;
     }
     h2 { font-size: 3.0rem; }
     p { font-size: 3.0rem; }
@@ -32,15 +34,12 @@ const char* acThermoFirebaseHTML= R"(
       <!-- vertical-align:middle;-->
       padding-bottom: 15px;
     }
-    #number {
-      width: 3em;
-    }
   </style>
 </head>
 <body ng-controller="MainCtrl as ctrl">
-  <div class="container">
+  <div>
 <!-- ****** Date Code ****** -->
-   <h2>Thermostat 8/21/19e</h2>
+   <h2>Thermostat 8/14/19a</h2>
    <form ng-submit="ctrl.submit() ">
 <!-- LastDegF -->
      <p>
@@ -72,30 +71,28 @@ const char* acThermoFirebaseHTML= R"(
       </p>
 <!-- New Setpoint, calculated from database values -->
       <p>
-  <!-- <label>New Setpoint:</label> -->
-  <!-- <input type="number" step="0.1" ng-model="ctrl.ThermoObj.Setpoint"> -->
-       <span class="dht-labels">New Setpoint</span>
-       <input type="number" id="number" step="0.1" ng-model="ctrl.ThermoObj.Setpoint">
+<!-- 
+        <label>New Setpoint:</label>
+ -->
+       <span class="dht-labels">Setpoint</span>
+       <input type="number" step="0.1" ng-model="ctrl.ThermoObj.Setpoint">
       </p>
 <!-- New DeltaOff, calculated from database values -->
       <p>
-  <!-- <label>New DeltaOff:</label> -->
-  <!-- <input type="number" step="0.01" ng-model="ctrl.ThermoObj.DeltaOff"> -->
-       <span class="dht-labels">New DeltaOff</span>
-       <input type="number" id="number" step="0.1" ng-model="ctrl.ThermoObj.DeltaOff">
-    </p>
+        <label>New DeltaOff:</label>
+        <input type="number" step="0.01" ng-model="ctrl.ThermoObj.DeltaOff">
+      </p>
       <p>
         <input type="submit" value="Update">
       </p>
     </form>
-  </div> <!-- class="container" -->
-
+  </div>
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <!-- jQuery.js -->
+  <!-- jQuery JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <!-- Popper.js -->
+  <!-- Popper JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-  <!-- Bootstrap.js -->
+  <!-- Bootstrap JS -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   
 <!-- JavaScript code -->

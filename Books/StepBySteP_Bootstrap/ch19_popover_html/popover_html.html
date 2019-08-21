@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+	
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+
+		<title>Welcome</title>
+
+	</head>
+	
+	<body>
+	
+		<div class="container">
+		
+			<h1>Popover with HTML</h1>
+			
+			<p>
+				This is a paragraph with a  <a href="#" id="popoverLink" data-toggle="popover" title="Popover Title" 
+				data-content="
+				<div class='pull-right'>
+					<img src='tinyimage.jpg' class='img-responsive img-thumbnail'>
+				</div>
+				<div>The content of the popover goes here. Feel free to put a text of any length. You can also use HTML markups like <a href='#'>hyperlink</a>, a list, even adding an image 
+				<ol>
+					<li>List A</li>
+					<li>List B</li>
+					<li>List C</li>
+				</ol>
+				</div>">popover</a>. As you can see a popover consists of two parts: the title and the content.
+			</p>
+
+		</div>
+
+		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+		<script>
+			$(document).ready(function() {
+				$('#popoverLink').popover({
+					placement:'bottom',
+					html:'true'
+				})
+		});
+		</script>
+
+	</body>
+</html>

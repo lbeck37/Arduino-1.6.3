@@ -1,0 +1,29 @@
+.jumbotron {
+padding: 30px;
+margin-bottom: 30px;
+color: inherit;
+background-image: url('image_file.jpg');
+background-position: center;
+
+}
+
+.jumbotron h1,
+.jumbotron .h1 {
+color: #ffffff;
+}
+
+.jumbotron p {
+margin-bottom: 15px;
+font-size: 21px;
+font-weight: 200;
+color:#ffffff;
+}
+
+body {
+font-family: "Times New Roman", Times, serif;
+font-size: 14px;
+line-height: 1.428571429;
+color: #333333;
+background-color: #ffffff;
+}
+

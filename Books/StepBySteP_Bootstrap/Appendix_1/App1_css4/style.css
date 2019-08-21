@@ -1,0 +1,23 @@
+h1 {
+	text-align:center;
+}
+
+h2 {
+	font-style:italic;
+}
+
+body {
+	padding:10px;
+	margin:20px;
+	border:5px solid #888888;
+}
+
+.paragraph {
+	text-align:justify;
+	text-indent:20px;
+}
+
+#content1 {
+	background-color:#cccccc;
+	padding:10px;
+}

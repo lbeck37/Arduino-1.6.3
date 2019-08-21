@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+	
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+
+		<title>Sign Up</title>
+
+	</head>
+	
+	<body>
+	
+		<nav class="navbar navbar-inverse">
+  			<div class="container-fluid">
+    			<div class="navbar-header">
+    				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        				<span class="icon-bar"></span>
+        				<span class="icon-bar"></span>
+        				<span class="icon-bar"></span>
+      				</button> 
+      				<a class="navbar-brand" href="#">MyWebsite</a>
+    			</div>
+
+    			<div class="collapse navbar-collapse" id="myNavbar">
+      				<ul class="nav navbar-nav">
+        				<li><a href="#">Home</a></li>
+        				<li><a href="#">Page A</a></li>
+        				<li><a href="#">Page B</a></li>
+        				<li class="dropdown">
+        					<a href="#" class="dropdown-toggle" data-toggle="dropdown">Page C <b class="caret"></b></a>
+          					<ul class="dropdown-menu">
+								<li><a href="#">Page C - 1</a></li>
+								<li><a href="#">Page C - 2</a></li>
+								<li><a href="#">Page C - 3</a></li>        
+							</ul>        
+        				</li>
+      				</ul>
+      				<ul class="nav navbar-nav navbar-right">
+      					<li class="active"><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      					<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      				</ul>
+    			</div>
+  			</div>
+		</nav>
+	
+		<div class="container">
+
+			<h1>Sign Up</h1>
+		
+			<form action="#" method="POST" id="signupForm">
+				<div class="row">
+					<div class="col-md-4 col-lg-4">
+						<div class="form-group" id="inputNameFormGroup">				
+							<label class="control-label" for="inputName">Name</label>				
+    						<input type="text" class="form-control" id="inputName" placeholder="Enter your name">    			
+						</div>
+					</div>
+				</div>
+		
+				<div class="row">
+					<div class="col-md-3 col-lg-3">
+						<div class="form-group" id="inputEmailFormGroup">
+							<label class="control-label" for="inputEmail">Email Address</label>
+    						<input type="email" class="form-control" id="inputEmail" placeholder="Enter your email address">
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-2 col-lg-2">
+						<div class="form-group" id="inputPasswordFormGroup">
+							<label class="control-label" for="inputPassword">Password</label>
+    						<input type="password" class="form-control" id="inputPassword">
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-2 col-lg-2">
+						<div class="form-group" id="inputRepeatPasswordFormGroup">
+							<label class="control-label" for="inputRepeatPassword"> Repeat Password</label>
+    						<input type="password" class="form-control" id="inputRepeatPassword">
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-4 col-lg-4" id="placeForAlert"></div>
+				</div>
+				<button type="submit" class="btn btn-primary" id="submitButton">Submit</button>
+			</form>
+		</div>
+		
+		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+		
+		<script>
+			$(document).ready(function() {
+				
+				var emailReg=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w+)+$/;
+				
+				$("#submitButton").click(function(e){
+	
+					if($("#inputName").val()==""){
+						e.preventDefault();
+						$("#inputNameFormGroup").addClass("has-error");			
+					}
+					else if($("#inputEmail").val()==""){
+						e.preventDefault();
+						$("#inputEmailFormGroup").addClass("has-error");		
+					}
+					else if(!emailReg.test($("#inputEmail").val())){
+						e.preventDefault();
+						$("#inputEmailFormGroup").addClass("has-error");	
+					}
+					else if($("#inputPassword").val()==""){
+						e.preventDefault();
+						$("#inputPasswordFormGroup").addClass("has-error");		
+					}
+					else if($("#inputRepeatPassword").val()==""){
+						e.preventDefault();
+						$("#inputRepeatPasswordFormGroup").addClass("has-error");	
+					}
+					else if($("#inputPassword").val()!=$("#inputRepeatPassword").val()){
+						e.preventDefault();
+						$("#inputPasswordFormGroup").addClass("has-error");
+						$("#inputRepeatPasswordFormGroup").addClass("has-error");
+						$("#placeForAlert").addClass("alert alert-warning");
+						$("#placeForAlert").html("Password and Repeat Password must be the same");
+					}
+					else {
+						$("#signupForm").submit();
+					}
+				});	
+			});
+		</script>
+
+	</body>
+</html>

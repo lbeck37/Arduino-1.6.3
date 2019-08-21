@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+	
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+
+		<title>Welcome</title>
+
+	</head>
+	
+	<body>
+		<div class="container">
+			<h1>Progress Bar</h1>
+		</div>
+		<div class="container">
+			<div class="progress">
+  				<div id="myProgressBar" class="progress-bar" style="width: 0%;"></div>
+			</div>
+			<div><button class="btn btn-primary" id="btnAddProgress">Add progress</button></div>
+		</div>
+		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+		
+		<script>
+			$(document).ready(function() {
+				
+				var counter=0;
+				
+				$("#btnAddProgress").click(function(){
+					counter+=5;
+					if(counter>100){
+						counter=0;
+					}
+					$("#myProgressBar").css('width', counter+'%');
+					
+				});	
+			});
+		</script>
+			
+	</body>
+</html>

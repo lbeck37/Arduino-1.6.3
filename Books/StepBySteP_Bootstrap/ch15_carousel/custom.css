@@ -1,0 +1,71 @@
+.jumbotron {
+  padding: 30px;
+  margin-bottom: 30px;
+  color: inherit;
+  background-image: url('image_1.jpg');
+  background-position: center;  
+}
+
+.jumbotron h1,
+.jumbotron .h1 {
+  color: #FFFFFF;
+}
+.jumbotron p {
+  margin-bottom: 15px;
+  font-size: 21px;
+  font-weight: 200;
+  color:#FFFFFF;
+}
+
+body {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 18px;
+  line-height: 1.428571429;
+  color: #333;
+  background-color: #fff;
+}
+
+
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top:20px;
+}
+
+.carousel-caption h1 {
+	font-size:60px;
+}
+
+.carousel-caption p {
+	font-size:20px;
+}
+
+.slide1 {
+	background-image: url('image_1.jpg');
+	height:500px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover; 
+}
+
+.slide2 {
+	background-image: url('image_2.jpg');
+	height:500px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover; 
+}
+
+.slide3 {
+	background-image: url('image_3.jpg');
+	height:500px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover; 
+}
+
+.navbar {
+	margin-bottom:1px;
+}

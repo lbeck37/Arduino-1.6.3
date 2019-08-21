@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+	
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+
+		<title>Welcome</title>
+
+	</head>
+	
+	<body>
+	
+		<div class="container">
+		
+			<h1>Tooltip</h1>
+		
+			<p id="myHint" data-toggle="tooltip" title="This is your hint!<br><a href='#'>Click here for more details</a>">Maecenas ac augue dignissim, tincidunt nibh quis, interdum odio. Curabitur tellus dolor, scelerisque vitae libero ac, fringilla vulputate augue. Cras vel convallis enim, non auctor ante. Suspendisse dapibus vel ligula at vehicula. Suspendisse nulla metus, molestie vel malesuada id, porttitor ut arcu. Proin et laoreet leo, blandit accumsan est. Curabitur sit amet nulla in dolor auctor pellentesque. Nullam id odio et nulla tincidunt imperdiet. Morbi ultrices lacinia diam, non porttitor sem dignissim eu. Maecenas et ultricies ipsum.</p>
+			<div><button id="btnHint" class="btn btn-primary">Show Hint</button></div>
+		</div>
+
+		<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+		<script>
+
+		$(document).ready(function() {
+			$('#myHint').tooltip({
+				trigger:'manual',
+				html:'true'
+			});
+			
+			$("#btnHint").click(function(){
+				$('#myHint').tooltip("toggle");
+			});
+		});
+		</script>
+
+	</body>
+</html>

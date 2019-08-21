@@ -1,5 +1,5 @@
 const String szSketchName  = "BeckThermoFirebase.ino";
-const String szFileDate    = "8/11/19a";
+const String szFileDate    = "8/21/19e";
 #include <BeckWebPages.h>
 #include <BeckMiniLib.h>
 #include <BeckOTALib.h>
