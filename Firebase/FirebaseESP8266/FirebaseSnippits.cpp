@@ -1,7 +1,7 @@
 //FirebaseSnippits.cpp, 8/26/19
 //**********************************************************
 //FirebaseESP8266.cpp
-String FirebaseData::errorReason()
+String FirebaseData::errorReason() //Actual line 5400
 {
     Serial << "FirebaseData::errorReason() begin" << endl;
     std::string buff = "";
@@ -39,7 +39,7 @@ String FirebaseData::errorReason()
 
 
 //**********************************************************
-void FirebaseESP8266::errorToString(int httpCode, std::string &buff)
+void FirebaseESP8266::errorToString(int httpCode, std::string &buff) //Actual line 3793
 {
     buff.clear();
     switch (httpCode)
@@ -166,6 +166,59 @@ void FirebaseESP8266::errorToString(int httpCode, std::string &buff)
         return;
     }
 }
+
+
+void FirebaseESP8266::p_memCopy(std::string &buff, const char *p, bool empty) //4434
+{
+    if (empty)
+        buff.clear();
+    size_t len = strlen_P(p) + 10;
+    char *b = new char[len];
+    memset(b, 0, len);
+    strcpy(b, p);
+    buff += b;
+    delete[] b;
+} //p_memCopy
+
+
+bool FirebaseESP8266::sdTest()
+{
+    File file;
+    std::string filepath = "";
+    p_memCopy(filepath, ESP8266_FIREBASE_STR_73, true);
+
+    SD.begin(SD_CS_PIN);
+    _sdPin = SD_CS_PIN;
+
+    file = SD.open(filepath.c_str(), FILE_WRITE);
+    if (!file)
+        goto EXIT_5;
+
+    if (!file.write(32))
+        goto EXIT_5;
+    file.close();
+
+    file = SD.open(filepath.c_str());
+    if (!file)
+        goto EXIT_5;
+
+    while (file.available())
+    {
+        if (file.read() != 32)
+            goto EXIT_5;
+    }
+    file.close();
+
+    SD.remove(filepath.c_str());
+
+    std::string().swap(filepath);
+
+    return true;
+
+EXIT_5:
+    std::string().swap(filepath);
+    return false;
+} //sdTest
 
 
 //**********************************************************

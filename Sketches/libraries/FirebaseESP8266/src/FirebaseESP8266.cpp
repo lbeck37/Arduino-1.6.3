@@ -42,6 +42,8 @@
 
 #include "FirebaseESP8266.h"
 
+#include <Streaming.h>
+
 struct FirebaseESP8266::FirebaseDataType
 {
     static const uint8_t NULL_ = 1;
@@ -3788,10 +3790,24 @@ void FirebaseESP8266::reconnect()
     }
 }
 
+/*
+Serial << "FirebaseESP8266::errorToString(): httpCode= " << httpCode << endl;
+
+Serial << "FirebaseESP8266::errorToString(): Call buff.clear()" << endl;
+buff.clear();
+Serial << "FirebaseESP8266::errorToString(): Back from buff.clear()" << endl;
+*/
+
 void FirebaseESP8266::errorToString(int httpCode, std::string &buff)
 {
+  Serial << "FirebaseESP8266::errorToString(): httpCode= " << httpCode << endl;
+  return;
 
-    buff.clear();
+  Serial << "FirebaseESP8266::errorToString(): Call buff.clear()" << endl;
+  buff.clear();
+  Serial << "FirebaseESP8266::errorToString(): Back from buff.clear()" << endl;
+
+    //buff.clear();
     switch (httpCode)
     {
     case HTTPC_ERROR_CONNECTION_REFUSED:
@@ -3834,7 +3850,9 @@ void FirebaseESP8266::errorToString(int httpCode, std::string &buff)
         p_memCopy(buff, ESP8266_FIREBASE_STR_51);
         return;
     case _HTTP_CODE_UNAUTHORIZED:
+        Serial << "FirebaseESP8266::errorToString(): case _HTTP_CODE_UNAUTHORIZED, httpCode= " << httpCode << endl;
         p_memCopy(buff, ESP8266_FIREBASE_STR_52);
+        Serial << "FirebaseESP8266::errorToString(): Back from p_memCopy()" << endl;
         return;
     case _HTTP_CODE_FORBIDDEN:
         p_memCopy(buff, ESP8266_FIREBASE_STR_53);
@@ -3911,11 +3929,12 @@ void FirebaseESP8266::errorToString(int httpCode, std::string &buff)
     case HTTPC_NO_FCM_INDEX_NOT_FOUND_IN_DEVICE_TOKEN_PROVIDED:
         p_memCopy(buff, ESP8266_FIREBASE_STR_147);
         return;
-
     default:
-        return;
+      Serial << "FirebaseESP8266::errorToString(): Hit switch default, httpCode= " << httpCode << endl;
+       return;
     }
-}
+} //errorToString
+
 
 bool FirebaseESP8266::sendFCMMessage(FirebaseData &dataObj, uint8_t messageType)
 {
@@ -4413,17 +4432,35 @@ void FirebaseESP8266::processAllErrorQueues()
     set_scheduled_callback(std::bind(&FirebaseESP8266::processAllErrorQueues, this));
 }
 
-void FirebaseESP8266::p_memCopy(std::string &buff, const char *p, bool empty)
+void FirebaseESP8266::p_memCopy(std::string &buff, const char *p, bool empty) //4434
 {
-    if (empty)
-        buff.clear();
-    size_t len = strlen_P(p) + 10;
+  //String szP= String(p);
+  //Serial << "FirebaseESP8266::p_memCopy(): Begin, szP= " << szP << endl;
+  //Serial << "FirebaseESP8266::p_memCopy(): Begin, p= " << p << "|" << endl;
+  Serial << "FirebaseESP8266::p_memCopy(): Begin" << endl;
+    if (empty){
+      buff.clear();
+    }
+
+    Serial << "FirebaseESP8266::p_memCopy(): Get string length " << endl;
+    size_t len = strlen_P(p) + 10;    //pgmspace.h
+    Serial << "FirebaseESP8266::p_memCopy(): Clear memory, len= " << len << endl;
     char *b = new char[len];
     memset(b, 0, len);
+
+    //Serial << "FirebaseESP8266::p_memCopy(): Add p to buff, buff= " << buff << endl;
+    Serial << "FirebaseESP8266::p_memCopy(): Call strcpy() to add p to buff" << endl;
+    Serial << "FirebaseESP8266::p_memCopy(): p[0] p[1] p[2]=" << p[0] << p[1] << p[2] << "|" << endl;
     strcpy(b, p);
+    Serial << "FirebaseESP8266::p_memCopy(): Back from strcpy()" << endl;
     buff += b;
+    //Serial << "FirebaseESP8266::p_memCopy(): p added to buff, buff= " << buff << endl;
+    Serial << "FirebaseESP8266::p_memCopy(): p added to buff" << endl;
+
     delete[] b;
-}
+    return;
+} //p_memCopy
+
 
 bool FirebaseESP8266::sdTest()
 {
@@ -5440,18 +5477,21 @@ String FirebaseData::errorReason()
     if (_firebaseError != "")
     {
         char *str = new char[100];
-        memset(str, 0, 100);
-        strcpy_P(str, ESP8266_FIREBASE_STR_132);
-        buff += str;
-        memset(str, 0, 100);
-        strcpy_P(str, ESP8266_FIREBASE_STR_6);
-        buff += str;
-        delete[] str;
-        buff += _firebaseError;
-    }
 
+        memset(str, 0, 100);
+        strcpy_P(str, ESP8266_FIREBASE_STR_132);  //","
+        buff += str;
+
+        memset(str, 0, 100);
+        strcpy_P(str, ESP8266_FIREBASE_STR_6);    //" "
+        buff += str;
+
+        buff += _firebaseError;
+        delete[] str;
+    }
     return buff.c_str();
-}
+} //errorReason
+
 
 int FirebaseData::httpCode()
 {

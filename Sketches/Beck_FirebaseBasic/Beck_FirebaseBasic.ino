@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseBasic.ino";
-const char szFileDate[]    = "8/26/19n";
+const char szFileDate[]    = "8/26/19z";
 
 #include <FirebaseESP8266.h>
 #include <FirebaseESP8266HTTPClient.h>
@@ -75,7 +75,7 @@ void setup()
   Serial.println("Set double test...");
 
   for (uint8_t i = 0; i < 10; i++){
-    Serial << "Call Firebase.setDouble(), i= " << i << endl;
+    Serial << "setup(): Call Firebase.setDouble(), i= " << i << endl;
     if (Firebase.setDouble(firebaseData, path + "/Double/Data" + (i + 1), ((i + 1) * 10) + 0.123456789)){
       Serial.println("PASSED");
       Serial.println("PATH: " + firebaseData.dataPath());
@@ -99,9 +99,9 @@ void setup()
     }
     else {
       //Serial.println("FAILED");
-      Serial << "setDouble() failed, call errorReason() to find out why" << endl;
+      Serial << "setup(): setDouble() failed, call errorReason() to find out why" << endl;
       String szErrorReason= firebaseData.errorReason();
-      Serial << "szErrorReason= " << szErrorReason << endl;
+      Serial << "setup(): szErrorReason= " << szErrorReason << endl;
       //Serial.println("REASON: " + firebaseData.errorReason());
       Serial.println("------------------------------------");
       Serial.println();
@@ -134,8 +134,8 @@ void setup()
       Serial.println();
     }
     else {
-      Serial.println("FAILED");
-      Serial.println("REASON: " + firebaseData.errorReason());
+      Serial.println("setup(): FAILED");
+      Serial.println("setup(): REASON: " + firebaseData.errorReason());
       Serial.println("------------------------------------");
       Serial.println();
     }
