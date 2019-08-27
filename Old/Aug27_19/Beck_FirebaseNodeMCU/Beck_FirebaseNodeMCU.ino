@@ -1,9 +1,9 @@
 const char szSketchName[]  = "Beck_FirebaseNodeMCU.ino";
-const char szFileDate[]    = "8/27/19a";
+const char szFileDate[]    = "5/19/19a";
 
 #include <Arduino.h>
-//#include <DHT.h>
-//#include <DHT_U.h>
+#include <DHT.h>
+#include <DHT_U.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <FirebaseArduino.h>
@@ -25,10 +25,10 @@ const char szFileDate[]    = "8/27/19a";
 // comment this line if you want to use DHT11
 #define TEST
 
-//#define DHTTYPE DHT11
-//#define DHTPIN D2
+#define DHTTYPE DHT11
+#define DHTPIN D2
 
-//DHT dht(DHTPIN, DHTTYPE);
+DHT dht(DHTPIN, DHTTYPE);
 
 void connectToWiFi() {
     delay(10);
@@ -60,10 +60,11 @@ void setup() {
     Serial.begin(115200);
     connectToWiFi();
     Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-    //dht.begin();
+    dht.begin();
 }
 
 void loop() {
+    #ifdef TEST
         // === Push temperature value to Firebase ===
         String tempValueID = Firebase.pushInt("dht11/temperature", random(0, 80));
         Serial.print("[INFO] temperature: ");
@@ -88,8 +89,7 @@ void loop() {
         Serial.print("[INFO] pushed: /dht11/humidity    \tkey: ");
         Serial.println(humValueID);
         Serial.println();
-        delay(1000);
-/*
+    #else
         // === Read and Log temperature and humidity to Serial Monitor ===
         float h = dht.readHumidity();
         float t = dht.readTemperature();
@@ -125,7 +125,7 @@ void loop() {
         } else {
             Serial.println("[ERROR] Wrong values!");
         }
-    delay(1000);
-*/
+    #endif
 
+    delay(1000);
 }
