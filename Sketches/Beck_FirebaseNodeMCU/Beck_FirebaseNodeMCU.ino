@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseNodeMCU.ino";
-const char szFileDate[]    = "8/27/19a";
+const char szFileDate[]    = "8/27/19c";
 
 #include <Arduino.h>
 //#include <DHT.h>
@@ -7,6 +7,7 @@ const char szFileDate[]    = "8/27/19a";
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <FirebaseArduino.h>
+#include <Streaming.h>
 //#include "Creds.h"
 
 /*
@@ -23,7 +24,7 @@ const char szFileDate[]    = "8/27/19a";
 #define FIREBASE_AUTH "AIzaSyDTXPBe2Bgy003pA8RgOTPVIURZ8EEnG3Y"
 
 // comment this line if you want to use DHT11
-#define TEST
+//#define TEST
 
 //#define DHTTYPE DHT11
 //#define DHTPIN D2
@@ -58,37 +59,46 @@ void connectToWiFi() {
 
 void setup() {
     Serial.begin(115200);
+    delay(100);
+    Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
     connectToWiFi();
     Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
     //dht.begin();
 }
 
 void loop() {
-        // === Push temperature value to Firebase ===
-        String tempValueID = Firebase.pushInt("dht11/temperature", random(0, 80));
-        Serial.print("[INFO] temperature: ");
-        Serial.println(random(0, 80));
-        if (Firebase.failed()) {
-            Serial.print("[ERROR] pushing /dht11/temperature failed:");
-            Serial.println(Firebase.error());
-            return;
-        }
-        Serial.print("[INFO] pushed: /dht11/temperature \tkey: ");
-        Serial.println(tempValueID);
-        
-        // === Push humidity value to Firebase ===
-        String humValueID = Firebase.pushInt("dht11/humidity", random(0, 80));
-        Serial.print("[INFO] humidity: ");
-        Serial.println(random(0, 80));
-        if (Firebase.failed()) {
-            Serial.print("[ERROR] pushing /dht11/humidity failed:");
-            Serial.println(Firebase.error());
-            return;
-        }
-        Serial.print("[INFO] pushed: /dht11/humidity    \tkey: ");
-        Serial.println(humValueID);
-        Serial.println();
-        delay(1000);
+    static int  wCount= 0;
+    // === Push temperature value to Firebase ===
+    wCount++;
+    //String tempValueID = Firebase.pushInt("dht11/temperature", random(0, 80));
+    String tempValueID = Firebase.pushInt("dht11/temperature", wCount);
+    Serial.print("[INFO] temperature: ");
+    //Serial.println(random(0, 80));
+    Serial.println(wCount);
+    if (Firebase.failed()) {
+        Serial.print("[ERROR] pushing /dht11/temperature failed:");
+        Serial.println(Firebase.error());
+        return;
+    }
+    Serial.print("[INFO] pushed: /dht11/temperature \tkey: ");
+    Serial.println(tempValueID);
+
+    // === Push humidity value to Firebase ===
+    wCount++;
+    //String humValueID = Firebase.pushInt("dht11/humidity", random(0, 80));
+    String humValueID = Firebase.pushInt("dht11/humidity", wCount);
+    Serial.print("[INFO] humidity: ");
+    //Serial.println(random(0, 80));
+    Serial.println(wCount);
+    if (Firebase.failed()) {
+        Serial.print("[ERROR] pushing /dht11/humidity failed:");
+        Serial.println(Firebase.error());
+        return;
+    }
+    Serial.print("[INFO] pushed: /dht11/humidity    \tkey: ");
+    Serial.println(humValueID);
+    Serial.println();
+    delay(1000);
 /*
         // === Read and Log temperature and humidity to Serial Monitor ===
         float h = dht.readHumidity();
