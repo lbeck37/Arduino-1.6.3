@@ -38,8 +38,13 @@ class FirebaseHttpClient {
  protected:
   static const uint16_t kFirebasePort = 443;
 };
-
+//Beck 9/02/19, This must agree with setting in .ino , like Beck_FirebaseNodeMCU.ino
+// Fingerprint for firebaseio.com as in thermo-2b830.firebaseio.com
 static const char kFirebaseFingerprint[] =
-      "B6 F5 80 C8 B1 DA 61 C1 07 9D 80 42 D8 A9 1F AF 9F C8 96 7D"; // 2019-04
+        "B6 F5 80 C8 B1 DA 61 C1 07 9D 80 42 D8 A9 1F AF 9F C8 96 7D"; // 2019-04 and 9/2/19
+
+// Fingerprint for web.app as in thermo-2b830.web.app
+//static const char kFirebaseFingerprint[] =
+//        "7D:F4:C4:BB:81:2F:EE:72:29:BD:36:42:6D:80:A7:A7:B3:F9:28:B9";
 
 #endif  // FIREBASE_HTTP_CLIENT_H

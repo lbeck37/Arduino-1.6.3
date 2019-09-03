@@ -1,41 +1,24 @@
-const char szSketchName[]  = "Beck_FirebaseNodeMCU.ino";
-const char szFileDate[]    = "9/2/19b";
+const char szSketchName[]  = "Beck_FirebaseRawTest.ino";
+const char szFileDate[]    = "8/28/19b";
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <BeckFirebase.h>
+/*
 #include <ESP8266HTTPClient.h>
 #include <FirebaseArduino.h>
+*/
 #include <Streaming.h>
 //#include "Creds.h"
 
-/*
-#define SSID "PLANET_D9CM"
-#define PASSWORD "FVMSJ4EZ"
-
-#define FIREBASE_HOST "medium-iot-project.firebaseio.com"
-#define FIREBASE_AUTH "lr6Wp38WJNod6dOmVsbBPstVfPzf8QpObXf8fJIv"
-*/
 #define SSID "Aspot24"
 #define PASSWORD "Qazqaz11"
-
-//Fingerprints set in FirebaseHttpClient.h:
-  // firebaseio.com:  "B6:F5:80:C8:B1:DA:61:C1:07:9D:80:42:D8:A9:1F:AF:9F:C8:96:7D"
-  //  web.app:        "7D:F4:C4:BB:81:2F:EE:72:29:BD:36:42:6D:80:A7:A7:B3:F9:28:B9"
 
 //#define FIREBASE_HOST "https://fir-mariestep1.firebaseio.com/"
 //#define FIREBASE_HOST "fir-mariestep1.firebaseio.com/"
 
-//#define FIREBASE_HOST "simpleiot-65405.firebaseio.com"
-/*
 #define FIREBASE_HOST "//simpleiot-65405.firebaseio.com/"
 #define FIREBASE_AUTH "AIzaSyDTXPBe2Bgy003pA8RgOTPVIURZ8EEnG3Y"
-*/
-#define FIREBASE_HOST "//thermo-2b830.firebaseio.com/"
-//#define FIREBASE_HOST "//thermo-2b830.web.app/"
-#define FIREBASE_AUTH "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
-
-//#define FIREBASE_HOST "//thermo-2b830.web.app/"    //
-//#define FIREBASE_AUTH "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
 
 /*
 #define FIREBASE_HOST "//fir-mariestep1.firebaseio.com/"
@@ -66,8 +49,10 @@ void setup() {
     Serial << endl << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
     connectToWiFi();
     //Serial << "setup(): Call Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH)" << endl;
+/*
     Serial << "setup(): Call Firebase.begin(" << FIREBASE_HOST << ", " << FIREBASE_AUTH << ")" << endl;
     Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);   //Does not set error
+*/
     return;
 } //setup
 
@@ -76,6 +61,8 @@ void loop() {
     static float  fCount= 20.0;
     // === Push dummy temperature value to Firebase ===
     fCount += 0.01;
+    Serial << endl << "loop(): Begin" << endl;
+/*
     Serial << endl << "loop(): Call Firebase.setFloat(DegF, " << fCount << ")" << endl;
     Firebase.setFloat("DegF", fCount);
 
@@ -100,6 +87,7 @@ void loop() {
       Serial << "loop(): Error getting fNewSetpoint, error= " << Firebase.error() << endl;
     } //if(Firebase.failed()) else
 
+*/
     delay(5000);
     return;
 } //loop

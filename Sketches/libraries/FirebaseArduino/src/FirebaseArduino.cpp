@@ -15,6 +15,7 @@
 //
 
 #include "FirebaseArduino.h"
+#include <Streaming.h>
 
 // This is needed to compile std::string on esp8266.
 template class std::basic_string<char>;
@@ -198,6 +199,8 @@ bool FirebaseArduino::failed() {
 }
 
 const String& FirebaseArduino::error() {
+  Serial << "|" << endl << "FirebaseArduino::error(): Begin" << endl;
+  Serial << "FirebaseArduino::error(): error_.message().c_str()= " << error_.message().c_str() << endl;
   return error_.message().c_str();
 }
 
