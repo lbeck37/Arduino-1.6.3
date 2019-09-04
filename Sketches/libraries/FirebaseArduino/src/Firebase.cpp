@@ -1,4 +1,4 @@
-//
+// Beck 9/3/19a
 // Copyright 2015 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 #include "Firebase.h"
+#include <Streaming.h>
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -24,6 +25,8 @@ std::string makeFirebaseURL(const std::string& path, const std::string& auth) {
   if (path[0] != '/') {
     url = "/";
   }
+  //9/3/19 Beck Remove .json at end. Trying to get Firebase talking
+  //url += path;
   url += path + ".json";
   if (auth.length() > 0) {
     url += "?auth=" + auth;
@@ -71,7 +74,11 @@ int FirebaseRequest::sendRequest(
   char* method, const std::string& path, const std::string& data) {
   std::string path_with_auth = makeFirebaseURL(path, auth);
   http_->setReuseConnection(true);
+
+  //Serial << "FirebaseRequest::sendRequest(): Calling http_->begin(" << host << "," << auth << ")" << endl;
+  Serial << "FirebaseRequest::sendRequest(): Calling http_->begin()" << endl;
   http_->begin(host, path_with_auth);
+
   int status = http_->sendRequest(method, data);
   analyzeError(method, status, path_with_auth);
   response_ = http_->getString();
