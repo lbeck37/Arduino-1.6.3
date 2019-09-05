@@ -21,11 +21,14 @@
 template class std::basic_string<char>;
 
 void FirebaseArduino::begin(const String& host, const String& auth) {
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::begin(): Begin" << endl;
   host_ = host.c_str();
   auth_ = auth.c_str();
 }
 
+
 void FirebaseArduino::initStream() {
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::initStream(): Begin" << endl;
   if (stream_http_.get() == nullptr) {
     stream_http_.reset(FirebaseHttpClient::create());
     stream_http_->setReuseConnection(true);
@@ -33,13 +36,23 @@ void FirebaseArduino::initStream() {
   }
 }
 
+
 void FirebaseArduino::initRequest() {
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::initRequest():Begin" << endl;
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::initRequest():Call <FirebaseHttpClient>req_http_.get()" << endl;
   if (req_http_.get() == nullptr) {
+    Serial << "FirebaseArduino.cpp:FirebaseArduino::initRequest():Call<FirebaseHttpClient>req_http_.get() returned NULL" << endl;
+    Serial << "FirebaseArduino.cpp:FirebaseArduino::initRequest():Call<FirebaseHttpClient>req_http_.reset()" << endl;
     req_http_.reset(FirebaseHttpClient::create());
+    Serial << "FirebaseArduino.cpp:FirebaseArduino::initRequest():Call<FirebaseHttpClient>req_http_.setReuseConnection()" << endl;
     req_http_->setReuseConnection(true);
+    Serial << "FirebaseArduino.cpp:FirebaseArduino::initRequest():Call<FirebaseRequest> req_.reset()" << endl;
     req_.reset(new FirebaseRequest(req_http_));
   }
-}
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::initRequest(): Return" << endl;
+  return;
+} //initRequest
+
 
 String FirebaseArduino::pushInt(const String& path, int value) {
   return push(path, value);
@@ -59,6 +72,7 @@ String FirebaseArduino::pushString(const String& path, const String& value) {
 }
 
 String FirebaseArduino::push(const String& path, const JsonVariant& value) {
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::push(): Begin" << endl;
   int size = value.measureLength()+1;
   char * buf = new char[size];
   value.printTo(buf, size);
@@ -75,6 +89,7 @@ void FirebaseArduino::setInt(const String& path, int value) {
 }
 
 void FirebaseArduino::setFloat(const String& path, float value) {
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::setFloat(): Begin" << endl;
   set(path, value);
 }
 
@@ -88,6 +103,7 @@ void FirebaseArduino::setString(const String& path, const String& value) {
 }
 
 void FirebaseArduino::set(const String& path, const JsonVariant& value) {
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::set(): Begin" << endl;
   int size = value.measureLength()+1;
   char* buf= new char[size];
   value.printTo(buf, size);
@@ -98,12 +114,14 @@ void FirebaseArduino::set(const String& path, const JsonVariant& value) {
 }
 
 void FirebaseArduino::getRequest(const String& path) {
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::getRequest(): Begin" << endl;
   initRequest();
   req_.get()->sendRequest(host_, auth_, "GET", path.c_str());
   error_ = req_.get()->error();
 }
 
 FirebaseObject FirebaseArduino::get(const String& path) {
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::getRequest(): Begin" << endl;
   getRequest(path);
   if (failed()) {
     return FirebaseObject{""};
@@ -199,8 +217,8 @@ bool FirebaseArduino::failed() {
 }
 
 const String& FirebaseArduino::error() {
-  Serial << "|" << endl << "FirebaseArduino::error(): Begin" << endl;
-  Serial << "FirebaseArduino::error(): error_.message().c_str()= " << error_.message().c_str() << endl;
+  Serial << "|" << endl << "FirebaseArduino.cpp:FirebaseArduino::error(): Begin" << endl;
+  Serial << "FirebaseArduino.cpp:FirebaseArduino::error(): error_.message().c_str()= " << error_.message().c_str() << endl;
   return error_.message().c_str();
 }
 

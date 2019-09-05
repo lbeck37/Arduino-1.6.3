@@ -13,10 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-
-#ifndef FIREBASE_ARDUINO_H
-#define FIREBASE_ARDUINO_H
-
+#pragma once
 #include <string>
 
 #include "Firebase.h"
@@ -238,4 +235,4 @@ class FirebaseArduino {
 
 extern FirebaseArduino Firebase;
 
-#endif // FIREBASE_ARDUINO_H
+//Last line

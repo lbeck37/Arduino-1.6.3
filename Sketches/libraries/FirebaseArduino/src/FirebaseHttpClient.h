@@ -1,5 +1,6 @@
-#ifndef FIREBASE_HTTP_CLIENT_H
-#define FIREBASE_HTTP_CLIENT_H
+#pragma once
+//#ifndef FIREBASE_HTTP_CLIENT_H
+//#define FIREBASE_HTTP_CLIENT_H
 
 #include <string>
 
@@ -47,4 +48,5 @@ static const char kFirebaseFingerprint[] =
 //static const char kFirebaseFingerprint[] =
 //        "7D:F4:C4:BB:81:2F:EE:72:29:BD:36:42:6D:80:A7:A7:B3:F9:28:B9";
 
-#endif  // FIREBASE_HTTP_CLIENT_H
+//#endif  // FIREBASE_HTTP_CLIENT_H
+//Last line

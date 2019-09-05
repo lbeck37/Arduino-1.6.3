@@ -76,7 +76,7 @@ int FirebaseRequest::sendRequest(
   http_->setReuseConnection(true);
 
   //Serial << "FirebaseRequest::sendRequest(): Calling http_->begin(" << host << "," << auth << ")" << endl;
-  Serial << "FirebaseRequest::sendRequest(): Calling http_->begin()" << endl;
+  Serial << "Firebase.cpp:FirebaseRequest::sendRequest(): Calling <FirebaseHttpClient>http_->begin()" << endl;
   http_->begin(host, path_with_auth);
 
   int status = http_->sendRequest(method, data);
