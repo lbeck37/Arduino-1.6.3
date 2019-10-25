@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseNodeMCU.ino";
-const char szFileDate[]    = "9/5/19g";
+const char szFileDate[]    = "9/5/19h";
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
