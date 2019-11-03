@@ -13,8 +13,7 @@
 #define ADAFRUITIO_H
 
 #include "Arduino.h"
-//#include "Adafruit_MQTT.h"
-#include "AdafruitIO_MQTT.h"    //Beck 11/5/18
+#include "Adafruit_MQTT.h"
 #include "AdafruitIO_Definitions.h"
 #include "AdafruitIO_Feed.h"
 #include "AdafruitIO_Group.h"
@@ -46,7 +45,6 @@ class AdafruitIO {
     virtual ~AdafruitIO();
 
     void connect();
-
     void run(uint16_t busywait_ms = 0);
 
     AdafruitIO_Feed* feed(const char *name);
@@ -79,6 +77,7 @@ class AdafruitIO {
 
     const char *_host = "io.adafruit.com";
     uint16_t _mqtt_port = 8883;
+    uint16_t _mqtt_eth_port = 1883;
     uint16_t _http_port = 443;
 
     uint16_t _packetread_timeout;
