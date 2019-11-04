@@ -1,6 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseDemo_ESP8266.ino";
-const char szFileDate[]    = "10/29/19a";
-
+const char szFileDate[]    = "11/4/19c";
 //
 // Copyright 2015 Google Inc.
 //
@@ -44,6 +43,7 @@ void setup() {
 int n = 0;
 
 void loop() {
+  delay(5000);
   // set value
   Serial << "loop(): Call Firebase.setFloat(DegF, " << 42.2 << " )" << endl;
   Firebase.setFloat("DegF", 42.0);
