@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseDemo_ESP8266.ino";
-const char szFileDate[]    = "11/4/19c";
+const char szFileDate[]    = "11/6/19k";
 //
 // Copyright 2015 Google Inc.
 //
@@ -8,6 +8,7 @@ const char szFileDate[]    = "11/4/19c";
 
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
+#include <GDBStub.h>
 #include <Streaming.h>
 
 // Set these to run example.
@@ -22,8 +23,11 @@ const char szFileDate[]    = "11/4/19c";
 
 void setup() {
   Serial.begin(115200);
-  delay(100);
-  Serial << endl << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+  delay(1000);
+  //Serial << "setup(): Call gdbstub_init()" << endl;
+  //Start GDB
+  gdbstub_init();
+  Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   // connect to wifi.
   Serial << "setup(): Call WiFi.begin( " << WIFI_SSID << ", " << WIFI_PASSWORD << " )" << endl;
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -36,12 +40,13 @@ void setup() {
   Serial.print("setup(): connected: ");
   Serial.println(WiFi.localIP());
   
-  Serial << "setup(): Call Firebase.begin( " << FIREBASE_HOST << ", " << FIREBASE_AUTH << " )" << endl;
+  Serial << "setup(): Call Firebase.begin( " << FIREBASE_HOST << ", " << FIREBASE_AUTH << " )" << endl << endl;
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-}
+  return;
+}	//setup
+
 
 int n = 0;
-
 void loop() {
   delay(5000);
   // set value
