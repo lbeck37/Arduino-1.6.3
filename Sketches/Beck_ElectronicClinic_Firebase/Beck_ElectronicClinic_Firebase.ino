@@ -1,4 +1,4 @@
-//Beck_ElectronicClinic_Firebase.ino, 12/4/19c
+//Beck_ElectronicClinic_Firebase.ino, 12/5/19e
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
 #include <FirebaseArduino.h>
@@ -13,7 +13,7 @@
 #define WIFI_PASSWORD "08659650"
 */
 
-/#define FIREBASE_HOST "fahad-ba398.firebaseio.com"
+//#define FIREBASE_HOST "fahad-ba398.firebaseio.com"
 //#define FIREBASE_AUTH "d0vy3ZgNMiwszDZsZ3iT1jg9enRLbKypvadDEPz1"
 //#define WIFI_SSID "ZONG MBB-E8231-6E63"
 //#define WIFI_PASSWORD "08659650"
@@ -30,7 +30,7 @@ int sdata = 0; // The variable resistor value will be stored in sdata.
 void setup()
 {
   // Debug console
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(vr ,INPUT);
   // connect to wifi.
   pinMode(D0,OUTPUT);

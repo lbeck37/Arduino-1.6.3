@@ -17,9 +17,9 @@ const char szFileDate[]    = "11/6/19k";
 #define WIFI_SSID "Aspot24"
 #define WIFI_PASSWORD "Qazqaz11"
 
-#define FIREBASE_HOST "//thermo-2b830.firebaseio.com/"
+//#define FIREBASE_HOST "//thermo-2b830.firebaseio.com/"
 //#define FIREBASE_HOST "//thermo-2b830.web.app/"
-#define FIREBASE_AUTH "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
+//#define FIREBASE_AUTH "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
 
 void setup() {
   Serial.begin(115200);
