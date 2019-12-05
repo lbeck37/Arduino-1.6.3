@@ -1,4 +1,4 @@
-//
+// Beck 12/5/19
 // Copyright 2015 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,9 @@
 // limitations under the License.
 //
 #include "Firebase.h"
+
+#include <SoftwareSerial.h>
+#include <Streaming.h>
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -70,12 +73,20 @@ int FirebaseRequest::sendRequest(
   const std::string& host, const std::string& auth,
   char* method, const std::string& path, const std::string& data) {
   std::string path_with_auth = makeFirebaseURL(path, auth);
+  Serial << "FirebaseRequest::sendRequest(): path_with_auth= " << path_with_auth.c_str() << endl;
   http_->setReuseConnection(true);
+
+  Serial << "FirebaseRequest::sendRequest(): Call http_->begin() " << endl;
   http_->begin(host, path_with_auth);
   int status = http_->sendRequest(method, data);
+  Serial << "FirebaseRequest::sendRequest(): status= " << status << endl;
+
   analyzeError(method, status, path_with_auth);
   response_ = http_->getString();
-}
+  Serial << "FirebaseRequest::sendRequest(): response_= " << response_.c_str() << endl;
+  return status;
+}	//sendRequest
+
 
 // FirebaseStream
 void FirebaseStream::startStreaming(const std::string& host, const std::string& auth, const std::string& path) {

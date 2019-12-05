@@ -1,4 +1,4 @@
-//
+//Beck, 12/5/19c
 // Copyright 2016 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,9 @@
 //
 
 #include "FirebaseArduino.h"
+
+#include <SoftwareSerial.h>
+#include <Streaming.h>
 
 // This is needed to compile std::string on esp8266.
 template class std::basic_string<char>;
@@ -90,9 +93,12 @@ void FirebaseArduino::set(const String& path, const JsonVariant& value) {
   int size = value.measureLength()+1;
   char* buf= new char[size];
   value.printTo(buf, size);
+  Serial <<"FirebaseArduino::set(): Call initRequest()" << endl;
   initRequest();
+  Serial <<"FirebaseArduino::set(): Call req_.get()->sendRequest()" << endl;
   req_.get()->sendRequest(host_, auth_, "PUT", path.c_str(), buf);
   error_ = req_.get()->error();
+  Serial <<"FirebaseArduino::set(): error_= " << error_ << endl;
   delete buf;
 }
 
@@ -198,6 +204,7 @@ bool FirebaseArduino::failed() {
 }
 
 const String& FirebaseArduino::error() {
+  Serial <<"FirebaseArduino::error(): error_.message().c_str()= " << error_.message().c_str() << endl;
   return error_.message().c_str();
 }
 
