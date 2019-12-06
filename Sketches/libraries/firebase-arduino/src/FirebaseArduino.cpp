@@ -95,6 +95,7 @@ void FirebaseArduino::set(const String& path, const JsonVariant& value) {
   value.printTo(buf, size);
   Serial <<"FirebaseArduino::set(): Call initRequest()" << endl;
   initRequest();
+
   Serial <<"FirebaseArduino::set(): Call req_.get()->sendRequest()" << endl;
   req_.get()->sendRequest(host_, auth_, "PUT", path.c_str(), buf);
   error_ = req_.get()->error();

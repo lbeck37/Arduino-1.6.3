@@ -1,4 +1,4 @@
-// Beck 12/5/19
+// Beck 12/5/19d
 // Copyright 2015 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,42 +22,46 @@ using std::unique_ptr;
 using std::shared_ptr;
 
 namespace {
-std::string makeFirebaseURL(const std::string& path, const std::string& auth) {
-  std::string url;
-  if (path[0] != '/') {
-    url = "/";
-  }
-  url += path + ".json";
-  if (auth.length() > 0) {
-    url += "?auth=" + auth;
-  }
-  return url;
-}
+  	  std::string makeFirebaseURL(const std::string& path, const std::string& auth) {
+  		  std::string url;
+		  if (path[0] != '/') {
+			url = "/";
+		  }
 
+		  url += path + ".json";
+
+		  if (auth.length() > 0) {
+			url += "?auth=" + auth;
+		  }
+		  return url;
+	  }	//makeFirebaseURL
 }  // namespace
 
+
+//***Firebase class methods***
 Firebase::Firebase(const std::string& host, const std::string& auth) : host_(host), auth_(auth) {
   http_.reset(FirebaseHttpClient::create());
   http_->setReuseConnection(true);
-}
+}	//Constructor
+
 
 const std::string& Firebase::auth() const {
   return auth_;
-}
+}	//auth
 
+
+//***FirebaseCall class methods***
 void FirebaseCall::analyzeError(char* method, int status, const std::string& path_with_auth) {
-    if (status != 200) {
-    error_ = FirebaseError(status,
-                           std::string(method) + " " + path_with_auth +
-                              ": " + http_->errorToString(status));
-  } else {
-    error_ = FirebaseError();
-  }
-}
+	if (status != 200) {
+		error_ = FirebaseError(status, std::string(method) + " " + path_with_auth +
+								       ": " + http_->errorToString(status));
+	}	//if (status != 200)
+	else {
+		error_ = FirebaseError();
+	}	//if (status != 200)else
+	return;
+}	//analyzeError
 
-FirebaseCall::~FirebaseCall() {
-  http_->end();
-}
 
 const JsonObject& FirebaseCall::json() {
   //TODO(edcoyne): This is not efficient, we should do something smarter with
@@ -66,17 +70,23 @@ const JsonObject& FirebaseCall::json() {
     buffer_.reset(new StaticJsonBuffer<FIREBASE_JSONBUFFER_SIZE>());
   }
   return buffer_.get()->parseObject(response().c_str());
-}
+}	//json
 
-// FirebaseRequest
-int FirebaseRequest::sendRequest(
-  const std::string& host, const std::string& auth,
-  char* method, const std::string& path, const std::string& data) {
+
+FirebaseCall::~FirebaseCall() {
+  http_->end();
+}	//Destructor
+
+
+//***FirebaseRequest class methods***
+int FirebaseRequest::sendRequest(const std::string& host, const std::string& auth,
+                 char* method, const std::string& path, const std::string& data) {
   std::string path_with_auth = makeFirebaseURL(path, auth);
   Serial << "FirebaseRequest::sendRequest(): path_with_auth= " << path_with_auth.c_str() << endl;
   http_->setReuseConnection(true);
 
-  Serial << "FirebaseRequest::sendRequest(): Call http_->begin() " << endl;
+  Serial << "FirebaseRequest::sendRequest(): Call http_->begin(" << host.c_str() <<
+      ", " << path_with_auth.c_str() << ") " << endl;
   http_->begin(host, path_with_auth);
   int status = http_->sendRequest(method, data);
   Serial << "FirebaseRequest::sendRequest(): status= " << status << endl;
@@ -85,10 +95,10 @@ int FirebaseRequest::sendRequest(
   response_ = http_->getString();
   Serial << "FirebaseRequest::sendRequest(): response_= " << response_.c_str() << endl;
   return status;
-}	//sendRequest
+} //sendRequest
 
 
-// FirebaseStream
+//***FirebaseStream class methods***
 void FirebaseStream::startStreaming(const std::string& host, const std::string& auth, const std::string& path) {
   std::string path_with_auth = makeFirebaseURL(path, auth);
   http_->setReuseConnection(true);
@@ -108,5 +118,7 @@ void FirebaseStream::startStreaming(const std::string& host, const std::string& 
       http_->setReuseConnection(true);
       http_->begin(location);
       status = http_->sendRequest("GET", std::string());
-  }
-}
+  }	//while
+  return;
+}	//startStreaming
+//Last line.

@@ -1,24 +1,8 @@
+//Beck 12/5/19b
 //
-// Copyright 2015 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
 // firebase-arduino is an Arduino client for Firebase.
 // It is currently limited to the ESP8266 board family.
-
-#ifndef firebase_h
-#define firebase_h
+#pragma once
 
 #include "WString.h"
 #include <Arduino.h>
@@ -59,7 +43,7 @@ class Firebase {
   std::shared_ptr<FirebaseHttpClient> http_;
   std::string host_;
   std::string auth_;
-};
+};  //Firebase class
 
 
 class FirebaseCall {
@@ -77,14 +61,15 @@ class FirebaseCall {
     return response_;
   }
 
-  const JsonObject& json();
+ const JsonObject& json();
 
  protected:
   const std::shared_ptr<FirebaseHttpClient> http_;
   FirebaseError error_;
   std::string response_;
   std::shared_ptr<StaticJsonBuffer<FIREBASE_JSONBUFFER_SIZE>> buffer_;
-};
+};  //FirebaseCall class
+
 
 class FirebaseRequest : public FirebaseCall {
   public:
@@ -92,7 +77,8 @@ class FirebaseRequest : public FirebaseCall {
     virtual ~FirebaseRequest() {}
     int sendRequest(const std::string& host, const std::string& auth,
       char* method, const std::string& path, const std::string& data = "");
-};
+};  //FirebaseRequest class
+
 
 class FirebaseStream : public FirebaseCall {
  public:
@@ -100,6 +86,5 @@ class FirebaseStream : public FirebaseCall {
   virtual ~FirebaseStream() {}
 
   void startStreaming(const std::string& host, const std::string& auth, const std::string& path);
-};
-
-#endif // firebase_h
+};  //FirebaseStream class
+//Last line.
