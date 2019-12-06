@@ -1,4 +1,4 @@
-//Beck_ElectronicClinic_Firebase.ino, 12/5/19k
+//Beck_ElectronicClinic_Firebase.ino, 12/5/19m
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
 #include <FirebaseArduino.h>
@@ -59,7 +59,7 @@ void loop(){
 	Serial << "loop(): Call Firebase.setInt()" << endl;
 	Firebase.setInt("Setpoint", wSetpoint);
 
-	Serial << "loop(): Firebase.error()= " << Firebase.error() << endl;
+	Serial << "loop(): Firebase.error()= |" << Firebase.error() << "|" << endl;
 /*
 	if (Firebase.failed()){
 		Serial << "loop(): Previous call failed, Firebase.error()= " << Firebase.error() << endl;
