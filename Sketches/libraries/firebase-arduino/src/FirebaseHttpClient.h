@@ -1,4 +1,4 @@
-//Beck FirebaseHttpClient.h, 12/5/19c
+//Beck FirebaseHttpClient.h, 12/6/19b
 #pragma once
 #include <string>
 
@@ -31,6 +31,6 @@ class FirebaseHttpClient {
 };  //FirebaseHttpClient class
 
 static const char kFirebaseFingerprint[] =
-      "B6 F5 80 C8 B1 DA 61 C1 07 9D 80 42 D8 A9 1F AF 9F C8 96 7D"; // 2019-04
-
+      "B6 F5 80 C8 B1 DA 61 C1 07 9D 80 42 D8 A9 1F AF 9F C8 96 7D";
+//    "B6:F5:80:C8:B1:DA:61:C1:07:9D:80:42:D8:A9:1F:AF:9F:C8:96:7D";
 //Last line.

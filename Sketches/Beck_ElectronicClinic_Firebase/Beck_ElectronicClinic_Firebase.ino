@@ -1,27 +1,40 @@
-//Beck_ElectronicClinic_Firebase.ino, 12/5/19m
+const char szSketchName[]  = "Beck_ElectronicClinic_Firebase.ino";
+const char szFileDate[]    = "12/6/19m";
+
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
 #include <FirebaseArduino.h>
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
 #include <Streaming.h>
+/*
+#include <FirebaseArduino.h>
+#include <ESP8266WiFi.h>
+#include <SoftwareSerial.h>
+#include <ArduinoJson.h>
+#include <ESP8266HTTPClient.h>
+#include <Streaming.h>
+*/
 
+/*
 #define FIREBASE_HOST "//thermo-2b830.firebaseio.com/"
 #define FIREBASE_AUTH "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
-#define WIFI_SSID "Aspot24"
-#define WIFI_PASSWORD "Qazqaz11"
+*/
+#define FIREBASE_HOST 	"//test-70884.firebaseio.com"
+#define FIREBASE_AUTH 	"AIzaSyD-Nm1dYBV6ehphAOQgkM5sz4oYLKF9ahg"
+
+#define WIFI_SSID 		"Aspot24"
+#define WIFI_PASSWORD 	"Qazqaz11"
 
 String myString;
 //int vr = A0; // variable resistor connected
 //int sdata = 0; // The variable resistor value will be stored in sdata.
 
 void setup(){
-  // Debug console
   Serial.begin(115200);
-  //pinMode(vr ,INPUT);
+  delay(1000);
+  Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
 
-  // connect to wifi.
-  //pinMode(D0,OUTPUT);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("connecting");
   Serial << "Connecting to WiFi router" << endl;
@@ -34,38 +47,24 @@ void setup(){
   Serial.println(WiFi.localIP());
 
   Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
-/*
-  Firebase.setString("Variable/Value","fahad");
-  if (!Firebase.success()){
-    Serial.print(Firebase.error());
-  } //if(!Firebase.success())
-*/
   return;
 } //setup
 
 
 void loop(){
 	//sdata = analogRead(vr);
-/*
-	myString = String(sdata);
-	Serial.println(myString);
-	Firebase.setString("Variable/Value",myString);
-	if (!Firebase.success()){
-		Serial.print(Firebase.error());
-	} //if(!Firebase.success())
-*/
 	static int wSetpoint= 0;
 	Serial << "Setting Setpoint to " << ++wSetpoint << endl;
+	//Try a push first
+	Serial << "loop(): Call Firebase.pushInt()" << endl;
+	Firebase.pushInt("Dude", wSetpoint);
+	Serial << "loop(): Firebase.error()= |" << Firebase.error() << "|" << endl;
+
 	Serial << "loop(): Call Firebase.setInt()" << endl;
-	Firebase.setInt("Setpoint", wSetpoint);
+	//Firebase.setInt("/Setpoint", wSetpoint);
+	Firebase.setInt("/Setpoint", wSetpoint);
 
 	Serial << "loop(): Firebase.error()= |" << Firebase.error() << "|" << endl;
-/*
-	if (Firebase.failed()){
-		Serial << "loop(): Previous call failed, Firebase.error()= " << Firebase.error() << endl;
-	} //if(!Firebase.success())
-*/
-
 	delay(5000);
 	return;
 } //loop
