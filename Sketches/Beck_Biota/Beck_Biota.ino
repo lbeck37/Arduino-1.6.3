@@ -1,11 +1,12 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "8/25/19b";
+const char szFileDate[]    = "12/19/19a";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
-#define DO_ALEXA              true
+//#define DO_ALEXA              true
+#define DO_ALEXA              false
 #define DO_NTP                false
 #define DO_ACCESS_POINT       true
 //#define DO_ASYNC_WEB_SERVER   false
@@ -142,8 +143,8 @@ void HandleSystem(){
       UpdateDisplay();
     } //if(bAlexaChanged)
   } //if(_bWiFiConnected)
-#endif
   wAlexaHandleCount= 0;
+#endif
   switch (_eProjectType){
     case eFireplace:
     case eHeater:
@@ -153,10 +154,12 @@ void HandleSystem(){
         ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
         _wGoodCount= 0;
         _wBadCount= 0;
+#if DO_ALEXA
         if (false && (wAlexaHandleCount < 1000)){
           //Typically HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
           LogToSerial("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
         } //if (wAlexaHandleCount<1000)
+#endif
         ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
         HandleThermostat();
         HandleHeatSwitch();

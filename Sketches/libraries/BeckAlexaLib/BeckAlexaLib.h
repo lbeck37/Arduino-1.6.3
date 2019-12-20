@@ -1,9 +1,11 @@
-// BeckAlexaLib.h 2/18/19a
+// BeckAlexaLib.h 12/19/19a
 #pragma once
 
+/*
 #ifndef DO_ALEXA
   #define DO_ALEXA            true
 #endif
+*/
 
 #if DO_ALEXA
 #include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
