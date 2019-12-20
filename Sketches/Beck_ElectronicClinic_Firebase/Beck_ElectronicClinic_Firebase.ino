@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_ElectronicClinic_Firebase.ino";
-const char szFileDate[]    = "12/8/19d";
+const char szFileDate[]    = "12/14/19a";
 
 #include <ESP8266WiFi.h>
 #include <SoftwareSerial.h>
@@ -65,11 +65,13 @@ void loop(){
 
 */
 	Serial << "loop(): Setting Setpoint to " << ++wSetpoint << endl;
+/*
 	//Try a push first
 	Serial << "loop(): Call Firebase.pushInt()" << endl;
 	Firebase.pushInt("Dude", wSetpoint);
 	Serial << "loop(): Firebase.error()= |" << Firebase.error() << "|" << endl;
 	delay(2000);
+*/
 
 	Serial << "loop(): Call Firebase.setInt()" << endl;
 	//Firebase.setInt("/Setpoint", wSetpoint);
