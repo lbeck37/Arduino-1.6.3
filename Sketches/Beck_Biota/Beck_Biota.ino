@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "12/28/19k";
+const char szFileDate[]    = "12/28/19p";
 
 #ifndef ESP8266
   #define ESP8266
@@ -160,11 +160,11 @@ void HandleSystem(){
         _wBadCount= 0;
 #if DO_ALEXA
         if (false && (wAlexaHandleCount < 1000)){
-          //Typically HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
+          //HandleAlexa() gets called ~8,000 times every 10 sec, except when it's 1 or 2
           LogToSerial("HandleSystem():HandleAlexa() Times called=", wAlexaHandleCount);
         } //if (wAlexaHandleCount<1000)
 #endif
-        ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
+        //ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
         HandleThermostat();		//BeckThermoLib.cpp
         //HandleHeatSwitch();
         UpdateDisplay();

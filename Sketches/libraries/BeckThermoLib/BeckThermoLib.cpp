@@ -33,9 +33,11 @@ void HandleThermostat(){
   static bool     bStateChanged= false;
   unsigned long   ulStartTime;
 
+  //Read the Dallas One-wire temperature sensor
+  float fDegF= fGetDegF();
+
   //Only do something if the thermostat is turned on.
   if (_bThermoOn){
-    float fDegF= fGetDegF();
     if (bHeatOn){
       if (fDegF >= _fThermoOffDegF){
         bStateChanged= true;
@@ -60,15 +62,22 @@ void HandleThermostat(){
         sThermoTimesCount= 0;
       } //if(fDegF<_fSetpointF)else
     } //if(bHeatOn)else
+/*
     if(bStateChanged || (millis() >= ulNextThermPrintMsec)){
       bStateChanged= false;
       ulNextThermPrintMsec= millis() + ulThermPrintPeriodMsec;
       LogThermostatData(fDegF);
     }
+*/
   } //if(_bThermoOn)
   else{
     String szLogString= "HandleThermostat(): bThermoOn is false, Thermostat is off";
     LogToSerial(szLogString);
+  }
+  if(bStateChanged || (millis() >= ulNextThermPrintMsec)){
+    bStateChanged= false;
+    ulNextThermPrintMsec= millis() + ulThermPrintPeriodMsec;
+    LogThermostatData(fDegF);
   }
   HandleHeatSwitch();
   return;
