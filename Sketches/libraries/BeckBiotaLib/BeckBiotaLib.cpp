@@ -1,14 +1,17 @@
-// BeckBiotaLib.cpp 4/11/19a
+// BeckBiotaLib.cpp 12/27/19c
 #include <BeckBiotaLib.h>
 
 ProjectType   _eProjectType;
+
+bool          _bSystemOk        = true;
+
 char          _acHostname       [50];
+//char          _acAlexaName      [50];
 char          _acProjectType    [50];
 char          _acRouterName     [50];
 char          _acRouterPW       [50];
 char          _acAccessPointSSID[50];
 char          _acAccessPointPW  [50];
-bool          _bSystemOk      = true;
 
 
 bool SetupSystem(ProjectType eProjectType){

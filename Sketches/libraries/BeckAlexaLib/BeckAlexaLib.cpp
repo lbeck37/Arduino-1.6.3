@@ -1,4 +1,4 @@
-// BeckAlexaLib.cpp 4/11/19a
+// BeckAlexaLib.cpp 12/27/19b
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
 #include <BeckDisplayLib.h>
@@ -7,11 +7,13 @@
 #include <BeckThermoLib.h>
 #include <BeckAccessPointLib.h>
 
+#include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
+
 int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.
 bool           _bAlexaChanged        = false;  //Set true when display data changed
 char           _acAlexaName[50];
-fauxmoESP      Alexa;                          //Alexa emulation of Phillips Hue Bulb
+fauxmoESP      Alexa;                          //Alexa emulation of Philips Hue Bulb
 
 //Function protos
 void ThermoHandleAlexa      (bool bState, unsigned char ucValue);

@@ -1,12 +1,11 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "12/19/19a";
+const char szFileDate[]    = "12/27/19h";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
-//#define DO_ALEXA              true
-#define DO_ALEXA              false
+#define DO_ALEXA			  true
 #define DO_NTP                false
 #define DO_ACCESS_POINT       true
 //#define DO_ASYNC_WEB_SERVER   false
@@ -22,6 +21,10 @@ const char szFileDate[]    = "12/19/19a";
 #include <Streaming.h>
 #include <Time.h>
 #include <WiFiClient.h>
+
+#if DO_ALEXA
+  #include <BeckAlexaLib.h>
+#endif
 
 #if DO_ACCESS_POINT
   #include <BeckAccessPointLib.h>
@@ -56,6 +59,7 @@ void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+
   _bSystemOk= SetupSystem(eProjectType);  //BeckBiotaib.cpp
   if(_bSystemOk){
     SetupWiFi();
