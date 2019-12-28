@@ -1,5 +1,6 @@
-// BeckBiotaLib.cpp 12/27/19c
+// BeckBiotaLib.cpp 12/28/19a
 #include <BeckBiotaLib.h>
+#include <BeckSwitchLib.h>
 
 ProjectType   _eProjectType;
 
@@ -27,11 +28,13 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "BiotaSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
-      _fSetpointF       =  75.0;
-      _fMinSetpoint     =  20.0;
-      _fMaxSetpoint     =  99.0;
+      _bThermoOn		= false;
+      _fSetpointF       = 75.0;
+      _fMinSetpoint     = 20.0;
+      _fMaxSetpoint     = 99.0;
       _fMaxHeatRangeF   = 0.10;
       _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
+      LogToSerial("SetupSystem(): _bThermoOn set to ", _bThermoOn);
       break;
     case eFireplace:
       strcpy(_acHostname        , "BeckFireplace");
@@ -41,6 +44,7 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "FireplaceSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
+      _bThermoOn		= false;
       _fSetpointF       = 71.0;
       _fMinSetpoint     = 65.0;
       _fMaxSetpoint     = 80.0;
@@ -55,6 +59,7 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "HeaterSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
+      _bThermoOn		= false;
       _fSetpointF       = 75.0;
       _fMinSetpoint     = 55.0;
       _fMaxSetpoint     = 80.0;
@@ -69,6 +74,7 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "GarageSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
+      _bThermoOn		= true;
       _fSetpointF       = 35.0;
       _fMinSetpoint     = 33.0;
       _fMaxSetpoint     = 80.0;
@@ -93,6 +99,23 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "FrontLightsSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
+      break;
+    case eNoProject:
+    default:
+      Serial << LOG0 << "SetupSystem(): Bad switch, _eProjectType= " << _eProjectType << endl;
+      bOk= false;
+      break;
+  } //switch
+  switch (_eProjectType){
+    case eThermoDev:
+    case eFireplace:
+    case eHeater:
+    case eGarage:
+    	SetupSwitches();
+    	SetThermoSwitch(_bThermoOn);
+    	break;
+    case ePitchMeter:
+    case eFrontLights:
       break;
     case eNoProject:
     default:

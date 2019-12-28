@@ -1,4 +1,4 @@
-// BeckAlexaLib.cpp 12/27/19b
+// BeckAlexaLib.cpp 12/28/19a
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
 #include <BeckDisplayLib.h>
@@ -23,7 +23,7 @@ void SetupAlexa(char szAlexaName[]){
   String szLogString= "SetupAlexa(): Begin";
   LogToSerial(szLogString);
   bAlexaOn= true;
-  SetAlexaSwitch(1);
+  //SetThermoSwitch(1);
   if(bAlexaOn){
     // You have to call enable(true) once you have a WiFi connection
     // You can enable or disable the library at any moment
@@ -65,19 +65,11 @@ void DoAlexaCommand(unsigned char ucDdeviceID, const char* szDeviceName, bool bS
       ucDdeviceID, szDeviceName, (bState ? "ON " : "OFF"), ucValue);
   String szLogString= szCharString;
   LogToSerial(szLogString);
-/*
-  SetAlexaSwitch(bState);
-  fSetThermoSetpoint((int)ucValue);
-*/
   switch (_eProjectType){
     case eFireplace:
     case eGarage:
     case eThermoDev:
     case eHeater:
-/*
-      SetAlexaSwitch(bState);
-      fSetThermoSetpoint((ucValue);
-*/
       ThermoHandleAlexa(bState, ucValue);
       break;
     case ePitchMeter:
@@ -101,14 +93,10 @@ void ThermoHandleAlexa(bool bState, unsigned char ucValue){
     SwitchProjectType(ePitchMeter);
   } //if(wValuePercent==10)
   else{
-    SetAlexaSwitch(bState);
+    _bThermoOn= bState;
+	SetThermoSwitch(bState);
     fSetThermoSetpoint(ucValue);
   } //if(wValuePercent==10)else
-
-/*
-  SetAlexaSwitch(bState);
-  fSetThermoSetpoint(ucValue);
-*/
   return;
 } //PitchMeterHandleAlexa
 

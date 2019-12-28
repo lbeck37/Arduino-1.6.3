@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "12/27/19h";
+const char szFileDate[]    = "12/28/19k";
 
 #ifndef ESP8266
   #define ESP8266
@@ -165,8 +165,8 @@ void HandleSystem(){
         } //if (wAlexaHandleCount<1000)
 #endif
         ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
-        HandleThermostat();
-        HandleHeatSwitch();
+        HandleThermostat();		//BeckThermoLib.cpp
+        //HandleHeatSwitch();
         UpdateDisplay();
       } //if(millis()>=ulNextThermHandlerMsec)
      break;

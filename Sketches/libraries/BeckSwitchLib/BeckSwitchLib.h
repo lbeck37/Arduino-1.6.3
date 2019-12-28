@@ -1,4 +1,4 @@
-// BeckSwitchLib.h 2/16/19
+// BeckSwitchLib.h 12/28/19a
 #pragma once
 #include <BeckMiniLib.h>
 
@@ -16,7 +16,7 @@ static const int    sNotInit              = -3737;
 static const int    sNoSwitch             = -1;
 static const int    sNumSwitches          = 2;
 static const int    sHeatSwitchNum        = 1;      //Switch number that turns Heat on and off.
-static const int    sAlexaSwitchNum       = 2;      //Switch number that Alexa turns on and off.
+static const int    sThermoSwitchNum      = 2;      //Switch number that turns Thermostat on and off.
 static const int    sThermoDummySwitch    = 0;      //Thermostat Blynk LED lives at unused switch #0.
 static const int    asSwitchPin[]         = {-1, sHeatSwitchGPIO, sAlexaPin, sNoSwitch, sNoSwitch};    //0 is not a switch, switches are at 1,2,3,4
 static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto-isolated relays close when pulled low.
@@ -24,9 +24,9 @@ static const bool   abSwitchInverted[]    = {0, true, true, true, true};  //Opto
 extern int          asSwitchState[];
 extern int          asSwitchLastState[];
 
-void  SetupSwitches   ();
-void  SetHeatSwitch   (int sSwitchState);
-void  SetAlexaSwitch  (int sSwitchState);
-void  SetSwitch       (int sSwitch, int sSwitchState);
+void  SetupSwitches     ();
+void  SetHeatSwitch     (int sSwitchState);
+void  SetThermoSwitch   (int sSwitchState);
+void  SetSwitch         (int sSwitch, int sSwitchState);
 
 //Last line

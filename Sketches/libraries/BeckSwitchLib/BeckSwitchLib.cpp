@@ -1,4 +1,4 @@
-// BeckSwitchLib.cpp 2/16/19
+// BeckSwitchLib.cpp 12/28/19a
 #include <BeckSwitchLib.h>
 #include <BeckLogLib.h>
 
@@ -10,7 +10,7 @@ void SetupSwitches(){
   for (int sSwitch= 1; sSwitch <= sNumSwitches; sSwitch++){
     if(asSwitchPin[sSwitch] != sNoSwitch){
       pinMode(asSwitchPin[sSwitch], OUTPUT);
-      SetSwitch(sSwitch, sSwitchOpen);
+      //SetSwitch(sSwitch, sSwitchOpen);
     } //if(asSwitchPin[sSwitch]!=sNoSwitch)
   } //for
   return;
@@ -23,10 +23,10 @@ void SetHeatSwitch(int sSwitchState){
 } //SetHeatSwitch
 
 
-void SetAlexaSwitch(int sSwitchState){
-  SetSwitch(sAlexaSwitchNum, sSwitchState);
+void SetThermoSwitch(int sSwitchState){
+  SetSwitch(sThermoSwitchNum, sSwitchState);
   return;
-} //SetAlexaSwitch
+} //SetThermoSwitch
 
 
 void SetSwitch(int sSwitch, int sSwitchState){

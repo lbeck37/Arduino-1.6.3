@@ -1,4 +1,4 @@
-// BeckThermoLib.cpp 4/11/19a
+// BeckThermoLib.cpp 12/28/19a
 #include <BeckThermoLib.h>
 #include <BeckMiniLib.h>
 #include <BeckSwitchLib.h>
@@ -17,7 +17,7 @@ float           _fSetpointF           = 37.03;
 float           _fMaxSetpoint         = 37.04;
 float           _fThermoOffDegF       = _fSetpointF + _fMaxHeatRangeF;
 int             sThermoTimesCount     = 0;      //Number of times temperature out of range
-bool            bThermoOn             = true;   //Whether thermostat is running.
+bool            _bThermoOn;   					//Whether thermostat is running, set in BeckBiotaLib
 bool            bHeatOn               = false;  //If switch is on to turn on Heat.
 unsigned long   ulNextThermPrintMsec  = 0;
 const uint32_t  ulThermPrintPeriodMsec= 10 * lMsecPerSec; //mSec between running system handler
@@ -26,13 +26,15 @@ const uint32_t  ulThermPrintPeriodMsec= 10 * lMsecPerSec; //mSec between running
 OneWire             oOneWire(sOneWireGPIO);
 DallasTemperature   oDallasTempSensor(&oOneWire);
 
+//Function protos
+void    HandleHeatSwitch      ();
 
 void HandleThermostat(){
   static bool     bStateChanged= false;
   unsigned long   ulStartTime;
 
   //Only do something if the thermostat is turned on.
-  if (bThermoOn){
+  if (_bThermoOn){
     float fDegF= fGetDegF();
     if (bHeatOn){
       if (fDegF >= _fThermoOffDegF){
@@ -63,13 +65,26 @@ void HandleThermostat(){
       ulNextThermPrintMsec= millis() + ulThermPrintPeriodMsec;
       LogThermostatData(fDegF);
     }
-  } //if(bThermoOn)
+  } //if(_bThermoOn)
   else{
-    String szLogString= " bThermoOn is false";
+    String szLogString= "HandleThermostat(): bThermoOn is false, Thermostat is off";
     LogToSerial(szLogString);
   }
+  HandleHeatSwitch();
   return;
 } //HandleThermostat
+
+
+void HandleHeatSwitch(){
+  if (bHeatOn){
+    SetSwitch(sHeatSwitchNum, sOn);
+  } //if(bHeatOn)
+  else{
+    asSwitchState[sHeatSwitchNum]= sOff;
+    SetSwitch(sHeatSwitchNum, sOff);
+  } //if(bHeatOn)else
+  return;
+} //HandleHeatSwitch
 
 
 void LogThermostatData(float fDegF){
@@ -101,18 +116,6 @@ float fSetThermoSetpoint(float fSetpoint){
   } //if((_fSetpointF==fLastSetpoint)
   return _fSetpointF;
 } //fSetThermoSetpoint(float)
-
-
-void HandleHeatSwitch(){
-  if (bHeatOn){
-    SetSwitch(sHeatSwitchNum, sOn);
-  } //if(bHeatOn)
-  else{
-    asSwitchState[sHeatSwitchNum]= sOff;
-    SetSwitch(sHeatSwitchNum, sOff);
-  } //if(bHeatOn)else
-  return;
-} //HandleHeatSwitch
 
 
 float fGetDegF(){
