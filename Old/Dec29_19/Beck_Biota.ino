@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "12/29/19f";
+const char szFileDate[]    = "12/28/19s";
 
 #ifndef ESP8266
   #define ESP8266
@@ -70,9 +70,6 @@ void setup(){
       #if DO_ACCESS_POINT
         SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT
-	  #if DO_ALEXA
-		  SetupAlexa(_acAlexaName);
-	  #endif
     } //if(_bWiFiConnected)
 
     SetupI2C();
@@ -82,6 +79,11 @@ void setup(){
     #if DO_NTP
       if (_bWiFiConnected){
         SetupNTP();
+      } //if(_bWiFiConnected)
+    #endif
+    #if DO_ALEXA
+      if (_bWiFiConnected){
+        SetupAlexa(_acAlexaName);
       } //if(_bWiFiConnected)
     #endif
     SetupDisplay(_eProjectType);

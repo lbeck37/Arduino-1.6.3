@@ -1,4 +1,4 @@
-// BeckBiotaLib.cpp 12/28/19bb
+// BeckBiotaLib.cpp 12/28/19b
 #include <BeckBiotaLib.h>
 #include <BeckSwitchLib.h>
 

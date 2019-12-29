@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, 12/29/19f
+//BeckWiFiLib.cpp, 12/29/19c
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -33,14 +33,13 @@ void SetupWiFi(){
 
   //_bWiFiConnected= false;
   int	wNotConnectCount		= 0;
-  int	wMaxNotConnectCount		= 40;	//10 sec at 250 msec delay
+  int	wMaxNotConnectCount		= 20;	//5 sec at 250 msec delay
   bool 	bWiFiMultiNoConnect		= false;
 
   Serial << LOG0 << "SetupWiFi(): Call oWiFiMulti.run() ";
   while (oWiFiMulti.run() != WL_CONNECTED) { // Wait for the Wi-Fi to connect: scan for Wi-Fi networks, and connect to the strongest of the networks above
     delay(250);
-    //Serial << ".";
-    Serial << (wNotConnectCount % 10);
+    Serial << ".";
     if (++wNotConnectCount > wMaxNotConnectCount){
       bWiFiMultiNoConnect= true;
       Serial << endl << "SetupWifi(): oWiFiMulti.run() didn't find router" << endl;
@@ -54,7 +53,7 @@ void SetupWiFi(){
     _bWiFiConnected= false;
   }	//if(!bWiFiMultiNoConnect)
   else{
-	Serial << "SetupWifi(): Set _bWiFiConnected to true" << endl;
+	Serial << "SetupWifi(): Set _bWiFiConnected to false" << endl;
 	_bWiFiConnected= true;
   }	//if(!bWiFiMultiNoConnect)else
 
