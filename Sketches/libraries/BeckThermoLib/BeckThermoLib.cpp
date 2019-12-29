@@ -1,4 +1,4 @@
-// BeckThermoLib.cpp 12/28/19a
+// BeckThermoLib.cpp 12/28/19b
 #include <BeckThermoLib.h>
 #include <BeckMiniLib.h>
 #include <BeckSwitchLib.h>
@@ -71,13 +71,19 @@ void HandleThermostat(){
 */
   } //if(_bThermoOn)
   else{
-    String szLogString= "HandleThermostat(): bThermoOn is false, Thermostat is off";
-    LogToSerial(szLogString);
-  }
+    //String szLogString= "HandleThermostat(): bThermoOn is false, Thermostat is off";
+    //LogToSerial(szLogString);
+  } //if(_bThermoOn)else
   if(bStateChanged || (millis() >= ulNextThermPrintMsec)){
     bStateChanged= false;
     ulNextThermPrintMsec= millis() + ulThermPrintPeriodMsec;
-    LogThermostatData(fDegF);
+    if(_bThermoOn) {
+      LogThermostatData(fDegF);
+    }	//if(_bThermoOn)
+    else {
+      String szLogString= "HandleThermostat(): bThermoOn is false, Thermostat is off";
+      LogToSerial(szLogString);
+    }	//if(_bThermoOn)else
   }
   HandleHeatSwitch();
   return;
