@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Firebase_12019.ino";
-const char szFileDate[]    = "12/29/19a";
+const char szFileDate[]    = "1/1/20b";
 
 //#include <ESP8266WiFi.h>
 //#include <<span class="TextRun Highlight BCX0 SCXW174472232" lang="EN-US" xml:lang="EN-US" data-contrast="auto"><span class="SpellingError BCX0 SCXW174472232">FirebaseArduino.h></span></span>

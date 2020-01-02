@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "12/30/19c";
+const char szFileDate[]    = "1/1/19e";
 
 #ifndef ESP8266
   #define ESP8266
@@ -21,6 +21,10 @@ const char szFileDate[]    = "12/30/19c";
 #include <Streaming.h>
 #include <Time.h>
 #include <WiFiClient.h>
+
+#include <FirebaseArduino.h>
+#include <ArduinoJson.h>
+#include <ESP8266HTTPClient.h>
 
 #if DO_ALEXA
   #include <BeckAlexaLib.h>
@@ -100,6 +104,27 @@ void setup(){
 } //setup
 
 
+void TestFirefox(){
+  unsigned long         ulTestFirefoxPeriodMsec = 5 * 1000;
+  static unsigned long  ulNextTestFirefoxMsec   = millis() + ulTestFirefoxPeriodMsec;
+
+  if (millis() >= ulNextTestFirefoxMsec){
+    ulNextTestFirefoxMsec= millis() + ulTestFirefoxPeriodMsec;
+    // set value
+    float fValue= 42.0;
+    Serial << "TestFirefox(): Call Firebase.setFloat(\"number\", " << fValue << ")" << endl;
+    Firebase.setFloat("number", fValue);
+    // handle error
+    if (Firebase.failed()) {
+        Serial.print("setting /number failed:");
+        Serial.println(Firebase.error());
+        return;
+    } //if(Firebase.failed())
+  } //if (millis()>=ulNextTestFirefoxMsec)
+	return;
+}	//TestFirefox
+
+
 void loop(){
   ulLastTaskMsec= millis();
 /*
@@ -108,6 +133,8 @@ void loop(){
     CheckTaskTime("loop(): HandleWebServer()");
   } //if(_bWiFiConnected)
 */
+  TestFirefox();
+
 #if DO_NTP
   if (_bWiFiConnected){
     HandleNTPUpdate();
