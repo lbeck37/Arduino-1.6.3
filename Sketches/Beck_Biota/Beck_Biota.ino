@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "1/1/19e";
+const char szFileDate[]    = "1/2/20w";
 
 #ifndef ESP8266
   #define ESP8266
@@ -37,6 +37,11 @@ const char szFileDate[]    = "1/1/19e";
 #if DO_NTP
   #include <BeckNTPLib.h>
 #endif
+
+//#define FIREBASE_HOST   "//test-70884.firebaseio.com"
+//#define FIREBASE_HOST   "https://test-70884.firebaseio.com"
+#define FIREBASE_HOST   "https://test-70884.firebaseio.com/"
+#define FIREBASE_AUTH   "AIzaSyD-Nm1dYBV6ehphAOQgkM5sz4oYLKF9ahg"
 
 //static        ProjectType      eProjectType           = ePitchMeter;
 static        ProjectType      eProjectType            = eThermoDev;
@@ -79,6 +84,9 @@ void setup(){
 	  #endif
     } //if(_bWiFiConnected)
 
+    Serial << LOG0 << "setup(): SetupSystem(): Call Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH)" << endl;
+    Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+
     SetupI2C();
     if(eProjectType == ePitchMeter){
       bMPU9150_On= SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
@@ -112,13 +120,20 @@ void TestFirefox(){
     ulNextTestFirefoxMsec= millis() + ulTestFirefoxPeriodMsec;
     // set value
     float fValue= 42.0;
-    Serial << "TestFirefox(): Call Firebase.setFloat(\"number\", " << fValue << ")" << endl;
-    Firebase.setFloat("number", fValue);
+    //Serial << "TestFirefox(): Call Firebase.setFloat(\"number\", " << fValue << ")" << endl;
+    //Firebase.setFloat("number", fValue);
+    Serial << endl << LOG0 << "TestFirefox(): Call Firebase.setFloat(\"Setpoint\", " << fValue << ")" << endl;
+    Firebase.setFloat("Setpoint", fValue);
     // handle error
     if (Firebase.failed()) {
-        Serial.print("setting /number failed:");
-        Serial.println(Firebase.error());
-        return;
+/*
+      Serial.print("setting /Setpoint failed:");
+      Serial.println(Firebase.error());
+*/
+      //Serial << LOG0 << "TestFirefox(): Firebase.setFloat() failed, error= |" << Firebase.error() << "|" << endl;
+      Serial << LOG0 << "TestFirefox(): Firebase.setFloat() failed, Call Firebase.error()" << endl;
+      Firebase.error();
+      return;
     } //if(Firebase.failed())
   } //if (millis()>=ulNextTestFirefoxMsec)
 	return;
@@ -134,6 +149,7 @@ void loop(){
   } //if(_bWiFiConnected)
 */
   TestFirefox();
+  CheckTaskTime("loop(): TestFirefox()");
 
 #if DO_NTP
   if (_bWiFiConnected){

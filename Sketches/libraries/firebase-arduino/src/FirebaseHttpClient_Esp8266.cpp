@@ -1,4 +1,4 @@
-//Beck FirebaseHttpClient.h, 12/5/19c
+//Beck FirebaseHttpClient.h, 1/3/20b
 #include "FirebaseHttpClient.h"
 #include <stdio.h>
 
@@ -6,6 +6,8 @@
 #include <WiFiClientSecure.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
+#include <Streaming.h>
+#include <BeckLogLib.h>
 
 // Detect whether stable version of HTTP library is installed instead of
 // master branch and patch in missing status and methods.
@@ -54,6 +56,15 @@ class FirebaseHttpClientEsp8266 : public FirebaseHttpClient {
 
 
   void begin(const std::string& host, const std::string& path) override {
+    //Serial << "FirebaseHttpClientEsp8266:begin(" << host << ", " << path << ") Begin" << endl;
+/*
+    Serial << "FirebaseHttpClientEsp8266:begin(): Call http_.begin(" << host <<
+        ", " << kFirebasePort << ", " << path << ", " << kFirebaseFingerprint << ")" << endl;
+*/
+    Serial << LOG0 << "FirebaseHttpClientEsp8266:begin(): " << endl <<
+        "Call http_.begin(" << host.c_str() <<
+        ", " << kFirebasePort << ", " << endl << "    " << path.c_str() <<
+        ", " << endl << "    " << kFirebaseFingerprint << ")" << endl;
     http_.begin(host.c_str(), kFirebasePort, path.c_str(), kFirebaseFingerprint);
   } //begin
 
@@ -79,6 +90,7 @@ class FirebaseHttpClientEsp8266 : public FirebaseHttpClient {
 
 
   int sendRequest(const std::string& method, const std::string& data) override {
+    Serial << LOG0 << "FirebaseHttpClientEsp8266:sendRequest(): Call http_.sendRequest()" << endl;
     return http_.sendRequest(method.c_str(), (uint8_t*)data.c_str(), data.length());
   } //sendRequest
 

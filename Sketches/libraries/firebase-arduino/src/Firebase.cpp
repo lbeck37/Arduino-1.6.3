@@ -16,6 +16,7 @@
 #include "Firebase.h"
 
 #include <SoftwareSerial.h>
+#include <BeckLogLib.h>
 #include <Streaming.h>
 
 using std::unique_ptr;
@@ -82,18 +83,23 @@ FirebaseCall::~FirebaseCall() {
 int FirebaseRequest::sendRequest(const std::string& host, const std::string& auth,
                  char* method, const std::string& path, const std::string& data) {
   std::string path_with_auth = makeFirebaseURL(path, auth);
-  Serial << "FirebaseRequest::sendRequest(): path_with_auth= " << path_with_auth.c_str() << endl;
+  Serial << LOG0 << "FirebaseRequest::sendRequest(): path_with_auth= " << endl << "    " <<
+      path_with_auth.c_str() << endl;
   http_->setReuseConnection(true);
 
-  Serial << "FirebaseRequest::sendRequest(): Call http_->begin(" << host.c_str() <<
-      ", " << path_with_auth.c_str() << ") " << endl;
+  Serial << LOG0 << "FirebaseRequest::sendRequest():" << endl << "    Call http_->begin("
+      << host.c_str() << ", " << endl << "    " << path_with_auth.c_str() << ") " << endl;
   http_->begin(host, path_with_auth);
+
+  //Serial << "FirebaseRequest::sendRequest(): Call sendRequest(" << method.c_str() << ", " << data.c_str() << ")" << endl;
+  Serial << LOG0 << "FirebaseRequest::sendRequest(): Call sendRequest()" << endl;
   int status = http_->sendRequest(method, data);
-  Serial << "FirebaseRequest::sendRequest(): status= " << status << endl;
+
+  Serial << LOG0 << "FirebaseRequest::sendRequest(): status= " << status << endl;
 
   analyzeError(method, status, path_with_auth);
   response_ = http_->getString();
-  Serial << "FirebaseRequest::sendRequest(): response_= " << response_.c_str() << endl;
+  Serial << LOG0 << "FirebaseRequest::sendRequest(): response_= |" << response_.c_str() << "|" << endl;
   return status;
 } //sendRequest
 

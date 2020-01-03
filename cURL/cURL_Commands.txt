@@ -1,0 +1,48 @@
+//cURL_Commands.txt, Beck, 1/3/20a
+// These are cURL commands that I used in the Ubuntu bash shell on Lenovo laptop, Lenny
+
+//**************** Commands that work *******************************
+
+//Creates new BIOTA DevBoard node with fields filled in
+curl -X PUT -d '{ "Setpoint": "72", "DegF": "74", "DeltaOff": "0.10", "ThermoSwitch": "ON", "HeatSwitch": "OFF" }' \
+'https://Thermo-2b830.firebaseio.com/DevBoard.json'
+
+//Update the DegF field in DevBoard without changing the others.
+curl -X PATCH -d '{ "DegF": "78.99" }' 'https://Thermo-2b830.firebaseio.com/DevBoard.json'
+
+//This reads a value from Firebase
+curl 'https://Thermo-2b830.firebaseio.com/DevBoard/HeatSwitch.json'
+
+
+//**************** These commands may or may not work *******************************
+//This reads a value from Firebase
+curl 'https://test-70884.firebaseio.com/Setpoint.json'
+
+//PUT writes given data but blows other children away
+
+//Write a value to Firebase test-70884 project
+curl -X PUT -d '{ "Setpoint": "99" }' 'https://test-70884.firebaseio.com/.json'
+
+//Write a value to Firebase Thermo-2b830 project
+curl -X PUT -d '{ "Setpoint": "72" }' 'https://Thermo-2b830.firebaseio.com/.json'
+
+//Create a new branch with 2 nodes
+curl -X PUT -d '{ "Setpoint": "72", "DegF": "74" }' 'https://Thermo-2b830.firebaseio.com/Fireplace.json'
+
+//Create a new branch with all nodes
+curl -X PUT -d '{ "Setpoint": "72", "DegF": "74", "DeltaOff": "0.10", "ThermoSwitch": "ON", "HeatState": "OFF" }' 'https://Thermo-2b830.firebaseio.com/Fireplace.json'
+
+//Generated new BIOTA node
+curl -X PUT -d '{ "DegF": "74", "Setpoint": "72", "Setpoint": "72", "Setpoint": "72", "Setpoint": "72" }' 'https://Thermo-2b830.firebaseio.com/.json'
+
+//Write complete DevBoard node to Firebase
+//curl -X PUT -d '{ "DegF": "74", Setpoint": "72", DeltaOff": "0.10", ThermoSwitch": "ON", HeatState": "OFF" }' 'https://Thermo-2b830.firebaseio.com/DevBoard.json'
+
+//POST generates a new node with a generated name
+curl -X POST -d '{ "DeltaOff": "0.10" }' 'https://Thermo-2b830.firebaseio.com/Fireplace.json'
+
+//PATCH writes given child but doesn't touch other children.
+curl -X PATCH -d '{ "DegF": "74" }' 'https://Thermo-2b830.firebaseio.com/.json'
+
+curl -X PATCH -d '{ "Setpoint": "72", DeltaOff": "0.10" }' 'https://Thermo-2b830.firebaseio.com/.json'
+
