@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "1/2/20w";
+const char szFileDate[]    = "1/4/20a";
 
 #ifndef ESP8266
   #define ESP8266
@@ -38,10 +38,15 @@ const char szFileDate[]    = "1/2/20w";
   #include <BeckNTPLib.h>
 #endif
 
-//#define FIREBASE_HOST   "//test-70884.firebaseio.com"
-//#define FIREBASE_HOST   "https://test-70884.firebaseio.com"
+/*
+#define FIREBASE_HOST   "//test-70884.firebaseio.com"
+#define FIREBASE_HOST   "https://test-70884.firebaseio.com"
+
 #define FIREBASE_HOST   "https://test-70884.firebaseio.com/"
 #define FIREBASE_AUTH   "AIzaSyD-Nm1dYBV6ehphAOQgkM5sz4oYLKF9ahg"
+*/
+#define FIREBASE_HOST   "https://thermo-2b830.firebaseio.com/"
+#define FIREBASE_AUTH   "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
 
 //static        ProjectType      eProjectType           = ePitchMeter;
 static        ProjectType      eProjectType            = eThermoDev;
@@ -118,6 +123,7 @@ void TestFirefox(){
 
   if (millis() >= ulNextTestFirefoxMsec){
     ulNextTestFirefoxMsec= millis() + ulTestFirefoxPeriodMsec;
+/*
     // set value
     float fValue= 42.0;
     //Serial << "TestFirefox(): Call Firebase.setFloat(\"number\", " << fValue << ")" << endl;
@@ -126,15 +132,23 @@ void TestFirefox(){
     Firebase.setFloat("Setpoint", fValue);
     // handle error
     if (Firebase.failed()) {
-/*
+
       Serial.print("setting /Setpoint failed:");
       Serial.println(Firebase.error());
-*/
+
       //Serial << LOG0 << "TestFirefox(): Firebase.setFloat() failed, error= |" << Firebase.error() << "|" << endl;
       Serial << LOG0 << "TestFirefox(): Firebase.setFloat() failed, Call Firebase.error()" << endl;
       Firebase.error();
       return;
     } //if(Firebase.failed())
+    delay(1000);
+*/
+
+    // get value
+    Serial << endl << LOG0 << "TestFirefox(): Call Firebase.getFloat(\"/DevBoard/DegF\")" << endl;
+    float fDegF= Firebase.getFloat("/DevBoard/DegF");
+    Serial << endl << LOG0 << "TestFirefox(): /DevBoard/DegF= " << fDegF << endl;
+
   } //if (millis()>=ulNextTestFirefoxMsec)
 	return;
 }	//TestFirefox

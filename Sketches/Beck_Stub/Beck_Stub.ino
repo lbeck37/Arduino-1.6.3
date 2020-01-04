@@ -1,36 +1,27 @@
 const char szSketchName[]  = "Beck_Stub.ino";
-const char szFileDate[]    = "12/23/19a";
+const char szFileDate[]    = "1/4/20e";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
-#define DO_ACCESS_POINT       true
+#define DO_ACCESS_POINT       false
 
-//#include <BeckWiFiLib.h>
-#ifdef ESP8266
-  #include <ESP8266WiFi.h>
-#else
-  #include <WiFi.h>
-#endif    //ESP8266
+#include <ESP8266WiFi.h>
 #include <Streaming.h>
-//#include <Time.h>
-//#include <WiFiClient.h>
 
 #if DO_ACCESS_POINT
 	#include <BeckAccessPointLib_Simple.h>
+const char*   _acAccessPointSSID    = "StubSpot";
+const char*   _acAccessPointPW      = "Qazqaz11";
 #endif
 
 const long    	lSerialMonitorBaud  = 115200;
 
-const char* 	WiFi_SSID 			= "Aspot24";
+const char* 	WiFi_SSID 			  = "Aspot24";
 const char* 	WiFi_Password 		= "Qazqaz11";
 
-const char* 	_acAccessPointSSID 		= "StubSpot";
-const char* 	_acAccessPointPW 		= "Qazqaz11";
-
 bool			_bWiFiConnected;
-
 
 void setup(){
   Serial.begin(lSerialMonitorBaud);
@@ -43,8 +34,17 @@ void setup(){
     Serial.print(".");
     delay(300);
   }	//while
-  _bWiFiConnected= true;
-  Serial << endl << "Setup(:Connected with IP: " << WiFi.localIP() << endl;
+  Serial << endl;
+
+  if (WiFi.status() == WL_CONNECTED) {
+    _bWiFiConnected= true;
+    Serial << "setup(): Connected with IP: " << WiFi.localIP() << endl;
+  }
+  else {
+    _bWiFiConnected= false;
+    Serial << "setup(): WiFi did not connect" << endl;
+  }
+
 #if DO_ACCESS_POINT
   SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
 #endif  //DO_ACCESS_POINT
@@ -55,17 +55,14 @@ void setup(){
 
 
 void loop(){
-  //ulLastTaskMsec= millis();
-/*
-  if (_bWiFiConnected){
-    HandleWebServer();
-    CheckTaskTime("loop(): HandleWebServer()");
-  } //if(_bWiFiConnected)
-*/
 #if DO_ACCESS_POINT
   if (_bWiFiConnected){
     HandleSoftAPClient();       //Listen for HTTP requests from clients
   } //if(_bWiFiConnected)
+  delay(250);
+#else
+  Serial << "loop(): Do nothing" << endl;
+  delay(5000);
 #endif  //DO_ACCESS_POINT
   return;
 } //loop
