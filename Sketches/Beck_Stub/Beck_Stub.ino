@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Stub.ino";
-const char szFileDate[]    = "1/4/20e";
+const char szFileDate[]    = "1/4/20j";
 
 #ifndef ESP8266
   #define ESP8266
@@ -11,25 +11,26 @@ const char szFileDate[]    = "1/4/20e";
 #include <Streaming.h>
 
 #if DO_ACCESS_POINT
-	#include <BeckAccessPointLib_Simple.h>
-const char*   _acAccessPointSSID    = "StubSpot";
-const char*   _acAccessPointPW      = "Qazqaz11";
+  #include <BeckAccessPointLib_Simple.h>
+  const char*   _acAccessPointSSID    = "StubSpot";
+  const char*   _acAccessPointPW      = "Qazqaz11";
 #endif
 
 const long    	lSerialMonitorBaud  = 115200;
 
-const char* 	WiFi_SSID 			  = "Aspot24";
-const char* 	WiFi_Password 		= "Qazqaz11";
+const char* 	  WiFi_SSID 			   	= "Aspot24";
+const char* 	  WiFi_Password 		  = "Qazqaz11";
 
-bool			_bWiFiConnected;
+bool			  _bWiFiConnected;
 
 void setup(){
   Serial.begin(lSerialMonitorBaud);
   delay(100);
   Serial << endl  << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
-  WiFi.begin(WiFi_SSID, WiFi_Password);
-  //Serial.print("Connecting to Wi-Fi");
+
   Serial << "Setup(): Connecting to WiFi" << endl;
+  WiFi.begin(WiFi_SSID, WiFi_Password);
+
   while (WiFi.status() != WL_CONNECTED){
     Serial.print(".");
     delay(300);
@@ -44,6 +45,7 @@ void setup(){
     _bWiFiConnected= false;
     Serial << "setup(): WiFi did not connect" << endl;
   }
+
 
 #if DO_ACCESS_POINT
   SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);

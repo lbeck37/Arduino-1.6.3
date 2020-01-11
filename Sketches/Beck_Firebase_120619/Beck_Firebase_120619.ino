@@ -60,32 +60,32 @@ void loop() {
   }	//if(WiFi.status()!=WL_CONNECTED)
 
   // set value
-  Firebase.setFloat("number", 42.0);
+  Firebase.setFloat("Setpoint", 42.0);
   // handle error
   if (Firebase.failed()) {
-      Serial.print("setting /number failed:");
+      Serial.print("setting /Setpoint failed:");
       Serial.println(Firebase.error());
       return;
   }
   delay(1000);
 
   // update value
-  Firebase.setFloat("number", 43.0);
+  Firebase.setFloat("Setpoint", 43.0);
   // handle error
   if (Firebase.failed()) {
-      Serial.print("setting /number failed:");
+      Serial.print("setting /Setpoint failed:");
       Serial.println(Firebase.error());
       return;
   }
   delay(1000);
 
   // get value
-  Serial.print("number: ");
-  Serial.println(Firebase.getFloat("number"));
+  Serial.print("Setpoint: ");
+  Serial.println(Firebase.getFloat("Setpoint"));
   delay(1000);
 
   // remove value
-  Firebase.remove("number");
+  Firebase.remove("Setpoint");
   delay(1000);
 
   // set string value

@@ -1,11 +1,11 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "1/4/20a";
+const char szFileDate[]    = "1/5/20d";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
-#define DO_ALEXA			  true
+#define DO_ALEXA			  			true
 #define DO_NTP                false
 #define DO_ACCESS_POINT       true
 //#define DO_ASYNC_WEB_SERVER   false
@@ -22,9 +22,11 @@ const char szFileDate[]    = "1/4/20a";
 #include <Time.h>
 #include <WiFiClient.h>
 
+/*
 #include <FirebaseArduino.h>
 #include <ArduinoJson.h>
 #include <ESP8266HTTPClient.h>
+*/
 
 #if DO_ALEXA
   #include <BeckAlexaLib.h>
@@ -89,8 +91,10 @@ void setup(){
 	  #endif
     } //if(_bWiFiConnected)
 
+/*
     Serial << LOG0 << "setup(): SetupSystem(): Call Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH)" << endl;
     Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);
+*/
 
     SetupI2C();
     if(eProjectType == ePitchMeter){
@@ -117,13 +121,14 @@ void setup(){
 } //setup
 
 
+/*
 void TestFirefox(){
   unsigned long         ulTestFirefoxPeriodMsec = 5 * 1000;
   static unsigned long  ulNextTestFirefoxMsec   = millis() + ulTestFirefoxPeriodMsec;
 
   if (millis() >= ulNextTestFirefoxMsec){
     ulNextTestFirefoxMsec= millis() + ulTestFirefoxPeriodMsec;
-/*
+
     // set value
     float fValue= 42.0;
     //Serial << "TestFirefox(): Call Firebase.setFloat(\"number\", " << fValue << ")" << endl;
@@ -142,7 +147,7 @@ void TestFirefox(){
       return;
     } //if(Firebase.failed())
     delay(1000);
-*/
+
 
     // get value
     Serial << endl << LOG0 << "TestFirefox(): Call Firebase.getFloat(\"/DevBoard/DegF\")" << endl;
@@ -152,6 +157,7 @@ void TestFirefox(){
   } //if (millis()>=ulNextTestFirefoxMsec)
 	return;
 }	//TestFirefox
+*/
 
 
 void loop(){
@@ -162,8 +168,8 @@ void loop(){
     CheckTaskTime("loop(): HandleWebServer()");
   } //if(_bWiFiConnected)
 */
-  TestFirefox();
-  CheckTaskTime("loop(): TestFirefox()");
+  //TestFirefox();
+  //CheckTaskTime("loop(): TestFirefox()");
 
 #if DO_NTP
   if (_bWiFiConnected){
