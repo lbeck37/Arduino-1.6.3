@@ -18,7 +18,7 @@ void SetupDefaultPages();
 void HandleNotFound   ();
 
 void StartWebServer(const char *acHostname){
-  Serial << LOG0 << "StartWebServer(): Begin" << endl;
+  Serial << LOG0 << "StartWebServer(): acHostname= " << acHostname << endl;
   SetupDefaultPages();
   oWebServer.begin();
   return;

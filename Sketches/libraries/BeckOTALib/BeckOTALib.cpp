@@ -1,8 +1,9 @@
-//BeckOTALib.cpp, 5/6/19a
+//BeckOTALib.cpp, 1/11/20a
 #include <BeckOTALib.h>
 #include "BeckOTALibHTML.h"
 #include <BeckMiniLib.h>
 #include <BeckWebServer.h>
+#include "ESP8266WiFi.h"
 
 //These are set and used from Beck_Biota.ino
 unsigned long       _ulUpdateTimeoutMsec   = 0;
@@ -17,11 +18,14 @@ bool                _bOTA_Started         = false;   //Turns off Blynk.
 void SetupOTAWebPages(){
   Serial << LOG0 << "SetupOTAWebPages(): Begin" << endl;
 
-  //oWebServer.on("/login", HTTP_GET, []() {
-  oWebServer.on("/ota", HTTP_GET, []() {
+  Serial << LOG0 << "SetupOTAWebPages(): Call oWebServer.on() " << WiFi.localIP() << "/login" << endl;
+  oWebServer.on("/login", HTTP_GET, []() {
+  //oWebServer.on("/ota", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
     oWebServer.send(200, "text/html", acOTA_LoginHTML);
   });
+
+  Serial << LOG0 << "SetupOTAWebPages(): Call oWebServer.on() " << WiFi.localIP() << "/serverIndex" << endl;
   oWebServer.on("/serverIndex", HTTP_GET, []() {
     oWebServer.sendHeader("Connection", "close");
     oWebServer.send(200, "text/html", acOTA_ServerHTML);
