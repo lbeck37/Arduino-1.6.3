@@ -59,7 +59,7 @@ void SetupWiFi(){
   }	//if(!bWiFiMultiNoConnect)else
 
   if (_bWiFiConnected){
-    Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << " IP address: " << WiFi.localIP() << endl;
+    Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << ", IP address: " << WiFi.localIP() << endl;
   } //if(bWiFiConnected)
   else{
     Serial << LOG0 << "SetupWiFi(): WiFi failed to connect." << endl;
