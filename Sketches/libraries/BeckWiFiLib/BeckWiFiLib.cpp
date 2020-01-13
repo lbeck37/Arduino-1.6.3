@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, 1/13/20c
+//BeckWiFiLib.cpp, 1/13/20d
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -8,35 +8,58 @@
 #include <ESP8266WebServer.h>
 #include "WiFiManager.h"          //https://github.com/tzapu/WiFiManager
 
-bool					_bResetSettings		= false;
+#define USE_WIFI_MANAGER		true
+
 bool          _bWiFiConnected;
 
 //Protos
-void 			SetupMulti();
-
-//bool 			bRunWiFiManager();
-//void 			configModeCallback 		(WiFiManager *myWiFiManager);
+#if USE_WIFI_MANAGER
+	bool			_bResetSettings		= false;
+	bool 			bRunWiFiManager();
+	//void 			configModeCallback 		(WiFiManager *myWiFiManager);
+#else
+	bool 			bSetupMulti();
+#endif
 
 
 void SetupWiFi(){
+  Serial << LOG0 << "SetupWiFi(): Call bRunWiFiManager()" << endl;
 /*
   if ( bRunWiFiManager() ){
-    Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << ", IP address: " << WiFi.localIP() << endl;
+    _bWiFiConnected= true;
   } //if(bWRunWiFiManager())
   else {
-    Serial << LOG0 << "SetupWiFi(): WiFi failed to connect." << endl;
+    Serial << LOG0 << "SetupWiFi(): bRunWiFiManager() returned false, WiFi failed to connect." << endl;
+    _bWiFiConnected= false;
   } //if(bWRunWiFiManager())else
 */
+#if USE_WIFI_MANAGER
 
-  Serial << LOG0 << "SetupWiFi(): Call SetupMulti()" << endl;
-  SetupMulti();
-  Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << ", IP address: " << WiFi.localIP() << endl;
+  Serial << LOG0 << "SetupWiFi(): Call bRunWiFiManager()" << endl;
+  _bWiFiConnected= bRunWiFiManager();
+
+  if (!_bWiFiConnected){
+    Serial << LOG0 << "SetupWiFi(): bRunWiFiManager() returned false, WiFi failed to connect." << endl;
+  } //if(!_bWiFiConnected)
+#else
+
+  Serial << LOG0 << "SetupWiFi(): Call bSetupMulti()" << endl;
+  _bWiFiConnected= bSetupMulti();
+
+  if (!_bWiFiConnected){
+    Serial << LOG0 << "SetupWiFi(): bSetupMulti() returned false, WiFi failed to connect." << endl;
+  } //if(!_bWiFiConnected)
+#endif
+
+  if (_bWiFiConnected){
+    Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << ", IP address: " << WiFi.localIP() << endl;
+  } //if(_bWiFiConnected)
 
   return;
 } //SetupWiFi
 
 
-#if false
+#if USE_WIFI_MANAGER
 void configModeCallback (WiFiManager *myWiFiManager) {
   Serial << "configModeCallback(): WiFi.softAPIP()= " << WiFi.softAPIP() << endl;
 
@@ -84,11 +107,10 @@ bool bRunWiFiManager(){
   Serial << LOG0 << "bRunWiFiManager(): returning " << bOk << endl;
 	return true;
 }	//bRunWiFiManager
-#endif
 
+#else
 
-#if true
-void SetupMulti(){
+bool bSetupMulti(){
   //#include <ESP8266WiFiMulti.h>
   #ifdef ESP8266
     #include <ESP8266WiFiMulti.h>
@@ -98,12 +120,14 @@ void SetupMulti(){
     WiFiMulti           oWiFiMulti;
   #endif    //ESP8266
 
+  //These names shouldn't have leading "_" since they are not global anymore.
   const int     _wSSIDNumChar   = 32;
   const int     _wPWNumChar     = 65;
   const int     _wNumRouters    =  3;
   char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Aspot24" , "Lspot"   , "Cspot"};
   char          _acRouterPWs       [_wNumRouters][_wPWNumChar]   = {"Qazqaz11", "Qazqaz11", "Qazqaz11"};
 
+  bool					bOk							= true;
   // Set WIFI module to STA mode
   WiFi.mode(WIFI_STA);
 
@@ -115,32 +139,33 @@ void SetupMulti(){
   //_bWiFiConnected= false;
   int wNotConnectCount    = 0;
   int wMaxNotConnectCount   = 100;  //10 sec at 250 msec delay
-  bool  bWiFiMultiNoConnect   = false;
+  bool  bWiFiMultiConnected	= true;
 
-  Serial << LOG0 << "SetupWiFi(): Call oWiFiMulti.run() ";
+  Serial << LOG0 << "SetupMulti(): Call oWiFiMulti.run() ";
   while (oWiFiMulti.run() != WL_CONNECTED) { // Wait for the Wi-Fi to connect: scan for Wi-Fi networks, and connect to the strongest of the networks above
     delay(250);
     //Serial << ".";
     Serial << (wNotConnectCount % 10);
     if (++wNotConnectCount > wMaxNotConnectCount){
-      bWiFiMultiNoConnect= true;
+    	bWiFiMultiConnected= false;
       Serial << endl << LOG0 << "SetupWifi(): oWiFiMulti.run() didn't find router" << endl;
       break;
     } //if(++wNotConnectCount>wMaxNotConnectCount)
   } //while
   Serial << endl;
 
-  if (bWiFiMultiNoConnect) {
-    Serial << LOG0 << "SetupWifi(): Set _bWiFiConnected to false" << endl;
-    _bWiFiConnected= false;
+  if (bWiFiMultiConnected) {
+    Serial << LOG0 << "bSetupMulti(): Success:  SSID= " << WiFi.SSID() << ", IP address: " << WiFi.localIP() << endl;
+  	bOk= true;
   } //if(!bWiFiMultiNoConnect)
   else{
-  Serial << LOG0 << "SetupWifi(): Set _bWiFiConnected to true" << endl;
-  _bWiFiConnected= true;
+  	Serial << LOG0 << "bSetupMulti(): Failed to find an access point from its list." << endl;
+  	bOk= false;
+  //_bWiFiConnected= false;
   } //if(!bWiFiMultiNoConnect)else
 
-  return;
-} //SetupMulti
+  return bOk;
+} //bSetupMulti
 #endif
 
 

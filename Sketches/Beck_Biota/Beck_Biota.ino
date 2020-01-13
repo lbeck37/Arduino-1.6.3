@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "1/13/20g";
+const char szFileDate[]    = "1/13/20k";
 
 #ifndef ESP8266
   #define ESP8266
