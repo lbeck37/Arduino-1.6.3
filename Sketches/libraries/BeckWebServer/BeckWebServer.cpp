@@ -1,4 +1,4 @@
-//BeckWebServer.cpp, 4/18/19b
+//BeckWebServer.cpp, 1/13/20a
 #include <BeckWebServer.h>
 #include <BeckMiniLib.h>
 #include <WiFiClient.h>
@@ -40,7 +40,7 @@ void HandleWebServer(){
 
 
 void HandleNotFound(){
-  Serial << LOG0 << "void HandleNotFound(): Begin" << endl;
+  Serial << LOG0 << "BeckWebServer.cpp: HandleNotFound(): Send 404: Not found" << endl;
   oWebServer.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
 } //HandleNotFound
 //Last line.

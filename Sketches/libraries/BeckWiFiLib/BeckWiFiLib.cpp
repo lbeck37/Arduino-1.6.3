@@ -1,38 +1,147 @@
-//BeckWiFiLib.cpp, 1/13/20a
+//BeckWiFiLib.cpp, 1/13/20c
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
 #include <Streaming.h>
 #include <ESP8266WiFiMulti.h>
-/*
-#ifdef ESP8266
-  #include <ESP8266WiFiMulti.h>
-  ESP8266WiFiMulti    oWiFiMulti;
-#else
-  #include <WiFiMulti.h>
-  WiFiMulti           oWiFiMulti;
-#endif    //ESP8266
-//#include <Streaming.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include "WiFiManager.h"          //https://github.com/tzapu/WiFiManager
 
-const int     _wSSIDNumChar   = 32;
-const int     _wPWNumChar     = 65;
-const int     _wNumRouters    =  3;
-char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Aspot24" , "Lspot"   , "Cspot"};
-char          _acRouterPWs       [_wNumRouters][_wPWNumChar]   = {"Qazqaz11", "Qazqaz11", "Qazqaz11"};
-*/
+bool					_bResetSettings		= false;
 bool          _bWiFiConnected;
+
+//Protos
+void 			SetupMulti();
+
+//bool 			bRunWiFiManager();
+//void 			configModeCallback 		(WiFiManager *myWiFiManager);
 
 
 void SetupWiFi(){
-
-  if (_bWiFiConnected){
+/*
+  if ( bRunWiFiManager() ){
     Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << ", IP address: " << WiFi.localIP() << endl;
-  } //if(bWiFiConnected)
-  else{
+  } //if(bWRunWiFiManager())
+  else {
     Serial << LOG0 << "SetupWiFi(): WiFi failed to connect." << endl;
-  } //if(bWiFiConnected)else
+  } //if(bWRunWiFiManager())else
+*/
+
+  Serial << LOG0 << "SetupWiFi(): Call SetupMulti()" << endl;
+  SetupMulti();
+  Serial << LOG0 << "SetupWiFi():  SSID= " << WiFi.SSID() << ", IP address: " << WiFi.localIP() << endl;
+
   return;
 } //SetupWiFi
+
+
+#if false
+void configModeCallback (WiFiManager *myWiFiManager) {
+  Serial << "configModeCallback(): WiFi.softAPIP()= " << WiFi.softAPIP() << endl;
+
+  //if you used auto generated SSID, print it
+  Serial << "configModeCallback(): myWiFiManager->getConfigPortalSSID()= " <<
+  		myWiFiManager->getConfigPortalSSID() << endl;
+
+  return;
+}	//configModeCallback
+
+
+bool bRunWiFiManager(){
+  //WiFiManager
+  //Local intialization. Once its business is done, there is no need to keep it around
+	bool					bOk					= true;
+  WiFiManager 	wifiManager;
+  if (_bResetSettings){
+    //reset settings - for testing
+  	Serial << LOG0 << "bRunWiFiManager(): Call resetSettings(), slowly brings up web page" << endl;
+  	wifiManager.resetSettings();
+  }	//if(_bResetSettings)
+  else {
+  	Serial << LOG0 << "bRunWiFiManager(): Pull SSID & PW from EEPROM, resetSettings() not called." << endl;
+  }	//if(_bResetSettings)else
+
+  //set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
+  Serial << LOG0 << "bRunWiFiManager(): Call setAPCallback()" << endl;
+  wifiManager.setAPCallback(configModeCallback);
+
+  //fetches ssid and pass and tries to connect
+  //if it does not connect it starts an access point with the specified name
+  //here  "AutoConnectAP"
+  //and goes into a blocking loop awaiting configuration
+  Serial << LOG0 << "bRunWiFiManager(): Call wifiManager.autoConnect()" << endl;
+  if(!wifiManager.autoConnect()) {
+    //Serial.println("failed to connect and hit timeout");
+    Serial << LOG0 << "bRunWiFiManager(): Failed to connect and hit timeout" << endl;
+    Serial << LOG0 << "bRunWiFiManager(): Call ESP.reset()" << endl;
+    //reset and try again, or maybe put it to deep sleep
+    ESP.reset();
+    Serial << LOG0 << "bRunWiFiManager(): Back from ESP.reset(), set bOk to false" << endl;
+    bOk= false;
+    delay(1000);
+  }
+  Serial << LOG0 << "bRunWiFiManager(): returning " << bOk << endl;
+	return true;
+}	//bRunWiFiManager
+#endif
+
+
+#if true
+void SetupMulti(){
+  //#include <ESP8266WiFiMulti.h>
+  #ifdef ESP8266
+    #include <ESP8266WiFiMulti.h>
+    ESP8266WiFiMulti    oWiFiMulti;
+  #else
+    #include <WiFiMulti.h>
+    WiFiMulti           oWiFiMulti;
+  #endif    //ESP8266
+
+  const int     _wSSIDNumChar   = 32;
+  const int     _wPWNumChar     = 65;
+  const int     _wNumRouters    =  3;
+  char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Aspot24" , "Lspot"   , "Cspot"};
+  char          _acRouterPWs       [_wNumRouters][_wPWNumChar]   = {"Qazqaz11", "Qazqaz11", "Qazqaz11"};
+
+  // Set WIFI module to STA mode
+  WiFi.mode(WIFI_STA);
+
+  //Create router list for oWiFiMulti
+  for (int wRouterNum= 0; !_bWiFiConnected && (wRouterNum < _wNumRouters); wRouterNum++){
+    oWiFiMulti.addAP(_acRouterNames[wRouterNum], _acRouterPWs[wRouterNum]);   //Add Wi-Fi networks to connect to
+  } //for(int wRouterNum=0;...
+
+  //_bWiFiConnected= false;
+  int wNotConnectCount    = 0;
+  int wMaxNotConnectCount   = 100;  //10 sec at 250 msec delay
+  bool  bWiFiMultiNoConnect   = false;
+
+  Serial << LOG0 << "SetupWiFi(): Call oWiFiMulti.run() ";
+  while (oWiFiMulti.run() != WL_CONNECTED) { // Wait for the Wi-Fi to connect: scan for Wi-Fi networks, and connect to the strongest of the networks above
+    delay(250);
+    //Serial << ".";
+    Serial << (wNotConnectCount % 10);
+    if (++wNotConnectCount > wMaxNotConnectCount){
+      bWiFiMultiNoConnect= true;
+      Serial << endl << LOG0 << "SetupWifi(): oWiFiMulti.run() didn't find router" << endl;
+      break;
+    } //if(++wNotConnectCount>wMaxNotConnectCount)
+  } //while
+  Serial << endl;
+
+  if (bWiFiMultiNoConnect) {
+    Serial << LOG0 << "SetupWifi(): Set _bWiFiConnected to false" << endl;
+    _bWiFiConnected= false;
+  } //if(!bWiFiMultiNoConnect)
+  else{
+  Serial << LOG0 << "SetupWifi(): Set _bWiFiConnected to true" << endl;
+  _bWiFiConnected= true;
+  } //if(!bWiFiMultiNoConnect)else
+
+  return;
+} //SetupMulti
+#endif
 
 
 String szWiFiStatus(wl_status_t eWiFiStatus){
@@ -68,61 +177,4 @@ String szWiFiStatus(wl_status_t eWiFiStatus){
   } //switch
   return szStatus;
 } //szWiFiStatus
-
-
-#if false
-void SetupMulti(){
-	//#include <ESP8266WiFiMulti.h>
-	#ifdef ESP8266
-	  #include <ESP8266WiFiMulti.h>
-	  ESP8266WiFiMulti    oWiFiMulti;
-	#else
-	  #include <WiFiMulti.h>
-	  WiFiMulti           oWiFiMulti;
-	#endif    //ESP8266
-
-	const int     _wSSIDNumChar   = 32;
-	const int     _wPWNumChar     = 65;
-	const int     _wNumRouters    =  3;
-	char          _acRouterNames     [_wNumRouters][_wSSIDNumChar] = {"Aspot24" , "Lspot"   , "Cspot"};
-	char          _acRouterPWs       [_wNumRouters][_wPWNumChar]   = {"Qazqaz11", "Qazqaz11", "Qazqaz11"};
-
-  // Set WIFI module to STA mode
-  WiFi.mode(WIFI_STA);
-
-  //Create router list for oWiFiMulti
-  for (int wRouterNum= 0; !_bWiFiConnected && (wRouterNum < _wNumRouters); wRouterNum++){
-    oWiFiMulti.addAP(_acRouterNames[wRouterNum], _acRouterPWs[wRouterNum]);   //Add Wi-Fi networks to connect to
-  } //for(int wRouterNum=0;...
-
-  //_bWiFiConnected= false;
-  int	wNotConnectCount		= 0;
-  int	wMaxNotConnectCount		= 100;	//10 sec at 250 msec delay
-  bool 	bWiFiMultiNoConnect		= false;
-
-  Serial << LOG0 << "SetupWiFi(): Call oWiFiMulti.run() ";
-  while (oWiFiMulti.run() != WL_CONNECTED) { // Wait for the Wi-Fi to connect: scan for Wi-Fi networks, and connect to the strongest of the networks above
-    delay(250);
-    //Serial << ".";
-    Serial << (wNotConnectCount % 10);
-    if (++wNotConnectCount > wMaxNotConnectCount){
-      bWiFiMultiNoConnect= true;
-      Serial << endl << LOG0 << "SetupWifi(): oWiFiMulti.run() didn't find router" << endl;
-      break;
-    }	//if(++wNotConnectCount>wMaxNotConnectCount)
-  }	//while
-  Serial << endl;
-
-  if (bWiFiMultiNoConnect) {
-    Serial << LOG0 << "SetupWifi(): Set _bWiFiConnected to false" << endl;
-    _bWiFiConnected= false;
-  }	//if(!bWiFiMultiNoConnect)
-  else{
-	Serial << LOG0 << "SetupWifi(): Set _bWiFiConnected to true" << endl;
-	_bWiFiConnected= true;
-  }	//if(!bWiFiMultiNoConnect)else
-
-	return;
-}	//SetupMulti
-#endif
 //Last line.
