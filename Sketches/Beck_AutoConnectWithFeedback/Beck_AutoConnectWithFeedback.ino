@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_AutoConnectWithFeedback.ino";
-const char szFileDate[]    = "1/12/20f";
+const char szFileDate[]    = "1/13/20a";
 
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 
