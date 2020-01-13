@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, 1/13/20d
+//BeckWiFiLib.cpp, 1/13/20e
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
