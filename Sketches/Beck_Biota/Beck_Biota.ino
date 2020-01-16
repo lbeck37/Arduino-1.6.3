@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "1/14/20a";
+const char szFileDate[]    = "1/16/20jj";
 
 #ifndef ESP8266
   #define ESP8266
@@ -8,6 +8,7 @@ const char szFileDate[]    = "1/14/20a";
 #define DO_ALEXA			  			true
 #define DO_NTP                false
 #define DO_ACCESS_POINT       true
+#define DO_WEB_SERVER       	true
 //#define DO_ASYNC_WEB_SERVER   false
 
 #include <BeckBiotaLib.h>
@@ -16,8 +17,10 @@ const char szFileDate[]    = "1/14/20a";
 #include <BeckSwitchLib.h>
 //#include <BeckWebPages.h>
 //#include <BeckWebServer.h>
-#include <BeckWebPages.h>
-#include <BeckWebServer.h>
+#if DO_WEB_SERVER
+	#include <BeckWebPages.h>
+	#include <BeckWebServer.h>
+#endif
 #include <BeckWiFiLib.h>
 //#include <FirebaseArduino.h>
 #include <Streaming.h>
@@ -84,7 +87,9 @@ void setup(){
     if (_bWiFiConnected){
       SetupOTAWebPages();
       //SetupTermoWebPage();
+#if DO_WEB_SERVER
       StartWebServer(_acHostname);
+#endif
       #if DO_ACCESS_POINT
         SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT
@@ -126,10 +131,12 @@ void setup(){
 void loop(){
   ulLastTaskMsec= millis();
 
+#if DO_WEB_SERVER
   if (_bWiFiConnected){
     HandleWebServer();
     CheckTaskTime("loop(): HandleWebServer()");
   } //if(_bWiFiConnected)
+#endif
 
   //TestFirefox();
   //CheckTaskTime("loop(): TestFirefox()");
