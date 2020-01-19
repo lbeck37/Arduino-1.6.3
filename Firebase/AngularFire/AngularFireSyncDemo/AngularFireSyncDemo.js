@@ -1,5 +1,5 @@
-// Beck 5/22/19a
-/*
+// Beck 1/19/20a
+//*
 var todoApp = angular.module('TodoApp', ['firebase']);
 
 
@@ -64,7 +64,7 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
         };
 
     }]);
-    */
+    //*/
     var app = angular.module("sampleApp", ["firebase"]);
 
 	// a factory to create a re-usable Profile object
@@ -96,3 +96,4 @@ todoApp.controller('TodoCtrl', ['$scope', '$firebaseArray',
 	    Profile("physicsmarie").$bindTo($scope, "profile");
 	  }
 	]);
+//Last line.
