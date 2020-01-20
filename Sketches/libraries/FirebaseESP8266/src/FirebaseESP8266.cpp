@@ -1,4 +1,3 @@
-//Beck, 1/5/20b
 /*
  * Google's Firebase Realtime Database Arduino Library for ESP8266, version 2.7.6
  * 
@@ -36,8 +35,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-
-//#include <Streaming.h>
 
 #ifndef FirebaseESP8266_CPP
 #define FirebaseESP8266_CPP
@@ -146,8 +143,6 @@ void FirebaseESP8266::begin(const String &host, const String &auth)
 
     if (_host.length() == 0)
         _host = h;
-
-    //Serial << "FirebaseESP8266::begin(): _host= |" << _host << "|" << endl;
 
     _auth = auth.c_str();
     _port = FIEBASE_PORT;
