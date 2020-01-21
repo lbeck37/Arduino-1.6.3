@@ -3,7 +3,7 @@
 void setup(){
   Serial.begin(115200);
   delay(500);
-  Serial.println("\nBeck_HelloWorld.ino: setup(): Hello World! 1/5/20a");
+  Serial.println("\nBeck_HelloWorld.ino: setup(): Hello World! 1/20/20c");
   return;
 } //setup
 

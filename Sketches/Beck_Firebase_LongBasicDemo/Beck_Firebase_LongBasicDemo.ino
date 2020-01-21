@@ -1,4 +1,6 @@
-//Beck, 1/19/20a
+const char szSketchName[]  = "Beck_Firebase_LongBasicDemo.ino";
+const char szFileDate[]    = "1/20/20f";
+
 /*
  * Created by K. Suwatchai (Mobizt)
  * 
@@ -12,16 +14,29 @@
  *
 */
 
-
 //FirebaseESP8266.h must be included before ESP8266WiFi.h
 #include "FirebaseESP8266.h"
 #include <ESP8266WiFi.h>
-
-
+#include <Streaming.h>
 
 //#define FIREBASE_HOST "YOUR_FIREBASE_PROJECT.firebaseio.com"
 //#define FIREBASE_AUTH "YOUR_FIREBASE_DATABASE_SECRET"
+/*
+    var firebaseConfig = {
+        apiKey: "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A",
+        authDomain: "fir-mariestep1.firebaseapp.com",
+        databaseURL: "https://fir-mariestep1.firebaseio.com",
+        projectId: "fir-mariestep1",
+        storageBucket: "fir-mariestep1.appspot.com",
+        messagingSenderId: "754022099819",
+        appId: "1:754022099819:web:50b456b2ed48aa27"
+      };
+      */
+//#define FIREBASE_HOST "fir-mariestep1.firebaseio.com"
+//#define FIREBASE_AUTH "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A"
 
+//#define FIREBASE_HOST "fir-mariestep1.appspot.com"
+//#define FIREBASE_HOST "fir-mariestep1.firebaseapp.com"
 #define FIREBASE_HOST "fir-mariestep1.firebaseio.com"
 #define FIREBASE_AUTH "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A"
 
@@ -35,11 +50,12 @@ FirebaseJson json;
 
 void printResult(FirebaseData &data);
 
-
 void setup()
 {
 
   Serial.begin(115200);
+  delay(100);
+  Serial << endl << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to Wi-Fi");
