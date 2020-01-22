@@ -1,4 +1,4 @@
-//
+//Beck, 1/22/20b
 // Copyright 2015 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,7 +60,8 @@ const JsonObject& FirebaseCall::json() {
   //TODO(edcoyne): This is not efficient, we should do something smarter with
   //the buffers. kotl: Is this still valid?
   if (buffer_.get() == NULL) {
-    buffer_.reset(new StaticJsonBuffer<FIREBASE_JSONBUFFER_SIZE>());
+    buffer_.reset(new StaticJsonBuffer<FIREBASE_JSONBUFFER_SIZE>());        //JSON 5
+    //buffer_.reset(new StaticJsonDocument<FIREBASE_JSONBUFFER_SIZE>());    //JSON 6
   }
   return buffer_.get()->parseObject(response().c_str());
 }
@@ -75,6 +76,7 @@ int FirebaseRequest::sendRequest(
   int status = http_->sendRequest(method, data);
   analyzeError(method, status, path_with_auth);
   response_ = http_->getString();
+  return 1;
 }
 
 // FirebaseStream
