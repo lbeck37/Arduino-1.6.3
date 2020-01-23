@@ -1,4 +1,4 @@
-//Beck, 1/22/20b
+//Beck, 1/23/20a
 // Copyright 2015 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,7 @@
 // limitations under the License.
 //
 #include "Firebase.h"
+#include <BeckLogLib.h>
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -71,6 +72,9 @@ int FirebaseRequest::sendRequest(
   const std::string& host, const std::string& auth,
   char* method, const std::string& path, const std::string& data) {
   std::string path_with_auth = makeFirebaseURL(path, auth);
+  Serial << LOG0 << "FirebaseRequest::sendRequest(): path_with_auth= |" << path_with_auth.c_str() << "|" << endl;
+  //Serial << LOG0 << "FirebaseRequest::sendRequest(): Back from makeFirebaseURL()" << endl;
+
   http_->setReuseConnection(true);
   http_->begin(host, path_with_auth);
   int status = http_->sendRequest(method, data);

@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseArduino_Stub.ino";
-const char szFileDate[]    = "1/22/20c";
+const char szFileDate[]    = "1/23/20c";
 
 #ifndef ESP8266
   #define ESP8266
@@ -24,11 +24,16 @@ const char szFileDate[]    = "1/22/20c";
 const char*     WiFi_SSID           = "Aspot24";
 const char*     WiFi_Password       = "Qazqaz11";
 
-#define 				FIREBASE_HOST 			"https://test-70884.firebaseio.com"
-#define 				FIREBASE_AUTH 			"AIzaSyD-Nm1dYBV6ehphAOQgkM5sz4oYLKF9ahg"
-
 //#define FIREBASE_HOST   "https://thermo-2b830.firebaseio.com/"
 //#define FIREBASE_AUTH   "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
+
+//#define FIREBASE_HOST 			"https://test-70884.firebaseio.com"
+//#define FIREBASE_AUTH 			"AIzaSyD-Nm1dYBV6ehphAOQgkM5sz4oYLKF9ahg"
+
+//#define FIREBASE_HOST "fir-mariestep1.appspot.com"
+//#define FIREBASE_HOST "fir-mariestep1.firebaseapp.com"
+#define FIREBASE_HOST "fir-mariestep1.firebaseio.com"
+#define FIREBASE_AUTH "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A"
 
 bool        _bWiFiConnected;
 
