@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseArduino_Stub.ino";
-const char szFileDate[]    = "1/23/20c";
+const char szFileDate[]    = "1/23/20d";
 
 #ifndef ESP8266
   #define ESP8266

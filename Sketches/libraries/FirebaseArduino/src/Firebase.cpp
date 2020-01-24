@@ -72,7 +72,8 @@ int FirebaseRequest::sendRequest(
   const std::string& host, const std::string& auth,
   char* method, const std::string& path, const std::string& data) {
   std::string path_with_auth = makeFirebaseURL(path, auth);
-  Serial << LOG0 << "FirebaseRequest::sendRequest(): path_with_auth= |" << path_with_auth.c_str() << "|" << endl;
+  Serial << LOG0 << "FirebaseRequest::sendRequest(): path_with_auth=" <<
+      endl << "|" << path_with_auth.c_str() << "|" << endl;
   //Serial << LOG0 << "FirebaseRequest::sendRequest(): Back from makeFirebaseURL()" << endl;
 
   http_->setReuseConnection(true);
