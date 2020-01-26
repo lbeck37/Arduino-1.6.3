@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseArduino_Stub.ino";
-const char szFileDate[]    = "1/23/20d";
+const char szFileDate[]    = "1/25/20c_release";
 
 #ifndef ESP8266
   #define ESP8266
@@ -11,7 +11,7 @@ const char szFileDate[]    = "1/23/20d";
 #include <FirebaseArduino.h>
 #include <ArduinoJson.h>
 #include <BeckLogLib.h>
-#include <Streaming.h>
+//#include <Streaming.h>
 
 #if DO_ACCESS_POINT
   #include <BeckAccessPointLib_Simple.h>
@@ -30,8 +30,20 @@ const char*     WiFi_Password       = "Qazqaz11";
 //#define FIREBASE_HOST 			"https://test-70884.firebaseio.com"
 //#define FIREBASE_AUTH 			"AIzaSyD-Nm1dYBV6ehphAOQgkM5sz4oYLKF9ahg"
 
+/*
+const firebaseConfig = {
+  apiKey: "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A",
+  authDomain: "fir-mariestep1.firebaseapp.com",
+  databaseURL: "https://fir-mariestep1.firebaseio.com",
+  projectId: "fir-mariestep1",
+  storageBucket: "fir-mariestep1.appspot.com",
+  messagingSenderId: "754022099819",
+  appId: "1:754022099819:web:50b456b2ed48aa27"
+};
+*/
 //#define FIREBASE_HOST "fir-mariestep1.appspot.com"
-//#define FIREBASE_HOST "fir-mariestep1.firebaseapp.com"
+//#define FIREBASE_HOST "fir-mariestep1.firebaseapp.com"        //Connection refused
+
 #define FIREBASE_HOST "fir-mariestep1.firebaseio.com"
 #define FIREBASE_AUTH "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A"
 
@@ -107,7 +119,7 @@ void loop() {
 		Serial << LOG0 << "loop(): Reading /Setpoint failed, error= |" << Firebase.error() << "|" << endl;
 		Serial << LOG0 << "loop(): Firebase.error()= |" << Firebase.error() << "|" << endl;
   }
-  Serial << LOG0 << "loop(): Delay 5 seconds" << endl;
+  Serial << LOG0 << "loop(): Delay 5 seconds" << endl << "******" << endl;
   delay(5000);
 
   // set value
