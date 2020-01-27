@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseArduino_Stub.ino";
-const char szFileDate[]    = "1/25/20c_release";
+const char szFileDate[]    = "1/26/20b_Debug";
 
 #ifndef ESP8266
   #define ESP8266
@@ -7,6 +7,7 @@ const char szFileDate[]    = "1/25/20c_release";
 
 #define DO_ACCESS_POINT       false
 
+#include "gdb.h"
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
 #include <ArduinoJson.h>
