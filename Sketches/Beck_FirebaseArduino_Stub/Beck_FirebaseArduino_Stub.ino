@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseArduino_Stub.ino";
-const char szFileDate[]    = "1/27/20j_Debug";
+const char szFileDate[]    = "1/28/20g_Debug";
 
 #ifndef ESP8266
   #define ESP8266
@@ -51,28 +51,12 @@ const firebaseConfig = {
 
 #define RAMFUNC     __attribute__((section(".entry.text")))
 
-bool        _bWiFiConnected;
+bool    _bWiFiConnected;
 
-/*
-void RAMFUNC setup() {
-    Serial.begin(115200);
-    #ifdef DEBUG
-        gdbstub_init();
-    #endif
-*/
+//Function protos
+void        HandleLoop();
 
-/*
-void setup(){
-  Serial.begin(115200);
-  delay(100);
-  Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
-*/
-/*
-  uart_div_modify(0, UART_CLK_FREQ / 115200);
-  Serial.begin(115200);
-  gdbstub_init();
- */
-void RAMFUNC setup() {
+void setup() {
   uart_div_modify(0, UART_CLK_FREQ / 115200);
   Serial.begin(115200);
   gdbstub_init();
@@ -111,27 +95,17 @@ void RAMFUNC setup() {
 } //setup
 
 
-/*
-void loop(){
-#if DO_ACCESS_POINT
-  if (_bWiFiConnected){
-    HandleSoftAPClient();       //Listen for HTTP requests from clients
-  } //if(_bWiFiConnected)
-  delay(250);
-#else
-  Serial << LOG0 << "loop(): Do nothing" << endl;
-  delay(5000);
-#endif  //DO_ACCESS_POINT
-  return;
-} //loop
-*/
-
-
 void RAMFUNC loop() {
-/*
+  HandleLoop();
+  delay(5000);
+  return;
+}   //loop
+
+
+void HandleLoop(){
   if (WiFi.status() != WL_CONNECTED) {
 	  Serial << LOG0 << "loop(): Do nothing because (WiFi.status() != WL_CONNECTED)" << endl;
-	  delay(5000);
+	  //delay(5000);
 	  return;
   }	//if(WiFi.status()!=WL_CONNECTED)
 
@@ -145,11 +119,10 @@ void RAMFUNC loop() {
 		Serial << LOG0 << "loop(): Reading /Setpoint failed, error= |" << Firebase.error() << "|" << endl;
 		Serial << LOG0 << "loop(): Firebase.error()= |" << Firebase.error() << "|" << endl;
   }
-  Serial << LOG0 << "loop(): Delay 5 seconds" << endl << "******" << endl;
-  delay(5000);
-*/
+  //Serial << LOG0 << "loop(): Delay 5 seconds" << endl << "******" << endl;
+  //delay(5000);
 
-/*
+
   // set value
   //Serial << LOG0 << "loop(): Set a value in the database" << endl;
   //Serial << LOG0 << "loop(): Call Firebase.setFloat(\"Setpoint\", 42.0)" << endl;
@@ -163,9 +136,9 @@ void RAMFUNC loop() {
   }
   Serial << LOG0 << "loop(): Delay 5 seconds" << endl;
   delay(5000);
-*/
 
-/*
+
+
   // update value
   Firebase.setFloat("Setpoint", 43.0);
   // handle error
@@ -213,7 +186,7 @@ void RAMFUNC loop() {
   Serial.print("pushed: /logs/");
   Serial.println(name);
   delay(1000);
-*/
+
   return;
-}	//loop
+}   //HandleLoop
 //Last line.
