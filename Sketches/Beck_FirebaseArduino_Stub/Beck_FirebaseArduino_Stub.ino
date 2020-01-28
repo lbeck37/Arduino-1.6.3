@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseArduino_Stub.ino";
-const char szFileDate[]    = "1/26/20b_Debug";
+const char szFileDate[]    = "1/27/20j_Debug";
 
 #ifndef ESP8266
   #define ESP8266
@@ -7,7 +7,8 @@ const char szFileDate[]    = "1/26/20b_Debug";
 
 #define DO_ACCESS_POINT       false
 
-#include "gdb.h"
+//#include "gdb.h"
+#include "GDBstub.h"
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
 #include <ArduinoJson.h>
@@ -48,13 +49,36 @@ const firebaseConfig = {
 #define FIREBASE_HOST "fir-mariestep1.firebaseio.com"
 #define FIREBASE_AUTH "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A"
 
+#define RAMFUNC     __attribute__((section(".entry.text")))
+
 bool        _bWiFiConnected;
 
+/*
+void RAMFUNC setup() {
+    Serial.begin(115200);
+    #ifdef DEBUG
+        gdbstub_init();
+    #endif
+*/
+
+/*
 void setup(){
   Serial.begin(115200);
   delay(100);
   Serial << endl << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
+*/
+/*
+  uart_div_modify(0, UART_CLK_FREQ / 115200);
+  Serial.begin(115200);
+  gdbstub_init();
+ */
+void RAMFUNC setup() {
+  uart_div_modify(0, UART_CLK_FREQ / 115200);
+  Serial.begin(115200);
+  gdbstub_init();
 
+  Serial << endl << endl;
+  Serial << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
   Serial << LOG0 << "Setup(): Connecting to WiFi" << endl;
   WiFi.begin(WiFi_SSID, WiFi_Password);
 
@@ -103,7 +127,8 @@ void loop(){
 */
 
 
-void loop() {
+void RAMFUNC loop() {
+/*
   if (WiFi.status() != WL_CONNECTED) {
 	  Serial << LOG0 << "loop(): Do nothing because (WiFi.status() != WL_CONNECTED)" << endl;
 	  delay(5000);
@@ -122,7 +147,9 @@ void loop() {
   }
   Serial << LOG0 << "loop(): Delay 5 seconds" << endl << "******" << endl;
   delay(5000);
+*/
 
+/*
   // set value
   //Serial << LOG0 << "loop(): Set a value in the database" << endl;
   //Serial << LOG0 << "loop(): Call Firebase.setFloat(\"Setpoint\", 42.0)" << endl;
@@ -136,6 +163,7 @@ void loop() {
   }
   Serial << LOG0 << "loop(): Delay 5 seconds" << endl;
   delay(5000);
+*/
 
 /*
   // update value
