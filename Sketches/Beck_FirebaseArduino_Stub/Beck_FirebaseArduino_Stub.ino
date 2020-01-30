@@ -1,19 +1,21 @@
 const char szSketchName[]  = "Beck_FirebaseArduino_Stub.ino";
-const char szFileDate[]    = "1/28/20g_Debug";
+const char szFileDate[]    = "1/29/20n_Sloeber 4.3.2A Debug";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
 #define DO_ACCESS_POINT       false
+#define DO_DEBUG              true
 
-//#include "gdb.h"
-#include "GDBstub.h"
+#if DO_DEBUG
+	#include "GDBstub.h"
+#endif
+
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
 #include <ArduinoJson.h>
 #include <BeckLogLib.h>
-//#include <Streaming.h>
 
 #if DO_ACCESS_POINT
   #include <BeckAccessPointLib_Simple.h>
@@ -49,17 +51,27 @@ const firebaseConfig = {
 #define FIREBASE_HOST "fir-mariestep1.firebaseio.com"
 #define FIREBASE_AUTH "AIzaSyBVOUnaaCjuoFWLsiyVi7ZSW_PsiHLam1A"
 
-#define RAMFUNC     __attribute__((section(".entry.text")))
+#if DO_DEBUG
+  #define RAMFUNC     __attribute__((section(".entry.text")))
+#else
+  #define RAMFUNC
+#endif
 
 bool    _bWiFiConnected;
 
 //Function protos
-void        HandleLoop();
+void 					setup				();
+void RAMFUNC 	loop				();
+void        	HandleLoop	();
 
 void setup() {
-  uart_div_modify(0, UART_CLK_FREQ / 115200);
+  uart_div_modify(0, UART_CLK_FREQ / 115200);		//UART_CLK_FREQ is 80x10^6. CPU freq
   Serial.begin(115200);
+  delay(100);
+
+#if DO_DEBUG
   gdbstub_init();
+#endif
 
   Serial << endl << endl;
   Serial << LOG0 << "setup(): Sketch: " << szSketchName << ", " << szFileDate << endl;
@@ -96,33 +108,31 @@ void setup() {
 
 
 void RAMFUNC loop() {
-  HandleLoop();
-  delay(5000);
-  return;
-}   //loop
+		HandleLoop();
+		delay(5000);
+		return;
+	}   //loop
 
 
 void HandleLoop(){
   if (WiFi.status() != WL_CONNECTED) {
 	  Serial << LOG0 << "loop(): Do nothing because (WiFi.status() != WL_CONNECTED)" << endl;
-	  //delay(5000);
 	  return;
   }	//if(WiFi.status()!=WL_CONNECTED)
 
   // get value
   Serial << LOG0 << "loop(): Read a value from the database" << endl;
   Serial << LOG0 << "loop(): Call Firebase.getFloat(\"Setpoint\")" << endl;
-  //Serial.println(Firebase.getFloat("Setpoint"));
   float fValue= Firebase.getFloat("Setpoint");
   Serial << LOG0 << "loop(): Call Firebase.getFloat() returned fValue= " << fValue << endl;
   if (Firebase.failed()) {
 		Serial << LOG0 << "loop(): Reading /Setpoint failed, error= |" << Firebase.error() << "|" << endl;
 		Serial << LOG0 << "loop(): Firebase.error()= |" << Firebase.error() << "|" << endl;
   }
-  //Serial << LOG0 << "loop(): Delay 5 seconds" << endl << "******" << endl;
-  //delay(5000);
 
 
+/*
+  delay(1000);
   // set value
   //Serial << LOG0 << "loop(): Set a value in the database" << endl;
   //Serial << LOG0 << "loop(): Call Firebase.setFloat(\"Setpoint\", 42.0)" << endl;
@@ -135,9 +145,7 @@ void HandleLoop(){
 		Serial << LOG0 << "loop(): Firebase.error()= |" << Firebase.error() << "|" << endl;
   }
   Serial << LOG0 << "loop(): Delay 5 seconds" << endl;
-  delay(5000);
-
-
+  delay(1000);
 
   // update value
   Firebase.setFloat("Setpoint", 43.0);
@@ -186,6 +194,7 @@ void HandleLoop(){
   Serial.print("pushed: /logs/");
   Serial.println(name);
   delay(1000);
+*/
 
   return;
 }   //HandleLoop
