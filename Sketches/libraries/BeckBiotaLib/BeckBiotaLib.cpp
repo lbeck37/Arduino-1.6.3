@@ -1,4 +1,4 @@
-// BeckBiotaLib.cpp 12/28/19bb
+// BeckBiotaLib.cpp 2/2/20a
 #include <BeckBiotaLib.h>
 #include <BeckSwitchLib.h>
 
@@ -28,7 +28,7 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "BiotaSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
-      _bThermoOn		= true;
+      _bThermoOn				= false;
       _fSetpointF       = 75.0;
       _fMinSetpoint     = 20.0;
       _fMaxSetpoint     = 99.0;

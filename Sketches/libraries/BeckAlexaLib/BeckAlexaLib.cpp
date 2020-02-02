@@ -1,4 +1,4 @@
-// BeckAlexaLib.cpp 12/28/19a
+// BeckAlexaLib.cpp 2/2/20a
 #include <BeckAlexaLib.h>
 #include <BeckBiotaLib.h>
 #include <BeckDisplayLib.h>
@@ -7,7 +7,8 @@
 #include <BeckThermoLib.h>
 #include <BeckAccessPointLib.h>
 
-#include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
+//#include <fauxmoESP.h>        //Alexa Phillips Hue light emulation
+#include <fauxmoESP.h>
 
 int            wAlexaHandleCount     = 0;      //Incremented each time HandleAlexa() called
 bool           bAlexaOn              = false;  //Only projects that use Alexa set this true.

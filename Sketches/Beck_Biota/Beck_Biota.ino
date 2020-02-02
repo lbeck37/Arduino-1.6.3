@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "1/16/20jj";
+const char szFileDate[]    = "2/2/20c";
 
 #ifndef ESP8266
   #define ESP8266
@@ -18,7 +18,7 @@ const char szFileDate[]    = "1/16/20jj";
 //#include <BeckWebPages.h>
 //#include <BeckWebServer.h>
 #if DO_WEB_SERVER
-	#include <BeckWebPages.h>
+	//#include <BeckWebPages.h>
 	#include <BeckWebServer.h>
 #endif
 #include <BeckWiFiLib.h>
