@@ -1,4 +1,4 @@
-// BeckBiotaLib.cpp 2/2/20a
+// BeckBiotaLib.cpp 2/2/20b
 #include <BeckBiotaLib.h>
 #include <BeckSwitchLib.h>
 
@@ -29,9 +29,9 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acAccessPointSSID , "BiotaSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
       _bThermoOn				= false;
-      _fSetpointF       = 75.0;
-      _fMinSetpoint     = 20.0;
-      _fMaxSetpoint     = 99.0;
+      _fSetpointF       = 67.0;
+      _fMinSetpoint     = 60.0;
+      _fMaxSetpoint     = 74.0;
       _fMaxHeatRangeF   = 0.10;
       _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
       LogToSerial("SetupSystem(): _bThermoOn set to ", _bThermoOn);
@@ -44,10 +44,10 @@ bool SetupSystem(ProjectType eProjectType){
       strcpy(_acRouterPW        , "Qazqaz11");
       strcpy(_acAccessPointSSID , "FireplaceSpot");
       strcpy(_acAccessPointPW   , "Qazqaz11");
-      _bThermoOn		= false;
-      _fSetpointF       = 71.0;
-      _fMinSetpoint     = 65.0;
-      _fMaxSetpoint     = 80.0;
+      _bThermoOn				= false;
+      _fSetpointF       = 67.0;
+      _fMinSetpoint     = 60.0;
+      _fMaxSetpoint     = 74.0;
       _fMaxHeatRangeF   = 0.10;
       _fThermoOffDegF   = _fSetpointF + _fMaxHeatRangeF;
       break;
