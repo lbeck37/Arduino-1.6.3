@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_FirebaseArduino_Stub.ino";
-const char szFileDate[]    = "1/29/20n_Sloeber 4.3.2A Debug";
+const char szFileDate[]    = "1/31/20a_Sloeber 4.3.2A Debug";
 
 #ifndef ESP8266
   #define ESP8266
@@ -60,9 +60,9 @@ const firebaseConfig = {
 bool    _bWiFiConnected;
 
 //Function protos
-void 					setup				();
-void RAMFUNC 	loop				();
-void        	HandleLoop	();
+void 		setup				();
+void  	loop				();
+void    HandleLoop	();
 
 void setup() {
   uart_div_modify(0, UART_CLK_FREQ / 115200);		//UART_CLK_FREQ is 80x10^6. CPU freq
