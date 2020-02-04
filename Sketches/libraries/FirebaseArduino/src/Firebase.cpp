@@ -1,4 +1,4 @@
-//Beck, 1/23/20a
+//
 // Copyright 2015 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
 // limitations under the License.
 //
 #include "Firebase.h"
-#include <BeckLogLib.h>
 
 using std::unique_ptr;
 using std::shared_ptr;
@@ -61,8 +60,7 @@ const JsonObject& FirebaseCall::json() {
   //TODO(edcoyne): This is not efficient, we should do something smarter with
   //the buffers. kotl: Is this still valid?
   if (buffer_.get() == NULL) {
-    buffer_.reset(new StaticJsonBuffer<FIREBASE_JSONBUFFER_SIZE>());        //JSON 5
-    //buffer_.reset(new StaticJsonDocument<FIREBASE_JSONBUFFER_SIZE>());    //JSON 6
+    buffer_.reset(new StaticJsonBuffer<FIREBASE_JSONBUFFER_SIZE>());
   }
   return buffer_.get()->parseObject(response().c_str());
 }
@@ -72,16 +70,11 @@ int FirebaseRequest::sendRequest(
   const std::string& host, const std::string& auth,
   char* method, const std::string& path, const std::string& data) {
   std::string path_with_auth = makeFirebaseURL(path, auth);
-  Serial << LOG0 << "FirebaseRequest::sendRequest(): path_with_auth=" <<
-      endl << "|" << path_with_auth.c_str() << "|" << endl;
-  //Serial << LOG0 << "FirebaseRequest::sendRequest(): Back from makeFirebaseURL()" << endl;
-
   http_->setReuseConnection(true);
   http_->begin(host, path_with_auth);
   int status = http_->sendRequest(method, data);
   analyzeError(method, status, path_with_auth);
   response_ = http_->getString();
-  return 1;
 }
 
 // FirebaseStream

@@ -1,5 +1,4 @@
-//Beck 1/24/20
-//FirebaseHttpClient_Esp8266.cpp
+
 #include "FirebaseHttpClient.h"
 
 #include <stdio.h>
@@ -8,7 +7,6 @@
 #include <WiFiClientSecure.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <BeckLogLib.h>
 
 // Detect whether stable version of HTTP library is installed instead of
 // master branch and patch in missing status and methods.
@@ -69,17 +67,9 @@ class FirebaseHttpClientEsp8266 : public FirebaseHttpClient {
     return http_.header(name.c_str()).c_str();
   }
 
-/*
   int sendRequest(const std::string& method, const std::string& data) override {
     return http_.sendRequest(method.c_str(), (uint8_t*)data.c_str(), data.length());
   }
-
-*/
-  int sendRequest(const std::string& method, const std::string& data) override {
-    Serial << LOG0 << "FirebaseHttpClient_Esp8266.cpp sendRequest(): data= |" << data.c_str() << "|" << endl;
-    return http_.sendRequest(method.c_str(), (uint8_t*)data.c_str(), data.length());
-  }
-
 
   std::string getString() override {
     return http_.getString().c_str();

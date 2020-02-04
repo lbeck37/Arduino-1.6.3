@@ -1,24 +1,27 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "2/2/20s";
+const char szFileDate[]    = "2/3/20f";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
-#define DO_ALEXA			  			true
+#define DO_ALEXA              false
 #define DO_NTP                false
-#define DO_ACCESS_POINT       true
-#define DO_WEB_SERVER       	true
+#define DO_ACCESS_POINT       false
+#define DO_WEB_SERVER         false
+#define DO_OTA                false
 //#define DO_ASYNC_WEB_SERVER   false
 
 #include <BeckBiotaLib.h>
 #include <BeckMiniLib.h>
-#include <BeckOTALib.h>
+//#include <BeckOTALib.h>
 #include <BeckSwitchLib.h>
+/*
 #if DO_WEB_SERVER
-	//#include <BeckWebPages.h>
-	#include <BeckWebServer.h>
+  #include <BeckWebPages.h>
+  #include <BeckWebServer.h>
 #endif
+*/
 #include <BeckWiFiLib.h>
 //#include <FirebaseArduino.h>
 #include <Streaming.h>
@@ -71,6 +74,11 @@ static        bool        bMPU9150_On;
 static        int              _wBadCount             = 0;
 static        int              _wGoodCount            = 0;
 
+#if !DO_OTA
+  bool            _bOTA_Started         = false;
+  unsigned long   _ulUpdateTimeoutMsec  = millis();
+#endif
+
 //Protos
 void HandleSystem();
 
@@ -83,7 +91,9 @@ void setup(){
   if(_bSystemOk){
     SetupWiFi();
     if (_bWiFiConnected){
+#if DO_OTA
       SetupOTAWebPages();
+#endif
       //SetupTermoWebPage();
 #if DO_WEB_SERVER
       StartWebServer(_acHostname);
@@ -91,9 +101,9 @@ void setup(){
       #if DO_ACCESS_POINT
         SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
       #endif  //DO_ACCESS_POINT
-	  #if DO_ALEXA
-		  SetupAlexa(_acAlexaName);
-	  #endif
+    #if DO_ALEXA
+      SetupAlexa(_acAlexaName);
+    #endif
     } //if(_bWiFiConnected)
 
 /*
@@ -194,7 +204,7 @@ void HandleSystem(){
         } //if (wAlexaHandleCount<1000)
 #endif
         //ulNextThermHandlerMsec= millis() + ulThermHandlerPeriodMsec;
-        HandleThermostat();		//BeckThermoLib.cpp
+        HandleThermostat();   //BeckThermoLib.cpp
         //HandleHeatSwitch();
         UpdateDisplay();
       } //if(millis()>=ulNextThermHandlerMsec)
@@ -253,7 +263,7 @@ void TestFirefox(){
     Serial << endl << LOG0 << "TestFirefox(): /DevBoard/DegF= " << fDegF << endl;
 
   } //if (millis()>=ulNextTestFirefoxMsec)
-	return;
-}	//TestFirefox
+  return;
+} //TestFirefox
 */
 //Last line.

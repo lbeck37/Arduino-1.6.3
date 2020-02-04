@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, 1/14/20a
+//BeckWiFiLib.cpp, 2/3/20a
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -8,7 +8,7 @@
 #include <ESP8266WebServer.h>
 #include "WiFiManager.h"          //https://github.com/tzapu/WiFiManager
 
-#define USE_WIFI_MANAGER		true
+#define USE_WIFI_MANAGER		false
 
 bool          _bWiFiConnected;
 

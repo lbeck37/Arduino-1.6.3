@@ -23,7 +23,6 @@
 #include "WString.h"
 #include <Arduino.h>
 #include <memory>
-//#include <ArduinoJson.h>
 #include <ArduinoJson.h>
 
 #include "FirebaseHttpClient.h"
@@ -85,7 +84,6 @@ class FirebaseCall {
   FirebaseError error_;
   std::string response_;
   std::shared_ptr<StaticJsonBuffer<FIREBASE_JSONBUFFER_SIZE>> buffer_;
-  //std::shared_ptr<StaticJsonDocument<FIREBASE_JSONBUFFER_SIZE>> buffer_;
 };
 
 class FirebaseRequest : public FirebaseCall {
