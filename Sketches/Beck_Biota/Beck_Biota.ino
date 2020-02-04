@@ -1,5 +1,5 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "2/3/20f";
+const char szFileDate[]    = "2/3/20g";
 
 #ifndef ESP8266
   #define ESP8266
@@ -57,10 +57,10 @@ const char szFileDate[]    = "2/3/20f";
 #define FIREBASE_AUTH   "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
 
 //static        ProjectType      eProjectType           = ePitchMeter;
-static        ProjectType      eProjectType            = eThermoDev;
+//static        ProjectType      eProjectType            = eThermoDev;
 //static        ProjectType      eProjectType            = eFireplace;
 //static        ProjectType      eProjectType            = eHeater;
-//static        ProjectType      eProjectType            = eGarage;
+static        ProjectType      eProjectType            = eGarage;
 
 static const  uint32_t    ulThermHandlerPeriodMsec    = 1 * lMsecPerSec; //mSec between running system handler
 static        uint32_t    ulNextThermHandlerMsec      = 0;
