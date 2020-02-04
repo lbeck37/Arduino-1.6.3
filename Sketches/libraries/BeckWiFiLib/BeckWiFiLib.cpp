@@ -1,4 +1,4 @@
-//BeckWiFiLib.cpp, 2/3/20a
+//BeckWiFiLib.cpp, 2/4/20b
 #include <BeckWiFiLib.h>
 #include <BeckLogLib.h>
 #include <BeckMiniLib.h>
@@ -32,7 +32,7 @@ void SetupWiFi(){
     Serial << LOG0 << "SetupWiFi(): bRunWiFiManager() returned false, WiFi failed to connect." << endl;
   } //if(!_bWiFiConnected)
 #else
-
+  Serial << LOG0 << "SetupWiFi(): Not using WiFi Manager" << endl;
   Serial << LOG0 << "SetupWiFi(): Call bSetupMulti()" << endl;
   _bWiFiConnected= bSetupMulti();
 

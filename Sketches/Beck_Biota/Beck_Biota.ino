@@ -1,20 +1,20 @@
 const char szSketchName[]  = "Beck_Biota.ino";
-const char szFileDate[]    = "2/3/20g";
+const char szFileDate[]    = "2/4/20n";
 
 #ifndef ESP8266
   #define ESP8266
 #endif
 
-#define DO_ALEXA              false
-#define DO_NTP                false
+#define DO_ALEXA              true
+#define DO_OTA                true
 #define DO_ACCESS_POINT       false
 #define DO_WEB_SERVER         false
-#define DO_OTA                false
+#define DO_NTP                false
 //#define DO_ASYNC_WEB_SERVER   false
 
 #include <BeckBiotaLib.h>
 #include <BeckMiniLib.h>
-//#include <BeckOTALib.h>
+#include <BeckOTALib.h>
 #include <BeckSwitchLib.h>
 /*
 #if DO_WEB_SERVER
@@ -57,10 +57,10 @@ const char szFileDate[]    = "2/3/20g";
 #define FIREBASE_AUTH   "AIzaSyAkFumb-wjDUQ9HQjTOoHeXqTKztFSqf6o"
 
 //static        ProjectType      eProjectType           = ePitchMeter;
-//static        ProjectType      eProjectType            = eThermoDev;
+static        ProjectType      eProjectType            = eThermoDev;
 //static        ProjectType      eProjectType            = eFireplace;
 //static        ProjectType      eProjectType            = eHeater;
-static        ProjectType      eProjectType            = eGarage;
+//static        ProjectType      eProjectType            = eGarage;
 
 static const  uint32_t    ulThermHandlerPeriodMsec    = 1 * lMsecPerSec; //mSec between running system handler
 static        uint32_t    ulNextThermHandlerMsec      = 0;
@@ -93,17 +93,28 @@ void setup(){
     if (_bWiFiConnected){
 #if DO_OTA
       SetupOTAWebPages();
+#else
+      Serial << LOG0 << "setup(): OTA is not enabled" << endl;
 #endif
       //SetupTermoWebPage();
+
 #if DO_WEB_SERVER
       StartWebServer(_acHostname);
+#else
+      Serial << LOG0 << "setup(): Web Server is not enabled" << endl;
 #endif
-      #if DO_ACCESS_POINT
-        SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
-      #endif  //DO_ACCESS_POINT
-    #if DO_ALEXA
+
+#if DO_ACCESS_POINT
+      SetupAccessPt(_acAccessPointSSID, _acAccessPointPW);
+#else
+      Serial << LOG0 << "setup(): Access Point is not enabled" << endl;
+#endif  //DO_ACCESS_POINT
+
+#if DO_ALEXA
       SetupAlexa(_acAlexaName);
-    #endif
+#else
+      Serial << LOG0 << "setup(): Alexa is not enabled" << endl;
+#endif
     } //if(_bWiFiConnected)
 
 /*
@@ -115,11 +126,13 @@ void setup(){
     if(eProjectType == ePitchMeter){
       bMPU9150_On= SetupMPU9150(szSketchName, szFileDate, ulMPU9150HandlerPeriodMsec);
     } //if(eProjectType==ePitchMeter)
-    #if DO_NTP
-      if (_bWiFiConnected){
-        SetupNTP();
-      } //if(_bWiFiConnected)
-    #endif
+#if DO_NTP
+		if (_bWiFiConnected){
+			SetupNTP();
+		} //if(_bWiFiConnected)
+#else
+      Serial << LOG0 << "NTP is not enabled" << endl;
+#endif
     SetupDisplay(_eProjectType);
     ClearDisplay();
     SetupSwitches();
