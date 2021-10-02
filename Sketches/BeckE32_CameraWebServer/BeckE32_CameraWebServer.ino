@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_CameraWebServer.ino";
-const char szFileDate[]    = "10/1/21c";
+const char szFileDate[]    = "10/1/21e";
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <Streaming.h>
@@ -18,7 +18,9 @@ const char szFileDate[]    = "10/1/21c";
 //#define CAMERA_MODEL_M5STACK_WIDE // Has PSRAM
 //#define CAMERA_MODEL_M5STACK_ESP32CAM // No PSRAM
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
-//#elif defined(CAMERA_MODEL_AI_THINKER)    //Copied from camera_pins.h
+//#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
+
+//#elif defined(CAMERA_MODEL_AI_THINKER)
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
 #define XCLK_GPIO_NUM      0
@@ -37,9 +39,7 @@ const char szFileDate[]    = "10/1/21c";
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-//#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
-
-#include "camera_pins.h"
+//#include "camera_pins.h"
 
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
