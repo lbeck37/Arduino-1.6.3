@@ -1,4 +1,4 @@
-//BeckOTALib.cpp, 10/7/21a
+//BeckOTALib.cpp, 10/7/21b
 #include <BeckOTALib.h>
 #include "BeckOTALibHTML.h"
 #include <BeckMiniLib.h>
@@ -8,6 +8,7 @@
   #include "ESP8266WiFi.h"
 #else
   #include <WiFi.h>
+  #include <Update.h>
 #endif
 
 //These are set and used from Beck_Biota.ino

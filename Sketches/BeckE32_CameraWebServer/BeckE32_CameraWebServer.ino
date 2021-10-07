@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_CameraWebServer.ino";
-const char szFileDate[]    = "10/7/21a";
+const char szFileDate[]    = "10/7/21b";
 
 #define DO_OTA		true
 
@@ -55,7 +55,7 @@ const char szFileDate[]    = "10/7/21a";
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
 
-#if true
+#if false
   bool            _bOTA_Started         = false;
   unsigned long   _ulUpdateTimeoutMsec  = millis();
 #endif
