@@ -1,6 +1,10 @@
-//BeckMiniLib.h, 3/3/19a
+//BeckMiniLib.h, 10/7/21a
 #pragma once
-#include <BeckLogLib.h>
+//#include <BeckLogLib.h>
+#ifndef LOG0
+  #define LOG0  "  "
+#endif
+
 #include <Streaming.h>
 
 #define INT8        int8_t

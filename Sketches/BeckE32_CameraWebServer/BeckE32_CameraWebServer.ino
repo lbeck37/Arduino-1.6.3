@@ -1,8 +1,19 @@
 const char szSketchName[]  = "BeckE32_CameraWebServer.ino";
 const char szFileDate[]    = "10/7/21a";
+
+#define DO_OTA		true
+
+#if DO_OTA
+	#include <BeckOTALib.h>
+#endif
 #include "esp_camera.h"
-#include <WiFi.h>
+#ifdef ESP8266
+  #include "ESP8266WiFi.h"
+#else
+  #include <WiFi.h>
+#endif
 #include <Streaming.h>
+
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -43,6 +54,11 @@ const char szFileDate[]    = "10/7/21a";
 
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
+
+#if true
+  bool            _bOTA_Started         = false;
+  unsigned long   _ulUpdateTimeoutMsec  = millis();
+#endif
 
 void startCameraServer();
 
@@ -121,6 +137,13 @@ void setup() {
   }
   Serial.println("");
   Serial.println("WiFi connected");
+
+#if DO_OTA
+      SetupOTAWebPages();
+#else
+      //Serial << LOG0 << "setup(): OTA is not enabled" << endl;
+      Serial << "setup(): OTA is not enabled" << endl;
+#endif
 
   startCameraServer();
 

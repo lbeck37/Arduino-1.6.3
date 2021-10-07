@@ -1,9 +1,14 @@
-//BeckOTALib.cpp, 1/11/20a
+//BeckOTALib.cpp, 10/7/21a
 #include <BeckOTALib.h>
 #include "BeckOTALibHTML.h"
 #include <BeckMiniLib.h>
 #include <BeckWebServer.h>
-#include "ESP8266WiFi.h"
+//#include "ESP8266WiFi.h"
+#ifdef ESP8266
+  #include "ESP8266WiFi.h"
+#else
+  #include <WiFi.h>
+#endif
 
 //These are set and used from Beck_Biota.ino
 unsigned long       _ulUpdateTimeoutMsec   = 0;

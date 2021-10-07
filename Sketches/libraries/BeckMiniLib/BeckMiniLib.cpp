@@ -1,6 +1,6 @@
 //BeckMiniLib.cpp, Beck 2/17/19a
 #include <BeckMiniLib.h>
-#include <BeckLogLib.h>
+//#include <BeckLogLib.h>
 
 const long    lMsecPerSec         = 1000;
 const long    lMsecPerMin         = 60 * lMsecPerSec;
@@ -10,6 +10,7 @@ const long    lSerialMonitorBaud  = 115200;
 
 //Digital Pins
 #ifdef ESP32
+
   //BlynkBeck uses pins 4, 5, 15, 16
   //static const int       sSelectButton;
   //static const int       sBacklightPin;

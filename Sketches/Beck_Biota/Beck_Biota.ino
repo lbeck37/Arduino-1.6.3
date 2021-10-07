@@ -179,12 +179,13 @@ void loop(){
     CheckTaskTime("loop(): HandleSystem()");
   } //if(!_bOTA_Started)
   else{
-    Serial << LOG0 << "loop(): Check for update timeout" << endl;
-    if (millis() > _ulUpdateTimeoutMsec) {
-      _bOTA_Started = false;
-      Serial << LOG0 << "loop(): Set bUpdating to " << _bOTA_Started << endl;
-    } //if(millis()>ulUpdateTimeoutMsec)
+	  //There is nothing here, is that correct?
   } //if(!_bOTA_Started)else
+  Serial << LOG0 << "loop(): Check for update timeout" << endl;
+  if (millis() > _ulUpdateTimeoutMsec) {
+    _bOTA_Started = false;
+    Serial << LOG0 << "loop(): Set bUpdating to " << _bOTA_Started << endl;
+  } //if(millis()>ulUpdateTimeoutMsec)
   return;
 } //loop
 
