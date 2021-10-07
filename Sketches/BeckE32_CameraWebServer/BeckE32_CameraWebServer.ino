@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_CameraWebServer.ino";
-const char szFileDate[]    = "10/1/21e";
+const char szFileDate[]    = "10/7/21a";
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <Streaming.h>
