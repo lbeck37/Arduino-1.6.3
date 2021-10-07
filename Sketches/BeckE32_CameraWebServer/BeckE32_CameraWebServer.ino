@@ -1,5 +1,5 @@
 const char szSketchName[]  = "BeckE32_CameraWebServer.ino";
-const char szFileDate[]    = "10/1/21c";
+const char szFileDate[]    = "10/1/21d";
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <Streaming.h>
@@ -39,7 +39,7 @@ const char szFileDate[]    = "10/1/21c";
 
 //#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
 
-#include "camera_pins.h"
+//#include "camera_pins.h"
 
 const char* ssid = "Aspot24";
 const char* password = "Qazqaz11";
@@ -73,7 +73,7 @@ void setup() {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
-  
+
   // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
   //                      for larger pre-allocated frame buffer.
   if(psramFound()){
